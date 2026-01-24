@@ -70,4 +70,5 @@ export interface Skill<
   damageType: DamageType;
   targetType: TargetType;
   resource: Resource;
+  channelTime?: number;
 }
