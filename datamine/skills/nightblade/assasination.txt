@@ -1,0 +1,93 @@
+Ultimate abilities
+Death Stroke icon
+Death Stroke
+Ravage an enemy with a swift strike, dealing 3716 Magic Damage and causing them to take 20% more damage from your attacks for 8 seconds.
+arrow
+Incapacitating Strike icon
+Incapacitating Strike
+Ravage an enemy with a swift strike, dealing 3840 Disease Damage and causing them to take 20% more damage from your attacks for 8 seconds. If cast with 120 or more Ultimate, you instead deal 4223 Disease Damage, stun the enemy for 3 seconds, and increase the duration of the damage taken effect to 12 seconds.
+Deals Disease Damage. Improves the ability significantly if cast with more Ultimate.
+arrow
+Soul Harvest icon
+Soul Harvest
+Ravage an enemy with a spinning attack, dealing 3718 Magic Damage and increasing your damage against them by 20% for 8 seconds. Also afflicts the enemy with Major Defile, reducing their healing received and damage shield strength by 12%. While slotted on either bar, any time you kill an enemy you gain 10 Ultimate.
+Also afflicts the enemy with Major Defile. While slotted on either bar, gain Ultimate whenever you kill an enemy.
+Active abilities
+Veiled Strike icon
+Veiled Strike
+Slash an enemy, dealing 2323 Magic Damage. If you strike an enemy from their flank you set them Off Balance.
+arrow
+Concealed Weapon icon
+Concealed Weapon
+Slash an enemy, dealing 2556 Magic Damage. If you strike an enemy from their flank you set them Off Balance. When you leave Sneak or invisibility while in combat, increase your damage done with this ability by 10% for 15 seconds. While slotted on either bar, you gain Minor Expedition, increasing your Movement Speed by 15%.
+Deals increased damage, which furthers when leaving Sneak or invisibility. While slotted you gain Minor Expedition.
+arrow
+Surprise Attack icon
+Surprise Attack
+Slash an enemy, dealing 2399 Physical Damage and applying the Sundered status effect. If you strike an enemy from their flank you set them Off Balance. This attack will also be guaranteed to be a Critical Strike, up to once every 3 seconds.
+Converts to a Stamina ability and deals Physical Damage. Always applies the Sundered status effect and deals guaranteed critical damage when flanking an enemy.
+Teleport Strike icon
+Teleport Strike
+Flash through the shadows and ambush an enemy, dealing 1602 Magic Damage and afflicting them with Minor Vulnerability for 10 seconds, increasing their damage taken by 5%.
+arrow
+Ambush icon
+Ambush
+Flash through the shadows and ambush an enemy, dealing 1655 Physical Damage and afflicting them with Minor Vulnerability for 10 seconds, increasing their damage taken by 5%. Also grants you Empower and Minor Berserk for 10 seconds, increasing the damage of your Heavy Attacks against monsters by 70% and your damage done by 5%.
+Converts to a Stamina ability and deals Physical Damage. Also grants you Empower and Minor Berserk.
+arrow
+Lotus Fan icon
+Lotus Fan
+Flash through the shadows and ambush an enemy while unleashing a fan of knives, dealing 1603 Magic Damage to them and enemies around you. All enemies hit take an additional 2050 Magic Damage over 5 seconds and are afflicted with Minor Vulnerability for 10 seconds, increasing their damage taken by 5%.
+Now deals damage in an area around you, and deals additional damage over time to enemies hit.
+Assassin's Blade icon
+Assassin's Blade
+Thrust a magic blade with lethal precision to stab an enemy, dealing 1161 Magic Damage. Deals 300% more damage to enemies below 25% Health.
+arrow
+Impale icon
+Impale
+Throw a magic blade with lethal precision to strike an enemy, dealing 1161 Magic Damage. Deals 330% more damage to enemies below 25% Health.
+Allows you to use the ability at range and increases the execute multiplier.
+arrow
+Killer's Blade icon
+Killer's Blade
+Thrust a caustic blade with lethal precision to stab an enemy, dealing 1161 Disease Damage. Deals up to 400% more damage to enemies with less than 50% Health. Heals you for 2399 if the enemy dies within 2 seconds of being struck.
+Converts into a Stamina ability, deals Disease Damage, and now scales linearly based on missing Health rather than a flat value. Also heals you if the target dies within two seconds of use.
+Mark Target icon
+Mark Target
+Expose an enemy's weaknesses to afflict them with Major Breach, reducing their Physical Resistance and Spell Resistance by 5948 for 20 seconds. When a marked enemy dies, you heal to full Health. You can only have one Mark Target active at a time.
+arrow
+Piercing Mark icon
+Piercing Mark
+Expose an enemy's weaknesses to afflict them with Major Breach, reducing their Physical Resistance and Spell Resistance by 5948 for 1 minute. You can detect marked enemies even if they use stealth or invisibility for 3 seconds. When a marked enemy dies, you heal to full Health. You can only have one Piercing Mark active at a time.
+Ability has an increased duration, and you can see the target if they use stealth or invisibility.
+arrow
+Reaper's Mark icon
+Reaper's Mark
+Expose an enemy's weaknesses to afflict them with Major Breach, reducing their Physical Resistance and Spell Resistance by 5948 for 20 seconds. When a marked enemy dies, you heal to full Health and gain Major Berserk, increasing your damage done by 10% for 10 seconds. You can only have one Reaper's Mark active at a time.
+If the marked enemy dies, you gain Major Berserk, increasing your damage done.
+Grim Focus icon
+Grim Focus
+When slotted on either bar, you gain Major Prophecy and Major Savagery, increasing your Spell and Weapon Critical rating by 2629. Your Light and Heavy Attacks now generate a stack of Grim Focus, up to 10 times. Fully-charged Heavy Attacks grant two stacks. When at 5 or more stacks, you can consume 5 to fire a spectral arrow to deal 4182 Magic Damage and heal for 33% of the damage dealt, if you are in melee range.
+arrow
+Merciless Resolve icon
+Merciless Resolve
+When slotted on either bar, you gain Major Prophecy and Major Savagery, increasing your Spell and Weapon Critical rating by 2629. Your Light and Heavy Attacks now generate a stack of Merciless Resolve, up to 10 times. Fully-charged Heavy Attacks grant two stacks. When at 5 or more stacks, you can consume 5 to fire a spectral arrow to deal 4752 Magic Damage and heal for 50% of the damage dealt, if you are in melee range.
+Increases the damage and healing of the spectral arrow.
+arrow
+Relentless Focus icon
+Relentless Focus
+When slotted on either bar, you gain Major Prophecy and Major Savagery, increasing your Spell and Weapon Critical rating by 2629. Your Light and Heavy Attacks now generate a stack of Relentless Focus, up to 10 times. Fully-charged Heavy Attacks grant two stacks. When at 4 or more stacks, you can consume 4 to fire a spectral arrow to deal 4183 Disease Damage and heal for 33% of the damage dealt, if you are in melee range.
+Converts into a Stamina ability and deals Disease Damage. Reduces the cost and the amount of stacks needed.
+Passive abilities
+Master Assassin icon
+Master Assassin
+Increases your Critical Chance rating against enemies you are flanking by 1448, increasing your chance to critically strike by |6.6%.
+Executioner icon
+Executioner
+When an enemy dies within 2 seconds of being damaged by you, you restore 1000 Magicka and Stamina.
+Pressure Points icon
+Pressure Points
+Increases your Critical Chance rating by 548 for each Assassination ability slotted, increasing your chance to critically strike by 2.5% per ability.
+Hemorrhage icon
+Hemorrhage
+WITH AN ASSASSINATION ABILITY SLOTTED Increases your Critical Damage by 10%. Dealing Critical Damage grants you and your group Minor Savagery, increasing your Weapon Critical rating by 1314 for 20 seconds.

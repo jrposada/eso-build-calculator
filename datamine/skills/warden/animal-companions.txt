@@ -1,0 +1,93 @@
+Ultimate abilities
+Feral Guardian icon
+Feral Guardian
+Rouse a grizzly to fight by your side. The grizzly swipes at an enemy, dealing 580 Magic Damage, and sometimes swipes all enemies in front of it, dealing 2323 Magic Damage and stunning them for 2 seconds. Once summoned you can activate Guardian's Wrath for 75 Ultimate, causing the grizzly to maul an enemy for 3253 Magic Damage. Deals 100% more damage to enemies below 25% Health.
+arrow
+Eternal Guardian icon
+Eternal Guardian
+Rouse a grizzly to fight by your side. The grizzly swipes an enemy, dealing 599 Magic Damage, and sometimes swipes all enemies in front of it, dealing 2399 Magic Damage and stunning them for 2 seconds. Once summoned you can activate Guardian's Wrath for 75 Ultimate, causing the grizzly to maul an enemy for 3360 Magic Damage. Deals 150% more damage to enemies below 25% Health. The grizzly respawns when killed, once per minute.
+The grizzly instantly respawns when it dies. Increases the amount of bonus damage dealt to low Health targets.
+arrow
+Wild Guardian icon
+Wild Guardian
+Rouse a grizzly to fight by your side. The grizzly swipes at an enemy, dealing 659 Bleed Damage, and sometimes swipes all enemies in front of it, dealing 2640 Bleed Damage and stunning them for 2 seconds. Once summoned you can activate Guardian's Savagery for 75 Ultimate, to maul an enemy for 3697 Bleed Damage. Deals 100% more damage to enemies below 25% Health. The damage has a higher chance to apply the Hemorrhaging status effect.
+The bear now deals Bleed Damage, and has a quintuple chance of applying the Hemorrhaging status effect.
+Active abilities
+Dive icon
+Dive
+Command a cliff racer to dive bomb an enemy, dealing 2090 Magic Damage. If you are more than 7 meters away from the target, you set them Off Balance for 7 seconds.
+arrow
+Cutting Dive icon
+Cutting Dive
+Command a cliff racer to dive bomb an enemy, dealing 2091 Bleed Damage immediately and then causing them to bleed for 2140 Bleed Damage over 10 seconds. If you are more than 7 meters away from the target, you set them Off Balance for 7 seconds.
+Converts into a Stamina ability and deals Bleed Damage, and applies a damage over time to enemies hit.
+arrow
+Screaming Cliff Racer icon
+Screaming Cliff Racer
+Command a cliff racer to dive bomb an enemy, dealing 2160 Magic Damage. If you are more than 7 meters away from the target, you set them Off Balance for 7 seconds. After dealing damage you increase your Weapon and Spell Damage by 100 for 10 seconds, which quadruples after damaging Off Balance enemies.
+Increases your Weapon and Spell Damage after dealing damage, which increases when hitting Off Balance targets.
+Scorch icon
+Scorch
+Stir a group of shalk that attack after 3 seconds, dealing 2509 Magic Damage to enemies in front of you. After the shalk complete their attack, they burrow underground for 6 seconds and then resurface again, dealing 3486 Magic Damage to enemies in front of you.
+arrow
+Deep Fissure icon
+Deep Fissure
+Stir a group of shalk that attack after 3 seconds, dealing 2591 Magic Damage to enemies in front of you. After the shalk complete their attack, they burrow underground for 6 seconds and then resurface again, dealing 3600 Magic Damage to enemies in front of you. Enemies damaged are afflicted with Major and Minor Breach, reducing their Physical and Spell Resistance by 5948 and 2974 for 10 seconds.
+Applies Major and Minor Breach to enemies hit, reducing their Physical and Spell Resistance.
+arrow
+Subterranean Assault icon
+Subterranean Assault
+Stir a group of shalk that attack after 3 seconds, dealing 2591 Poison Damage to enemies in front of you. After the shalk complete their attack, they burrow underground for 3 seconds and then resurface again, dealing 2591 Poison Damage to enemies in front of you.
+Converts to a Stamina ability and deals Poison Damage. Reduces the cost and time it takes for the ability to deal damage, but the second hit no longer deals increased damage.
+Swarm icon
+Swarm
+Unleash a swarm of fetcherflies to relentlessly attack an enemy, dealing 4631 Magic Damage over 20 seconds. The fetcherflies rip through the enemy's flesh, afflicting them with Minor Vulnerability for the duration, increasing their damage taken by 5%.
+arrow
+Fetcher Infection icon
+Fetcher Infection
+Unleash a swarm of fetcherflies to relentlessly attack an enemy, dealing 4785 Magic Damage over 20 seconds. Every second cast of this ability deals 60% increased damage. The fetcherflies rip through the enemy's flesh, afflicting them with Minor Vulnerability for the duration, increasing their damage taken by 5%.
+Every second cast deals increased damage.
+arrow
+Growing Swarm icon
+Growing Swarm
+Unleash a swarm of fetcherflies to relentlessly attack an enemy, causing them to bleed for 4785 Bleed Damage over 20 seconds. The fetcherflies rip through the original enemy's flesh, afflicting them with Minor Vulnerability for the duration, increasing their damage taken by 5%. Enemies near the carrier take 435 Bleed Damage every 2 seconds for the duration. You can only have one Growing Swarm active at a time.
+Converts into a Stamina ability and deals Bleed Damage. Deals additional damage to nearby enemies of the affected target, but limits the cast to one at a time.
+Betty Netch icon
+Betty Netch
+Call a betty netch to your side, which grants you Major Brutality and Sorcery, increasing your Weapon and Spell Damage by 20% for 22 seconds. Every 5 seconds, the netch removes 1 negative effect from you. If no negative effects are removed you instead increase your damage done by 5% for 5 seconds.
+arrow
+Blue Betty icon
+Blue Betty
+Call a betty netch to your side, which restores 4416 Magicka to you over 25 seconds and grants you Major Brutality and Sorcery, increasing your Weapon and Spell Damage by 20%. Every 5 seconds, the netch removes 1 negative effect from you. If no negative effects are removed you instead increase your damage done by 5% for 5 seconds.
+Restores Magicka every second while active.
+arrow
+Bull Netch icon
+Bull Netch
+Call a bull netch to your side, which restores 4416 Stamina to you over 25 seconds and grants you Major Brutality and Sorcery, increasing your Weapon and Spell Damage by 20%. Every 5 seconds, the netch removes 1 negative effect from you. If no negative effects are removed you instead increase your damage done by 5% for 5 seconds
+Restores Stamina every second while active.
+Falcon's Swiftness icon
+Falcon's Swiftness
+Invoke the spirit of agility to gain Major Expedition for 6 seconds, increasing your Movement Speed by 30%. Gain immunity to snares and immobilizations for 4 seconds.
+arrow
+Bird of Prey icon
+Bird of Prey
+Invoke the spirit of agility to gain Major Expedition for 6 seconds, increasing your Movement Speed by 30%. Gain immunity to snares and immobilizations for 4 seconds. While slotted you gain Minor Berserk, increasing your damage done by 5%.
+Passively grants Minor Berserk while slotted.
+arrow
+Deceptive Predator icon
+Deceptive Predator
+Invoke the spirit of agility to gain Major Expedition for 6 seconds, increasing your Movement Speed by 30%. Gain immunity to snares and immobilizations for 4 seconds. While slotted you gain Minor Evasion, reducing damage from area attacks by 10%.
+Passively grants Minor Evasion while slotted.
+Passive abilities
+Bond with Nature icon
+Bond with Nature
+Anytime one of your Animal Companion skills end, you are healed for 1530 Health.
+Savage Beast icon
+Savage Beast
+Casting an Animal Companions ability while are in combat generates 4 Ultimate. This effect can occur once every 8 seconds.
+Flourish icon
+Flourish
+WITH AN ANIMAL COMPANION ABILITY SLOTTED Increases your Magicka and Stamina recovery by 20%.
+Advanced Species icon
+Advanced Species
+Increases your Critical Damage by 5% for each Animal Companion ability slotted.

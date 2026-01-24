@@ -1,0 +1,93 @@
+Ultimate abilities
+Vitalizing Glyphic icon
+Vitalizing Glyphic
+Summon an Apocryphal glyphic, which you and your allies can heal. The glyphic spawns at 30% Health and grows stronger the more you heal it. The power within the glyphic grants up to 200 Weapon and Spell Damage and heals you and your allies around it for up to 927 Health every 1 second in proportion to its Health.
+arrow
+Glyphic of the Tides icon
+Glyphic of the Tides
+Summon an Apocryphal glyphic, which you and your allies can heal. The glyphic spawns at 53% Health and grows stronger the more you heal it. The power within the glyphic grants up to 200 Weapon and Spell Damage and heals you and your allies around it for up to 928 Health every 1 second in proportion to its Health. At full Health the glyphic grants Major Protection, reducing damage taken by 10%.
+The glyphic spawns at a higher Health percentage and grants additional damage reduction when it is fully powered.
+arrow
+Resonating Glyphic icon
+Resonating Glyphic
+Summon an Apocryphal glyphic while in combat, which you and your allies can damage. The glyphic spawns at 70% Health and grows stronger the more you damage it. The glyphic grants up to 200 Weapon and Spell Damage and heals you and your allies around it for up to 958 Health every 1 second in proportion to its Health.
+Dealing damage to the glyphic powers it up instead of healing it, but requires you to be in combat to activate.
+Active abilities
+Runemend icon
+Runemend
+Craft a series of precise Apocryphal runes, then propel them at yourself or an ally in front of you. The runes heal for 1161 Health three times and generate Crux. Each active Crux reduces the cost of this ability by 3%.
+arrow
+Audacious Runemend icon
+Audacious Runemend
+Craft a series of virtuous Apocryphal runes, then propel them at yourself or an ally in front of you. The runes heal for 1199 Health three times and generate Crux. Healing a target under 50% Health grants them Minor Heroism for 6 seconds, generating 1 Ultimate every 1.5 seconds. Each active Crux reduces the cost of this ability by 3%.
+Healing low Health targets grants them Ultimate.
+arrow
+Evolving Runemend icon
+Evolving Runemend
+Craft a series of adaptive Apocryphal runes, then propel them at yourself or an ally in front of you. The runes heal for 1161 Health three times, an additional 1302 Health over 6 seconds, and generate Crux. Each active Crux reduces the cost of this ability by 3%.
+Heals for an additional amount over time.
+Remedy Cascade icon
+Remedy Cascade
+Channel the abyssal sea to coalesce a beam of restorative energy. The beam heals you and your allies in its path for 11310 Health over 4.5 seconds. Consume Crux to also restore 728 Magicka and Stamina per Crux spent to your allies over 4.5 seconds.
+arrow
+Cascading Fortune icon
+Cascading Fortune
+Channel the abyssal sea to coalesce a beam that heals you and your allies in its path for 11674 Health over 4.5 seconds. The beam heals for up to 50% more in proportion to the severity of the target's wounds as you reweave fate itself. Consume Crux to also restore 728 Magicka and Stamina per Crux spent to your allies over 4.5 seconds.
+Heals for more on low Health targets.
+arrow
+Curative Surge icon
+Curative Surge
+Channel the abyssal sea to coalesce a beam that heals you and your allies in its path for 11674 Health over 4.5 seconds. The beam gradually grows stronger the longer you channel it, healing for up to 192% more at the end of its duration. Consume Crux to also restore 728 Magicka and Stamina per Crux spent to your allies over 4.5 seconds.
+The beam gradually heals for more the longer you channel it.
+Chakram Shields icon
+Chakram Shields
+Carve the runes of the Blind Man to call forth spinning mystical discs. Discs surround you or up to 4 allies in front of you, granting a shield that absorbs 3159 damage for 6 seconds. Discs prefer your reticle target, or low-Health targets without shields.
+arrow
+Chakram of Destiny icon
+Chakram of Destiny
+Carve the Fate Crone's runes to create spinning mystical discs and generate Crux. Discs surround you or up to 4 allies in front of you, granting a shield that absorbs 3160 damage for 6 seconds. Recasting on a target already shielded grants a new shield that is 30% stronger. Discs prefer your reticle target, or low-Health targets without shields.
+Creates a Crux. Recasting the shield on a target increases the maximum strength of the shield.
+arrow
+Tidal Chakram icon
+Tidal Chakram
+Carve the Baron of Breakers' runes to create spinning discs. Discs surround you or up to 4 allies in front of you, granting a shield that absorbs 3264 damage for 6 seconds. Consume Crux to cause the shields to heal for 33% of the shield's remaining strength every 1 second per Crux spent. Discs prefer your reticle target, or low-Health targets without shields.
+Consumes Crux to heal based on the shield's strength every second it persists.
+Arcanist's Domain icon
+Arcanist's Domain
+Draw forth your tome and invoke the vigoratum of Hermaeus Mora to conjure a vortex of eldritch power. Entering this vortex grants you and your allies Minor Courage, Minor Fortitude, Minor Intellect, and Minor Endurance, increasing your Weapon and Spell Damage by 215 and your Health, Magicka, and Stamina Recovery by 15%.
+arrow
+Reconstructive Domain icon
+Reconstructive Domain
+Draw forth your tome and invoke the leviathanum of the Abyssal Sea to conjure a vortex of eldritch power. Entering this vortex grants you and your allies Minor Courage, Minor Fortitude, Minor Intellect, and Minor Endurance, increasing your Weapon and Spell Damage by 215 and your Health, Magicka, and Stamina Recovery by 15%. The vortex also heals you and your allies for 4631 Health over 20 seconds.
+Heals you and your allies in the area over time.
+arrow
+Zenas' Empowering Disc icon
+Zenas' Empowering Disc
+Draw forth your tome and invoke the enigmatum of Morian Zenas to conjure a vortex of eldritch power. Entering this vortex grants you and your allies Minor Courage, Minor Fortitude, Minor Intellect, and Minor Endurance, increasing your Weapon and Spell Damage by 215 and your Health, Magicka, and Stamina Recovery by 15%. These effects cling to you and your allies for up to 10 seconds after leaving the vortex.
+The effects remain on you and your allies for a short duration after leaving the area.
+Apocryphal Gate icon
+Apocryphal Gate
+Breach the world walls to create a portal at a target location. Its twin appears directly before you. Crossing the threshold allows you to teleport from one to the other for as long as the portals remain open. Apocryphal Gate generates Crux each time you teleport.
+arrow
+Fleet-Footed Gate icon
+Fleet-Footed Gate
+Breach the world walls to create a portal at a target location. Its twin appears directly before you. Crossing the threshold allows you to teleport from one to the other for as long as the portals remain open. After teleporting, you gain Major Expedition for 5 seconds, increasing your Movement Speed by 30%. Fleet-Footed Gate generates Crux each time you teleport.
+Increases your Movement Speed after teleporting.
+arrow
+Passage Between Worlds icon
+Passage Between Worlds
+Breach the world walls to create a portal at a target location. Its twin appears directly before you. Crossing the threshold allows you to teleport from one to the other for as long as the portals remain open. Allies standing within either portal can activate the Passage synergy, allowing them to teleport to the opposite portal. Passage Between Worlds generates Crux each time you teleport.
+Grants a synergy to allies allowing them to teleport from one portal to the other.
+Passive abilities
+Healing Tides icon
+Healing Tides
+Your mastery of weaving fate and abyssal water increases your healing done by 4% for each active Crux.
+Hideous Clarity icon
+Hideous Clarity
+You've stared too long into the abyss. When you generate Crux, you restore 225 Magicka and Stamina.
+Erudition icon
+Erudition
+Knowledge is power. Your excessive scholarship increases your Magicka and Stamina Recovery by 18%.
+Intricate Runeforms icon
+Intricate Runeforms
+With a Curative Runeforms Ability Slotted Your status as illuminatus reduces the cost and increases the strength of your damage shields by 10%.

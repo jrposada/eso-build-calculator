@@ -1,0 +1,93 @@
+Ultimate abilities
+Overload icon
+Overload
+Charge your fists with the power of the storm, replacing your Light and Heavy Attacks with new, stronger abilities. Light Attacks become lightning bolts, dealing 2323 Shock Damage to an enemy up to 28 meters away. Heavy Attacks blast enemies in a 4 x 6 area for 2090 Shock Damage. Attacks deplete Ultimate until you run out, or the ability is toggled off.
+arrow
+Energy Overload icon
+Energy Overload
+Charge your fists with the power of the storm, replacing your Light and Heavy Attacks with new, stronger abilities. Light Attacks become lightning bolts, dealing 2399 Shock Damage to an enemy up to 28 meters away. Heavy Attacks blast enemies in a 4 x 6 area for 2160 Shock Damage. The attacks restore 1200 Magicka and Stamina, and deplete Ultimate until you run out, or the ability is toggled off.
+While active your Light and Heavy Attacks restore Magicka and Stamina.
+arrow
+Power Overload icon
+Power Overload
+Charge your fists with the power of the storm, replacing your Light and Heavy Attacks with new, stronger abilities. Light Attacks become lightning bolts, dealing 2640 Shock Damage to an enemy up to 32 meters away. Heavy Attacks blast enemies in a 6 x 8 area for 2375 Shock Damage. Attacks deplete Ultimate until you run out, or the ability is toggled off.
+Increase range of Light Attacks and radius of Heavy Attacks. Increases damage.
+Active abilities
+Mages' Fury icon
+Mages' Fury
+Call down lightning to strike an enemy, dealing 870 Shock Damage. If the enemy falls to or below 20% Health within 2 seconds of being struck, an explosion deals an additional 3195 Shock Damage to them and 695 Shock Damage to other enemies nearby.
+arrow
+Endless Fury icon
+Endless Fury
+Call down lightning to strike an enemy, dealing 871 Shock Damage. If the enemy falls to or below 20% Health within 2 seconds of being struck, an explosion deals an additional 3195 Shock Damage to them and 696 Shock Damage to other enemies nearby. If any enemy is killed within 5 seconds of being hit with this ability, you restore 4860 Magicka.
+Reduces the cost and restores Magicka if the target dies after this ability dealt damage to them.
+arrow
+Mages' Wrath icon
+Mages' Wrath
+Call down lightning to strike an enemy, dealing 871 Shock Damage. If the enemy falls to or below 20% Health within 2 seconds of being struck, an explosion deals an additional 3195 Shock Damage to them and all nearby enemies.
+Significantly increases the damage dealt to other enemies nearby.
+Lightning Form icon
+Lightning Form
+Manifest yourself as pure lightning, zapping nearby enemies with electricity dealing 462 Shock Damage every 2 seconds for 20 seconds. While in this form you also gain Major Resolve, increasing your Physical Resistance and Spell Resistance by 5948.
+arrow
+Boundless Storm icon
+Boundless Storm
+Manifest yourself as pure lightning, zapping nearby enemies with electricity dealing 463 Shock Damage every 2 seconds for 30 seconds. While in this form you also gain Major Resolve, increasing your Physical Resistance and Spell Resistance by 5948. Activating this grants you Major Expedition, increasing your Movement Speed by 30% for 4 seconds.
+Increases the duration, and you gain Major Expedition for brief period after activation, increasing your Movement Speed.
+arrow
+Hurricane icon
+Hurricane
+Manifest yourself as pure air, buffeting nearby enemies with wind dealing 478 Physical Damage every 2 seconds for 20 seconds. The winds grow in damage and size, increasing up to 120% more damage and up to 9 meters in size. While in this form you gain Major Resolve and Minor Expedition, increasing your Physical and Spell Resistance by 5948 and your Movement Speed by 15%.
+Converts into a Stamina ability and deals Physical Damage. Increases in size and damage the longer it is active. Grants Minor Expedition while active, increasing your Movement Speed.
+Lightning Splash icon
+Lightning Splash
+Create a nexus of storm energy at the target location, dealing 308 Shock Damage to enemies in the area every 1 second for 10 seconds. You or an ally standing within the nexus can activate the Conduit synergy, dealing 2698 Shock Damage to enemies around them.
+arrow
+Lightning Flood icon
+Lightning Flood
+Create a nexus of storm energy at the target location, dealing 415 Shock Damage to enemies in the area every 1 second for 10 seconds. You or an ally standing within the nexus can activate the Conduit synergy, dealing 2698 Shock Damage to enemies around them.
+Increases the radius and damage.
+arrow
+Liquid Lightning icon
+Liquid Lightning
+Create a nexus of storm energy at the target location, dealing 309 Shock Damage to enemies in the area every 1 second for 15 seconds. You or an ally standing within the nexus can activate the Conduit synergy, dealing 2698 Shock Damage to enemies around them.
+Increases the duration.
+Surge icon
+Surge
+Invoke Meridia's name to gain Major Brutality and Sorcery, increasing your Weapon and Spell Damage by 20% for 33 seconds. While active, dealing Critical Damage heals you for 2550 Health. This effect can occur once every 1 second.
+arrow
+Critical Surge icon
+Critical Surge
+Invoke Meridia's name to gain Major Brutality and Sorcery, increasing your Weapon and Spell Damage by 20% for 33 seconds. While active, dealing Critical Damage heals you for 3300 Health. This effect can occur once every 1 second.
+Increases the healing.
+arrow
+Power Surge icon
+Power Surge
+Invoke Meridia's name to gain Major Brutality and Major Sorcery, increasing your Weapon Damage and Spell Damage by 20% for 33 seconds. While active, activating a Critical heal causes the ability to heal you and your allies around you for 2550 Health. This effect can occur once every 3 seconds.
+The heal now heals in an area around you but with a longer cooldown, and only triggers off Critical healing.
+Bolt Escape icon
+Bolt Escape
+Transform yourself into pure energy and flash forward, stunning enemies near your final location for 3 seconds. This effect cannot be blocked. Casting again within 4 seconds costs 33% more Magicka.
+arrow
+Ball of Lightning icon
+Ball of Lightning
+Transform yourself into pure energy and flash forward. After reaching your location, you become immune to snare and immobilize effects for 2 seconds. A ball of lightning is summoned at your end point, which intercepts up to 1 projectile attack made against you every 1 second for 3 seconds. Casting again within 4 seconds costs 33% more Magicka.
+Summons a ball of lightning that protects you from projectiles, but no longer stuns enemies. Grants brief snare and immobilization immunity after casting.
+arrow
+Streak icon
+Streak
+Transform yourself into pure energy and flash forward, dealing 1438 Shock Damage to enemies in your wake and stunning them for 3 seconds. This effect cannot be blocked. Casting again within 4 seconds costs 33% more Magicka.
+Now deals damage and stuns enemies between your beginning and final location.
+Passive abilities
+Capacitor icon
+Capacitor
+Increases your Health, Magicka, and Stamina Recovery by 141.
+Energized icon
+Energized
+Increases your Physical and Shock Damage by 5%.
+Amplitude icon
+Amplitude
+Increases your damage done against enemies by 1% for every 10% current Health they have.
+Expert Mage icon
+Expert Mage
+Increases your Weapon and Spell Damage by 108 for each Sorcerer ability slotted.

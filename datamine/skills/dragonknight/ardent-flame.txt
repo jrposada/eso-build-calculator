@@ -1,0 +1,93 @@
+Ultimate abilities
+Dragonknight Standard icon
+Dragonknight Standard
+Call down a battle standard, dealing 870 Flame Damage every 1 second for 16 seconds to enemies and applying Major Defile to them, reducing their healing received and damage shield strength by 12%. An ally near the standard can activate the Shackle synergy, dealing 3375 Flame Damage to enemies in the area and immobilizing them for 5 seconds.
+arrow
+Shifting Standard icon
+Shifting Standard
+Call down a battle standard, dealing 898 Flame Damage every 1 second for 25 seconds to enemies and applying Major Defile to them, reducing their healing received and damage shield strength by 12%. Activating this ability again allows you to move the standard to your location. An ally near the standard can activate the Shackle synergy, dealing 3375 Flame Damage to enemies in the area and immobilizing them for 5 seconds.
+Increases the duration, and recasting the ability allows you to move the standard.
+arrow
+Standard of Might icon
+Standard of Might
+Call down a battle standard, dealing 870 Flame Damage every 1 second for 16 seconds to enemies and applying Major Defile to them, reducing their healing received and damage shield strength by 12%. Standing in the area increases your damage done and reduces damage taken by 15%. An ally near the standard can activate the Shackle synergy, dealing 3375 Flame Damage to enemies in the area and immobilizing them for 5 seconds.
+Standing in the standard increases your damage done and reduces damage taken.
+Active abilities
+Lava Whip icon
+Lava Whip
+Lash an enemy with flame, dealing 2323 Flame Damage. If you strike an enemy that is immobilized or stunned, you set them Off Balance.
+arrow
+Flame Lash icon
+Flame Lash
+Lash an enemy with flame, dealing 2323 Flame Damage. If you strike an enemy that is immobilized or stunned, you set them Off Balance. Targeting an Off Balance or immobilized enemy changes this ability into Power Lash, allowing you to lash an enemy at half cost to deal 2760 Flame Damage and healing you for 2760 Health.
+Targeting Off Balance or immobilized enemies grants you a more powerful attack which deals increased damage, costs half as much, and heals you.
+arrow
+Molten Whip icon
+Molten Whip
+Lash an enemy with flame, dealing 2323 Flame Damage. If you strike an enemy that is is immobilized or stunned, you set them Off Balance. Whenever you activate a different Ardent Flame ability while in combat, you gain a stack of Seething Fury, increasing the damage of your next Molten Whip by 20% and your Weapon and Spell Damage by 100 for 15 seconds. This effect stacks up to 3 times.
+Splits the cost between Magicka and Stamina. While slotted, your other Ardent Flame abilities increase the damage of your next Molten Whip cast and Weapon and Spell Damage.
+Searing Strike icon
+Searing Strike
+Slash an enemy with flame, dealing 1161 Flame Damage and an additional 3470 Flame Damage over 20 seconds. Enemies hit by the initial hit are afflicted with the Burning status effect.
+arrow
+Burning Embers icon
+Burning Embers
+Slash an enemy with flame, dealing 1161 Flame Damage and an additional 3470 Flame Damage over 20 seconds. You heal for 100% of the damage done with this ability. Enemies hit by the initial hit are afflicted with the Burning status effect.
+Heals you for a percentage of damage done.
+arrow
+Venomous Claw icon
+Venomous Claw
+Rake an enemy with your claw, dealing 1161 Poison Damage and an additional 3470 Poison Damage over 20 seconds. The poison seeps into the target and deals increased damage the longer it lasts, dealing 12% more damage every 2 seconds. Enemies hit by the initial hit are afflicted with the Poisoned status effect.
+Converts into a Stamina ability and deals Poison Damage that applies the Poisoned status effect. The damage over time increases the longer the effect lasts.
+Fiery Breath icon
+Fiery Breath
+Exhale a flaming blast to enemies in front of you, dealing 1742 Flame Damage and an additional 2900 Flame Damage over 20 seconds.
+arrow
+Engulfing Flames icon
+Engulfing Flames
+Exhale a flaming blast to enemies in front of you, dealing 1799 Flame Damage and an additional 2980 Flame Damage over 20 seconds. Affected enemies take more damage from all Flame Damage attacks based on your Weapon or Spell Damage, and Max Magicka or Stamina, with a maximum of 6% bonus damage taken. Current value 2%.
+Affected enemies take more damage from all Flame Damage attacks.
+arrow
+Noxious Breath icon
+Noxious Breath
+Exhale a corrosive blast to enemies in front of you, dealing 1799 Poison Damage immediately, applying the Poisoned status effect, and an additional 2980 Poison Damage over 20 seconds. The initial hit applies the Major Breach to enemies for the duration, reducing their Physical and Spell Resistance by 5948.
+Converts into a Stamina ability and deals Poison Damage. The initial hit applies the Poisoned status effect and Major Breach to enemies.
+Fiery Grip icon
+Fiery Grip
+Launch a fiery chain to grasp and pull an enemy to you, dealing 1392 Flame Damage and taunting them for 15 seconds if they are not already taunted. Hitting the target grants you Major Expedition, increasing your Movement Speed by 30% for 4 seconds. This attack cannot be dodged or reflected.
+arrow
+Chains of Devastation icon
+Chains of Devastation
+Launch a fiery chain to grasp and pull yourself to an enemy, dealing 1438 Flame Damage. Hitting the target grants you Major Expedition and Major Berserk, increasing your Movement Speed by 30% and your damage done by 10% for 4 seconds. This attack cannot be dodged or reflected.
+Pulls you to the enemy instead and no longer attempts to taunt. Grants Major Berserk after casting.
+arrow
+Unrelenting Grip icon
+Unrelenting Grip
+Launch a fiery chain to grasp and pull an enemy to you, dealing 1438 Flame Damage and taunting them for 15 seconds if they are not already taunted. Hitting the target grants you Major Expedition, increasing your Movement Speed by 30% for 4 seconds. If the target cannot be pulled, you restore 100% of the ability's cost as Magicka. This attack cannot be dodged or reflected.
+If the target cannot be pulled, you are refunded the Magicka cost.
+Inferno icon
+Inferno
+Activate an aura of flames which launches a fireball at the nearest enemy every 5 seconds, dealing 1742 Flame Damage. While slotted on either bar, you gain Major Prophecy and Savagery, increasing your Spell and Weapon Critical rating by 2629.
+arrow
+Cauterize icon
+Cauterize
+Activate an aura of embers which cauterizes the wounds of you or up to 4 nearby allies every 3 seconds, healing for 1199 Health. While slotted on either bar, you gain Major Prophecy and Savagery, increasing your Spell and Weapon Critical rating by 2629.
+Now heals allies instead of damaging enemies. Increases radius, target count, and tick frequency.
+arrow
+Flames of Oblivion icon
+Flames of Oblivion
+Activate an aura of flames which launches a fireball at 3 enemies every 5 seconds, dealing 1799 Flame Damage. While slotted on either bar, you gain Major Prophecy and Savagery, increasing your Spell and Weapon Critical rating by 2629.
+Now launches three fireballs instead of one.
+Passive abilities
+Combustion icon
+Combustion
+Increases the damage of your Burning and Poisoned status effects by 33%. When you apply Burning or Poisoned to an enemy, you restore 423 Magicka and Stamina. This effect can occur once every 3 seconds.
+Warmth icon
+Warmth
+When you deal direct damage with an Ardent Flame ability, your damage over time attacks deal 6% increased damage to the target, and reduce their Movement Speed by 30% for 3 seconds.
+Searing Heat icon
+Searing Heat
+Increases the damage over time of your Fiery Breath, Searing Strike, and Dragonknight Standard abilities by 25% and the duration by 4 seconds.
+World in Ruin icon
+World in Ruin
+Increases the damage of your Flame and Poison attacks by 5%.

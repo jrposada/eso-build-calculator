@@ -1,0 +1,93 @@
+Ultimate abilities
+Rite of Passage icon
+Rite of Passage
+Channel the grace of the gods, healing you and nearby allies for 2787 Health every 1 second for 4 seconds. You cannot move while channeling, but you gain immunity to all disabling effects.
+arrow
+Practiced Incantation icon
+Practiced Incantation
+Channel the grace of the gods, healing you and nearby allies for 2788 Health every 1 second for 8 seconds. While channeling this ability, you gain immunity to all disabling effects.
+Increases the duration of the channel and allows you move at a reduced rate while channeling.
+arrow
+Remembrance icon
+Remembrance
+Channel the grace of the gods, healing you and nearby allies for 2788 Health every 1 second for 4 seconds. Gain Major Protection, reducing damage you take by 10% for 10 seconds. You cannot move while channeling, but you gain immunity to all disabling effects.
+Gain Major Protection after casting, reducing your damage taken.
+Active abilities
+Rushed Ceremony icon
+Rushed Ceremony
+Beacon your inner light, healing yourself or a wounded ally in front of you for 3486 Health.
+arrow
+Breath of Life icon
+Breath of Life
+Beacon your inner light, healing yourself or a wounded ally in front of you for 3485 Health. Also heals one other injured target for 1199 Health.
+Heals a second target for one third the amount.
+arrow
+Honor the Dead icon
+Honor the Dead
+Beacon your inner light, healing yourself or a wounded ally in front of you for 3485 Health. Healing anyone who is below 75% Health restores 18% of the ability's cost every 2 seconds over 6 seconds as Magicka.
+Refunds part of the ability's cost when used to heal an injured target.
+Healing Ritual icon
+Healing Ritual
+Focus your spiritual devotion, healing you and nearby allies for 2613 Health.
+arrow
+Hasty Prayer icon
+Hasty Prayer
+Focus your spiritual devotion, healing you and nearby allies for 2614 Health. Affected targets gain Minor Expedition, increasing their Movement Speed by 15% for 10 seconds.
+Healed allies gain Minor Expedition for a short duration and reduces the cost as the ability ranks up.
+arrow
+Ritual of Rebirth icon
+Ritual of Rebirth
+Focus your spiritual devotion, healing you and nearby allies for 2614 Health. You heal a single ally outside this ability's radius for an additional 2700 Health.
+You heal a single ally outside the ability's radius.
+Restoring Aura icon
+Restoring Aura
+Champion the cause of divine glory to apply Minor Endurance, Minor Fortitude, and Minor Intellect to nearby group members for 20 seconds, increasing Health, Magicka, and Stamina Recovery by 15%. While slotted on either bar you gain these effects.
+arrow
+Radiant Aura icon
+Radiant Aura
+Champion the cause of divine glory to apply Minor Endurance, Minor Fortitude, and Minor Intellect to you and nearby group members for 1 minute, increasing your Health, Magicka, and Stamina Recovery by 15%. While slotted on either bar you gain these effects.
+Increases the radius and duration.
+arrow
+Repentance icon
+Repentance
+Consecrate the souls of the fallen, healing you and your allies for 3000 Health and restoring 3000 Stamina to you for each corpse nearby. While slotted on either bar, you gain Minor Fortitude, Minor Endurance, and Minor Intellect, increasing your Health, Stamina, and Magicka Recovery by 15%.
+No longer applies buffs to allies, instead you consume corpses to restore Health and Stamina.
+Cleansing Ritual icon
+Cleansing Ritual
+Exalt in the sacred light of the Aedra, cleansing up to 2 harmful effects from yourself immediately and healing you and nearby allies for 843 Health every 2 seconds for 20 seconds. Allies in the area can activate the Purify synergy, cleansing all harmful effects from themselves and healing for 1912 Health.
+arrow
+Extended Ritual icon
+Extended Ritual
+Exalt in the sacred light of the Aedra, cleansing up to 5 harmful effects from yourself immediately and healing you and nearby allies for 844 Health every 2 seconds for 30 seconds. Allies in the area can activate the Purify synergy, cleansing all harmful effects from themselves and healing for 1912 Health.
+Increases the duration and the amount of harmful effects cleansed from yourself.
+arrow
+Ritual of Retribution icon
+Ritual of Retribution
+Exalt in the sacred light of the Aedra, cleansing up to 2 harmful effects from yourself immediately. While in the area, enemies take 435 Magic Damage every 2 seconds for 20 seconds which increases by 12% per tick. Allies in the area can activate the Purify synergy, cleansing all harmful effects from themselves and healing for 1912 Health.
+The area now harms enemies who enter it, rather than healing allies, and reduces the cost. Damage increases over duration.
+Rune Focus icon
+Rune Focus
+Create a rune of celestial protection and gain Major Resolve for 20 seconds, increasing your Physical Resistance and Spell Resistance by 5948. While the rune is active you heal for 319 Health every 1 second, scaling off your Max Health. Standing within the rune increases the healing done by 200%.
+arrow
+Channeled Focus icon
+Channeled Focus
+Create a rune of celestial protection and gain Major Resolve for 25 seconds, increasing your Physical Resistance and Spell Resistance by 5948. You also recover 242 Magicka every 1 second over the duration. While the rune is active you heal for 319 Health every 1 second, scaling off your Max Health. Standing within the rune increases the healing done by 200%.
+Increases the duration and causes you to restore Magicka over the duration.
+arrow
+Restoring Focus icon
+Restoring Focus
+Create a rune of celestial protection and gain Major Resolve for 20 seconds, increasing your Physical Resistance and Spell Resistance by 5948. You also recover 242 Stamina every 1 second over the duration. While the rune is active you heal for 413 Health every 1 second, scaling off your Max Health. Standing within the rune increases the healing done by 200%.
+Increases the healing done and causes you to restore Stamina over the duration.
+Passive abilities
+Mending icon
+Mending
+Increases your healing done by up to 13%, in proportion to the severity of the target's wounds.
+Sacred Ground icon
+Sacred Ground
+While standing in your own Cleansing Ritual, Rune Focus, or Rite of Passage area effects and for up to 4 seconds after leaving them you gain Minor Mending, increasing your healing done by 8%. Also increases the amount of damage you can block by 10% for the duration.
+Light Weaver icon
+Light Weaver
+When you heal an ally under 50% Health with a Restoring Light ability, you grant them 2 Ultimate. Activating an ability with a cast or channel time while in combat causes you to automatically block all attacks at no cost for 2 seconds, up to once every 15 seconds.
+Master Ritualist icon
+Master Ritualist
+Increases resurrection speed by 20%. Resurrected allies return with 100% more Health. Gives you a 50% chance to fill an empty Soul Gem after each successful resurrection.

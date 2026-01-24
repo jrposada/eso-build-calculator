@@ -1,0 +1,93 @@
+Ultimate abilities
+Soul Shred icon
+Soul Shred
+Ravage nearby enemies' souls with a night rune, dealing 3486 Magic Damage and stunning them for 4 seconds. An ally can target a ravaged enemy and activate the Soul Leech synergy, dealing 3122 Magic Damage to them and healing for the damage caused.
+arrow
+Soul Siphon icon
+Soul Siphon
+Sanctify your soul and the souls of nearby allies with a night rune, healing for 3600 Health and an additional 9384 Health over 4 seconds. You and your allies will also receive Major Vitality, increasing your healing received and damage shield strength by 12% for 4 seconds. An ally can target a nearby enemy and activate the Soul Leech synergy, dealing 3122 Magic Damage to them and healing for the damage caused.
+Heals you and your allies instead of damaging and stunning enemies.
+arrow
+Soul Tether icon
+Soul Tether
+Ravage nearby enemies' souls with a night rune, dealing 3600 Magic Damage, healing for half the damage, and stunning them for 4 seconds. Ravaged enemies are tethered to you for 8 seconds, and while they remain within 10 meters, you siphon 627 Health from them every second. An ally can target a ravaged enemy and activate the Soul Leech synergy, dealing 3122 Magic Damage to them and healing for the damage caused.
+Heals for half the initial damage caused. Tether to enemies hit, dealing constant damage and healing for damage caused.
+Active abilities
+Strife icon
+Strife
+Steal an enemy's life force, dealing 1548 Magic Damage and healing you or a nearby ally for 50% of the damage inflicted every 2 seconds for 10 seconds.
+arrow
+Funnel Health icon
+Funnel Health
+Steal an enemy's life force, dealing 1600 Magic Damage and healing you or 3 other nearby allies for 50% of the damage inflicted every 2 seconds for 10 seconds.
+Heals two additional targets.
+arrow
+Swallow Soul icon
+Swallow Soul
+Steal an enemy's life force, dealing 2160 Magic Damage and healing you for 35% of the damage inflicted every 2 seconds for 10 seconds.
+Increases the damage done but reduces the healing caused. Heal only targets yourself.
+Malevolent Offering icon
+Malevolent Offering
+Pour out your lifesblood and channel the arcane, healing yourself or an ally in front of you for 3486 Health, while draining 1080 Health from yourself over 3 seconds.
+arrow
+Healthy Offering icon
+Healthy Offering
+Pour out your lifesblood and channel the arcane, healing yourself or an ally in front of you for 3600 Health, while draining 1080 Health from yourself over 3 seconds. After casting, gain Minor Mending for 10 seconds, increasing your healing done by 8%.
+Grants you Minor Mending after casting, increasing your healing done.
+arrow
+Shrewd Offering icon
+Shrewd Offering
+Pour out your lifesblood and channel the arcane, healing yourself or an ally in front of you for 3485 Health, while draining 810 Health from yourself over 2 seconds.
+Reduces the Magicka cost and the duration of the Health cost.
+Cripple icon
+Cripple
+Sap an enemy's agility and wrack them with pain, dealing 4631 Magic Damage over 20 seconds and reducing their Movement Speed by 30% for 4 seconds.
+arrow
+Crippling Grasp icon
+Crippling Grasp
+Sap an enemy's agility and wrack them with pain, dealing 1199 Magic Damage and an additional 4350 Magic Damage over 20 seconds, immobilizing them for 2 seconds, and reducing their Movement Speed by 30% for 4 seconds.
+Converts some of the damage over time into more up front damage, immobilizes the enemy on impact, and reduces the cost.
+arrow
+Debilitate icon
+Debilitate
+Sap an enemy's agility and wrack them with pain, dealing 4785 Magic Damage over 20 seconds and reducing their Movement Speed by 50% for 4 seconds. This ability has a higher chance of applying the Overcharged status effect.
+Increases the snare potency and quintuples the chance to apply the Overcharged status effect.
+Siphoning Strikes icon
+Siphoning Strikes
+Channel a portion of your soul to convert Health to 2000 Magicka and Stamina. While slotted on either bar, your soul yearns for the warmth of life. All damage you deal heals you for 1250 Health, up to once every 1 second.
+arrow
+Leeching Strikes icon
+Leeching Strikes
+Channel a portion of your soul to convert Health to 2000 Magicka and Stamina. While slotted on either bar, your soul yearns for the warmth of life. All damage you deal heals you for 1800 Health and reduces the cost of your next Leeching Strikes by 10%, stacking up to 10 times. This effect can occur once every 1 second.
+Increases the healing done and grants ramping cost reduction for the next cast when the heal activates.
+arrow
+Siphoning Attacks icon
+Siphoning Attacks
+Channel a portion of your soul to convert Health to 2600 Magicka and Stamina. While slotted on either bar, your soul yearns for the warmth of life. All damage you deal heals you for 1250 Health and restores 200 Magicka and Stamina, up to once every 1 second.
+Increases the Magicka and Stamina restored, and the heal now also restores Magicka and Stamina.
+Drain Power icon
+Drain Power
+Siphon the vigor from your enemies' blood, dealing 1742 Magic Damage to all nearby enemies. If an enemy is hit, you gain Major Brutality and Sorcery, increasing your Weapon and Spell Damage by 20% for 30 seconds.
+arrow
+Power Extraction icon
+Power Extraction
+Siphon the vigor from your enemies' blood, dealing 1742 Disease Damage to all nearby enemies. If an enemy is hit you gain Major Brutality and Sorcery, and Minor Courage increasing your Weapon and Spell Damage by 20% and 215 for 30 seconds. Enemies hit have Minor Cowardice applied to them for 10 seconds, reducing their Weapon and Spell Damage by 215.
+Converts to a Stamina ability that deals Disease Damage. Applies Minor Cowardice to enemies hit and grants Minor Courage to you.
+arrow
+Sap Essence icon
+Sap Essence
+Siphon the vigor from your enemies' blood, dealing 1742 Magic Damage to all nearby enemies and healing you and your allies for 599 plus 20% more for each enemy hit. If an enemy is hit, you gain Major Brutality and Sorcery, increasing your Weapon and Spell Damage by 20% for 30 seconds.
+Also heals you and your allies. Heal is stronger for each enemy hit.
+Passive abilities
+Catalyst icon
+Catalyst
+After drinking a potion you gain 22 Ultimate.
+Magicka Flood icon
+Magicka Flood
+WITH A SIPHONING ABILITY SLOTTED Increases your Max Magicka and Stamina by 6%.
+Soul Siphoner icon
+Soul Siphoner
+Increases your healing done by 3% for each Siphoning ability slotted.
+Transfer icon
+Transfer
+Casting a Siphoning ability while in combat generates 2 Ultimate. This effect can occur once every 4 seconds.

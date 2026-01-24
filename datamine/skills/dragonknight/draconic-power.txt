@@ -1,0 +1,93 @@
+Ultimate abilities
+Dragon Leap icon
+Dragon Leap
+Launch yourself at an enemy, dealing 4241 Physical Damage to all enemies in the area, knocking them back 4 meters, and stunning them for 2 seconds.
+arrow
+Ferocious Leap icon
+Ferocious Leap
+Launch yourself at an enemy, dealing 4241 Flame Damage to all enemies in the area, knocking them back, and stunning them for 2 seconds. After leaping you gain a damage shield that absorbs 16528 damage for 6 seconds. This portion of the ability scales with your Max Health.
+Deals Flame Damage. After leaping you gain a damage shield.
+arrow
+Take Flight icon
+Take Flight
+Launch yourself at an enemy, dealing 5037 Physical Damage to all enemies in the area, knocking them back, and stunning them for 2 seconds.
+Reduces the cost and increases the damage and range.
+Active abilities
+Spiked Armor icon
+Spiked Armor
+Release your inner Dragon to gain Major Resolve, increasing your Physical and Spell Resistance by 5948 for 20 seconds. While active, the armor returns 1 Flame Damage to any enemy that uses a direct damage attack against you in melee range, scaling off your Physical and Spell Resistance.
+arrow
+Hardened Armor icon
+Hardened Armor
+Release your inner Dragon to gain Major Resolve, increasing your Physical and Spell Resistance by 5948 for 20 seconds. You gain a damage shield that absorbs up to 5121 damage for 6 seconds, scaling off your Max Health. While active, the armor returns 1 Flame Damage to any enemy that uses a direct damage attack against you in melee range, scaling off your Physical and Spell Resistance.
+You gain a damage shield after casting.
+arrow
+Volatile Armor icon
+Volatile Armor
+Release your inner Dragon to gain Major Resolve, increasing your Physical and Spell Resistance by 5948 for 20 seconds. You release a spray of fiery spikes around you, causing enemies hit to take 11 Flame Damage over 20 seconds. While active, the armor returns 1 Flame Damage to any enemy that uses a direct damage attack against you in melee range. This ability scales off your Physical and Spell Resistance.
+Enemies near you take damage over time when you activate the ability.
+Dark Talons icon
+Dark Talons
+Call forth talons from the ground, dealing 1742 Flame Damage to enemies near you and immobilizing them for 4 seconds. An ally near the talons can activate the Ignite synergy, dealing 2812 Flame Damage to all enemies held within them.
+arrow
+Burning Talons icon
+Burning Talons
+Call forth talons from the ground, dealing 1799 Flame Damage to enemies near you, an additional 1635 Flame Damage over 5 seconds, and immobilizing them for 4 seconds. An ally near the talons can activate the Ignite synergy, dealing 2812 Flame Damage to all enemies held within them.
+Deals additional damage over time.
+arrow
+Choking Talons icon
+Choking Talons
+Call forth talons from the ground, dealing 1742 Flame Damage to enemies near you and immobilizing them for 4 seconds. Enemies hit are afflicted with Minor Maim, reducing their damage done by 5% for 10 seconds. An ally near the talons can activate the Ignite synergy, dealing 2812 Flame Damage to all enemies held within them.
+Reduces the cost and affected enemies deal less damage.
+Dragon Blood icon
+Dragon Blood
+Draw on your draconic blood to heal for 33% of your missing Health. You also gain Major Fortitude, increasing your Health Recovery by 30% for 20 seconds.
+arrow
+Coagulating Blood icon
+Coagulating Blood
+Draw on your draconic blood to heal for 2999, increasing by up to 50% additional healing based on your missing Health. You also gain Major Fortitude, increasing your Health Recovery by 30% for 20 seconds.
+Now heals based on your offensive stats rather than Health and increases the amount of healing based on your missing Health.
+arrow
+Green Dragon Blood icon
+Green Dragon Blood
+Draw on your draconic blood to heal for 33% of your missing Health and an additional 511 Health every 1 second over 5 seconds. The heal over time scales off of your Max Health. You also gain Major Fortitude, Major Endurance, and Minor Vitality, increasing your Health Recovery and Stamina Recovery by 30% and healing received and damage shield strength by 6% for 20 seconds.
+You also gain Major Endurance, Minor Vitality, and additional healing over time.
+Protective Scale icon
+Protective Scale
+Flex your scales, reducing your damage taken from projectiles by 50% for 6 seconds.
+arrow
+Dragon Fire Scale icon
+Dragon Fire Scale
+Flex your scales, reducing damage taken from projectiles by 50% for 6 seconds. When you are hit with a projectile, you retaliate by launching a fiery orb at the attacker that deals 1799 Flame Damage. This effect can occur once every half second.
+Incoming projectiles cause you to deal Flame Damage back to the attacker.
+arrow
+Protective Plate icon
+Protective Plate
+Flex your scales, reducing damage taken from projectiles by 50% for 6 seconds. Gain immunity to snares and immobilizations for 4 seconds.
+Gain immunity to snares and immobilizations. Cost reduces as ability ranks up.
+Inhale icon
+Inhale
+Channel draconic energy to suck in the air around you, dealing 870 Flame Damage to nearby enemies and healing you for 100% of the damage caused. After 2.5 seconds, you exhale fire, dealing 1742 Flame Damage to nearby enemies.
+arrow
+Deep Breath icon
+Deep Breath
+Channel draconic energy to suck in the air around you, dealing 870 Flame Damage to nearby enemies and healing you for 100% of the damage caused. Any enemy hit that is casting is interrupted, set Off Balance, and stunned for 2 seconds. After 2.5 seconds, you exhale fire, dealing 2249 Flame Damage to nearby enemies.
+Initial hit interrupts enemies that are casting. Final explosion damage increased.
+arrow
+Draw Essence icon
+Draw Essence
+Channel draconic energy to suck in the air around you, dealing 870 Flame Damage to nearby enemies and healing you for 150% of the damage caused. After 2.5 seconds, you exhale fire, dealing 1742 Flame Damage to nearby enemies and restoring 10% of the ability's cost for each enemy hit as Magicka.
+Initial hit heals for more. Final explosion refunds Magicka for each enemy struck.
+Passive abilities
+Iron Skin icon
+Iron Skin
+Increases the amount of damage you block by 10%.
+Burning Heart icon
+Burning Heart
+While a Draconic Power ability is active, your healing received is increased by 9%.
+Elder Dragon icon
+Elder Dragon
+Increases your Health Recovery by 323 for each Draconic Power ability slotted.
+Scaled Armor icon
+Scaled Armor
+Increases your Physical and Spell Resistance by 2974.
