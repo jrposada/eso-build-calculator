@@ -7,7 +7,7 @@ const SIPHONING_SKILLS: Skill<'Nightblade', 'Siphoning'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {
-      initial: 3486,
+      hits: [{ value: 3486 }],
     },
     damageType: 'magic',
     targetType: 'aoe',
@@ -27,7 +27,7 @@ const SIPHONING_SKILLS: Skill<'Nightblade', 'Siphoning'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {
-      initial: 3600,
+      hits: [{ value: 3600 }],
       dot: 627,
       dotDuration: 8,
       dotInterval: 1,
@@ -122,7 +122,7 @@ const SIPHONING_SKILLS: Skill<'Nightblade', 'Siphoning'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {
-      initial: 1199,
+      hits: [{ value: 1199 }],
       dot: 4350,
       dotDuration: 20,
     },
@@ -176,7 +176,7 @@ const SIPHONING_SKILLS: Skill<'Nightblade', 'Siphoning'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {
-      initial: 1742,
+      hits: [{ value: 1742 }],
     },
     damageType: 'magic',
     targetType: 'aoe',
@@ -187,7 +187,7 @@ const SIPHONING_SKILLS: Skill<'Nightblade', 'Siphoning'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {
-      initial: 1742,
+      hits: [{ value: 1742 }],
     },
     damageType: 'disease',
     targetType: 'aoe',
@@ -198,7 +198,7 @@ const SIPHONING_SKILLS: Skill<'Nightblade', 'Siphoning'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {
-      initial: 1742,
+      hits: [{ value: 1742 }],
     },
     damageType: 'magic',
     targetType: 'aoe',

@@ -47,7 +47,7 @@ const EARTHEN_HEART_SKILLS: Skill<'Dragonknight', 'EarthenHeart'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
-      initial: 2323, // initial AoE + 3x2323 projectile damage
+      hits: [{ value: 2323 }], // initial AoE + 3x2323 projectile damage
     },
     damageType: 'physical',
     targetType: 'aoe',
@@ -58,7 +58,7 @@ const EARTHEN_HEART_SKILLS: Skill<'Dragonknight', 'EarthenHeart'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
-      initial: 448,
+      hits: [{ value: 448 }],
     },
     damageType: 'flame',
     targetType: 'single',
@@ -69,7 +69,7 @@ const EARTHEN_HEART_SKILLS: Skill<'Dragonknight', 'EarthenHeart'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
-      initial: 2323, // initial AoE + 3x2323 projectile damage
+      hits: [{ value: 2323 }], // initial AoE + 3x2323 projectile damage
     },
     damageType: 'physical',
     targetType: 'aoe',
@@ -137,7 +137,7 @@ const EARTHEN_HEART_SKILLS: Skill<'Dragonknight', 'EarthenHeart'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
-      initial: 1161,
+      hits: [{ value: 1161, delay: 2.5 }], // damage when stun ends
     },
     damageType: 'flame',
     targetType: 'single',
@@ -148,7 +148,7 @@ const EARTHEN_HEART_SKILLS: Skill<'Dragonknight', 'EarthenHeart'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
-      initial: 1199,
+      hits: [{ value: 1199, delay: 2.5 }], // damage when stun ends
     },
     damageType: 'flame',
     targetType: 'single',
@@ -159,7 +159,7 @@ const EARTHEN_HEART_SKILLS: Skill<'Dragonknight', 'EarthenHeart'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
-      initial: 1199,
+      hits: [{ value: 1199, delay: 2.5 }], // damage when stun ends
     },
     damageType: 'flame',
     targetType: 'single',
@@ -189,7 +189,7 @@ const EARTHEN_HEART_SKILLS: Skill<'Dragonknight', 'EarthenHeart'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
-      initial: 1799,
+      hits: [{ value: 1799 }],
       dot: 319,
       dotDuration: 15,
       dotInterval: 1,

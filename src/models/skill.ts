@@ -50,7 +50,14 @@ export type SkillLine =
 
 export type Resource = 'magicka' | 'stamina' | 'health' | 'ultimate';
 
-export type DamageType = 'magic' | 'physical' | 'disease' | 'flame' | 'poison';
+export type DamageType =
+  | 'magic'
+  | 'physical'
+  | 'disease'
+  | 'flame'
+  | 'poison'
+  | 'bleed'
+  | 'frost';
 
 export type TargetType = 'single' | 'aoe';
 
@@ -62,7 +69,7 @@ export interface Skill<
   esoClass: TEsoClass;
   skillLine: TSkillLine;
   damage: {
-    initial?: number;
+    hits?: Array<{ value: number; delay?: number }>;
     dot?: number;
     dotDuration?: number;
     dotInterval?: number;

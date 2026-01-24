@@ -47,7 +47,7 @@ const ARDENT_FLAME_SKILLS: Skill<'Dragonknight', 'ArdentFlame'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
-      initial: 2323,
+      hits: [{ value: 2323 }],
     },
     damageType: 'flame',
     targetType: 'single',
@@ -58,7 +58,7 @@ const ARDENT_FLAME_SKILLS: Skill<'Dragonknight', 'ArdentFlame'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
-      initial: 2323,
+      hits: [{ value: 2323 }],
     },
     damageType: 'flame',
     targetType: 'single',
@@ -69,7 +69,7 @@ const ARDENT_FLAME_SKILLS: Skill<'Dragonknight', 'ArdentFlame'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
-      initial: 2323,
+      hits: [{ value: 2323 }],
     },
     damageType: 'flame',
     targetType: 'single',
@@ -81,7 +81,7 @@ const ARDENT_FLAME_SKILLS: Skill<'Dragonknight', 'ArdentFlame'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
-      initial: 1161,
+      hits: [{ value: 1161 }],
       dot: 3470,
       dotDuration: 20,
     },
@@ -94,7 +94,7 @@ const ARDENT_FLAME_SKILLS: Skill<'Dragonknight', 'ArdentFlame'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
-      initial: 1161,
+      hits: [{ value: 1161 }],
       dot: 3470,
       dotDuration: 20,
     },
@@ -107,7 +107,7 @@ const ARDENT_FLAME_SKILLS: Skill<'Dragonknight', 'ArdentFlame'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
-      initial: 1161,
+      hits: [{ value: 1161 }],
       dot: 3470, // FIXME: The poison seeps into the target and deals increased damage the longer it lasts, dealing 12% more damage every 2 seconds
       dotDuration: 20,
     },
@@ -121,7 +121,7 @@ const ARDENT_FLAME_SKILLS: Skill<'Dragonknight', 'ArdentFlame'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
-      initial: 1742,
+      hits: [{ value: 1742 }],
       dot: 2900,
       dotDuration: 20,
     },
@@ -134,7 +134,7 @@ const ARDENT_FLAME_SKILLS: Skill<'Dragonknight', 'ArdentFlame'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
-      initial: 1799,
+      hits: [{ value: 1799 }],
       dot: 2980,
       dotDuration: 20,
     },
@@ -147,7 +147,7 @@ const ARDENT_FLAME_SKILLS: Skill<'Dragonknight', 'ArdentFlame'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
-      initial: 1799,
+      hits: [{ value: 1799 }],
       dot: 2980,
       dotDuration: 20,
     },
@@ -161,7 +161,7 @@ const ARDENT_FLAME_SKILLS: Skill<'Dragonknight', 'ArdentFlame'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
-      initial: 1392,
+      hits: [{ value: 1392 }],
     },
     damageType: 'flame',
     targetType: 'single',
@@ -172,7 +172,7 @@ const ARDENT_FLAME_SKILLS: Skill<'Dragonknight', 'ArdentFlame'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
-      initial: 1438,
+      hits: [{ value: 1438 }],
     },
     damageType: 'flame',
     targetType: 'single',
@@ -183,7 +183,7 @@ const ARDENT_FLAME_SKILLS: Skill<'Dragonknight', 'ArdentFlame'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
-      initial: 1438,
+      hits: [{ value: 1438 }],
     },
     damageType: 'flame',
     targetType: 'single',

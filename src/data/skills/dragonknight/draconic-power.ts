@@ -7,7 +7,7 @@ const DRACONIC_POWER_SKILLS: Skill<'Dragonknight', 'DraconicPower'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {
-      initial: 4241,
+      hits: [{ value: 4241 }],
     },
     damageType: 'physical',
     targetType: 'aoe',
@@ -18,7 +18,7 @@ const DRACONIC_POWER_SKILLS: Skill<'Dragonknight', 'DraconicPower'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {
-      initial: 4241,
+      hits: [{ value: 4241 }],
     },
     damageType: 'flame',
     targetType: 'aoe',
@@ -29,7 +29,7 @@ const DRACONIC_POWER_SKILLS: Skill<'Dragonknight', 'DraconicPower'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {
-      initial: 5037,
+      hits: [{ value: 5037 }],
     },
     damageType: 'physical',
     targetType: 'aoe',
@@ -72,7 +72,7 @@ const DRACONIC_POWER_SKILLS: Skill<'Dragonknight', 'DraconicPower'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {
-      initial: 1742,
+      hits: [{ value: 1742 }],
     },
     damageType: 'flame',
     targetType: 'aoe',
@@ -83,7 +83,7 @@ const DRACONIC_POWER_SKILLS: Skill<'Dragonknight', 'DraconicPower'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {
-      initial: 1799,
+      hits: [{ value: 1799 }],
       dot: 1635,
       dotDuration: 5,
     },
@@ -96,7 +96,7 @@ const DRACONIC_POWER_SKILLS: Skill<'Dragonknight', 'DraconicPower'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {
-      initial: 1742,
+      hits: [{ value: 1742 }],
     },
     damageType: 'flame',
     targetType: 'aoe',
@@ -164,7 +164,7 @@ const DRACONIC_POWER_SKILLS: Skill<'Dragonknight', 'DraconicPower'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {
-      initial: 870 + 1742, // 870 initial + 1742 exhale
+      hits: [{ value: 870 }, { value: 1742, delay: 2.5 }],
     },
     damageType: 'flame',
     targetType: 'aoe',
@@ -176,7 +176,7 @@ const DRACONIC_POWER_SKILLS: Skill<'Dragonknight', 'DraconicPower'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {
-      initial: 870 + 2249, // 870 initial + 2249 exhale
+      hits: [{ value: 870 }, { value: 2249, delay: 2.5 }],
     },
     damageType: 'flame',
     targetType: 'aoe',
@@ -188,7 +188,7 @@ const DRACONIC_POWER_SKILLS: Skill<'Dragonknight', 'DraconicPower'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {
-      initial: 870 + 1742, // 870 initial + 1742 exhale
+      hits: [{ value: 870 }, { value: 1742, delay: 2.5 }],
     },
     damageType: 'flame',
     targetType: 'aoe',

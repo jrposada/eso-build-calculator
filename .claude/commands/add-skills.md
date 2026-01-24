@@ -35,37 +35,125 @@ Add missing skills to a skill line data file based on RAW.md.
    - Magic Damage: `damageType: 'magic'`
    - Physical Damage: `damageType: 'physical'`
    - Disease Damage: `damageType: 'disease'`
-   - If a new damage type is needed (e.g., 'flame', 'frost', 'shock'), add it to `DamageType` in `src/models/skill.ts`
+   - Bleed Damage: `damageType: 'bleed'`
+   - Flame Damage: `damageType: 'flame'`
+   - Frost Damage: `damageType: 'frost'`
+   - Poison Damage: `damageType: 'poison'`
+   - If a new damage type is needed, add it to `DamageType` in `src/models/skill.ts`
 
    ### Target Type
    - Single target skills: `targetType: 'single'`
    - AoE skills (mentions "area", "around you", "enemies nearby"): `targetType: 'aoe'`
 
    ### Damage Values
-   - `initial`: The upfront damage number
+   - `hits`: Array of direct damage instances. Each hit has:
+     - `value`: The damage amount (required)
+     - `delay`: Time in seconds before the damage occurs (optional, omit for instant damage)
    - `dot`: Damage over time total (e.g., "2050 Magic Damage over 5 seconds")
    - `dotDuration`: Duration in seconds for the DoT
+   - `dotInterval`: Time between DoT ticks in seconds
    - For utility/buff/debuff skills with no damage: use `damage: {}`
 
 7. Organize skills by their skill line (base + morphs grouped together) with comments.
 
 8. After adding skills, run `npx tsc --noEmit` to verify there are no TypeScript errors related to your changes.
 
-## Example Skill Structure
+## Example Skill Structures
 
+### Instant damage skill
 ```typescript
 {
-  name: 'Skill Name',
-  esoClass: 'Nightblade',
-  skillLine: 'Shadow',
+  name: 'Lava Whip',
+  esoClass: 'Dragonknight',
+  skillLine: 'ArdentFlame',
   damage: {
-    initial: 1234,    // optional
-    dot: 5678,        // optional
-    dotDuration: 10,  // optional, in seconds
-    dotInterval: 2,  // optional, in seconds
+    hits: [{ value: 2323 }],
+  },
+  damageType: 'flame',
+  targetType: 'single',
+  resource: 'magicka',
+},
+```
+
+### Delayed damage skill (like Scorch)
+```typescript
+{
+  name: 'Scorch',
+  esoClass: 'Warden',
+  skillLine: 'AnimalCompanions',
+  damage: {
+    hits: [
+      { value: 2509, delay: 3 },   // First hit after 3 seconds
+      { value: 3486, delay: 9 },   // Second hit after 9 seconds
+    ],
+  },
+  damageType: 'magic',
+  targetType: 'aoe',
+  resource: 'magicka',
+},
+```
+
+### Channeled skill with multiple hits
+```typescript
+{
+  name: 'Inhale',
+  esoClass: 'Dragonknight',
+  skillLine: 'DraconicPower',
+  damage: {
+    hits: [
+      { value: 870 },              // Instant damage
+      { value: 1742, delay: 2.5 }, // Exhale damage after channel
+    ],
+  },
+  damageType: 'flame',
+  targetType: 'aoe',
+  resource: 'magicka',
+  channelTime: 2.5,
+},
+```
+
+### Direct damage + DoT skill
+```typescript
+{
+  name: 'Searing Strike',
+  esoClass: 'Dragonknight',
+  skillLine: 'ArdentFlame',
+  damage: {
+    hits: [{ value: 1161 }],
+    dot: 3470,
+    dotDuration: 20,
+  },
+  damageType: 'flame',
+  targetType: 'single',
+  resource: 'magicka',
+},
+```
+
+### Pure DoT skill (no direct damage)
+```typescript
+{
+  name: 'Swarm',
+  esoClass: 'Warden',
+  skillLine: 'AnimalCompanions',
+  damage: {
+    dot: 4631,
+    dotDuration: 20,
   },
   damageType: 'magic',
   targetType: 'single',
+  resource: 'magicka',
+},
+```
+
+### Utility/buff skill (no damage)
+```typescript
+{
+  name: 'Frost Cloak',
+  esoClass: 'Warden',
+  skillLine: 'WintersEmbrace',
+  damage: {},
+  damageType: 'frost',
+  targetType: 'aoe',
   resource: 'magicka',
 },
 ```

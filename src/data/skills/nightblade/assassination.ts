@@ -7,7 +7,7 @@ const ASSASSINATION_SKILLS: Skill<'Nightblade', 'Assassination'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
-      initial: 3716,
+      hits: [{ value: 3716 }],
     },
     damageType: 'magic',
     targetType: 'single',
@@ -18,7 +18,7 @@ const ASSASSINATION_SKILLS: Skill<'Nightblade', 'Assassination'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
-      initial: 3840,
+      hits: [{ value: 3840 }],
     },
     damageType: 'disease',
     targetType: 'single',
@@ -29,7 +29,7 @@ const ASSASSINATION_SKILLS: Skill<'Nightblade', 'Assassination'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
-      initial: 3718,
+      hits: [{ value: 3718 }],
     },
     damageType: 'magic',
     targetType: 'single',
@@ -41,7 +41,7 @@ const ASSASSINATION_SKILLS: Skill<'Nightblade', 'Assassination'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
-      initial: 2323,
+      hits: [{ value: 2323 }],
     },
     damageType: 'magic',
     targetType: 'single',
@@ -52,7 +52,7 @@ const ASSASSINATION_SKILLS: Skill<'Nightblade', 'Assassination'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
-      initial: 2556,
+      hits: [{ value: 2556 }],
     },
     damageType: 'magic',
     targetType: 'single',
@@ -63,7 +63,7 @@ const ASSASSINATION_SKILLS: Skill<'Nightblade', 'Assassination'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
-      initial: 2399,
+      hits: [{ value: 2399 }],
     },
     damageType: 'physical',
     targetType: 'single',
@@ -75,7 +75,7 @@ const ASSASSINATION_SKILLS: Skill<'Nightblade', 'Assassination'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
-      initial: 1602,
+      hits: [{ value: 1602 }],
     },
     damageType: 'magic',
     targetType: 'single',
@@ -86,7 +86,7 @@ const ASSASSINATION_SKILLS: Skill<'Nightblade', 'Assassination'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
-      initial: 1655,
+      hits: [{ value: 1655 }],
     },
     damageType: 'physical',
     targetType: 'single',
@@ -97,7 +97,7 @@ const ASSASSINATION_SKILLS: Skill<'Nightblade', 'Assassination'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
-      initial: 1603,
+      hits: [{ value: 1603 }],
       dot: 2050,
       dotDuration: 5,
     },
@@ -111,7 +111,7 @@ const ASSASSINATION_SKILLS: Skill<'Nightblade', 'Assassination'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
-      initial: 1161,
+      hits: [{ value: 1161 }],
     },
     damageType: 'magic',
     targetType: 'single',
@@ -122,7 +122,7 @@ const ASSASSINATION_SKILLS: Skill<'Nightblade', 'Assassination'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
-      initial: 1161,
+      hits: [{ value: 1161 }],
     },
     damageType: 'magic',
     targetType: 'single',
@@ -133,7 +133,7 @@ const ASSASSINATION_SKILLS: Skill<'Nightblade', 'Assassination'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
-      initial: 1161,
+      hits: [{ value: 1161 }],
     },
     damageType: 'disease',
     targetType: 'single',
@@ -173,7 +173,7 @@ const ASSASSINATION_SKILLS: Skill<'Nightblade', 'Assassination'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
-      initial: 4182,
+      hits: [{ value: 4182 }],
     },
     damageType: 'magic',
     targetType: 'single',
@@ -184,7 +184,7 @@ const ASSASSINATION_SKILLS: Skill<'Nightblade', 'Assassination'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
-      initial: 4752,
+      hits: [{ value: 4752 }],
     },
     damageType: 'magic',
     targetType: 'single',
@@ -195,7 +195,7 @@ const ASSASSINATION_SKILLS: Skill<'Nightblade', 'Assassination'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
-      initial: 4183,
+      hits: [{ value: 4183 }],
     },
     damageType: 'disease',
     targetType: 'single',
