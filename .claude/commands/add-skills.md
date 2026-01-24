@@ -49,9 +49,10 @@ Add missing skills to a skill line data file based on RAW.md.
    - `hits`: Array of direct damage instances. Each hit has:
      - `value`: The damage amount (required)
      - `delay`: Time in seconds before the damage occurs (optional, omit for instant damage)
-   - `dot`: Damage over time total (e.g., "2050 Magic Damage over 5 seconds")
+   - `dot`: Damage over time per tick (e.g., "435 Magic Damage every 2 seconds")
    - `dotDuration`: Duration in seconds for the DoT
    - `dotInterval`: Time between DoT ticks in seconds
+   - `dotIncreasePerTick`: Percentage increase per tick as decimal (e.g., 0.12 for "increases by 12% per tick")
    - For utility/buff/debuff skills with no damage: use `damage: {}`
 
 7. Organize skills by their skill line (base + morphs grouped together) with comments.
@@ -141,6 +142,24 @@ Add missing skills to a skill line data file based on RAW.md.
   },
   damageType: 'magic',
   targetType: 'single',
+  resource: 'magicka',
+},
+```
+
+### DoT with increasing damage per tick
+```typescript
+{
+  name: 'Ritual of Retribution',
+  esoClass: 'Templar',
+  skillLine: 'RestoringLight',
+  damage: {
+    dot: 435,
+    dotDuration: 20,
+    dotInterval: 2,
+    dotIncreasePerTick: 0.12, // increases by 12% per tick
+  },
+  damageType: 'magic',
+  targetType: 'aoe',
   resource: 'magicka',
 },
 ```

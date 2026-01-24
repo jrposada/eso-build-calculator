@@ -73,6 +73,7 @@ export interface Skill<
     dot?: number;
     dotDuration?: number;
     dotInterval?: number;
+    dotIncreasePerTick?: number; // Percentage increase per tick (e.g., 0.12 for 12%)
   };
   damageType: DamageType;
   targetType: TargetType;
