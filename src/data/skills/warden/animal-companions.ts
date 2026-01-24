@@ -1,6 +1,6 @@
-import { Skill } from '../../../models/skill';
+import { ClassSkill } from '../../../models/skill';
 
-const ANIMAL_COMPANIONS_SKILLS: Skill<'Warden', 'AnimalCompanions'>[] = [
+const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
   // Ultimate abilities - Feral Guardian line
   {
     name: 'Feral Guardian',

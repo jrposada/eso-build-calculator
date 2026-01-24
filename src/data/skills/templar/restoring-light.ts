@@ -1,6 +1,6 @@
-import { Skill } from '../../../models/skill';
+import { ClassSkill } from '../../../models/skill';
 
-const RESTORING_LIGHT_SKILLS: Skill<'Templar', 'RestoringLight'>[] = [
+const RESTORING_LIGHT_SKILLS: ClassSkill<'Templar', 'RestoringLight'>[] = [
   // Ultimate abilities - Rite of Passage line
   {
     name: 'Rite of Passage',

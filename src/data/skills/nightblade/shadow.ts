@@ -1,6 +1,6 @@
-import { Skill } from '../../../models/skill';
+import { ClassSkill } from '../../../models/skill';
 
-const SHADOW_SKILLS: Skill<'Nightblade', 'Shadow'>[] = [
+const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   // Ultimate abilities
   {
     name: 'Consuming Darkness',

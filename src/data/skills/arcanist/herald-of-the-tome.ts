@@ -1,6 +1,6 @@
-import { Skill } from '../../../models/skill';
+import { ClassSkill } from '../../../models/skill';
 
-const HERALD_OF_THE_TOME_SKILLS: Skill<'Arcanist', 'HeraldOfTheTome'>[] = [
+const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   // Ultimate abilities - The Unblinking Eye line
   {
     name: 'The Unblinking Eye',

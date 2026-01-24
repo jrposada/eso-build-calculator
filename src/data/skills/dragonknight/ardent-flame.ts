@@ -1,6 +1,6 @@
-import { Skill } from '../../../models/skill';
+import { ClassSkill } from '../../../models/skill';
 
-const ARDENT_FLAME_SKILLS: Skill<'Dragonknight', 'ArdentFlame'>[] = [
+const ARDENT_FLAME_SKILLS: ClassSkill<'Dragonknight', 'ArdentFlame'>[] = [
   // Ultimate abilities
   {
     name: 'Dragonknight Standard',

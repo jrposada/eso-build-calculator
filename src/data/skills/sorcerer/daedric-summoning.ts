@@ -1,6 +1,6 @@
-import { Skill } from '../../../models/skill';
+import { ClassSkill } from '../../../models/skill';
 
-const DAEDRIC_SUMMONING_SKILLS: Skill<'Sorcerer', 'DaedricSummoning'>[] = [
+const DAEDRIC_SUMMONING_SKILLS: ClassSkill<'Sorcerer', 'DaedricSummoning'>[] = [
   // Ultimate abilities - Summon Storm Atronach line
   {
     name: 'Summon Storm Atronach',

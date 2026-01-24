@@ -1,6 +1,6 @@
-import { Skill } from '../../../models/skill';
+import { ClassSkill } from '../../../models/skill';
 
-const DARK_MAGIC_SKILLS: Skill<'Sorcerer', 'DarkMagic'>[] = [
+const DARK_MAGIC_SKILLS: ClassSkill<'Sorcerer', 'DarkMagic'>[] = [
   // Ultimate abilities - Negate Magic line
   {
     name: 'Negate Magic',

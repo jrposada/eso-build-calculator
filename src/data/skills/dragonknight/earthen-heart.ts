@@ -1,6 +1,6 @@
-import { Skill } from '../../../models/skill';
+import { ClassSkill } from '../../../models/skill';
 
-const EARTHEN_HEART_SKILLS: Skill<'Dragonknight', 'EarthenHeart'>[] = [
+const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   // Ultimate abilities - Magma Armor line
   {
     name: 'Magma Armor',

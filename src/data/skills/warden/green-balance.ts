@@ -1,6 +1,6 @@
-import { Skill } from '../../../models/skill';
+import { ClassSkill } from '../../../models/skill';
 
-const GREEN_BALANCE_SKILLS: Skill<'Warden', 'GreenBalance'>[] = [
+const GREEN_BALANCE_SKILLS: ClassSkill<'Warden', 'GreenBalance'>[] = [
   // Ultimate abilities - Secluded Grove line
   {
     name: 'Secluded Grove',

@@ -39,7 +39,13 @@ export type ArcanistSkillLineName =
   | 'SoldierOfApocrypha'
   | 'HeraldOfTheTome';
 
-export type SkillLine =
+export type WeaponSkillLineName =
+  | 'Bow'
+  | 'TwoHanded'
+  | 'DestructionStaff'
+  | 'DualWield';
+
+export type ClassSkillLine =
   | DragonknightSkillLineName
   | SorcererSkillLineName
   | NightbladeSkillLineName
@@ -47,6 +53,8 @@ export type SkillLine =
   | NecromancerSkillLineName
   | TemplarSkillLineName
   | ArcanistSkillLineName;
+
+export type SkillLine = ClassSkillLine | WeaponSkillLineName;
 
 export type Resource = 'magicka' | 'stamina' | 'health' | 'ultimate';
 
@@ -57,16 +65,35 @@ export type DamageType =
   | 'flame'
   | 'poison'
   | 'bleed'
-  | 'frost';
+  | 'frost'
+  | 'shock';
 
 export type TargetType = 'single' | 'aoe';
 
-export interface Skill<
+export interface ClassSkill<
   TEsoClass extends EsoClass = EsoClass,
-  TSkillLine extends SkillLine = SkillLine,
+  TSkillLine extends ClassSkillLine = ClassSkillLine,
 > {
   name: string;
   esoClass: TEsoClass;
+  skillLine: TSkillLine;
+  damage: {
+    hits?: Array<{ value: number; delay?: number }>;
+    dot?: number;
+    dotDuration?: number;
+    dotInterval?: number;
+    dotIncreasePerTick?: number; // Percentage increase per tick (e.g., 0.12 for 12%)
+  };
+  damageType: DamageType;
+  targetType: TargetType;
+  resource: Resource;
+  channelTime?: number;
+}
+
+export interface WeaponSkill<
+  TSkillLine extends WeaponSkillLineName = WeaponSkillLineName,
+> {
+  name: string;
   skillLine: TSkillLine;
   damage: {
     hits?: Array<{ value: number; delay?: number }>;

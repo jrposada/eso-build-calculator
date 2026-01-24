@@ -1,6 +1,6 @@
-import { Skill } from '../../../models/skill';
+import { ClassSkill } from '../../../models/skill';
 
-const ASSASSINATION_SKILLS: Skill<'Nightblade', 'Assassination'>[] = [
+const ASSASSINATION_SKILLS: ClassSkill<'Nightblade', 'Assassination'>[] = [
   // Ultimate abilities
   {
     name: 'Death Stroke',

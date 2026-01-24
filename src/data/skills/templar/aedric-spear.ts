@@ -1,6 +1,6 @@
-import { Skill } from '../../../models/skill';
+import { ClassSkill } from '../../../models/skill';
 
-const AEDRIC_SPEAR_SKILLS: Skill<'Templar', 'AedricSpear'>[] = [
+const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
   // Ultimate abilities - Radial Sweep line
   {
     name: 'Radial Sweep',

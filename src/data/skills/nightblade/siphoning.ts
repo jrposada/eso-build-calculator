@@ -1,6 +1,6 @@
-import { Skill } from '../../../models/skill';
+import { ClassSkill } from '../../../models/skill';
 
-const SIPHONING_SKILLS: Skill<'Nightblade', 'Siphoning'>[] = [
+const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
   // Ultimate abilities
   {
     name: 'Soul Shred',

@@ -1,6 +1,6 @@
-import { Skill } from '../../../models/skill';
+import { ClassSkill } from '../../../models/skill';
 
-const WINTERS_EMBRACE_SKILLS: Skill<'Warden', 'WintersEmbrace'>[] = [
+const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
   // Ultimate abilities - Sleet Storm line
   {
     name: 'Sleet Storm',

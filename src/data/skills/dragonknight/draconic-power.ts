@@ -1,6 +1,6 @@
-import { Skill } from '../../../models/skill';
+import { ClassSkill } from '../../../models/skill';
 
-const DRACONIC_POWER_SKILLS: Skill<'Dragonknight', 'DraconicPower'>[] = [
+const DRACONIC_POWER_SKILLS: ClassSkill<'Dragonknight', 'DraconicPower'>[] = [
   // Ultimate abilities - Dragon Leap line
   {
     name: 'Dragon Leap',

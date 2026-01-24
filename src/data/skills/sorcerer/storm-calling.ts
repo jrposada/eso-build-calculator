@@ -1,6 +1,6 @@
-import { Skill } from '../../../models/skill';
+import { ClassSkill } from '../../../models/skill';
 
-const STORM_CALLING_SKILLS: Skill<'Sorcerer', 'StormCalling'>[] = [
+const STORM_CALLING_SKILLS: ClassSkill<'Sorcerer', 'StormCalling'>[] = [
   // Ultimate abilities - Overload line
   {
     name: 'Overload',

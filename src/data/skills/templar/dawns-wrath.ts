@@ -1,6 +1,6 @@
-import { Skill } from '../../../models/skill';
+import { ClassSkill } from '../../../models/skill';
 
-const DAWNS_WRATH_SKILLS: Skill<'Templar', 'DawnsWrath'>[] = [
+const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   // Ultimate abilities - Nova line
   {
     name: 'Nova',
