@@ -70,14 +70,9 @@ export type DamageType =
 
 export type TargetType = 'single' | 'aoe';
 
-export interface ClassSkill<
-  TEsoClass extends EsoClass = EsoClass,
-  TSkillLine extends ClassSkillLine = ClassSkillLine,
-> {
+interface BaseSkill {
   name: string;
   baseSkillName: string; // The base skill name for grouping (base, morph1, morph2)
-  esoClass: TEsoClass;
-  skillLine: TSkillLine;
   damage: {
     hits?: Array<{ value: number; delay?: number }>;
     dot?: number;
@@ -91,21 +86,16 @@ export interface ClassSkill<
   channelTime?: number;
 }
 
+export interface ClassSkill<
+  TEsoClass extends EsoClass = EsoClass,
+  TSkillLine extends ClassSkillLine = ClassSkillLine,
+> extends BaseSkill {
+  esoClass: TEsoClass;
+  skillLine: TSkillLine;
+}
+
 export interface WeaponSkill<
   TSkillLine extends WeaponSkillLineName = WeaponSkillLineName,
-> {
-  name: string;
-  baseSkillName: string; // The base skill name for grouping (base, morph1, morph2)
+> extends BaseSkill {
   skillLine: TSkillLine;
-  damage: {
-    hits?: Array<{ value: number; delay?: number }>;
-    dot?: number;
-    dotDuration?: number;
-    dotInterval?: number;
-    dotIncreasePerTick?: number; // Percentage increase per tick (e.g., 0.12 for 12%)
-  };
-  damageType: DamageType;
-  targetType: TargetType;
-  resource: Resource;
-  channelTime?: number;
 }
