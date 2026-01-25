@@ -16,6 +16,8 @@ interface SkillDamage {
   duration: number;
 }
 
+type SkillMechanic = 'dot' | 'instant' | 'channeled';
+
 function getSkillSource(skill: AnySkill): string {
   if ('esoClass' in skill) {
     return skill.esoClass;
@@ -23,11 +25,30 @@ function getSkillSource(skill: AnySkill): string {
   return 'Weapon';
 }
 
+function filterByMechanic(skill: AnySkill, mechanics: string[]): boolean {
+  return mechanics.some((mechanic) => {
+    switch (mechanic as SkillMechanic) {
+      case 'dot':
+        return !!skill.damage.dot && !skill.channelTime;
+      case 'instant':
+        return (
+          !!skill.damage.hits?.length &&
+          skill.damage.hits.some((hit) => Boolean(hit.value)) &&
+          !skill.damage.dot &&
+          !skill.channelTime
+        );
+      case 'channeled':
+        return !!skill.channelTime;
+    }
+  });
+}
+
 interface RankOptions {
   limit: string;
   format: 'table' | 'json';
   excludeUltimates: boolean;
   source?: string;
+  mechanic?: string;
 }
 
 function formatTable(skills: SkillDamage[], limit: number): string {
@@ -84,70 +105,89 @@ function formatJson(skills: SkillDamage[], limit: number): string {
   return JSON.stringify(skills.slice(0, limit), null, 2);
 }
 
+function action(options: RankOptions) {
+  const limit = parseInt(options.limit, 10);
+  if (isNaN(limit) || limit <= 0) {
+    console.error('Error: Limit must be a positive number.');
+    process.exit(1);
+  }
+
+  let skills = ALL_SKILLS;
+
+  // Exclude ultimates if specified
+  if (options.excludeUltimates) {
+    skills = skills.filter((skill) => skill.resource !== 'ultimate');
+  }
+
+  // Filter by source if specified
+  if (options.source) {
+    const allowedSources = options.source
+      .split(',')
+      .map((s) => s.trim().toLowerCase());
+    skills = skills.filter((skill) =>
+      allowedSources.includes(getSkillSource(skill).toLowerCase()),
+    );
+  }
+
+  // Filter by mechanic if specified
+  if (options.mechanic) {
+    const allowedMechanics = options.mechanic
+      .split(',')
+      .map((s) => s.trim().toLocaleLowerCase());
+    skills = skills.filter((skill) =>
+      filterByMechanic(skill, allowedMechanics),
+    );
+  }
+
+  // Calculate damage and create ranking data
+  const allSkillDamages: SkillDamage[] = skills
+    .map((skill) => ({
+      name: skill.name,
+      baseSkillName: skill.baseSkillName,
+      source: getSkillSource(skill),
+      skillLine: skill.skillLine,
+      damagePerCast: calculateDamagePerCast(skill),
+      duration: getSkillDuration(skill),
+    }))
+    .filter((s) => s.damagePerCast > 0); // Only show skills that deal damage
+
+  // Group by baseSkillName and pick the highest damage version from each group
+  const skillsByBase = new Map<string, SkillDamage>();
+  for (const skill of allSkillDamages) {
+    const key = `${skill.source}-${skill.baseSkillName}`;
+    const existing = skillsByBase.get(key);
+    if (!existing || skill.damagePerCast > existing.damagePerCast) {
+      skillsByBase.set(key, skill);
+    }
+  }
+
+  const skillDamages = Array.from(skillsByBase.values()).sort(
+    (a, b) => b.damagePerCast - a.damagePerCast,
+  );
+
+  if (skillDamages.length === 0) {
+    console.log('No damaging skills found.');
+    return;
+  }
+
+  if (options.format === 'json') {
+    console.log(formatJson(skillDamages, limit));
+  } else {
+    console.log(formatTable(skillDamages, limit));
+  }
+}
+
 export const rankCommand = new Command('rank')
   .description('Rank skills by damage per cast')
   .option('-l, --limit <number>', 'Number of skills to show', '20')
   .option('-f, --format <format>', 'Output format (table/json)', 'table')
   .option('--exclude-ultimates', 'Exclude ultimate abilities', false)
-  .option('-s, --source <sources>', 'Only include skills from specified sources (comma-separated)')
-  .action((options: RankOptions) => {
-    const limit = parseInt(options.limit, 10);
-    if (isNaN(limit) || limit <= 0) {
-      console.error('Error: Limit must be a positive number.');
-      process.exit(1);
-    }
-
-    let skills = ALL_SKILLS;
-
-    // Exclude ultimates if specified
-    if (options.excludeUltimates) {
-      skills = skills.filter((skill) => skill.resource !== 'ultimate');
-    }
-
-    // Filter by source if specified
-    if (options.source) {
-      const allowedSources = options.source
-        .split(',')
-        .map((s) => s.trim().toLowerCase());
-      skills = skills.filter((skill) =>
-        allowedSources.includes(getSkillSource(skill).toLowerCase()),
-      );
-    }
-
-    // Calculate damage and create ranking data
-    const allSkillDamages: SkillDamage[] = skills
-      .map((skill) => ({
-        name: skill.name,
-        baseSkillName: skill.baseSkillName,
-        source: getSkillSource(skill),
-        skillLine: skill.skillLine,
-        damagePerCast: calculateDamagePerCast(skill),
-        duration: getSkillDuration(skill),
-      }))
-      .filter((s) => s.damagePerCast > 0); // Only show skills that deal damage
-
-    // Group by baseSkillName and pick the highest damage version from each group
-    const skillsByBase = new Map<string, SkillDamage>();
-    for (const skill of allSkillDamages) {
-      const key = `${skill.source}-${skill.baseSkillName}`;
-      const existing = skillsByBase.get(key);
-      if (!existing || skill.damagePerCast > existing.damagePerCast) {
-        skillsByBase.set(key, skill);
-      }
-    }
-
-    const skillDamages = Array.from(skillsByBase.values()).sort(
-      (a, b) => b.damagePerCast - a.damagePerCast,
-    );
-
-    if (skillDamages.length === 0) {
-      console.log('No damaging skills found.');
-      return;
-    }
-
-    if (options.format === 'json') {
-      console.log(formatJson(skillDamages, limit));
-    } else {
-      console.log(formatTable(skillDamages, limit));
-    }
-  });
+  .option(
+    '-s, --source <sources>',
+    'Only include skills from specified sources (comma-separated)',
+  )
+  .option(
+    '-m, --mechanic <mechanics>',
+    'Only include skills of specified mechanic (comma-separated)',
+  )
+  .action(action);
