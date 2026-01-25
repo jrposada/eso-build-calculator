@@ -17,10 +17,13 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "cSpell.words": [
+    "Aedric",
     "Arcanist",
     "Daedric",
     "Dragonknight",
     "magicka",
-    "Nightblade"
+    "Netch",
+    "Nightblade",
+    "Runeforms"
   ],
 }

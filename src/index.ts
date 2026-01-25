@@ -2,15 +2,12 @@
 
 import { Command } from 'commander';
 
-import { compareCommand } from './commands/compare-skills';
+import { rankCommand } from './commands/rank-skills';
 
 const program = new Command();
 
-program
-  .name('eso-calc')
-  .description('ESO Build Calculator CLI')
-  .version('1.0.0');
+program.name('eso').description('ESO Build Calculator CLI').version('1.0.0');
 
-program.addCommand(compareCommand);
+program.addCommand(rankCommand);
 
 program.parse();

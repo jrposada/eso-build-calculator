@@ -108,8 +108,10 @@ const ARDENT_FLAME_SKILLS: ClassSkill<'Dragonknight', 'ArdentFlame'>[] = [
     skillLine: 'ArdentFlame',
     damage: {
       hits: [{ value: 1161 }],
-      dot: 3470, // FIXME: The poison seeps into the target and deals increased damage the longer it lasts, dealing 12% more damage every 2 seconds
+      dot: 3470 / 10,
       dotDuration: 20,
+      dotInterval: 2,
+      dotIncreasePerTick: 0.12,
     },
     damageType: 'poison',
     targetType: 'single',

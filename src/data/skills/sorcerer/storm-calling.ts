@@ -104,6 +104,7 @@ const STORM_CALLING_SKILLS: ClassSkill<'Sorcerer', 'StormCalling'>[] = [
       dot: 478,
       dotDuration: 20,
       dotInterval: 2,
+      dotIncreasePerTick: 0.12,
     },
     damageType: 'physical',
     targetType: 'aoe',

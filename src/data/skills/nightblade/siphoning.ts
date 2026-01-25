@@ -42,9 +42,7 @@ const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {
-      dot: 1548,
-      dotDuration: 10,
-      dotInterval: 2,
+      hits: [{ value: 1548 }],
     },
     damageType: 'magic',
     targetType: 'single',
@@ -55,9 +53,7 @@ const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {
-      dot: 1600,
-      dotDuration: 10,
-      dotInterval: 2,
+      hits: [{ value: 1600 }],
     },
     damageType: 'magic',
     targetType: 'single',
@@ -68,9 +64,7 @@ const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {
-      dot: 2160,
-      dotDuration: 10,
-      dotInterval: 2,
+      hits: [{ value: 2160 }],
     },
     damageType: 'magic',
     targetType: 'single',
