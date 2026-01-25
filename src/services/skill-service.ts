@@ -2,6 +2,36 @@ import { ClassSkill, WeaponSkill } from '../models/skill';
 
 export type AnySkill = ClassSkill | WeaponSkill;
 
+export type SkillMechanic = 'dot' | 'instant' | 'channeled';
+
+export function getSkillSource(skill: AnySkill): string {
+  if ('esoClass' in skill) {
+    return skill.esoClass;
+  }
+  return 'Weapon';
+}
+
+export function getSkillMechanic(skill: AnySkill): SkillMechanic | 'unknown' {
+  if (skill.channelTime) {
+    return 'channeled';
+  }
+
+  if (skill.damage.dot) {
+    return 'dot';
+  }
+
+  if (
+    !!skill.damage.hits?.length &&
+    skill.damage.hits.some((hit) => Boolean(hit.value)) &&
+    !skill.damage.dot &&
+    !skill.channelTime
+  ) {
+    return 'instant';
+  }
+
+  return 'unknown';
+}
+
 /**
  * Get the duration of a skill (dotDuration or channelTime)
  */

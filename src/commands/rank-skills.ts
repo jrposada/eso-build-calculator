@@ -2,9 +2,10 @@ import { Command } from 'commander';
 
 import { ALL_SKILLS } from '../data/skills';
 import {
-  AnySkill,
   calculateDamagePerCast,
   getSkillDuration,
+  getSkillMechanic,
+  getSkillSource,
 } from '../services/skill-service';
 
 interface SkillDamage {
@@ -14,33 +15,6 @@ interface SkillDamage {
   skillLine: string;
   damagePerCast: number;
   duration: number;
-}
-
-type SkillMechanic = 'dot' | 'instant' | 'channeled';
-
-function getSkillSource(skill: AnySkill): string {
-  if ('esoClass' in skill) {
-    return skill.esoClass;
-  }
-  return 'Weapon';
-}
-
-function filterByMechanic(skill: AnySkill, mechanics: string[]): boolean {
-  return mechanics.some((mechanic) => {
-    switch (mechanic as SkillMechanic) {
-      case 'dot':
-        return !!skill.damage.dot && !skill.channelTime;
-      case 'instant':
-        return (
-          !!skill.damage.hits?.length &&
-          skill.damage.hits.some((hit) => Boolean(hit.value)) &&
-          !skill.damage.dot &&
-          !skill.channelTime
-        );
-      case 'channeled':
-        return !!skill.channelTime;
-    }
-  });
 }
 
 interface RankOptions {
@@ -135,7 +109,7 @@ function action(options: RankOptions) {
       .split(',')
       .map((s) => s.trim().toLocaleLowerCase());
     skills = skills.filter((skill) =>
-      filterByMechanic(skill, allowedMechanics),
+      allowedMechanics.includes(getSkillMechanic(skill)),
     );
   }
 
