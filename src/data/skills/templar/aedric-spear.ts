@@ -4,6 +4,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
   // Ultimate abilities - Radial Sweep line
   {
     name: 'Radial Sweep',
+    baseSkillName: 'Radial Sweep',
     esoClass: 'Templar',
     skillLine: 'AedricSpear',
     damage: {
@@ -18,6 +19,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
   },
   {
     name: 'Crescent Sweep',
+    baseSkillName: 'Radial Sweep',
     esoClass: 'Templar',
     skillLine: 'AedricSpear',
     damage: {
@@ -32,6 +34,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
   },
   {
     name: 'Everlasting Sweep',
+    baseSkillName: 'Radial Sweep',
     esoClass: 'Templar',
     skillLine: 'AedricSpear',
     damage: {
@@ -47,6 +50,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
   // Puncturing Strikes line
   {
     name: 'Puncturing Strikes',
+    baseSkillName: 'Puncturing Strikes',
     esoClass: 'Templar',
     skillLine: 'AedricSpear',
     damage: {
@@ -59,6 +63,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
   },
   {
     name: 'Biting Jabs',
+    baseSkillName: 'Puncturing Strikes',
     esoClass: 'Templar',
     skillLine: 'AedricSpear',
     damage: {
@@ -71,6 +76,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
   },
   {
     name: 'Puncturing Sweep',
+    baseSkillName: 'Puncturing Strikes',
     esoClass: 'Templar',
     skillLine: 'AedricSpear',
     damage: {
@@ -84,6 +90,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
   // Piercing Javelin line
   {
     name: 'Piercing Javelin',
+    baseSkillName: 'Piercing Javelin',
     esoClass: 'Templar',
     skillLine: 'AedricSpear',
     damage: {
@@ -95,6 +102,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
   },
   {
     name: 'Aurora Javelin',
+    baseSkillName: 'Piercing Javelin',
     esoClass: 'Templar',
     skillLine: 'AedricSpear',
     damage: {
@@ -106,6 +114,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
   },
   {
     name: 'Binding Javelin',
+    baseSkillName: 'Piercing Javelin',
     esoClass: 'Templar',
     skillLine: 'AedricSpear',
     damage: {
@@ -118,6 +127,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
   // Focused Charge line
   {
     name: 'Focused Charge',
+    baseSkillName: 'Focused Charge',
     esoClass: 'Templar',
     skillLine: 'AedricSpear',
     damage: {
@@ -129,6 +139,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
   },
   {
     name: 'Explosive Charge',
+    baseSkillName: 'Focused Charge',
     esoClass: 'Templar',
     skillLine: 'AedricSpear',
     damage: {
@@ -140,6 +151,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
   },
   {
     name: 'Toppling Charge',
+    baseSkillName: 'Focused Charge',
     esoClass: 'Templar',
     skillLine: 'AedricSpear',
     damage: {
@@ -152,6 +164,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
   // Spear Shards line
   {
     name: 'Spear Shards',
+    baseSkillName: 'Spear Shards',
     esoClass: 'Templar',
     skillLine: 'AedricSpear',
     damage: {
@@ -166,6 +179,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
   },
   {
     name: 'Blazing Spear',
+    baseSkillName: 'Spear Shards',
     esoClass: 'Templar',
     skillLine: 'AedricSpear',
     damage: {
@@ -180,6 +194,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
   },
   {
     name: 'Luminous Shards',
+    baseSkillName: 'Spear Shards',
     esoClass: 'Templar',
     skillLine: 'AedricSpear',
     damage: {
@@ -195,6 +210,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
   // Sun Shield line
   {
     name: 'Sun Shield',
+    baseSkillName: 'Sun Shield',
     esoClass: 'Templar',
     skillLine: 'AedricSpear',
     damage: {
@@ -206,6 +222,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
   },
   {
     name: 'Blazing Shield',
+    baseSkillName: 'Sun Shield',
     esoClass: 'Templar',
     skillLine: 'AedricSpear',
     damage: {}, // No initial damage, explodes when shield expires
@@ -215,6 +232,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
   },
   {
     name: 'Radiant Ward',
+    baseSkillName: 'Sun Shield',
     esoClass: 'Templar',
     skillLine: 'AedricSpear',
     damage: {

@@ -4,6 +4,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
   // Ultimate abilities - Sleet Storm line
   {
     name: 'Sleet Storm',
+    baseSkillName: 'Sleet Storm',
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {
@@ -17,6 +18,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
   },
   {
     name: 'Northern Storm',
+    baseSkillName: 'Sleet Storm',
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {
@@ -30,6 +32,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
   },
   {
     name: 'Permafrost',
+    baseSkillName: 'Sleet Storm',
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {
@@ -44,6 +47,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
   // Frost Cloak line
   {
     name: 'Frost Cloak',
+    baseSkillName: 'Frost Cloak',
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {},
@@ -53,6 +57,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
   },
   {
     name: 'Expansive Frost Cloak',
+    baseSkillName: 'Frost Cloak',
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {},
@@ -62,6 +67,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
   },
   {
     name: 'Ice Fortress',
+    baseSkillName: 'Frost Cloak',
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {},
@@ -72,6 +78,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
   // Impaling Shards line
   {
     name: 'Impaling Shards',
+    baseSkillName: 'Impaling Shards',
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {
@@ -85,6 +92,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
   },
   {
     name: 'Gripping Shards',
+    baseSkillName: 'Impaling Shards',
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {
@@ -98,6 +106,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
   },
   {
     name: "Winter's Revenge",
+    baseSkillName: 'Impaling Shards',
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {
@@ -112,6 +121,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
   // Arctic Wind line
   {
     name: 'Arctic Wind',
+    baseSkillName: 'Arctic Wind',
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {},
@@ -121,6 +131,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
   },
   {
     name: 'Arctic Blast',
+    baseSkillName: 'Arctic Wind',
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {
@@ -135,6 +146,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
   },
   {
     name: 'Polar Wind',
+    baseSkillName: 'Arctic Wind',
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {},
@@ -145,6 +157,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
   // Crystallized Shield line
   {
     name: 'Crystallized Shield',
+    baseSkillName: 'Crystallized Shield',
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {},
@@ -154,6 +167,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
   },
   {
     name: 'Crystallized Slab',
+    baseSkillName: 'Crystallized Shield',
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {}, // 1199 on projectile absorb - conditional damage
@@ -163,6 +177,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
   },
   {
     name: 'Shimmering Shield',
+    baseSkillName: 'Crystallized Shield',
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {},
@@ -173,6 +188,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
   // Frozen Gate line
   {
     name: 'Frozen Gate',
+    baseSkillName: 'Frozen Gate',
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {
@@ -184,6 +200,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
   },
   {
     name: 'Frozen Device',
+    baseSkillName: 'Frozen Gate',
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {
@@ -195,6 +212,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
   },
   {
     name: 'Frozen Retreat',
+    baseSkillName: 'Frozen Gate',
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {

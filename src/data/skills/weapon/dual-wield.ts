@@ -4,6 +4,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
   // Ultimate abilities - Lacerate line
   {
     name: 'Lacerate',
+    baseSkillName: 'Lacerate',
     skillLine: 'DualWield',
     damage: {
       dot: 6960,
@@ -15,6 +16,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
   },
   {
     name: 'Rend',
+    baseSkillName: 'Lacerate',
     skillLine: 'DualWield',
     damage: {
       dot: 12942,
@@ -26,6 +28,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
   },
   {
     name: 'Thrive in Chaos',
+    baseSkillName: 'Lacerate',
     skillLine: 'DualWield',
     damage: {
       dot: 6965,
@@ -38,6 +41,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
   // Flurry line
   {
     name: 'Flurry',
+    baseSkillName: 'Flurry',
     skillLine: 'DualWield',
     damage: {
       hits: [
@@ -53,6 +57,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
   },
   {
     name: 'Bloodthirst',
+    baseSkillName: 'Flurry',
     skillLine: 'DualWield',
     damage: {
       hits: [
@@ -68,6 +73,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
   },
   {
     name: 'Rapid Strikes',
+    baseSkillName: 'Flurry',
     skillLine: 'DualWield',
     damage: {
       hits: [
@@ -84,6 +90,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
   // Twin Slashes line
   {
     name: 'Twin Slashes',
+    baseSkillName: 'Twin Slashes',
     skillLine: 'DualWield',
     damage: {
       hits: [{ value: 580 }, { value: 580 }],
@@ -96,6 +103,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
   },
   {
     name: 'Blood Craze',
+    baseSkillName: 'Twin Slashes',
     skillLine: 'DualWield',
     damage: {
       hits: [{ value: 580 }, { value: 580 }],
@@ -108,6 +116,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
   },
   {
     name: 'Rending Slashes',
+    baseSkillName: 'Twin Slashes',
     skillLine: 'DualWield',
     damage: {
       hits: [{ value: 718 }, { value: 718 }],
@@ -121,6 +130,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
   // Whirlwind line
   {
     name: 'Whirlwind',
+    baseSkillName: 'Whirlwind',
     skillLine: 'DualWield',
     damage: {
       hits: [{ value: 1742 }],
@@ -131,6 +141,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
   },
   {
     name: 'Steel Tornado',
+    baseSkillName: 'Whirlwind',
     skillLine: 'DualWield',
     damage: {
       hits: [{ value: 1742 }],
@@ -141,6 +152,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
   },
   {
     name: 'Whirling Blades',
+    baseSkillName: 'Whirlwind',
     skillLine: 'DualWield',
     damage: {
       hits: [{ value: 1799 }],
@@ -152,6 +164,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
   // Blade Cloak line
   {
     name: 'Blade Cloak',
+    baseSkillName: 'Blade Cloak',
     skillLine: 'DualWield',
     damage: {
       dot: 421,
@@ -164,6 +177,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
   },
   {
     name: 'Deadly Cloak',
+    baseSkillName: 'Blade Cloak',
     skillLine: 'DualWield',
     damage: {
       dot: 567,
@@ -176,6 +190,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
   },
   {
     name: 'Quick Cloak',
+    baseSkillName: 'Blade Cloak',
     skillLine: 'DualWield',
     damage: {
       dot: 422,
@@ -189,6 +204,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
   // Hidden Blade line
   {
     name: 'Hidden Blade',
+    baseSkillName: 'Hidden Blade',
     skillLine: 'DualWield',
     damage: {
       hits: [{ value: 1392 }],
@@ -199,6 +215,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
   },
   {
     name: 'Flying Blade',
+    baseSkillName: 'Hidden Blade',
     skillLine: 'DualWield',
     damage: {
       hits: [{ value: 1438 }, { value: 2160 }],
@@ -209,6 +226,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
   },
   {
     name: 'Shrouded Daggers',
+    baseSkillName: 'Hidden Blade',
     skillLine: 'DualWield',
     damage: {
       hits: [{ value: 1799 }, { value: 1799 }, { value: 1799 }],

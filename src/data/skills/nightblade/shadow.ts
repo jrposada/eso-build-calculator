@@ -4,6 +4,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   // Ultimate abilities
   {
     name: 'Consuming Darkness',
+    baseSkillName: 'Consuming Darkness',
     esoClass: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
@@ -13,6 +14,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   },
   {
     name: 'Bolstering Darkness',
+    baseSkillName: 'Consuming Darkness',
     esoClass: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
@@ -22,6 +24,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   },
   {
     name: 'Veil of Blades',
+    baseSkillName: 'Consuming Darkness',
     esoClass: 'Nightblade',
     skillLine: 'Shadow',
     damage: {
@@ -36,6 +39,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   // Shadow Cloak line
   {
     name: 'Shadow Cloak',
+    baseSkillName: 'Shadow Cloak',
     esoClass: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
@@ -45,6 +49,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   },
   {
     name: 'Dark Cloak',
+    baseSkillName: 'Shadow Cloak',
     esoClass: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
@@ -54,6 +59,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   },
   {
     name: 'Shadowy Disguise',
+    baseSkillName: 'Shadow Cloak',
     esoClass: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
@@ -64,6 +70,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   // Blur line
   {
     name: 'Blur',
+    baseSkillName: 'Blur',
     esoClass: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
@@ -73,6 +80,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   },
   {
     name: 'Mirage',
+    baseSkillName: 'Blur',
     esoClass: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
@@ -82,6 +90,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   },
   {
     name: 'Phantasmal Escape',
+    baseSkillName: 'Blur',
     esoClass: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
@@ -92,6 +101,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   // Path of Darkness line
   {
     name: 'Path of Darkness',
+    baseSkillName: 'Path of Darkness',
     esoClass: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
@@ -101,6 +111,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   },
   {
     name: 'Refreshing Path',
+    baseSkillName: 'Path of Darkness',
     esoClass: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
@@ -110,6 +121,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   },
   {
     name: 'Twisting Path',
+    baseSkillName: 'Path of Darkness',
     esoClass: 'Nightblade',
     skillLine: 'Shadow',
     damage: {
@@ -124,6 +136,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   // Aspect of Terror line
   {
     name: 'Aspect of Terror',
+    baseSkillName: 'Aspect of Terror',
     esoClass: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
@@ -133,6 +146,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   },
   {
     name: 'Manifestation of Terror',
+    baseSkillName: 'Aspect of Terror',
     esoClass: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
@@ -142,6 +156,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   },
   {
     name: 'Mass Hysteria',
+    baseSkillName: 'Aspect of Terror',
     esoClass: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
@@ -152,6 +167,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   // Summon Shade line
   {
     name: 'Summon Shade',
+    baseSkillName: 'Summon Shade',
     esoClass: 'Nightblade',
     skillLine: 'Shadow',
     damage: {
@@ -165,6 +181,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   },
   {
     name: 'Dark Shade',
+    baseSkillName: 'Summon Shade',
     esoClass: 'Nightblade',
     skillLine: 'Shadow',
     damage: {
@@ -178,6 +195,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   },
   {
     name: 'Shadow Image',
+    baseSkillName: 'Summon Shade',
     esoClass: 'Nightblade',
     skillLine: 'Shadow',
     damage: {

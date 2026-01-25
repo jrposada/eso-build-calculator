@@ -4,6 +4,7 @@ const DESTRUCTION_STAFF_SKILLS: WeaponSkill<'DestructionStaff'>[] = [
   // Ultimate abilities - Elemental Storm line
   {
     name: 'Elemental Storm',
+    baseSkillName: 'Elemental Storm',
     skillLine: 'DestructionStaff',
     damage: {
       dot: 1742,
@@ -16,6 +17,7 @@ const DESTRUCTION_STAFF_SKILLS: WeaponSkill<'DestructionStaff'>[] = [
   },
   {
     name: 'Elemental Rage',
+    baseSkillName: 'Elemental Storm',
     skillLine: 'DestructionStaff',
     damage: {
       dot: 2249,
@@ -28,6 +30,7 @@ const DESTRUCTION_STAFF_SKILLS: WeaponSkill<'DestructionStaff'>[] = [
   },
   {
     name: 'Eye of the Storm',
+    baseSkillName: 'Elemental Storm',
     skillLine: 'DestructionStaff',
     damage: {
       dot: 1799,
@@ -41,6 +44,7 @@ const DESTRUCTION_STAFF_SKILLS: WeaponSkill<'DestructionStaff'>[] = [
   // Force Shock line
   {
     name: 'Force Shock',
+    baseSkillName: 'Force Shock',
     skillLine: 'DestructionStaff',
     damage: {
       hits: [{ value: 2085 }], // 695 + 695 + 695
@@ -51,6 +55,7 @@ const DESTRUCTION_STAFF_SKILLS: WeaponSkill<'DestructionStaff'>[] = [
   },
   {
     name: 'Crushing Shock',
+    baseSkillName: 'Force Shock',
     skillLine: 'DestructionStaff',
     damage: {
       hits: [{ value: 2088 }], // 696 + 696 + 696
@@ -61,6 +66,7 @@ const DESTRUCTION_STAFF_SKILLS: WeaponSkill<'DestructionStaff'>[] = [
   },
   {
     name: 'Force Pulse',
+    baseSkillName: 'Force Shock',
     skillLine: 'DestructionStaff',
     damage: {
       hits: [{ value: 2088 }], // 696 + 696 + 696
@@ -72,6 +78,7 @@ const DESTRUCTION_STAFF_SKILLS: WeaponSkill<'DestructionStaff'>[] = [
   // Wall of Elements line
   {
     name: 'Wall of Elements',
+    baseSkillName: 'Wall of Elements',
     skillLine: 'DestructionStaff',
     damage: {
       dot: 280,
@@ -84,6 +91,7 @@ const DESTRUCTION_STAFF_SKILLS: WeaponSkill<'DestructionStaff'>[] = [
   },
   {
     name: 'Elemental Blockade',
+    baseSkillName: 'Wall of Elements',
     skillLine: 'DestructionStaff',
     damage: {
       dot: 281,
@@ -96,6 +104,7 @@ const DESTRUCTION_STAFF_SKILLS: WeaponSkill<'DestructionStaff'>[] = [
   },
   {
     name: 'Unstable Wall of Elements',
+    baseSkillName: 'Wall of Elements',
     skillLine: 'DestructionStaff',
     damage: {
       dot: 281,
@@ -109,6 +118,7 @@ const DESTRUCTION_STAFF_SKILLS: WeaponSkill<'DestructionStaff'>[] = [
   // Destructive Touch line
   {
     name: 'Destructive Touch',
+    baseSkillName: 'Destructive Touch',
     skillLine: 'DestructionStaff',
     damage: {
       hits: [{ value: 1161 }],
@@ -121,6 +131,7 @@ const DESTRUCTION_STAFF_SKILLS: WeaponSkill<'DestructionStaff'>[] = [
   },
   {
     name: 'Destructive Clench',
+    baseSkillName: 'Destructive Touch',
     skillLine: 'DestructionStaff',
     damage: {
       hits: [{ value: 1161 }],
@@ -131,6 +142,7 @@ const DESTRUCTION_STAFF_SKILLS: WeaponSkill<'DestructionStaff'>[] = [
   },
   {
     name: 'Destructive Reach',
+    baseSkillName: 'Destructive Touch',
     skillLine: 'DestructionStaff',
     damage: {
       hits: [{ value: 1161 }],
@@ -144,6 +156,7 @@ const DESTRUCTION_STAFF_SKILLS: WeaponSkill<'DestructionStaff'>[] = [
   // Weakness to Elements line
   {
     name: 'Weakness to Elements',
+    baseSkillName: 'Weakness to Elements',
     skillLine: 'DestructionStaff',
     damage: {},
     damageType: 'magic',
@@ -152,6 +165,7 @@ const DESTRUCTION_STAFF_SKILLS: WeaponSkill<'DestructionStaff'>[] = [
   },
   {
     name: 'Elemental Drain',
+    baseSkillName: 'Weakness to Elements',
     skillLine: 'DestructionStaff',
     damage: {},
     damageType: 'magic',
@@ -160,6 +174,7 @@ const DESTRUCTION_STAFF_SKILLS: WeaponSkill<'DestructionStaff'>[] = [
   },
   {
     name: 'Elemental Susceptibility',
+    baseSkillName: 'Weakness to Elements',
     skillLine: 'DestructionStaff',
     damage: {},
     damageType: 'magic',
@@ -169,6 +184,7 @@ const DESTRUCTION_STAFF_SKILLS: WeaponSkill<'DestructionStaff'>[] = [
   // Impulse line
   {
     name: 'Impulse',
+    baseSkillName: 'Impulse',
     skillLine: 'DestructionStaff',
     damage: {
       hits: [{ value: 1742 }],
@@ -179,6 +195,7 @@ const DESTRUCTION_STAFF_SKILLS: WeaponSkill<'DestructionStaff'>[] = [
   },
   {
     name: 'Elemental Ring',
+    baseSkillName: 'Impulse',
     skillLine: 'DestructionStaff',
     damage: {
       hits: [{ value: 1799 }],
@@ -189,6 +206,7 @@ const DESTRUCTION_STAFF_SKILLS: WeaponSkill<'DestructionStaff'>[] = [
   },
   {
     name: 'Pulsar',
+    baseSkillName: 'Impulse',
     skillLine: 'DestructionStaff',
     damage: {
       hits: [{ value: 1742 }],

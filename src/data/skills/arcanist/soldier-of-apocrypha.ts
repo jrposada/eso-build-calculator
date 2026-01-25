@@ -4,6 +4,7 @@ const SOLDIER_OF_APOCRYPHA_SKILLS: ClassSkill<'Arcanist', 'SoldierOfApocrypha'>[
   // Ultimate abilities - Gibbering Shield line
   {
     name: 'Gibbering Shield',
+    baseSkillName: 'Gibbering Shield',
     esoClass: 'Arcanist',
     skillLine: 'SoldierOfApocrypha',
     damage: {}, // Damage scales off absorbed damage
@@ -13,6 +14,7 @@ const SOLDIER_OF_APOCRYPHA_SKILLS: ClassSkill<'Arcanist', 'SoldierOfApocrypha'>[
   },
   {
     name: 'Gibbering Shelter',
+    baseSkillName: 'Gibbering Shield',
     esoClass: 'Arcanist',
     skillLine: 'SoldierOfApocrypha',
     damage: {}, // No longer deals damage
@@ -22,6 +24,7 @@ const SOLDIER_OF_APOCRYPHA_SKILLS: ClassSkill<'Arcanist', 'SoldierOfApocrypha'>[
   },
   {
     name: 'Sanctum of the Abyssal Sea',
+    baseSkillName: 'Gibbering Shield',
     esoClass: 'Arcanist',
     skillLine: 'SoldierOfApocrypha',
     damage: {}, // Damage scales off absorbed damage
@@ -32,6 +35,7 @@ const SOLDIER_OF_APOCRYPHA_SKILLS: ClassSkill<'Arcanist', 'SoldierOfApocrypha'>[
   // Runic Jolt line
   {
     name: 'Runic Jolt',
+    baseSkillName: 'Runic Jolt',
     esoClass: 'Arcanist',
     skillLine: 'SoldierOfApocrypha',
     damage: {
@@ -43,6 +47,7 @@ const SOLDIER_OF_APOCRYPHA_SKILLS: ClassSkill<'Arcanist', 'SoldierOfApocrypha'>[
   },
   {
     name: 'Runic Embrace',
+    baseSkillName: 'Runic Jolt',
     esoClass: 'Arcanist',
     skillLine: 'SoldierOfApocrypha',
     damage: {
@@ -54,6 +59,7 @@ const SOLDIER_OF_APOCRYPHA_SKILLS: ClassSkill<'Arcanist', 'SoldierOfApocrypha'>[
   },
   {
     name: 'Runic Sunder',
+    baseSkillName: 'Runic Jolt',
     esoClass: 'Arcanist',
     skillLine: 'SoldierOfApocrypha',
     damage: {
@@ -66,6 +72,7 @@ const SOLDIER_OF_APOCRYPHA_SKILLS: ClassSkill<'Arcanist', 'SoldierOfApocrypha'>[
   // Runespite Ward line
   {
     name: 'Runespite Ward',
+    baseSkillName: 'Runespite Ward',
     esoClass: 'Arcanist',
     skillLine: 'SoldierOfApocrypha',
     damage: {}, // Retaliation damage scales off Armor
@@ -75,6 +82,7 @@ const SOLDIER_OF_APOCRYPHA_SKILLS: ClassSkill<'Arcanist', 'SoldierOfApocrypha'>[
   },
   {
     name: 'Impervious Runeward',
+    baseSkillName: 'Runespite Ward',
     esoClass: 'Arcanist',
     skillLine: 'SoldierOfApocrypha',
     damage: {}, // Retaliation damage scales off Armor
@@ -84,6 +92,7 @@ const SOLDIER_OF_APOCRYPHA_SKILLS: ClassSkill<'Arcanist', 'SoldierOfApocrypha'>[
   },
   {
     name: 'Spiteward of the Lucid Mind',
+    baseSkillName: 'Runespite Ward',
     esoClass: 'Arcanist',
     skillLine: 'SoldierOfApocrypha',
     damage: {}, // Retaliation damage scales off Armor
@@ -94,6 +103,7 @@ const SOLDIER_OF_APOCRYPHA_SKILLS: ClassSkill<'Arcanist', 'SoldierOfApocrypha'>[
   // Fatewoven Armor line
   {
     name: 'Fatewoven Armor',
+    baseSkillName: 'Fatewoven Armor',
     esoClass: 'Arcanist',
     skillLine: 'SoldierOfApocrypha',
     damage: {},
@@ -103,6 +113,7 @@ const SOLDIER_OF_APOCRYPHA_SKILLS: ClassSkill<'Arcanist', 'SoldierOfApocrypha'>[
   },
   {
     name: 'Cruxweaver Armor',
+    baseSkillName: 'Fatewoven Armor',
     esoClass: 'Arcanist',
     skillLine: 'SoldierOfApocrypha',
     damage: {},
@@ -112,6 +123,7 @@ const SOLDIER_OF_APOCRYPHA_SKILLS: ClassSkill<'Arcanist', 'SoldierOfApocrypha'>[
   },
   {
     name: 'Unbreakable Fate',
+    baseSkillName: 'Fatewoven Armor',
     esoClass: 'Arcanist',
     skillLine: 'SoldierOfApocrypha',
     damage: {},
@@ -122,6 +134,7 @@ const SOLDIER_OF_APOCRYPHA_SKILLS: ClassSkill<'Arcanist', 'SoldierOfApocrypha'>[
   // Runic Defense line
   {
     name: 'Runic Defense',
+    baseSkillName: 'Runic Defense',
     esoClass: 'Arcanist',
     skillLine: 'SoldierOfApocrypha',
     damage: {},
@@ -131,6 +144,7 @@ const SOLDIER_OF_APOCRYPHA_SKILLS: ClassSkill<'Arcanist', 'SoldierOfApocrypha'>[
   },
   {
     name: 'Runeguard of Freedom',
+    baseSkillName: 'Runic Defense',
     esoClass: 'Arcanist',
     skillLine: 'SoldierOfApocrypha',
     damage: {},
@@ -140,6 +154,7 @@ const SOLDIER_OF_APOCRYPHA_SKILLS: ClassSkill<'Arcanist', 'SoldierOfApocrypha'>[
   },
   {
     name: 'Runeguard of Still Waters',
+    baseSkillName: 'Runic Defense',
     esoClass: 'Arcanist',
     skillLine: 'SoldierOfApocrypha',
     damage: {},
@@ -150,6 +165,7 @@ const SOLDIER_OF_APOCRYPHA_SKILLS: ClassSkill<'Arcanist', 'SoldierOfApocrypha'>[
   // Rune of Eldritch Horror line
   {
     name: 'Rune of Eldritch Horror',
+    baseSkillName: 'Rune of Eldritch Horror',
     esoClass: 'Arcanist',
     skillLine: 'SoldierOfApocrypha',
     damage: {},
@@ -159,6 +175,7 @@ const SOLDIER_OF_APOCRYPHA_SKILLS: ClassSkill<'Arcanist', 'SoldierOfApocrypha'>[
   },
   {
     name: 'Rune of Uncanny Adoration',
+    baseSkillName: 'Rune of Eldritch Horror',
     esoClass: 'Arcanist',
     skillLine: 'SoldierOfApocrypha',
     damage: {},
@@ -168,6 +185,7 @@ const SOLDIER_OF_APOCRYPHA_SKILLS: ClassSkill<'Arcanist', 'SoldierOfApocrypha'>[
   },
   {
     name: 'Rune of the Colorless Pool',
+    baseSkillName: 'Rune of Eldritch Horror',
     esoClass: 'Arcanist',
     skillLine: 'SoldierOfApocrypha',
     damage: {},

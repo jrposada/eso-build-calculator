@@ -4,6 +4,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   // Ultimate abilities - Magma Armor line
   {
     name: 'Magma Armor',
+    baseSkillName: 'Magma Armor',
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
@@ -17,6 +18,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   },
   {
     name: 'Corrosive Armor',
+    baseSkillName: 'Magma Armor',
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
@@ -30,6 +32,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   },
   {
     name: 'Magma Shell',
+    baseSkillName: 'Magma Armor',
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
@@ -44,6 +47,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   // Stonefist line
   {
     name: 'Stonefist',
+    baseSkillName: 'Stonefist',
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
@@ -55,6 +59,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   },
   {
     name: 'Obsidian Shard',
+    baseSkillName: 'Stonefist',
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
@@ -66,6 +71,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   },
   {
     name: 'Stone Giant',
+    baseSkillName: 'Stonefist',
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
@@ -78,6 +84,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   // Molten Weapons line
   {
     name: 'Molten Weapons',
+    baseSkillName: 'Molten Weapons',
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {},
@@ -87,6 +94,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   },
   {
     name: 'Igneous Weapons',
+    baseSkillName: 'Molten Weapons',
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {},
@@ -96,6 +104,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   },
   {
     name: 'Molten Armaments',
+    baseSkillName: 'Molten Weapons',
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {},
@@ -106,6 +115,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   // Obsidian Shield line
   {
     name: 'Obsidian Shield',
+    baseSkillName: 'Obsidian Shield',
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {},
@@ -115,6 +125,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   },
   {
     name: 'Fragmented Shield',
+    baseSkillName: 'Obsidian Shield',
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {},
@@ -124,6 +135,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   },
   {
     name: 'Igneous Shield',
+    baseSkillName: 'Obsidian Shield',
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {},
@@ -134,6 +146,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   // Petrify line
   {
     name: 'Petrify',
+    baseSkillName: 'Petrify',
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
@@ -145,6 +158,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   },
   {
     name: 'Fossilize',
+    baseSkillName: 'Petrify',
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
@@ -156,6 +170,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   },
   {
     name: 'Shattering Rocks',
+    baseSkillName: 'Petrify',
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
@@ -168,6 +183,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   // Ash Cloud line
   {
     name: 'Ash Cloud',
+    baseSkillName: 'Ash Cloud',
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {},
@@ -177,6 +193,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   },
   {
     name: 'Cinder Storm',
+    baseSkillName: 'Ash Cloud',
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {},
@@ -186,6 +203,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   },
   {
     name: 'Eruption',
+    baseSkillName: 'Ash Cloud',
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {

@@ -4,6 +4,7 @@ const DARK_MAGIC_SKILLS: ClassSkill<'Sorcerer', 'DarkMagic'>[] = [
   // Ultimate abilities - Negate Magic line
   {
     name: 'Negate Magic',
+    baseSkillName: 'Negate Magic',
     esoClass: 'Sorcerer',
     skillLine: 'DarkMagic',
     damage: {},
@@ -13,6 +14,7 @@ const DARK_MAGIC_SKILLS: ClassSkill<'Sorcerer', 'DarkMagic'>[] = [
   },
   {
     name: 'Absorption Field',
+    baseSkillName: 'Negate Magic',
     esoClass: 'Sorcerer',
     skillLine: 'DarkMagic',
     damage: {},
@@ -22,6 +24,7 @@ const DARK_MAGIC_SKILLS: ClassSkill<'Sorcerer', 'DarkMagic'>[] = [
   },
   {
     name: 'Suppression Field',
+    baseSkillName: 'Negate Magic',
     esoClass: 'Sorcerer',
     skillLine: 'DarkMagic',
     damage: {
@@ -36,6 +39,7 @@ const DARK_MAGIC_SKILLS: ClassSkill<'Sorcerer', 'DarkMagic'>[] = [
   // Crystal Shard line
   {
     name: 'Crystal Shard',
+    baseSkillName: 'Crystal Shard',
     esoClass: 'Sorcerer',
     skillLine: 'DarkMagic',
     damage: {
@@ -47,6 +51,7 @@ const DARK_MAGIC_SKILLS: ClassSkill<'Sorcerer', 'DarkMagic'>[] = [
   },
   {
     name: 'Crystal Fragments',
+    baseSkillName: 'Crystal Shard',
     esoClass: 'Sorcerer',
     skillLine: 'DarkMagic',
     damage: {
@@ -58,6 +63,7 @@ const DARK_MAGIC_SKILLS: ClassSkill<'Sorcerer', 'DarkMagic'>[] = [
   },
   {
     name: 'Crystal Weapon',
+    baseSkillName: 'Crystal Shard',
     esoClass: 'Sorcerer',
     skillLine: 'DarkMagic',
     damage: {
@@ -70,6 +76,7 @@ const DARK_MAGIC_SKILLS: ClassSkill<'Sorcerer', 'DarkMagic'>[] = [
   // Encase line
   {
     name: 'Encase',
+    baseSkillName: 'Encase',
     esoClass: 'Sorcerer',
     skillLine: 'DarkMagic',
     damage: {},
@@ -79,6 +86,7 @@ const DARK_MAGIC_SKILLS: ClassSkill<'Sorcerer', 'DarkMagic'>[] = [
   },
   {
     name: 'Shattering Spines',
+    baseSkillName: 'Encase',
     esoClass: 'Sorcerer',
     skillLine: 'DarkMagic',
     damage: {
@@ -90,6 +98,7 @@ const DARK_MAGIC_SKILLS: ClassSkill<'Sorcerer', 'DarkMagic'>[] = [
   },
   {
     name: 'Vibrant Shroud',
+    baseSkillName: 'Encase',
     esoClass: 'Sorcerer',
     skillLine: 'DarkMagic',
     damage: {},
@@ -100,6 +109,7 @@ const DARK_MAGIC_SKILLS: ClassSkill<'Sorcerer', 'DarkMagic'>[] = [
   // Rune Prison line
   {
     name: 'Rune Prison',
+    baseSkillName: 'Rune Prison',
     esoClass: 'Sorcerer',
     skillLine: 'DarkMagic',
     damage: {},
@@ -109,6 +119,7 @@ const DARK_MAGIC_SKILLS: ClassSkill<'Sorcerer', 'DarkMagic'>[] = [
   },
   {
     name: 'Defensive Rune',
+    baseSkillName: 'Rune Prison',
     esoClass: 'Sorcerer',
     skillLine: 'DarkMagic',
     damage: {},
@@ -118,6 +129,7 @@ const DARK_MAGIC_SKILLS: ClassSkill<'Sorcerer', 'DarkMagic'>[] = [
   },
   {
     name: 'Rune Cage',
+    baseSkillName: 'Rune Prison',
     esoClass: 'Sorcerer',
     skillLine: 'DarkMagic',
     damage: {
@@ -130,6 +142,7 @@ const DARK_MAGIC_SKILLS: ClassSkill<'Sorcerer', 'DarkMagic'>[] = [
   // Dark Exchange line
   {
     name: 'Dark Exchange',
+    baseSkillName: 'Dark Exchange',
     esoClass: 'Sorcerer',
     skillLine: 'DarkMagic',
     damage: {},
@@ -139,6 +152,7 @@ const DARK_MAGIC_SKILLS: ClassSkill<'Sorcerer', 'DarkMagic'>[] = [
   },
   {
     name: 'Dark Conversion',
+    baseSkillName: 'Dark Exchange',
     esoClass: 'Sorcerer',
     skillLine: 'DarkMagic',
     damage: {},
@@ -148,6 +162,7 @@ const DARK_MAGIC_SKILLS: ClassSkill<'Sorcerer', 'DarkMagic'>[] = [
   },
   {
     name: 'Dark Deal',
+    baseSkillName: 'Dark Exchange',
     esoClass: 'Sorcerer',
     skillLine: 'DarkMagic',
     damage: {},
@@ -158,6 +173,7 @@ const DARK_MAGIC_SKILLS: ClassSkill<'Sorcerer', 'DarkMagic'>[] = [
   // Daedric Mines line
   {
     name: 'Daedric Mines',
+    baseSkillName: 'Daedric Mines',
     esoClass: 'Sorcerer',
     skillLine: 'DarkMagic',
     damage: {
@@ -169,6 +185,7 @@ const DARK_MAGIC_SKILLS: ClassSkill<'Sorcerer', 'DarkMagic'>[] = [
   },
   {
     name: 'Daedric Refuge',
+    baseSkillName: 'Daedric Mines',
     esoClass: 'Sorcerer',
     skillLine: 'DarkMagic',
     damage: {},
@@ -178,6 +195,7 @@ const DARK_MAGIC_SKILLS: ClassSkill<'Sorcerer', 'DarkMagic'>[] = [
   },
   {
     name: 'Daedric Tomb',
+    baseSkillName: 'Daedric Mines',
     esoClass: 'Sorcerer',
     skillLine: 'DarkMagic',
     damage: {

@@ -4,6 +4,7 @@ const RESTORING_LIGHT_SKILLS: ClassSkill<'Templar', 'RestoringLight'>[] = [
   // Ultimate abilities - Rite of Passage line
   {
     name: 'Rite of Passage',
+    baseSkillName: 'Rite of Passage',
     esoClass: 'Templar',
     skillLine: 'RestoringLight',
     damage: {},
@@ -14,6 +15,7 @@ const RESTORING_LIGHT_SKILLS: ClassSkill<'Templar', 'RestoringLight'>[] = [
   },
   {
     name: 'Practiced Incantation',
+    baseSkillName: 'Rite of Passage',
     esoClass: 'Templar',
     skillLine: 'RestoringLight',
     damage: {},
@@ -24,6 +26,7 @@ const RESTORING_LIGHT_SKILLS: ClassSkill<'Templar', 'RestoringLight'>[] = [
   },
   {
     name: 'Remembrance',
+    baseSkillName: 'Rite of Passage',
     esoClass: 'Templar',
     skillLine: 'RestoringLight',
     damage: {},
@@ -35,6 +38,7 @@ const RESTORING_LIGHT_SKILLS: ClassSkill<'Templar', 'RestoringLight'>[] = [
   // Rushed Ceremony line
   {
     name: 'Rushed Ceremony',
+    baseSkillName: 'Rushed Ceremony',
     esoClass: 'Templar',
     skillLine: 'RestoringLight',
     damage: {},
@@ -44,6 +48,7 @@ const RESTORING_LIGHT_SKILLS: ClassSkill<'Templar', 'RestoringLight'>[] = [
   },
   {
     name: 'Breath of Life',
+    baseSkillName: 'Rushed Ceremony',
     esoClass: 'Templar',
     skillLine: 'RestoringLight',
     damage: {},
@@ -53,6 +58,7 @@ const RESTORING_LIGHT_SKILLS: ClassSkill<'Templar', 'RestoringLight'>[] = [
   },
   {
     name: 'Honor the Dead',
+    baseSkillName: 'Rushed Ceremony',
     esoClass: 'Templar',
     skillLine: 'RestoringLight',
     damage: {},
@@ -63,6 +69,7 @@ const RESTORING_LIGHT_SKILLS: ClassSkill<'Templar', 'RestoringLight'>[] = [
   // Healing Ritual line
   {
     name: 'Healing Ritual',
+    baseSkillName: 'Healing Ritual',
     esoClass: 'Templar',
     skillLine: 'RestoringLight',
     damage: {},
@@ -72,6 +79,7 @@ const RESTORING_LIGHT_SKILLS: ClassSkill<'Templar', 'RestoringLight'>[] = [
   },
   {
     name: 'Hasty Prayer',
+    baseSkillName: 'Healing Ritual',
     esoClass: 'Templar',
     skillLine: 'RestoringLight',
     damage: {},
@@ -81,6 +89,7 @@ const RESTORING_LIGHT_SKILLS: ClassSkill<'Templar', 'RestoringLight'>[] = [
   },
   {
     name: 'Ritual of Rebirth',
+    baseSkillName: 'Healing Ritual',
     esoClass: 'Templar',
     skillLine: 'RestoringLight',
     damage: {},
@@ -91,6 +100,7 @@ const RESTORING_LIGHT_SKILLS: ClassSkill<'Templar', 'RestoringLight'>[] = [
   // Restoring Aura line
   {
     name: 'Restoring Aura',
+    baseSkillName: 'Restoring Aura',
     esoClass: 'Templar',
     skillLine: 'RestoringLight',
     damage: {},
@@ -100,6 +110,7 @@ const RESTORING_LIGHT_SKILLS: ClassSkill<'Templar', 'RestoringLight'>[] = [
   },
   {
     name: 'Radiant Aura',
+    baseSkillName: 'Restoring Aura',
     esoClass: 'Templar',
     skillLine: 'RestoringLight',
     damage: {},
@@ -109,6 +120,7 @@ const RESTORING_LIGHT_SKILLS: ClassSkill<'Templar', 'RestoringLight'>[] = [
   },
   {
     name: 'Repentance',
+    baseSkillName: 'Restoring Aura',
     esoClass: 'Templar',
     skillLine: 'RestoringLight',
     damage: {},
@@ -119,6 +131,7 @@ const RESTORING_LIGHT_SKILLS: ClassSkill<'Templar', 'RestoringLight'>[] = [
   // Cleansing Ritual line
   {
     name: 'Cleansing Ritual',
+    baseSkillName: 'Cleansing Ritual',
     esoClass: 'Templar',
     skillLine: 'RestoringLight',
     damage: {},
@@ -128,6 +141,7 @@ const RESTORING_LIGHT_SKILLS: ClassSkill<'Templar', 'RestoringLight'>[] = [
   },
   {
     name: 'Extended Ritual',
+    baseSkillName: 'Cleansing Ritual',
     esoClass: 'Templar',
     skillLine: 'RestoringLight',
     damage: {},
@@ -137,6 +151,7 @@ const RESTORING_LIGHT_SKILLS: ClassSkill<'Templar', 'RestoringLight'>[] = [
   },
   {
     name: 'Ritual of Retribution',
+    baseSkillName: 'Cleansing Ritual',
     esoClass: 'Templar',
     skillLine: 'RestoringLight',
     damage: {
@@ -152,6 +167,7 @@ const RESTORING_LIGHT_SKILLS: ClassSkill<'Templar', 'RestoringLight'>[] = [
   // Rune Focus line
   {
     name: 'Rune Focus',
+    baseSkillName: 'Rune Focus',
     esoClass: 'Templar',
     skillLine: 'RestoringLight',
     damage: {},
@@ -161,6 +177,7 @@ const RESTORING_LIGHT_SKILLS: ClassSkill<'Templar', 'RestoringLight'>[] = [
   },
   {
     name: 'Channeled Focus',
+    baseSkillName: 'Rune Focus',
     esoClass: 'Templar',
     skillLine: 'RestoringLight',
     damage: {},
@@ -170,6 +187,7 @@ const RESTORING_LIGHT_SKILLS: ClassSkill<'Templar', 'RestoringLight'>[] = [
   },
   {
     name: 'Restoring Focus',
+    baseSkillName: 'Rune Focus',
     esoClass: 'Templar',
     skillLine: 'RestoringLight',
     damage: {},

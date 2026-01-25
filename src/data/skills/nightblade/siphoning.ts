@@ -4,6 +4,7 @@ const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
   // Ultimate abilities
   {
     name: 'Soul Shred',
+    baseSkillName: 'Soul Shred',
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {
@@ -15,6 +16,7 @@ const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
   },
   {
     name: 'Soul Siphon',
+    baseSkillName: 'Soul Shred',
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {},
@@ -24,6 +26,7 @@ const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
   },
   {
     name: 'Soul Tether',
+    baseSkillName: 'Soul Shred',
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {
@@ -39,6 +42,7 @@ const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
   // Strife line
   {
     name: 'Strife',
+    baseSkillName: 'Strife',
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {
@@ -50,6 +54,7 @@ const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
   },
   {
     name: 'Funnel Health',
+    baseSkillName: 'Strife',
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {
@@ -61,6 +66,7 @@ const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
   },
   {
     name: 'Swallow Soul',
+    baseSkillName: 'Strife',
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {
@@ -73,6 +79,7 @@ const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
   // Malevolent Offering line
   {
     name: 'Malevolent Offering',
+    baseSkillName: 'Malevolent Offering',
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {},
@@ -82,6 +89,7 @@ const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
   },
   {
     name: 'Healthy Offering',
+    baseSkillName: 'Malevolent Offering',
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {},
@@ -91,6 +99,7 @@ const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
   },
   {
     name: 'Shrewd Offering',
+    baseSkillName: 'Malevolent Offering',
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {},
@@ -101,6 +110,7 @@ const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
   // Cripple line
   {
     name: 'Cripple',
+    baseSkillName: 'Cripple',
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {
@@ -113,6 +123,7 @@ const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
   },
   {
     name: 'Crippling Grasp',
+    baseSkillName: 'Cripple',
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {
@@ -126,6 +137,7 @@ const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
   },
   {
     name: 'Debilitate',
+    baseSkillName: 'Cripple',
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {
@@ -139,6 +151,7 @@ const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
   // Siphoning Strikes line
   {
     name: 'Siphoning Strikes',
+    baseSkillName: 'Siphoning Strikes',
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {},
@@ -148,6 +161,7 @@ const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
   },
   {
     name: 'Leeching Strikes',
+    baseSkillName: 'Siphoning Strikes',
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {},
@@ -157,6 +171,7 @@ const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
   },
   {
     name: 'Siphoning Attacks',
+    baseSkillName: 'Siphoning Strikes',
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {},
@@ -167,6 +182,7 @@ const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
   // Drain Power line
   {
     name: 'Drain Power',
+    baseSkillName: 'Drain Power',
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {
@@ -178,6 +194,7 @@ const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
   },
   {
     name: 'Power Extraction',
+    baseSkillName: 'Drain Power',
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {
@@ -189,6 +206,7 @@ const SIPHONING_SKILLS: ClassSkill<'Nightblade', 'Siphoning'>[] = [
   },
   {
     name: 'Sap Essence',
+    baseSkillName: 'Drain Power',
     esoClass: 'Nightblade',
     skillLine: 'Siphoning',
     damage: {

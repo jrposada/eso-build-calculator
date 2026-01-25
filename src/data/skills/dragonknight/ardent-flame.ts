@@ -4,6 +4,7 @@ const ARDENT_FLAME_SKILLS: ClassSkill<'Dragonknight', 'ArdentFlame'>[] = [
   // Ultimate abilities
   {
     name: 'Dragonknight Standard',
+    baseSkillName: 'Dragonknight Standard',
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
@@ -17,6 +18,7 @@ const ARDENT_FLAME_SKILLS: ClassSkill<'Dragonknight', 'ArdentFlame'>[] = [
   },
   {
     name: 'Shifting Standard',
+    baseSkillName: 'Dragonknight Standard',
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
@@ -30,6 +32,7 @@ const ARDENT_FLAME_SKILLS: ClassSkill<'Dragonknight', 'ArdentFlame'>[] = [
   },
   {
     name: 'Standard of Might',
+    baseSkillName: 'Dragonknight Standard',
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
@@ -44,6 +47,7 @@ const ARDENT_FLAME_SKILLS: ClassSkill<'Dragonknight', 'ArdentFlame'>[] = [
   // Lava Whip line
   {
     name: 'Lava Whip',
+    baseSkillName: 'Lava Whip',
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
@@ -55,6 +59,7 @@ const ARDENT_FLAME_SKILLS: ClassSkill<'Dragonknight', 'ArdentFlame'>[] = [
   },
   {
     name: 'Flame Lash',
+    baseSkillName: 'Lava Whip',
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
@@ -66,6 +71,7 @@ const ARDENT_FLAME_SKILLS: ClassSkill<'Dragonknight', 'ArdentFlame'>[] = [
   },
   {
     name: 'Molten Whip',
+    baseSkillName: 'Lava Whip',
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
@@ -78,6 +84,7 @@ const ARDENT_FLAME_SKILLS: ClassSkill<'Dragonknight', 'ArdentFlame'>[] = [
   // Searing Strike line
   {
     name: 'Searing Strike',
+    baseSkillName: 'Searing Strike',
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
@@ -91,6 +98,7 @@ const ARDENT_FLAME_SKILLS: ClassSkill<'Dragonknight', 'ArdentFlame'>[] = [
   },
   {
     name: 'Burning Embers',
+    baseSkillName: 'Searing Strike',
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
@@ -104,6 +112,7 @@ const ARDENT_FLAME_SKILLS: ClassSkill<'Dragonknight', 'ArdentFlame'>[] = [
   },
   {
     name: 'Venomous Claw',
+    baseSkillName: 'Searing Strike',
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
@@ -120,6 +129,7 @@ const ARDENT_FLAME_SKILLS: ClassSkill<'Dragonknight', 'ArdentFlame'>[] = [
   // Fiery Breath line
   {
     name: 'Fiery Breath',
+    baseSkillName: 'Fiery Breath',
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
@@ -133,6 +143,7 @@ const ARDENT_FLAME_SKILLS: ClassSkill<'Dragonknight', 'ArdentFlame'>[] = [
   },
   {
     name: 'Engulfing Flames',
+    baseSkillName: 'Fiery Breath',
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
@@ -146,6 +157,7 @@ const ARDENT_FLAME_SKILLS: ClassSkill<'Dragonknight', 'ArdentFlame'>[] = [
   },
   {
     name: 'Noxious Breath',
+    baseSkillName: 'Fiery Breath',
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
@@ -160,6 +172,7 @@ const ARDENT_FLAME_SKILLS: ClassSkill<'Dragonknight', 'ArdentFlame'>[] = [
   // Fiery Grip line
   {
     name: 'Fiery Grip',
+    baseSkillName: 'Fiery Grip',
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
@@ -171,6 +184,7 @@ const ARDENT_FLAME_SKILLS: ClassSkill<'Dragonknight', 'ArdentFlame'>[] = [
   },
   {
     name: 'Chains of Devastation',
+    baseSkillName: 'Fiery Grip',
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
@@ -182,6 +196,7 @@ const ARDENT_FLAME_SKILLS: ClassSkill<'Dragonknight', 'ArdentFlame'>[] = [
   },
   {
     name: 'Unrelenting Grip',
+    baseSkillName: 'Fiery Grip',
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
@@ -194,6 +209,7 @@ const ARDENT_FLAME_SKILLS: ClassSkill<'Dragonknight', 'ArdentFlame'>[] = [
   // Inferno line
   {
     name: 'Inferno',
+    baseSkillName: 'Inferno',
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {
@@ -207,6 +223,7 @@ const ARDENT_FLAME_SKILLS: ClassSkill<'Dragonknight', 'ArdentFlame'>[] = [
   },
   {
     name: 'Cauterize',
+    baseSkillName: 'Inferno',
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {},
@@ -216,6 +233,7 @@ const ARDENT_FLAME_SKILLS: ClassSkill<'Dragonknight', 'ArdentFlame'>[] = [
   },
   {
     name: 'Flames of Oblivion',
+    baseSkillName: 'Inferno',
     esoClass: 'Dragonknight',
     skillLine: 'ArdentFlame',
     damage: {

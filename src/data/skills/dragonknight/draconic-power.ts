@@ -4,6 +4,7 @@ const DRACONIC_POWER_SKILLS: ClassSkill<'Dragonknight', 'DraconicPower'>[] = [
   // Ultimate abilities - Dragon Leap line
   {
     name: 'Dragon Leap',
+    baseSkillName: 'Dragon Leap',
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {
@@ -15,6 +16,7 @@ const DRACONIC_POWER_SKILLS: ClassSkill<'Dragonknight', 'DraconicPower'>[] = [
   },
   {
     name: 'Ferocious Leap',
+    baseSkillName: 'Dragon Leap',
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {
@@ -26,6 +28,7 @@ const DRACONIC_POWER_SKILLS: ClassSkill<'Dragonknight', 'DraconicPower'>[] = [
   },
   {
     name: 'Take Flight',
+    baseSkillName: 'Dragon Leap',
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {
@@ -38,6 +41,7 @@ const DRACONIC_POWER_SKILLS: ClassSkill<'Dragonknight', 'DraconicPower'>[] = [
   // Spiked Armor line
   {
     name: 'Spiked Armor',
+    baseSkillName: 'Spiked Armor',
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {},
@@ -47,6 +51,7 @@ const DRACONIC_POWER_SKILLS: ClassSkill<'Dragonknight', 'DraconicPower'>[] = [
   },
   {
     name: 'Hardened Armor',
+    baseSkillName: 'Spiked Armor',
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {},
@@ -56,6 +61,7 @@ const DRACONIC_POWER_SKILLS: ClassSkill<'Dragonknight', 'DraconicPower'>[] = [
   },
   {
     name: 'Volatile Armor',
+    baseSkillName: 'Spiked Armor',
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {
@@ -69,6 +75,7 @@ const DRACONIC_POWER_SKILLS: ClassSkill<'Dragonknight', 'DraconicPower'>[] = [
   // Dark Talons line
   {
     name: 'Dark Talons',
+    baseSkillName: 'Dark Talons',
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {
@@ -80,6 +87,7 @@ const DRACONIC_POWER_SKILLS: ClassSkill<'Dragonknight', 'DraconicPower'>[] = [
   },
   {
     name: 'Burning Talons',
+    baseSkillName: 'Dark Talons',
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {
@@ -93,6 +101,7 @@ const DRACONIC_POWER_SKILLS: ClassSkill<'Dragonknight', 'DraconicPower'>[] = [
   },
   {
     name: 'Choking Talons',
+    baseSkillName: 'Dark Talons',
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {
@@ -105,6 +114,7 @@ const DRACONIC_POWER_SKILLS: ClassSkill<'Dragonknight', 'DraconicPower'>[] = [
   // Dragon Blood line
   {
     name: 'Dragon Blood',
+    baseSkillName: 'Dragon Blood',
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {},
@@ -114,6 +124,7 @@ const DRACONIC_POWER_SKILLS: ClassSkill<'Dragonknight', 'DraconicPower'>[] = [
   },
   {
     name: 'Coagulating Blood',
+    baseSkillName: 'Dragon Blood',
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {},
@@ -123,6 +134,7 @@ const DRACONIC_POWER_SKILLS: ClassSkill<'Dragonknight', 'DraconicPower'>[] = [
   },
   {
     name: 'Green Dragon Blood',
+    baseSkillName: 'Dragon Blood',
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {},
@@ -133,6 +145,7 @@ const DRACONIC_POWER_SKILLS: ClassSkill<'Dragonknight', 'DraconicPower'>[] = [
   // Protective Scale line
   {
     name: 'Protective Scale',
+    baseSkillName: 'Protective Scale',
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {},
@@ -142,6 +155,7 @@ const DRACONIC_POWER_SKILLS: ClassSkill<'Dragonknight', 'DraconicPower'>[] = [
   },
   {
     name: 'Dragon Fire Scale',
+    baseSkillName: 'Protective Scale',
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {},
@@ -151,6 +165,7 @@ const DRACONIC_POWER_SKILLS: ClassSkill<'Dragonknight', 'DraconicPower'>[] = [
   },
   {
     name: 'Protective Plate',
+    baseSkillName: 'Protective Scale',
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {},
@@ -161,6 +176,7 @@ const DRACONIC_POWER_SKILLS: ClassSkill<'Dragonknight', 'DraconicPower'>[] = [
   // Inhale line
   {
     name: 'Inhale',
+    baseSkillName: 'Inhale',
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {
@@ -173,6 +189,7 @@ const DRACONIC_POWER_SKILLS: ClassSkill<'Dragonknight', 'DraconicPower'>[] = [
   },
   {
     name: 'Deep Breath',
+    baseSkillName: 'Inhale',
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {
@@ -185,6 +202,7 @@ const DRACONIC_POWER_SKILLS: ClassSkill<'Dragonknight', 'DraconicPower'>[] = [
   },
   {
     name: 'Draw Essence',
+    baseSkillName: 'Inhale',
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {

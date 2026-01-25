@@ -4,6 +4,7 @@ const GREEN_BALANCE_SKILLS: ClassSkill<'Warden', 'GreenBalance'>[] = [
   // Ultimate abilities - Secluded Grove line
   {
     name: 'Secluded Grove',
+    baseSkillName: 'Secluded Grove',
     esoClass: 'Warden',
     skillLine: 'GreenBalance',
     damage: {},
@@ -13,6 +14,7 @@ const GREEN_BALANCE_SKILLS: ClassSkill<'Warden', 'GreenBalance'>[] = [
   },
   {
     name: 'Enchanted Forest',
+    baseSkillName: 'Secluded Grove',
     esoClass: 'Warden',
     skillLine: 'GreenBalance',
     damage: {},
@@ -22,6 +24,7 @@ const GREEN_BALANCE_SKILLS: ClassSkill<'Warden', 'GreenBalance'>[] = [
   },
   {
     name: 'Healing Thicket',
+    baseSkillName: 'Secluded Grove',
     esoClass: 'Warden',
     skillLine: 'GreenBalance',
     damage: {},
@@ -32,6 +35,7 @@ const GREEN_BALANCE_SKILLS: ClassSkill<'Warden', 'GreenBalance'>[] = [
   // Fungal Growth line
   {
     name: 'Fungal Growth',
+    baseSkillName: 'Fungal Growth',
     esoClass: 'Warden',
     skillLine: 'GreenBalance',
     damage: {},
@@ -41,6 +45,7 @@ const GREEN_BALANCE_SKILLS: ClassSkill<'Warden', 'GreenBalance'>[] = [
   },
   {
     name: 'Enchanted Growth',
+    baseSkillName: 'Fungal Growth',
     esoClass: 'Warden',
     skillLine: 'GreenBalance',
     damage: {},
@@ -50,6 +55,7 @@ const GREEN_BALANCE_SKILLS: ClassSkill<'Warden', 'GreenBalance'>[] = [
   },
   {
     name: 'Soothing Spores',
+    baseSkillName: 'Fungal Growth',
     esoClass: 'Warden',
     skillLine: 'GreenBalance',
     damage: {},
@@ -60,6 +66,7 @@ const GREEN_BALANCE_SKILLS: ClassSkill<'Warden', 'GreenBalance'>[] = [
   // Healing Seed line
   {
     name: 'Healing Seed',
+    baseSkillName: 'Healing Seed',
     esoClass: 'Warden',
     skillLine: 'GreenBalance',
     damage: {},
@@ -69,6 +76,7 @@ const GREEN_BALANCE_SKILLS: ClassSkill<'Warden', 'GreenBalance'>[] = [
   },
   {
     name: 'Budding Seeds',
+    baseSkillName: 'Healing Seed',
     esoClass: 'Warden',
     skillLine: 'GreenBalance',
     damage: {},
@@ -78,6 +86,7 @@ const GREEN_BALANCE_SKILLS: ClassSkill<'Warden', 'GreenBalance'>[] = [
   },
   {
     name: 'Corrupting Pollen',
+    baseSkillName: 'Healing Seed',
     esoClass: 'Warden',
     skillLine: 'GreenBalance',
     damage: {},
@@ -88,6 +97,7 @@ const GREEN_BALANCE_SKILLS: ClassSkill<'Warden', 'GreenBalance'>[] = [
   // Living Vines line
   {
     name: 'Living Vines',
+    baseSkillName: 'Living Vines',
     esoClass: 'Warden',
     skillLine: 'GreenBalance',
     damage: {},
@@ -97,6 +107,7 @@ const GREEN_BALANCE_SKILLS: ClassSkill<'Warden', 'GreenBalance'>[] = [
   },
   {
     name: 'Leeching Vines',
+    baseSkillName: 'Living Vines',
     esoClass: 'Warden',
     skillLine: 'GreenBalance',
     damage: {},
@@ -106,6 +117,7 @@ const GREEN_BALANCE_SKILLS: ClassSkill<'Warden', 'GreenBalance'>[] = [
   },
   {
     name: 'Living Trellis',
+    baseSkillName: 'Living Vines',
     esoClass: 'Warden',
     skillLine: 'GreenBalance',
     damage: {},
@@ -116,6 +128,7 @@ const GREEN_BALANCE_SKILLS: ClassSkill<'Warden', 'GreenBalance'>[] = [
   // Lotus Flower line
   {
     name: 'Lotus Flower',
+    baseSkillName: 'Lotus Flower',
     esoClass: 'Warden',
     skillLine: 'GreenBalance',
     damage: {},
@@ -125,6 +138,7 @@ const GREEN_BALANCE_SKILLS: ClassSkill<'Warden', 'GreenBalance'>[] = [
   },
   {
     name: 'Green Lotus',
+    baseSkillName: 'Lotus Flower',
     esoClass: 'Warden',
     skillLine: 'GreenBalance',
     damage: {},
@@ -134,6 +148,7 @@ const GREEN_BALANCE_SKILLS: ClassSkill<'Warden', 'GreenBalance'>[] = [
   },
   {
     name: 'Lotus Blossom',
+    baseSkillName: 'Lotus Flower',
     esoClass: 'Warden',
     skillLine: 'GreenBalance',
     damage: {},
@@ -144,6 +159,7 @@ const GREEN_BALANCE_SKILLS: ClassSkill<'Warden', 'GreenBalance'>[] = [
   // Nature's Grasp line
   {
     name: "Nature's Grasp",
+    baseSkillName: "Nature's Grasp",
     esoClass: 'Warden',
     skillLine: 'GreenBalance',
     damage: {},
@@ -153,6 +169,7 @@ const GREEN_BALANCE_SKILLS: ClassSkill<'Warden', 'GreenBalance'>[] = [
   },
   {
     name: 'Bursting Vines',
+    baseSkillName: "Nature's Grasp",
     esoClass: 'Warden',
     skillLine: 'GreenBalance',
     damage: {},
@@ -162,6 +179,7 @@ const GREEN_BALANCE_SKILLS: ClassSkill<'Warden', 'GreenBalance'>[] = [
   },
   {
     name: "Nature's Embrace",
+    baseSkillName: "Nature's Grasp",
     esoClass: 'Warden',
     skillLine: 'GreenBalance',
     damage: {},

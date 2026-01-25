@@ -4,6 +4,7 @@ const ASSASSINATION_SKILLS: ClassSkill<'Nightblade', 'Assassination'>[] = [
   // Ultimate abilities
   {
     name: 'Death Stroke',
+    baseSkillName: 'Death Stroke',
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
@@ -15,6 +16,7 @@ const ASSASSINATION_SKILLS: ClassSkill<'Nightblade', 'Assassination'>[] = [
   },
   {
     name: 'Incapacitating Strike',
+    baseSkillName: 'Death Stroke',
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
@@ -26,6 +28,7 @@ const ASSASSINATION_SKILLS: ClassSkill<'Nightblade', 'Assassination'>[] = [
   },
   {
     name: 'Soul Harvest',
+    baseSkillName: 'Death Stroke',
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
@@ -38,6 +41,7 @@ const ASSASSINATION_SKILLS: ClassSkill<'Nightblade', 'Assassination'>[] = [
   // Veiled Strike line
   {
     name: 'Veiled Strike',
+    baseSkillName: 'Veiled Strike',
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
@@ -49,6 +53,7 @@ const ASSASSINATION_SKILLS: ClassSkill<'Nightblade', 'Assassination'>[] = [
   },
   {
     name: 'Concealed Weapon',
+    baseSkillName: 'Veiled Strike',
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
@@ -60,6 +65,7 @@ const ASSASSINATION_SKILLS: ClassSkill<'Nightblade', 'Assassination'>[] = [
   },
   {
     name: 'Surprise Attack',
+    baseSkillName: 'Veiled Strike',
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
@@ -72,6 +78,7 @@ const ASSASSINATION_SKILLS: ClassSkill<'Nightblade', 'Assassination'>[] = [
   // Teleport Strike line
   {
     name: 'Teleport Strike',
+    baseSkillName: 'Teleport Strike',
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
@@ -83,6 +90,7 @@ const ASSASSINATION_SKILLS: ClassSkill<'Nightblade', 'Assassination'>[] = [
   },
   {
     name: 'Ambush',
+    baseSkillName: 'Teleport Strike',
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
@@ -94,6 +102,7 @@ const ASSASSINATION_SKILLS: ClassSkill<'Nightblade', 'Assassination'>[] = [
   },
   {
     name: 'Lotus Fan',
+    baseSkillName: 'Teleport Strike',
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
@@ -108,6 +117,7 @@ const ASSASSINATION_SKILLS: ClassSkill<'Nightblade', 'Assassination'>[] = [
   // Assassin's Blade line
   {
     name: "Assassin's Blade",
+    baseSkillName: "Assassin's Blade",
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
@@ -119,6 +129,7 @@ const ASSASSINATION_SKILLS: ClassSkill<'Nightblade', 'Assassination'>[] = [
   },
   {
     name: 'Impale',
+    baseSkillName: "Assassin's Blade",
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
@@ -130,6 +141,7 @@ const ASSASSINATION_SKILLS: ClassSkill<'Nightblade', 'Assassination'>[] = [
   },
   {
     name: "Killer's Blade",
+    baseSkillName: "Assassin's Blade",
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
@@ -142,6 +154,7 @@ const ASSASSINATION_SKILLS: ClassSkill<'Nightblade', 'Assassination'>[] = [
   // Mark Target line (utility/debuff skills)
   {
     name: 'Mark Target',
+    baseSkillName: 'Mark Target',
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {},
@@ -151,6 +164,7 @@ const ASSASSINATION_SKILLS: ClassSkill<'Nightblade', 'Assassination'>[] = [
   },
   {
     name: 'Piercing Mark',
+    baseSkillName: 'Mark Target',
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {},
@@ -160,6 +174,7 @@ const ASSASSINATION_SKILLS: ClassSkill<'Nightblade', 'Assassination'>[] = [
   },
   {
     name: "Reaper's Mark",
+    baseSkillName: 'Mark Target',
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {},
@@ -170,6 +185,7 @@ const ASSASSINATION_SKILLS: ClassSkill<'Nightblade', 'Assassination'>[] = [
   // Grim Focus line
   {
     name: 'Grim Focus',
+    baseSkillName: 'Grim Focus',
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
@@ -181,6 +197,7 @@ const ASSASSINATION_SKILLS: ClassSkill<'Nightblade', 'Assassination'>[] = [
   },
   {
     name: 'Merciless Resolve',
+    baseSkillName: 'Grim Focus',
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {
@@ -192,6 +209,7 @@ const ASSASSINATION_SKILLS: ClassSkill<'Nightblade', 'Assassination'>[] = [
   },
   {
     name: 'Relentless Focus',
+    baseSkillName: 'Grim Focus',
     esoClass: 'Nightblade',
     skillLine: 'Assassination',
     damage: {

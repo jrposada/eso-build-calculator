@@ -75,6 +75,7 @@ export interface ClassSkill<
   TSkillLine extends ClassSkillLine = ClassSkillLine,
 > {
   name: string;
+  baseSkillName: string; // The base skill name for grouping (base, morph1, morph2)
   esoClass: TEsoClass;
   skillLine: TSkillLine;
   damage: {
@@ -94,6 +95,7 @@ export interface WeaponSkill<
   TSkillLine extends WeaponSkillLineName = WeaponSkillLineName,
 > {
   name: string;
+  baseSkillName: string; // The base skill name for grouping (base, morph1, morph2)
   skillLine: TSkillLine;
   damage: {
     hits?: Array<{ value: number; delay?: number }>;

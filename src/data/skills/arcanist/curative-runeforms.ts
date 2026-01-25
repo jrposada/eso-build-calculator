@@ -5,6 +5,7 @@ const CURATIVE_RUNEFORMS_SKILLS: ClassSkill<'Arcanist', 'CurativeRuneforms'>[] =
     // Ultimate abilities - Vitalizing Glyphic line
     {
       name: 'Vitalizing Glyphic',
+      baseSkillName: 'Vitalizing Glyphic',
       esoClass: 'Arcanist',
       skillLine: 'CurativeRuneforms',
       damage: {},
@@ -14,6 +15,7 @@ const CURATIVE_RUNEFORMS_SKILLS: ClassSkill<'Arcanist', 'CurativeRuneforms'>[] =
     },
     {
       name: 'Glyphic of the Tides',
+      baseSkillName: 'Vitalizing Glyphic',
       esoClass: 'Arcanist',
       skillLine: 'CurativeRuneforms',
       damage: {},
@@ -23,6 +25,7 @@ const CURATIVE_RUNEFORMS_SKILLS: ClassSkill<'Arcanist', 'CurativeRuneforms'>[] =
     },
     {
       name: 'Resonating Glyphic',
+      baseSkillName: 'Vitalizing Glyphic',
       esoClass: 'Arcanist',
       skillLine: 'CurativeRuneforms',
       damage: {},
@@ -33,6 +36,7 @@ const CURATIVE_RUNEFORMS_SKILLS: ClassSkill<'Arcanist', 'CurativeRuneforms'>[] =
     // Runemend line
     {
       name: 'Runemend',
+      baseSkillName: 'Runemend',
       esoClass: 'Arcanist',
       skillLine: 'CurativeRuneforms',
       damage: {},
@@ -42,6 +46,7 @@ const CURATIVE_RUNEFORMS_SKILLS: ClassSkill<'Arcanist', 'CurativeRuneforms'>[] =
     },
     {
       name: 'Audacious Runemend',
+      baseSkillName: 'Runemend',
       esoClass: 'Arcanist',
       skillLine: 'CurativeRuneforms',
       damage: {},
@@ -51,6 +56,7 @@ const CURATIVE_RUNEFORMS_SKILLS: ClassSkill<'Arcanist', 'CurativeRuneforms'>[] =
     },
     {
       name: 'Evolving Runemend',
+      baseSkillName: 'Runemend',
       esoClass: 'Arcanist',
       skillLine: 'CurativeRuneforms',
       damage: {},
@@ -61,6 +67,7 @@ const CURATIVE_RUNEFORMS_SKILLS: ClassSkill<'Arcanist', 'CurativeRuneforms'>[] =
     // Remedy Cascade line
     {
       name: 'Remedy Cascade',
+      baseSkillName: 'Remedy Cascade',
       esoClass: 'Arcanist',
       skillLine: 'CurativeRuneforms',
       damage: {},
@@ -71,6 +78,7 @@ const CURATIVE_RUNEFORMS_SKILLS: ClassSkill<'Arcanist', 'CurativeRuneforms'>[] =
     },
     {
       name: 'Cascading Fortune',
+      baseSkillName: 'Remedy Cascade',
       esoClass: 'Arcanist',
       skillLine: 'CurativeRuneforms',
       damage: {},
@@ -81,6 +89,7 @@ const CURATIVE_RUNEFORMS_SKILLS: ClassSkill<'Arcanist', 'CurativeRuneforms'>[] =
     },
     {
       name: 'Curative Surge',
+      baseSkillName: 'Remedy Cascade',
       esoClass: 'Arcanist',
       skillLine: 'CurativeRuneforms',
       damage: {},
@@ -92,6 +101,7 @@ const CURATIVE_RUNEFORMS_SKILLS: ClassSkill<'Arcanist', 'CurativeRuneforms'>[] =
     // Chakram Shields line
     {
       name: 'Chakram Shields',
+      baseSkillName: 'Chakram Shields',
       esoClass: 'Arcanist',
       skillLine: 'CurativeRuneforms',
       damage: {},
@@ -101,6 +111,7 @@ const CURATIVE_RUNEFORMS_SKILLS: ClassSkill<'Arcanist', 'CurativeRuneforms'>[] =
     },
     {
       name: 'Chakram of Destiny',
+      baseSkillName: 'Chakram Shields',
       esoClass: 'Arcanist',
       skillLine: 'CurativeRuneforms',
       damage: {},
@@ -110,6 +121,7 @@ const CURATIVE_RUNEFORMS_SKILLS: ClassSkill<'Arcanist', 'CurativeRuneforms'>[] =
     },
     {
       name: 'Tidal Chakram',
+      baseSkillName: 'Chakram Shields',
       esoClass: 'Arcanist',
       skillLine: 'CurativeRuneforms',
       damage: {},
@@ -120,6 +132,7 @@ const CURATIVE_RUNEFORMS_SKILLS: ClassSkill<'Arcanist', 'CurativeRuneforms'>[] =
     // Arcanist's Domain line
     {
       name: "Arcanist's Domain",
+      baseSkillName: "Arcanist's Domain",
       esoClass: 'Arcanist',
       skillLine: 'CurativeRuneforms',
       damage: {},
@@ -129,6 +142,7 @@ const CURATIVE_RUNEFORMS_SKILLS: ClassSkill<'Arcanist', 'CurativeRuneforms'>[] =
     },
     {
       name: 'Reconstructive Domain',
+      baseSkillName: "Arcanist's Domain",
       esoClass: 'Arcanist',
       skillLine: 'CurativeRuneforms',
       damage: {},
@@ -138,6 +152,7 @@ const CURATIVE_RUNEFORMS_SKILLS: ClassSkill<'Arcanist', 'CurativeRuneforms'>[] =
     },
     {
       name: "Zenas' Empowering Disc",
+      baseSkillName: "Arcanist's Domain",
       esoClass: 'Arcanist',
       skillLine: 'CurativeRuneforms',
       damage: {},
@@ -148,6 +163,7 @@ const CURATIVE_RUNEFORMS_SKILLS: ClassSkill<'Arcanist', 'CurativeRuneforms'>[] =
     // Apocryphal Gate line
     {
       name: 'Apocryphal Gate',
+      baseSkillName: 'Apocryphal Gate',
       esoClass: 'Arcanist',
       skillLine: 'CurativeRuneforms',
       damage: {},
@@ -157,6 +173,7 @@ const CURATIVE_RUNEFORMS_SKILLS: ClassSkill<'Arcanist', 'CurativeRuneforms'>[] =
     },
     {
       name: 'Fleet-Footed Gate',
+      baseSkillName: 'Apocryphal Gate',
       esoClass: 'Arcanist',
       skillLine: 'CurativeRuneforms',
       damage: {},
@@ -166,6 +183,7 @@ const CURATIVE_RUNEFORMS_SKILLS: ClassSkill<'Arcanist', 'CurativeRuneforms'>[] =
     },
     {
       name: 'Passage Between Worlds',
+      baseSkillName: 'Apocryphal Gate',
       esoClass: 'Arcanist',
       skillLine: 'CurativeRuneforms',
       damage: {},

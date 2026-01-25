@@ -4,6 +4,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   // Ultimate abilities - Nova line
   {
     name: 'Nova',
+    baseSkillName: 'Nova',
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
@@ -17,6 +18,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   },
   {
     name: 'Solar Disturbance',
+    baseSkillName: 'Nova',
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
@@ -30,6 +32,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   },
   {
     name: 'Solar Prison',
+    baseSkillName: 'Nova',
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
@@ -44,6 +47,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   // Sun Fire line
   {
     name: 'Sun Fire',
+    baseSkillName: 'Sun Fire',
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
@@ -57,6 +61,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   },
   {
     name: 'Reflective Light',
+    baseSkillName: 'Sun Fire',
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
@@ -70,6 +75,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   },
   {
     name: "Vampire's Bane",
+    baseSkillName: 'Sun Fire',
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
@@ -84,6 +90,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   // Solar Flare line
   {
     name: 'Solar Flare', // Increase class abilities damage by 5% for 10s
+    baseSkillName: 'Solar Flare',
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
@@ -95,6 +102,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   },
   {
     name: 'Dark Flare', // Increase class abilities damage by 5% for 10s
+    baseSkillName: 'Solar Flare',
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
@@ -106,6 +114,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   },
   {
     name: 'Solar Barrage', // Increase class abilities damage by 5% for 20s
+    baseSkillName: 'Solar Flare',
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
@@ -120,6 +129,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   // Backlash line
   {
     name: 'Backlash',
+    baseSkillName: 'Backlash',
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
@@ -134,6 +144,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   },
   {
     name: 'Power of the Light',
+    baseSkillName: 'Backlash',
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
@@ -148,6 +159,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   },
   {
     name: 'Purifying Light',
+    baseSkillName: 'Backlash',
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
@@ -163,6 +175,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   // Eclipse line
   {
     name: 'Eclipse',
+    baseSkillName: 'Eclipse',
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {},
@@ -172,6 +185,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   },
   {
     name: 'Living Dark',
+    baseSkillName: 'Eclipse',
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {},
@@ -181,6 +195,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   },
   {
     name: 'Unstable Core',
+    baseSkillName: 'Eclipse',
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
@@ -193,6 +208,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   // Radiant Destruction line
   {
     name: 'Radiant Destruction',
+    baseSkillName: 'Radiant Destruction',
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
@@ -205,6 +221,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   },
   {
     name: 'Radiant Glory',
+    baseSkillName: 'Radiant Destruction',
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
@@ -217,6 +234,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   },
   {
     name: 'Radiant Oppression',
+    baseSkillName: 'Radiant Destruction',
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {

@@ -4,6 +4,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   // Ultimate abilities - Berserker Strike line
   {
     name: 'Berserker Strike',
+    baseSkillName: 'Berserker Strike',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 3486 }],
@@ -14,6 +15,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   },
   {
     name: 'Berserker Rage',
+    baseSkillName: 'Berserker Strike',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 3600 }],
@@ -24,6 +26,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   },
   {
     name: 'Onslaught',
+    baseSkillName: 'Berserker Strike',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 3485 }],
@@ -35,6 +38,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   // Uppercut line
   {
     name: 'Uppercut',
+    baseSkillName: 'Uppercut',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 2672 }],
@@ -45,6 +49,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   },
   {
     name: 'Dizzying Swing',
+    baseSkillName: 'Uppercut',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 2760 }],
@@ -55,6 +60,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   },
   {
     name: 'Wrecking Blow',
+    baseSkillName: 'Uppercut',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 2760 }],
@@ -66,6 +72,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   // Critical Charge line
   {
     name: 'Critical Charge',
+    baseSkillName: 'Critical Charge',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 1392 }],
@@ -76,6 +83,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   },
   {
     name: 'Critical Rush',
+    baseSkillName: 'Critical Charge',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 1393 }],
@@ -86,6 +94,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   },
   {
     name: 'Stampede',
+    baseSkillName: 'Critical Charge',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 1393 }],
@@ -100,6 +109,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   // Cleave line
   {
     name: 'Cleave',
+    baseSkillName: 'Cleave',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 1742 }],
@@ -110,6 +120,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   },
   {
     name: 'Brawler',
+    baseSkillName: 'Cleave',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 1742 }],
@@ -120,6 +131,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   },
   {
     name: 'Carve',
+    baseSkillName: 'Cleave',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 1742 }],
@@ -133,6 +145,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   // Reverse Slash line
   {
     name: 'Reverse Slash',
+    baseSkillName: 'Reverse Slash',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 1161 }],
@@ -143,6 +156,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   },
   {
     name: 'Executioner',
+    baseSkillName: 'Reverse Slash',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 1161 }],
@@ -153,6 +167,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   },
   {
     name: 'Reverse Slice',
+    baseSkillName: 'Reverse Slash',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 1199 }],
@@ -164,6 +179,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   // Momentum line
   {
     name: 'Momentum',
+    baseSkillName: 'Momentum',
     skillLine: 'TwoHanded',
     damage: {},
     damageType: 'physical',
@@ -172,6 +188,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   },
   {
     name: 'Forward Momentum',
+    baseSkillName: 'Momentum',
     skillLine: 'TwoHanded',
     damage: {},
     damageType: 'physical',
@@ -180,6 +197,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   },
   {
     name: 'Rally',
+    baseSkillName: 'Momentum',
     skillLine: 'TwoHanded',
     damage: {},
     damageType: 'physical',

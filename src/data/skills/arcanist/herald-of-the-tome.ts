@@ -4,6 +4,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   // Ultimate abilities - The Unblinking Eye line
   {
     name: 'The Unblinking Eye',
+    baseSkillName: 'The Unblinking Eye',
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
@@ -17,6 +18,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   },
   {
     name: 'The Languid Eye',
+    baseSkillName: 'The Unblinking Eye',
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
@@ -31,6 +33,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   },
   {
     name: "The Tide King's Gaze",
+    baseSkillName: 'The Unblinking Eye',
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
@@ -45,6 +48,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   // Runeblades line
   {
     name: 'Runeblades',
+    baseSkillName: 'Runeblades',
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
@@ -56,6 +60,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   },
   {
     name: 'Escalating Runeblades',
+    baseSkillName: 'Runeblades',
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
@@ -67,6 +72,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   },
   {
     name: 'Writhing Runeblades',
+    baseSkillName: 'Runeblades',
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
@@ -79,6 +85,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   // Fatecarver line
   {
     name: 'Fatecarver',
+    baseSkillName: 'Fatecarver',
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
@@ -93,6 +100,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   },
   {
     name: 'Exhausting Fatecarver',
+    baseSkillName: 'Fatecarver',
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
@@ -107,6 +115,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   },
   {
     name: 'Pragmatic Fatecarver',
+    baseSkillName: 'Fatecarver',
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
@@ -122,6 +131,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   // Abyssal Impact line
   {
     name: 'Abyssal Impact', // You deal 5% increased damage to enemies drenched in Abyssal Ink.
+    baseSkillName: 'Abyssal Impact',
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
@@ -133,6 +143,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   },
   {
     name: "Cephaliarch's Flail", // You deal 5% increased damage to enemies drenched in Abyssal Ink.
+    baseSkillName: 'Abyssal Impact',
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
@@ -144,6 +155,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   },
   {
     name: 'Tentacular Dread', // You deal 5% increased damage to enemies drenched in Abyssal Ink.
+    baseSkillName: 'Abyssal Impact',
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
@@ -156,6 +168,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   // Tome-Bearer's Inspiration line
   {
     name: "Tome-Bearer's Inspiration",
+    baseSkillName: "Tome-Bearer's Inspiration",
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
@@ -169,6 +182,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   },
   {
     name: 'Inspired Scholarship',
+    baseSkillName: "Tome-Bearer's Inspiration",
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
@@ -182,6 +196,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   },
   {
     name: 'Recuperative Treatise',
+    baseSkillName: "Tome-Bearer's Inspiration",
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
@@ -196,6 +211,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   // The Imperfect Ring line
   {
     name: 'The Imperfect Ring',
+    baseSkillName: 'The Imperfect Ring',
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
@@ -208,6 +224,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   },
   {
     name: 'Fulminating Rune',
+    baseSkillName: 'The Imperfect Ring',
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
@@ -221,6 +238,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   },
   {
     name: 'Rune of Displacement',
+    baseSkillName: 'The Imperfect Ring',
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {

@@ -4,6 +4,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   // Ultimate abilities - Rapid Fire line
   {
     name: 'Rapid Fire',
+    baseSkillName: 'Rapid Fire',
     skillLine: 'Bow',
     damage: {
       dot: 17415,
@@ -16,6 +17,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   },
   {
     name: 'Ballista',
+    baseSkillName: 'Rapid Fire',
     skillLine: 'Bow',
     damage: {
       dot: 15587,
@@ -27,6 +29,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   },
   {
     name: 'Toxic Barrage',
+    baseSkillName: 'Rapid Fire',
     skillLine: 'Bow',
     damage: {
       dot: 17415,
@@ -40,6 +43,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   // Snipe line
   {
     name: 'Snipe',
+    baseSkillName: 'Snipe',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 2404 }],
@@ -50,6 +54,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   },
   {
     name: 'Focused Aim',
+    baseSkillName: 'Snipe',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 2404 }],
@@ -60,6 +65,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   },
   {
     name: 'Lethal Arrow',
+    baseSkillName: 'Snipe',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 2483 }],
@@ -71,6 +77,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   // Volley line
   {
     name: 'Volley',
+    baseSkillName: 'Volley',
     skillLine: 'Bow',
     damage: {
       dot: 342,
@@ -83,6 +90,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   },
   {
     name: 'Arrow Barrage',
+    baseSkillName: 'Volley',
     skillLine: 'Bow',
     damage: {
       dot: 460,
@@ -95,6 +103,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   },
   {
     name: 'Endless Hail',
+    baseSkillName: 'Volley',
     skillLine: 'Bow',
     damage: {
       dot: 343,
@@ -108,6 +117,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   // Scatter Shot line
   {
     name: 'Scatter Shot',
+    baseSkillName: 'Scatter Shot',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1392 }],
@@ -118,6 +128,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   },
   {
     name: 'Draining Shot',
+    baseSkillName: 'Scatter Shot',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1393 }],
@@ -128,6 +139,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   },
   {
     name: 'Magnum Shot',
+    baseSkillName: 'Scatter Shot',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1727 }],
@@ -139,6 +151,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   // Arrow Spray line
   {
     name: 'Arrow Spray',
+    baseSkillName: 'Arrow Spray',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1742 }],
@@ -149,6 +162,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   },
   {
     name: 'Acid Spray',
+    baseSkillName: 'Arrow Spray',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1742 }],
@@ -161,6 +175,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   },
   {
     name: 'Bombard',
+    baseSkillName: 'Arrow Spray',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1742 }],
@@ -172,6 +187,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   // Poison Arrow line
   {
     name: 'Poison Arrow',
+    baseSkillName: 'Poison Arrow',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1161 }],
@@ -184,6 +200,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   },
   {
     name: 'Poison Injection',
+    baseSkillName: 'Poison Arrow',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1161 }],
@@ -196,6 +213,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   },
   {
     name: 'Venom Arrow',
+    baseSkillName: 'Poison Arrow',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1161 }],
