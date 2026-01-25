@@ -1,6 +1,9 @@
 import { ClassSkill } from '../../../models/skill';
 
-const SOLDIER_OF_APOCRYPHA_SKILLS: ClassSkill<'Arcanist', 'SoldierOfApocrypha'>[] = [
+const SOLDIER_OF_APOCRYPHA_SKILLS: ClassSkill<
+  'Arcanist',
+  'SoldierOfApocrypha'
+>[] = [
   // Ultimate abilities - Gibbering Shield line
   {
     name: 'Gibbering Shield',

@@ -41,12 +41,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
     baseSkillName: 'Flurry',
     skillLine: 'DualWield',
     damage: {
-      hits: [
-        { value: 667 },
-        { value: 667 },
-        { value: 667 },
-        { value: 667 },
-      ],
+      hits: [{ value: 667 }, { value: 667 }, { value: 667 }, { value: 667 }],
     },
     damageType: 'physical',
     targetType: 'single',
@@ -57,12 +52,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
     baseSkillName: 'Flurry',
     skillLine: 'DualWield',
     damage: {
-      hits: [
-        { value: 689 },
-        { value: 689 },
-        { value: 689 },
-        { value: 689 },
-      ],
+      hits: [{ value: 689 }, { value: 689 }, { value: 689 }, { value: 689 }],
     },
     damageType: 'bleed',
     targetType: 'single',
@@ -73,12 +63,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
     baseSkillName: 'Flurry',
     skillLine: 'DualWield',
     damage: {
-      hits: [
-        { value: 689 },
-        { value: 689 },
-        { value: 689 },
-        { value: 689 },
-      ],
+      hits: [{ value: 689 }, { value: 689 }, { value: 689 }, { value: 689 }],
     },
     damageType: 'physical',
     targetType: 'single',

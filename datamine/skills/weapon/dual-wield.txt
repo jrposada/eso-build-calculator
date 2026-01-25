@@ -1,0 +1,100 @@
+Ultimate abilities
+Lacerate icon
+Lacerate
+Slash enemies in front of you, causing them to bleed for 6960 Bleed Damage over 8 seconds and healing you for 50% of the damage done. Each tick applies the Hemorrhaging status effect.
+arrow
+Rend icon
+Rend
+Slash enemies in front of you, causing them to bleed for 12942 Bleed Damage over 16 seconds and healing you for 50% of the damage done. Each tick applies the Hemorrhaging status effect.
+Increases the duration.
+arrow
+Thrive in Chaos icon
+Thrive in Chaos
+Slash enemies in front of you, causing them to bleed for 6965 Bleed Damage over 8 seconds and healing you for 50% of the damage done. Each enemy hit increases your damage done by 6% for 15 seconds. This effect can stack up to 6 times. Each tick applies the Hemorrhaging status effect.
+Converts into a conal attack. Each enemy hit increases your damage done.
+Scribing abilities
+Traveling Knife icon
+Traveling Knife
+Twirl and throw an enchanted dagger at an enemy, which returns to you after a short delay and hits additional enemies in the path.
+Active abilities
+Flurry icon
+Flurry
+Flood an enemy with steel, battering them with four consecutive attacks that each deal 667 Physical Damage.
+arrow
+Bloodthirst icon
+Bloodthirst
+Flood an enemy with steel, battering them with four consecutive attacks that each deal 689 Bleed Damage and heal you for 33% of the damage caused.
+Converts into Bleed Damage and heals you for a percentage of the damage caused.
+arrow
+Rapid Strikes icon
+Rapid Strikes
+Flood an enemy with steel, battering them with four consecutive attacks that each deal 689 Physical Damage. Each hit increases the damage of the subsequent hit by 5%.
+Reduces the cost and each hit increases the damage of the subsequent hit.
+Twin Slashes icon
+Twin Slashes
+Slice an enemy with both weapons to cause deep lacerations, dealing 580 Bleed Damage with each weapon and causing them to bleed for an additional 3470 Bleed Damage over 20 seconds.
+arrow
+Blood Craze icon
+Blood Craze
+Slice an enemy with both weapons to cause deep lacerations, dealing 580 Bleed Damage with each weapon and causing them to bleed for an additional 3470 Bleed Damage over 20 seconds. You heal for 358 Health anytime this ability deals damage.
+Whenever an enemy is damaged from the attack you are healed.
+arrow
+Rending Slashes icon
+Rending Slashes
+Slice an enemy with both weapons to cause deep lacerations, dealing 718 Bleed Damage with each weapon and causing them to bleed for an additional 3470 Bleed Damage over 20 seconds. Enemies hit by the initial hit are afflicted with the Hemorrhaging status effect. You also reduce their Movement Speed by 30% for 4 seconds.
+Increases the initial damage, applies the Hemorrhaging status effect, and reduces the enemy's Movement Speed.
+Whirlwind icon
+Whirlwind
+Launch yourself into a lethal spin, dealing 1742 Physical Damage to nearby enemies. Deals up to 33% more damage to enemies with less than 50% Health.
+arrow
+Steel Tornado icon
+Steel Tornado
+Launch yourself into a lethal spin, releasing a flurry of blades around you that deals 1742 Physical Damage to nearby enemies. Deals up to 33% more damage to enemies with less than 50% Health.
+Increases the radius. Reduces cost as ability ranks up.
+arrow
+Whirling Blades icon
+Whirling Blades
+Launch yourself into a lethal spin, dealing 1799 Physical Damage to nearby enemies. Deals up to 100% more damage to enemies with less than 50% Health.
+Increases the bonus damage against low health targets.
+Blade Cloak icon
+Blade Cloak
+Envelop yourself in a protective cloak of razors, gaining Major Evasion for 20 seconds, reducing damage from area attacks by 20%. Every 2 seconds the shrapnel will pulse, dealing 421 Physical Damage to all enemies within 5 meters.
+arrow
+Deadly Cloak icon
+Deadly Cloak
+Envelop yourself in a protective cloak of razors, gaining Major Evasion for 20 seconds, reducing damage from area attacks by 20%. Every 2 seconds the shrapnel will pulse, dealing 567 Physical Damage to all enemies within 5 meters.
+Increases the damage done.
+arrow
+Quick Cloak icon
+Quick Cloak
+Envelop yourself in a protective cloak of razors, gaining Major Evasion for 30 seconds, reducing damage from area attacks by 20%. Every 2 seconds the shrapnel will pulse, dealing 422 Physical Damage to all enemies within 5 meters. You also gain Major Expedition for 4 seconds, increasing your Movement Speed by 30%.
+Increases duration and grants Major Expedition for a short duration after casting.
+Hidden Blade icon
+Hidden Blade
+Fire a secret dagger from your sleeve at an enemy, dealing 1392 Physical Damage and granting you Major Brutality and Sorcery, increasing your Weapon and Spell Damage by 20% for 20 seconds. If the enemy hit is casting an ability they are interrupted, set Off Balance, and stunned for 3 seconds.
+arrow
+Flying Blade icon
+Flying Blade
+Fire a secret dagger from your sleeve at an enemy, dealing 1438 Physical Damage and marking them for 5 seconds. If the enemy hit is casting an ability they are interrupted, set Off Balance, and stunned for 3 seconds. Reactivating this ability on them allows you to jump to a marked enemy free of cost, dealing 2160 Physical Damage. Casting grants you Major Brutality and Sorcery, increasing your Weapon and Spell Damage by 20% for 40 seconds.
+Casting the ability again against the same target causes you to jump to them. Extends the duration of Major Brutality and Sorcery.
+arrow
+Shrouded Daggers icon
+Shrouded Daggers
+Fire a secret dagger from your sleeve that bounces up to 3 times to nearby enemies, dealing 1799 Physical Damage per hit. If enemies hit are casting they are interrupted, set Off Balance, and stunned for 3 seconds. You also gain Major Brutality and Sorcery, increasing your Weapon and Spell Damage by 20% for 20 seconds.
+Increases the damage, and the dagger now bounces up to a total of three times.
+Passive abilities
+Slaughter icon
+Slaughter
+WHILE DUAL WIELDING Increases damage with Dual Wield abilities by 20% against enemies with under 25% Health.
+Dual Wield Expert icon
+Dual Wield Expert
+WHILE DUAL WIELDING Increases Weapon and Spell Damage by 6% of off-hand weapon's damage.
+Controlled Fury icon
+Controlled Fury
+WHILE DUAL WIELDING Reduces the Stamina cost of Dual Wield abilities by 15%.
+Ruffian icon
+Ruffian
+WHILE USING DUAL WIELD ATTACKS Gives you a 15% damage bonus when attacking stunned, immobilized, or silenced enemies.
+Twin Blade and Blunt icon
+Twin Blade and Blunt
+WHILE DUAL WIELDING Grants a bonus based on the type of weapon equipped: Each axe increases your Critical Damage done by 6%. Each mace increases your Offensive Penetration by 1487. Each sword increases your Weapon and Spell Damage by 129. Each dagger increases your Critical Chance rating by 657.

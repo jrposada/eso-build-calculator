@@ -107,7 +107,10 @@ const DAEDRIC_SUMMONING_SKILLS: ClassSkill<'Sorcerer', 'DaedricSummoning'>[] = [
     esoClass: 'Sorcerer',
     skillLine: 'DaedricSummoning',
     damage: {
-      hits: [{ value: 2999, delay: 3.5 }, { value: 2999, delay: 12 }],
+      hits: [
+        { value: 2999, delay: 3.5 },
+        { value: 2999, delay: 12 },
+      ],
     },
     damageType: 'magic',
     targetType: 'aoe',
