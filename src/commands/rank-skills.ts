@@ -1,6 +1,8 @@
 import { Command } from 'commander';
 
+import { ALL_MODIFIERS } from '../data/modifiers';
 import { ALL_SKILLS } from '../data/skills';
+import { DamageModifier } from '../models/modifier';
 import {
   calculateDamagePerCast,
   getSkillDuration,
@@ -23,6 +25,7 @@ interface RankOptions {
   excludeUltimates: boolean;
   source?: string;
   mechanic?: string;
+  modifier?: string;
 }
 
 function formatTable(skills: SkillDamage[], limit: number): string {
@@ -107,9 +110,19 @@ function action(options: RankOptions) {
   if (options.mechanic) {
     const allowedMechanics = options.mechanic
       .split(',')
-      .map((s) => s.trim().toLocaleLowerCase());
+      .map((s) => s.trim().toLowerCase());
     skills = skills.filter((skill) =>
       allowedMechanics.includes(getSkillMechanic(skill)),
+    );
+  }
+
+  let modifiers: DamageModifier[] = [];
+  if (options.modifier) {
+    const allowedModifiers = options.modifier
+      .split(',')
+      .map((s) => s.trim().toLowerCase());
+    modifiers = ALL_MODIFIERS.filter((modifier) =>
+      allowedModifiers.includes(modifier.name.toLowerCase()),
     );
   }
 
@@ -120,7 +133,7 @@ function action(options: RankOptions) {
       baseSkillName: skill.baseSkillName,
       source: getSkillSource(skill),
       skillLine: skill.skillLine,
-      damagePerCast: calculateDamagePerCast(skill),
+      damagePerCast: calculateDamagePerCast(skill, modifiers),
       duration: getSkillDuration(skill),
     }))
     .filter((s) => s.damagePerCast > 0); // Only show skills that deal damage
@@ -164,4 +177,5 @@ export const rankCommand = new Command('rank')
     '-m, --mechanic <mechanics>',
     'Only include skills of specified mechanic (comma-separated)',
   )
+  .option('--modifier <modifiers>', 'Apply list of modifiers (comma-separated)')
   .action(action);

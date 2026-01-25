@@ -77,6 +77,7 @@ export interface DotDamage {
   interval?: number; // Defaults to duration if not specified
   increasePerTick?: number; // Percentage increase per tick (e.g., 0.12 for 12%)
   flatIncreasePerTick?: number; // Flat increase per tick
+  ignoresModifier?: boolean;
 }
 
 interface BaseSkill {

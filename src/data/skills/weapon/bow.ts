@@ -106,7 +106,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
     resource: 'stamina',
   },
   {
-    name: 'Endless Hail',
+    name: 'Endless Hail*',
     baseSkillName: 'Thunderous Volley',
     skillLine: 'Bow',
     damage: {
@@ -118,6 +118,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
           delay: 2,
           interval: 1,
           flatIncreasePerTick: 191,
+          ignoresModifier: true,
         },
       ],
     },
