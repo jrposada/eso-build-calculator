@@ -155,10 +155,7 @@ const RESTORING_LIGHT_SKILLS: ClassSkill<'Templar', 'RestoringLight'>[] = [
     esoClass: 'Templar',
     skillLine: 'RestoringLight',
     damage: {
-      dot: 435,
-      dotDuration: 20,
-      dotInterval: 2,
-      dotIncreasePerTick: 0.12,
+      dots: [{ value: 435, duration: 20, interval: 2, increasePerTick: 0.12 }],
     },
     damageType: 'magic',
     targetType: 'aoe',

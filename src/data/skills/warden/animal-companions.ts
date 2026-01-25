@@ -58,8 +58,7 @@ const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
     skillLine: 'AnimalCompanions',
     damage: {
       hits: [{ value: 2091 }],
-      dot: 2140,
-      dotDuration: 10,
+      dots: [{ value: 2140, duration: 10 }],
     },
     damageType: 'bleed',
     targetType: 'single',
@@ -130,8 +129,7 @@ const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
     esoClass: 'Warden',
     skillLine: 'AnimalCompanions',
     damage: {
-      dot: 4631,
-      dotDuration: 20,
+      dots: [{ value: 4631, duration: 20 }],
     },
     damageType: 'magic',
     targetType: 'single',
@@ -143,8 +141,7 @@ const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
     esoClass: 'Warden',
     skillLine: 'AnimalCompanions',
     damage: {
-      dot: 4785,
-      dotDuration: 20,
+      dots: [{ value: 4785, duration: 20 }],
     },
     damageType: 'magic',
     targetType: 'single',
@@ -156,8 +153,7 @@ const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
     esoClass: 'Warden',
     skillLine: 'AnimalCompanions',
     damage: {
-      dot: 4785,
-      dotDuration: 20,
+      dots: [{ value: 4785, duration: 20 }],
     },
     damageType: 'bleed',
     targetType: 'single',

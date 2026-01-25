@@ -70,15 +70,21 @@ export type DamageType =
 
 export type TargetType = 'single' | 'aoe';
 
+export interface DotDamage {
+  value: number;
+  duration: number;
+  delay?: number;
+  interval?: number; // Defaults to duration if not specified
+  increasePerTick?: number; // Percentage increase per tick (e.g., 0.12 for 12%)
+  flatIncreasePerTick?: number; // Flat increase per tick
+}
+
 interface BaseSkill {
   name: string;
   baseSkillName: string; // The base skill name for grouping (base, morph1, morph2)
   damage: {
     hits?: Array<{ value: number; delay?: number }>;
-    dot?: number;
-    dotDuration?: number;
-    dotInterval?: number;
-    dotIncreasePerTick?: number; // Percentage increase per tick (e.g., 0.12 for 12%)
+    dots?: DotDamage[];
   };
   damageType: DamageType;
   targetType: TargetType;

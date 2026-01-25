@@ -107,8 +107,7 @@ const ASSASSINATION_SKILLS: ClassSkill<'Nightblade', 'Assassination'>[] = [
     skillLine: 'Assassination',
     damage: {
       hits: [{ value: 1603 }],
-      dot: 2050,
-      dotDuration: 5,
+      dots: [{ value: 2050, duration: 5 }],
     },
     damageType: 'magic',
     targetType: 'aoe',

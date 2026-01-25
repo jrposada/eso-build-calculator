@@ -28,9 +28,7 @@ const DARK_MAGIC_SKILLS: ClassSkill<'Sorcerer', 'DarkMagic'>[] = [
     esoClass: 'Sorcerer',
     skillLine: 'DarkMagic',
     damage: {
-      dot: 1038,
-      dotDuration: 12,
-      dotInterval: 1,
+      dots: [{ value: 1038, duration: 12, interval: 1 }],
     },
     damageType: 'magic',
     targetType: 'aoe',

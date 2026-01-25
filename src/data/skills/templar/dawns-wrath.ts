@@ -8,9 +8,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
-      dot: 1161,
-      dotDuration: 8,
-      dotInterval: 1,
+      dots: [{ value: 1161, duration: 8, interval: 1 }],
     },
     damageType: 'magic',
     targetType: 'aoe',
@@ -22,9 +20,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
-      dot: 1161,
-      dotDuration: 8,
-      dotInterval: 1,
+      dots: [{ value: 1161, duration: 8, interval: 1 }],
     },
     damageType: 'magic',
     targetType: 'aoe',
@@ -36,9 +32,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
-      dot: 1199,
-      dotDuration: 8,
-      dotInterval: 1,
+      dots: [{ value: 1199, duration: 8, interval: 1 }],
     },
     damageType: 'magic',
     targetType: 'aoe',
@@ -52,8 +46,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
     skillLine: 'DawnsWrath',
     damage: {
       hits: [{ value: 1161 }],
-      dot: 3470,
-      dotDuration: 20,
+      dots: [{ value: 3470, duration: 20 }],
     },
     damageType: 'flame',
     targetType: 'single',
@@ -66,8 +59,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
     skillLine: 'DawnsWrath',
     damage: {
       hits: [{ value: 1199 }],
-      dot: 3470,
-      dotDuration: 20,
+      dots: [{ value: 3470, duration: 20 }],
     },
     damageType: 'flame',
     targetType: 'aoe', // hits up to 3 enemies
@@ -80,8 +72,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
     skillLine: 'DawnsWrath',
     damage: {
       hits: [{ value: 1161 }],
-      dot: 5370,
-      dotDuration: 30,
+      dots: [{ value: 5370, duration: 30 }],
     },
     damageType: 'flame',
     targetType: 'single',
@@ -118,9 +109,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
     esoClass: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
-      dot: 435,
-      dotDuration: 20,
-      dotInterval: 2,
+      dots: [{ value: 435, duration: 20, interval: 2 }],
     },
     damageType: 'magic',
     targetType: 'aoe',

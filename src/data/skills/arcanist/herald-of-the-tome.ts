@@ -8,9 +8,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
-      dot: 1115,
-      dotDuration: 6,
-      dotInterval: 0.5,
+      dots: [{ value: 1115, duration: 6, interval: 0.5 }],
     },
     damageType: 'magic',
     targetType: 'aoe',
@@ -22,10 +20,9 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
-      dot: 1115,
-      dotDuration: 6,
-      dotInterval: 0.5,
-      dotIncreasePerTick: 0.07, // damage increases by 7% every 0.5 seconds
+      dots: [
+        { value: 1115, duration: 6, interval: 0.5, increasePerTick: 0.07 },
+      ], // damage increases by 7% every 0.5 seconds
     },
     damageType: 'magic',
     targetType: 'aoe',
@@ -37,9 +34,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
-      dot: 1151,
-      dotDuration: 8,
-      dotInterval: 0.5,
+      dots: [{ value: 1151, duration: 8, interval: 0.5 }],
     },
     damageType: 'magic',
     targetType: 'aoe',
@@ -89,9 +84,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
-      dot: 879,
-      dotDuration: 4,
-      dotInterval: 0.3,
+      dots: [{ value: 879, duration: 4, interval: 0.3 }],
     },
     damageType: 'magic',
     targetType: 'aoe',
@@ -104,9 +97,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
-      dot: 879,
-      dotDuration: 4, // +0.3s per Crux spent
-      dotInterval: 0.3,
+      dots: [{ value: 879, duration: 4, interval: 0.3 }], // +0.3s per Crux spent
     },
     damageType: 'magic',
     targetType: 'aoe',
@@ -119,9 +110,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
-      dot: 879,
-      dotDuration: 4,
-      dotInterval: 0.3,
+      dots: [{ value: 879, duration: 4, interval: 0.3 }],
     },
     damageType: 'magic',
     targetType: 'aoe',
@@ -172,9 +161,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
-      dot: 1161,
-      dotDuration: 20, // assumed duration for buff
-      dotInterval: 5,
+      dots: [{ value: 1161, duration: 20, interval: 5 }], // assumed duration for buff
     },
     damageType: 'magic',
     targetType: 'single',
@@ -186,9 +173,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
-      dot: 935,
-      dotDuration: 20, // assumed duration for buff
-      dotInterval: 3,
+      dots: [{ value: 935, duration: 20, interval: 3 }], // assumed duration for buff
     },
     damageType: 'magic',
     targetType: 'single',
@@ -200,9 +185,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
-      dot: 1161,
-      dotDuration: 20, // assumed duration for buff
-      dotInterval: 5,
+      dots: [{ value: 1161, duration: 20, interval: 5 }], // assumed duration for buff
     },
     damageType: 'magic',
     targetType: 'single',
@@ -215,8 +198,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
-      dot: 4631,
-      dotDuration: 20,
+      dots: [{ value: 4631, duration: 20 }],
     },
     damageType: 'magic',
     targetType: 'aoe',
@@ -229,8 +211,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
     skillLine: 'HeraldOfTheTome',
     damage: {
       hits: [{ value: 1438, delay: 6 }], // detonation after 6s
-      dot: 4642,
-      dotDuration: 20,
+      dots: [{ value: 4642, duration: 20 }],
     },
     damageType: 'magic',
     targetType: 'aoe',
@@ -242,8 +223,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
     esoClass: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
-      dot: 4780,
-      dotDuration: 18,
+      dots: [{ value: 4780, duration: 18 }],
     },
     damageType: 'magic',
     targetType: 'aoe',

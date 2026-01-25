@@ -16,14 +16,14 @@ export function getSkillMechanic(skill: AnySkill): SkillMechanic | 'unknown' {
     return 'channeled';
   }
 
-  if (skill.damage.dot) {
+  if (skill.damage.dots?.length) {
     return 'dot';
   }
 
   if (
     !!skill.damage.hits?.length &&
     skill.damage.hits.some((hit) => Boolean(hit.value)) &&
-    !skill.damage.dot &&
+    !skill.damage.dots?.length &&
     !skill.channelTime
   ) {
     return 'instant';
@@ -33,11 +33,13 @@ export function getSkillMechanic(skill: AnySkill): SkillMechanic | 'unknown' {
 }
 
 /**
- * Get the duration of a skill (dotDuration or channelTime)
+ * Get the duration of a skill (max dot duration or channelTime)
  */
 export function getSkillDuration(skill: AnySkill): number {
-  if (skill.damage.dotDuration) {
-    return skill.damage.dotDuration;
+  if (skill.damage.dots?.length) {
+    return Math.max(
+      ...skill.damage.dots.map((dot) => dot.duration + (dot.delay ?? 0)),
+    );
   }
   if (skill.channelTime) {
     return skill.channelTime;
@@ -57,19 +59,20 @@ export function calculateDamagePerCast(skill: AnySkill): number {
   }
 
   // Add DoT damage over full duration
-  if (skill.damage.dot && skill.damage.dotDuration) {
-    // If interval is not defined then we only know the total damage done over
-    // the duration which is equivalent to interval = duration
-    const interval = skill.damage.dotInterval ?? skill.damage.dotDuration;
-    const ticks = Math.floor(skill.damage.dotDuration / interval);
-    const increasePerTick = skill.damage.dotIncreasePerTick ?? 0;
+  if (skill.damage.dots) {
+    for (const dot of skill.damage.dots) {
+      // If interval is not defined then we only know the total damage done over
+      // the duration which is equivalent to interval = duration
+      const interval = dot.interval ?? dot.duration;
+      const ticks = Math.floor(dot.duration / interval);
+      const increasePerTick = dot.increasePerTick ?? 0;
+      const flatIncreasePerTick = dot.flatIncreasePerTick ?? 0;
 
-    if (increasePerTick > 0) {
       for (let i = 0; i < ticks; i++) {
-        totalDamage += skill.damage.dot * (1 + i * increasePerTick);
+        const percentageMultiplier = 1 + i * increasePerTick;
+        const flatIncrease = i * flatIncreasePerTick;
+        totalDamage += dot.value * percentageMultiplier + flatIncrease;
       }
-    } else {
-      totalDamage += skill.damage.dot * ticks;
     }
   }
 

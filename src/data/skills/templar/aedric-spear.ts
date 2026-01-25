@@ -9,9 +9,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
     skillLine: 'AedricSpear',
     damage: {
       hits: [{ value: 2323 }],
-      dot: 1161,
-      dotDuration: 6,
-      dotInterval: 2,
+      dots: [{ value: 1161, duration: 6, interval: 2 }],
     },
     damageType: 'magic',
     targetType: 'aoe',
@@ -24,9 +22,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
     skillLine: 'AedricSpear',
     damage: {
       hits: [{ value: 2399 }], // +60% to enemies in front
-      dot: 1161,
-      dotDuration: 6,
-      dotInterval: 2,
+      dots: [{ value: 1161, duration: 6, interval: 2 }],
     },
     damageType: 'magic',
     targetType: 'aoe',
@@ -39,9 +35,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
     skillLine: 'AedricSpear',
     damage: {
       hits: [{ value: 2399 }],
-      dot: 1161,
-      dotDuration: 10, // +2s per enemy hit
-      dotInterval: 2,
+      dots: [{ value: 1161, duration: 10, interval: 2 }], // +2s per enemy hit
     },
     damageType: 'physical',
     targetType: 'aoe',
@@ -169,9 +163,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
     skillLine: 'AedricSpear',
     damage: {
       hits: [{ value: 1742 }],
-      dot: 166,
-      dotDuration: 10,
-      dotInterval: 1,
+      dots: [{ value: 166, duration: 10, interval: 1 }],
     },
     damageType: 'magic',
     targetType: 'aoe',
@@ -184,9 +176,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
     skillLine: 'AedricSpear',
     damage: {
       hits: [{ value: 1742 }],
-      dot: 276,
-      dotDuration: 10,
-      dotInterval: 1,
+      dots: [{ value: 276, duration: 10, interval: 1 }],
     },
     damageType: 'magic',
     targetType: 'aoe',
@@ -199,9 +189,7 @@ const AEDRIC_SPEAR_SKILLS: ClassSkill<'Templar', 'AedricSpear'>[] = [
     skillLine: 'AedricSpear',
     damage: {
       hits: [{ value: 1742 }],
-      dot: 165,
-      dotDuration: 10,
-      dotInterval: 1,
+      dots: [{ value: 165, duration: 10, interval: 1 }],
     },
     damageType: 'magic',
     targetType: 'aoe',

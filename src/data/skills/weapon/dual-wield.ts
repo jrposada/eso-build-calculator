@@ -7,8 +7,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
     baseSkillName: 'Lacerate',
     skillLine: 'DualWield',
     damage: {
-      dot: 6960,
-      dotDuration: 8,
+      dots: [{ value: 6960, duration: 8 }],
     },
     damageType: 'bleed',
     targetType: 'aoe',
@@ -19,8 +18,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
     baseSkillName: 'Lacerate',
     skillLine: 'DualWield',
     damage: {
-      dot: 12942,
-      dotDuration: 16,
+      dots: [{ value: 12942, duration: 16 }],
     },
     damageType: 'bleed',
     targetType: 'aoe',
@@ -31,8 +29,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
     baseSkillName: 'Lacerate',
     skillLine: 'DualWield',
     damage: {
-      dot: 6965,
-      dotDuration: 8,
+      dots: [{ value: 6965, duration: 8 }],
     },
     damageType: 'bleed',
     targetType: 'aoe',
@@ -94,8 +91,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
     skillLine: 'DualWield',
     damage: {
       hits: [{ value: 580 }, { value: 580 }],
-      dot: 3470,
-      dotDuration: 20,
+      dots: [{ value: 3470, duration: 20 }],
     },
     damageType: 'bleed',
     targetType: 'single',
@@ -107,8 +103,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
     skillLine: 'DualWield',
     damage: {
       hits: [{ value: 580 }, { value: 580 }],
-      dot: 3470,
-      dotDuration: 20,
+      dots: [{ value: 3470, duration: 20 }],
     },
     damageType: 'bleed',
     targetType: 'single',
@@ -120,8 +115,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
     skillLine: 'DualWield',
     damage: {
       hits: [{ value: 718 }, { value: 718 }],
-      dot: 3470,
-      dotDuration: 20,
+      dots: [{ value: 3470, duration: 20 }],
     },
     damageType: 'bleed',
     targetType: 'single',
@@ -167,9 +161,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
     baseSkillName: 'Blade Cloak',
     skillLine: 'DualWield',
     damage: {
-      dot: 421,
-      dotDuration: 20,
-      dotInterval: 2,
+      dots: [{ value: 421, duration: 20, interval: 2 }],
     },
     damageType: 'physical',
     targetType: 'aoe',
@@ -180,9 +172,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
     baseSkillName: 'Blade Cloak',
     skillLine: 'DualWield',
     damage: {
-      dot: 567,
-      dotDuration: 20,
-      dotInterval: 2,
+      dots: [{ value: 567, duration: 20, interval: 2 }],
     },
     damageType: 'physical',
     targetType: 'aoe',
@@ -193,9 +183,7 @@ const DUAL_WIELD_SKILLS: WeaponSkill<'DualWield'>[] = [
     baseSkillName: 'Blade Cloak',
     skillLine: 'DualWield',
     damage: {
-      dot: 422,
-      dotDuration: 30,
-      dotInterval: 2,
+      dots: [{ value: 422, duration: 30, interval: 2 }],
     },
     damageType: 'physical',
     targetType: 'aoe',

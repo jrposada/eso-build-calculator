@@ -8,9 +8,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {
-      dot: 1161,
-      dotDuration: 8,
-      dotInterval: 1,
+      dots: [{ value: 1161, duration: 8, interval: 1 }],
     },
     damageType: 'frost',
     targetType: 'aoe',
@@ -22,9 +20,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {
-      dot: 1199,
-      dotDuration: 8,
-      dotInterval: 1,
+      dots: [{ value: 1199, duration: 8, interval: 1 }],
     },
     damageType: 'frost',
     targetType: 'aoe',
@@ -36,9 +32,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {
-      dot: 158,
-      dotDuration: 13,
-      dotInterval: 1,
+      dots: [{ value: 158, duration: 13, interval: 1 }],
     },
     damageType: 'frost',
     targetType: 'aoe',
@@ -82,9 +76,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {
-      dot: 405, // Based on your Max Health
-      dotDuration: 12,
-      dotInterval: 1,
+      dots: [{ value: 405, duration: 12, interval: 1 }], // Based on your Max Health
     },
     damageType: 'frost',
     targetType: 'aoe',
@@ -96,9 +88,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {
-      dot: 419, // Based on your Max Health
-      dotDuration: 12,
-      dotInterval: 1,
+      dots: [{ value: 419, duration: 12, interval: 1 }], // Based on your Max Health
     },
     damageType: 'frost',
     targetType: 'aoe',
@@ -110,9 +100,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
     esoClass: 'Warden',
     skillLine: 'WintersEmbrace',
     damage: {
-      dot: 294, // Based on your Max Health
-      dotDuration: 12,
-      dotInterval: 1,
+      dots: [{ value: 294, duration: 12, interval: 1 }], // Based on your Max Health
     },
     damageType: 'frost',
     targetType: 'aoe',
@@ -136,9 +124,7 @@ const WINTERS_EMBRACE_SKILLS: ClassSkill<'Warden', 'WintersEmbrace'>[] = [
     skillLine: 'WintersEmbrace',
     damage: {
       hits: [{ value: 1799 }],
-      dot: 298,
-      dotDuration: 20,
-      dotInterval: 2,
+      dots: [{ value: 298, duration: 20, interval: 2 }],
     },
     damageType: 'frost',
     targetType: 'aoe',

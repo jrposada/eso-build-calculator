@@ -7,8 +7,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
     baseSkillName: 'Rapid Fire',
     skillLine: 'Bow',
     damage: {
-      dot: 17415,
-      dotDuration: 4,
+      dots: [{ value: 17415, duration: 4 }],
     },
     damageType: 'physical',
     targetType: 'single',
@@ -20,8 +19,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
     baseSkillName: 'Rapid Fire',
     skillLine: 'Bow',
     damage: {
-      dot: 15587,
-      dotDuration: 5,
+      dots: [{ value: 15587, duration: 5 }],
     },
     damageType: 'physical',
     targetType: 'single',
@@ -32,8 +30,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
     baseSkillName: 'Rapid Fire',
     skillLine: 'Bow',
     damage: {
-      dot: 17415,
-      dotDuration: 4,
+      dots: [{ value: 17415, duration: 4 }],
     },
     damageType: 'poison',
     targetType: 'single',
@@ -80,9 +77,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
     baseSkillName: 'Volley',
     skillLine: 'Bow',
     damage: {
-      dot: 342,
-      dotDuration: 8,
-      dotInterval: 1,
+      dots: [{ value: 342, duration: 8, delay: 2, interval: 1 }],
     },
     damageType: 'physical',
     targetType: 'aoe',
@@ -93,9 +88,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
     baseSkillName: 'Volley',
     skillLine: 'Bow',
     damage: {
-      dot: 460,
-      dotDuration: 8,
-      dotInterval: 1,
+      dots: [{ value: 460, duration: 8, delay: 2, interval: 1 }],
     },
     damageType: 'physical',
     targetType: 'aoe',
@@ -106,9 +99,27 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
     baseSkillName: 'Volley',
     skillLine: 'Bow',
     damage: {
-      dot: 343,
-      dotDuration: 13,
-      dotInterval: 1,
+      dots: [{ value: 343, duration: 13, delay: 2, interval: 1 }],
+    },
+    damageType: 'physical',
+    targetType: 'aoe',
+    resource: 'stamina',
+  },
+  {
+    name: 'Endless Hail',
+    baseSkillName: 'Thunderous Volley',
+    skillLine: 'Bow',
+    damage: {
+      dots: [
+        { value: 343, duration: 13, delay: 2, interval: 1 },
+        {
+          value: 526,
+          duration: 13,
+          delay: 2,
+          interval: 1,
+          flatIncreasePerTick: 191,
+        },
+      ],
     },
     damageType: 'physical',
     targetType: 'aoe',
@@ -166,8 +177,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1742 }],
-      dot: 1635,
-      dotDuration: 5,
+      dots: [{ value: 1635, duration: 5 }],
     },
     damageType: 'poison',
     targetType: 'aoe',
@@ -191,8 +201,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1161 }],
-      dot: 3470,
-      dotDuration: 20,
+      dots: [{ value: 3470, duration: 20 }],
     },
     damageType: 'poison',
     targetType: 'single',
@@ -204,8 +213,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1161 }],
-      dot: 3470,
-      dotDuration: 20,
+      dots: [{ value: 3470, duration: 20 }],
     },
     damageType: 'poison',
     targetType: 'single',
@@ -217,8 +225,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1161 }],
-      dot: 3470,
-      dotDuration: 20,
+      dots: [{ value: 3470, duration: 20 }],
     },
     damageType: 'poison',
     targetType: 'single',

@@ -8,9 +8,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
-      dot: 336,
-      dotDuration: 10,
-      dotInterval: 1,
+      dots: [{ value: 336, duration: 10, interval: 1 }],
     },
     damageType: 'flame',
     targetType: 'aoe',
@@ -22,9 +20,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
-      dot: 347,
-      dotDuration: 10,
-      dotInterval: 1,
+      dots: [{ value: 347, duration: 10, interval: 1 }],
     },
     damageType: 'poison',
     targetType: 'aoe',
@@ -36,9 +32,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
-      dot: 347,
-      dotDuration: 10,
-      dotInterval: 1,
+      dots: [{ value: 347, duration: 10, interval: 1 }],
     },
     damageType: 'flame',
     targetType: 'aoe',
@@ -208,9 +202,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
     skillLine: 'EarthenHeart',
     damage: {
       hits: [{ value: 1799 }],
-      dot: 319,
-      dotDuration: 15,
-      dotInterval: 1,
+      dots: [{ value: 319, duration: 15, interval: 1 }],
     },
     damageType: 'flame',
     targetType: 'aoe',

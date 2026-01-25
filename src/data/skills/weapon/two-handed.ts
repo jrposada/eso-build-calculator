@@ -98,9 +98,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 1393 }],
-      dot: 319,
-      dotDuration: 15,
-      dotInterval: 1,
+      dots: [{ value: 319, duration: 15, interval: 1 }],
     },
     damageType: 'physical',
     targetType: 'aoe',
@@ -135,8 +133,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 1742 }],
-      dot: 2868,
-      dotDuration: 12,
+      dots: [{ value: 2868, duration: 12 }],
     },
     damageType: 'bleed',
     targetType: 'aoe',

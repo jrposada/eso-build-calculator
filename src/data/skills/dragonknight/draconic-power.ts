@@ -65,8 +65,7 @@ const DRACONIC_POWER_SKILLS: ClassSkill<'Dragonknight', 'DraconicPower'>[] = [
     esoClass: 'Dragonknight',
     skillLine: 'DraconicPower',
     damage: {
-      dot: 11,
-      dotDuration: 20,
+      dots: [{ value: 11, duration: 20 }],
     },
     damageType: 'flame',
     targetType: 'aoe',
@@ -92,8 +91,7 @@ const DRACONIC_POWER_SKILLS: ClassSkill<'Dragonknight', 'DraconicPower'>[] = [
     skillLine: 'DraconicPower',
     damage: {
       hits: [{ value: 1799 }],
-      dot: 1635,
-      dotDuration: 5,
+      dots: [{ value: 1635, duration: 5 }],
     },
     damageType: 'flame',
     targetType: 'aoe',

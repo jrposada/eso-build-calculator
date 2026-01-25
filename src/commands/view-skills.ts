@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 
 import { ALL_SKILLS } from '../data/skills';
+import { DotDamage } from '../models/skill';
 import {
   AnySkill,
   calculateDamagePerCast,
@@ -20,10 +21,7 @@ interface SkillData {
   mechanic: string;
   channelTime: number | null;
   hits: Array<{ value: number; delay?: number }>;
-  dot: number | null;
-  dotDuration: number | null;
-  dotInterval: number | null;
-  dotIncreasePerTick: number | null;
+  dots: DotDamage[];
   duration: number;
   damagePerCast: number;
 }
@@ -63,19 +61,21 @@ function formatTable(skills: SkillData[]): string {
         lines.push(`    ${j + 1}. ${hit.value}${delay}`);
       });
     }
-    if (skill.dot !== null) {
-      lines.push(`  DoT:             ${skill.dot} per tick`);
-    }
-    if (skill.dotDuration !== null) {
-      lines.push(`  DoT Duration:    ${skill.dotDuration}s`);
-    }
-    if (skill.dotInterval !== null) {
-      lines.push(`  DoT Interval:    ${skill.dotInterval}s`);
-    }
-    if (skill.dotIncreasePerTick !== null) {
-      lines.push(
-        `  DoT Increase:    ${(skill.dotIncreasePerTick * 100).toFixed(0)}% per tick`,
-      );
+    if (skill.dots.length > 0) {
+      lines.push(`  DoTs:`);
+      skill.dots.forEach((dot, j) => {
+        const interval =
+          dot.interval !== undefined ? ` every ${dot.interval}s` : '';
+        const increase = dot.increasePerTick
+          ? ` (+${(dot.increasePerTick * 100).toFixed(0)}%/tick)`
+          : '';
+        const flatIncrease = dot.flatIncreasePerTick
+          ? ` (+${dot.flatIncreasePerTick}/tick)`
+          : '';
+        lines.push(
+          `    ${j + 1}. ${dot.value}${interval} for ${dot.duration}s${increase}${flatIncrease}`,
+        );
+      });
     }
     lines.push('');
     lines.push('  Calculated');
@@ -110,10 +110,7 @@ function mapSkillToData(skill: AnySkill): SkillData {
     mechanic: getSkillMechanic(skill),
     channelTime: skill.channelTime ?? null,
     hits: skill.damage.hits ?? [],
-    dot: skill.damage.dot ?? null,
-    dotDuration: skill.damage.dotDuration ?? null,
-    dotInterval: skill.damage.dotInterval ?? null,
-    dotIncreasePerTick: skill.damage.dotIncreasePerTick ?? null,
+    dots: skill.damage.dots ?? [],
     duration: getSkillDuration(skill),
     damagePerCast: calculateDamagePerCast(skill),
   };
