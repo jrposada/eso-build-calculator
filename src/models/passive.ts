@@ -11,7 +11,7 @@ export type PassiveBonusType =
   | 'dot' // DoT damage %
   | 'direct' // Direct damage %
   | 'statusEffect' // Burning/Poisoned effect damage
-  | 'skillSpecific'; // Affects specific base skills
+  | 'skillLine'; // Affects all skills in the passive's skill line
 
 export type StatusEffect = 'Burning' | 'Poisoned' | 'Chilled' | 'Concussed';
 
@@ -20,7 +20,6 @@ export interface PassiveBonus {
   value: number; // Decimal (0.05 = 5%)
   damageTypes?: DamageType[]; // For damageType bonuses
   statusEffects?: StatusEffect[]; // For statusEffect bonuses
-  affectedSkills?: string[]; // For skillSpecific (baseSkillName)
 }
 
 export interface ClassPassiveSkill {

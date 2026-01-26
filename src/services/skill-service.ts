@@ -1,5 +1,11 @@
 import { DamageModifier } from '../models/modifier';
-import { ClassSkill, WeaponSkill } from '../models/skill';
+import {
+  AnyPassiveSkill,
+  ClassPassiveSkill,
+  PassiveBonus,
+  WeaponPassiveSkill,
+} from '../models/passive';
+import { ClassSkill, DamageType, WeaponSkill } from '../models/skill';
 
 export type AnySkill = ClassSkill | WeaponSkill;
 
@@ -140,4 +146,90 @@ export function calculateDamagePerCast(
   }
 
   return totalDamage;
+}
+
+// Mapping from status effects to damage types that apply them
+const STATUS_EFFECT_TO_DAMAGE_TYPE: Record<string, DamageType> = {
+  Burning: 'flame',
+  Poisoned: 'poison',
+  Chilled: 'frost',
+  Concussed: 'shock',
+};
+
+/**
+ * Check if a bonus applies to a skill and return the applicable bonus value
+ */
+function getApplicableBonus(
+  skill: AnySkill,
+  bonus: PassiveBonus,
+  passiveSkillLine: string,
+): number {
+  switch (bonus.type) {
+    case 'damage':
+      // General damage bonus applies to all skills
+      return bonus.value;
+
+    case 'damageType':
+      // Only applies if skill's damage type matches
+      return bonus.damageTypes?.includes(skill.damageType) ? bonus.value : 0;
+
+    case 'dot':
+      // Only applies if skill has DoTs
+      return skill.damage.dots?.length ? bonus.value : 0;
+
+    case 'direct':
+      // Only applies if skill has direct hits
+      return skill.damage.hits?.length ? bonus.value : 0;
+
+    case 'skillLine':
+      // Only applies if skill belongs to the same skill line as the passive
+      return skill.skillLine === passiveSkillLine ? bonus.value : 0;
+
+    case 'statusEffect':
+      // Status effects apply to skills that can apply them (based on damage type)
+      if (!bonus.statusEffects) return 0;
+      return bonus.statusEffects.some(
+        (se) => STATUS_EFFECT_TO_DAMAGE_TYPE[se] === skill.damageType,
+      )
+        ? bonus.value
+        : 0;
+
+    default:
+      return 0;
+  }
+}
+
+/**
+ * Calculate total passive bonus percentage for a skill
+ */
+export function calculatePassiveBonus(
+  skill: AnySkill,
+  passives: AnyPassiveSkill[],
+): number {
+  let totalBonus = 0;
+
+  for (const passive of passives) {
+    for (const bonus of passive.bonuses) {
+      totalBonus += getApplicableBonus(skill, bonus, passive.skillLine);
+    }
+  }
+
+  return totalBonus;
+}
+
+/**
+ * Get passives that apply to a skill based on its skill line
+ */
+export function getApplicablePassives(
+  skill: AnySkill,
+  allClassPassives: ClassPassiveSkill[],
+  allWeaponPassives: WeaponPassiveSkill[],
+): AnyPassiveSkill[] {
+  const isClassSkill = 'esoClass' in skill;
+
+  if (isClassSkill) {
+    return allClassPassives.filter((p) => p.skillLine === skill.skillLine);
+  } else {
+    return allWeaponPassives.filter((p) => p.skillLine === skill.skillLine);
+  }
 }
