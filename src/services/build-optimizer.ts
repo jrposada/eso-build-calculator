@@ -4,6 +4,7 @@ import {
   getWeaponPassivesBySkillLine,
 } from '../data/passives';
 import { ALL_SKILLS } from '../data/skills';
+import { logger } from '../infrastructure';
 import {
   Build,
   BuildConstraints,
@@ -299,7 +300,7 @@ function findOptimalBuild(
   );
 
   if (verbose) {
-    console.log(
+    logger.info(
       `Testing ${modifierCombinations.length} modifier combinations...`,
     );
   }
@@ -310,7 +311,7 @@ function findOptimalBuild(
   for (const modifiers of modifierCombinations) {
     combinationsTested++;
     if (verbose && combinationsTested % 10 === 0) {
-      console.log(
+      logger.info(
         `Progress: ${combinationsTested}/${modifierCombinations.length}`,
       );
     }

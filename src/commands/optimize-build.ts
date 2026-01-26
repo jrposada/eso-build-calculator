@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 
+import { logger } from '../infrastructure';
 import { Build, BuildConstraints } from '../models/build';
 import { EsoClass } from '../models/skill';
 import { findOptimalBuild } from '../services/build-optimizer';
@@ -134,7 +135,7 @@ function action(options: OptimizeOptions) {
       (c) => c.toLowerCase() === normalizedClass,
     );
     if (!matchedClass) {
-      console.error(
+      logger.error(
         `Error: Invalid class "${options.class}". Valid classes: ${VALID_CLASSES.join(', ')}`,
       );
       process.exit(1);
@@ -143,10 +144,10 @@ function action(options: OptimizeOptions) {
   }
 
   if (options.verbose) {
-    console.log('Finding optimal build...');
-    console.log(`Constraints: ${JSON.stringify(DEFAULT_CONSTRAINTS)}`);
+    logger.info('Finding optimal build...');
+    logger.info(`Constraints: ${JSON.stringify(DEFAULT_CONSTRAINTS)}`);
     if (options.class) {
-      console.log(`Required class: ${options.class}`);
+      logger.info(`Required class: ${options.class}`);
     }
   }
 
@@ -157,14 +158,14 @@ function action(options: OptimizeOptions) {
   );
 
   if (!build) {
-    console.error('No valid build found with the given constraints.');
+    logger.error('No valid build found with the given constraints.');
     process.exit(1);
   }
 
   if (options.format === 'json') {
-    console.log(formatJson(build));
+    logger.log(formatJson(build));
   } else {
-    console.log(formatTable(build));
+    logger.log(formatTable(build));
   }
 }
 

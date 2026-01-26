@@ -1,3 +1,4 @@
+import { logger } from '../infrastructure';
 import { DamageModifier } from '../models/modifier';
 import {
   AnyPassiveSkill,
@@ -104,12 +105,12 @@ export function calculateDamagePerCast(
     );
 
     if (debug) {
-      console.log('Modifiers: ', dotModifiers);
+      logger.info('Modifiers: ', dotModifiers);
     }
 
     for (const dot of skill.damage.dots) {
       if (debug) {
-        console.log('Dot: ', dot);
+        logger.info('Dot: ', dot);
       }
       // If interval is not defined then we only know the total damage done over
       // the duration which is equivalent to interval = duration
@@ -119,7 +120,7 @@ export function calculateDamagePerCast(
       const flatIncreasePerTick = dot.flatIncreasePerTick ?? 0;
 
       if (debug) {
-        console.log('Meta', {
+        logger.info('Meta', {
           interval,
           ticks,
           increasePerTick,
@@ -132,7 +133,7 @@ export function calculateDamagePerCast(
         const flatIncrease = i * flatIncreasePerTick;
         const tickDamage = dot.value * percentageMultiplier + flatIncrease;
         if (debug) {
-          console.log('Tick: ', applyDamageModifier(dotModifiers, tickDamage));
+          logger.info('Tick: ', applyDamageModifier(dotModifiers, tickDamage));
         }
         totalDamage += dot.ignoresModifier
           ? tickDamage
@@ -142,7 +143,7 @@ export function calculateDamagePerCast(
   }
 
   if (debug) {
-    console.log('Damage: ', totalDamage);
+    logger.log('Damage: ', totalDamage);
   }
 
   return totalDamage;

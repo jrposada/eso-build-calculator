@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 
 import { ALL_SKILLS } from '../data/skills';
+import { logger } from '../infrastructure';
 import { DotDamage } from '../models/skill';
 import {
   AnySkill,
@@ -122,16 +123,16 @@ function action(name: string, options: ViewOptions) {
   );
 
   if (!skill) {
-    console.log('Skill not found.');
+    logger.warn('Skill not found.');
     return;
   }
 
   const skillsData: SkillData[] = [mapSkillToData(skill)];
 
   if (options.format === 'json') {
-    console.log(formatJson(skillsData));
+    logger.log(formatJson(skillsData));
   } else {
-    console.log(formatTable(skillsData));
+    logger.log(formatTable(skillsData));
   }
 }
 

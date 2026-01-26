@@ -2,6 +2,7 @@ import { Command } from 'commander';
 
 import { ALL_MODIFIERS } from '../data/modifiers';
 import { ALL_SKILLS } from '../data/skills';
+import { logger } from '../infrastructure';
 import { DamageModifier } from '../models/modifier';
 import {
   calculateDamagePerCast,
@@ -85,7 +86,7 @@ function formatJson(skills: SkillDamage[], limit: number): string {
 function action(options: RankOptions) {
   const limit = parseInt(options.limit, 10);
   if (isNaN(limit) || limit <= 0) {
-    console.error('Error: Limit must be a positive number.');
+    logger.error('Error: Limit must be a positive number.');
     process.exit(1);
   }
 
@@ -153,14 +154,14 @@ function action(options: RankOptions) {
   );
 
   if (skillDamages.length === 0) {
-    console.log('No damaging skills found.');
+    logger.warn('No damaging skills found.');
     return;
   }
 
   if (options.format === 'json') {
-    console.log(formatJson(skillDamages, limit));
+    logger.log(formatJson(skillDamages, limit));
   } else {
-    console.log(formatTable(skillDamages, limit));
+    logger.log(formatTable(skillDamages, limit));
   }
 }
 
