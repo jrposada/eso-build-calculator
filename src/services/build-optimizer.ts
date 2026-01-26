@@ -4,7 +4,7 @@ import {
   getWeaponPassivesBySkillLine,
 } from '../data/passives';
 import { ALL_SKILLS } from '../data/skills';
-import { logger } from '../infrastructure';
+import { logger, table } from '../infrastructure';
 import {
   Build,
   BuildConstraints,
@@ -300,7 +300,7 @@ function findOptimalBuild(
   );
 
   if (verbose) {
-    logger.info(
+    logger.dim(
       `Testing ${modifierCombinations.length} modifier combinations...`,
     );
   }
@@ -310,9 +310,25 @@ function findOptimalBuild(
 
   for (const modifiers of modifierCombinations) {
     combinationsTested++;
-    if (verbose && combinationsTested % 10 === 0) {
-      logger.info(
-        `Progress: ${combinationsTested}/${modifierCombinations.length}`,
+    if (verbose) {
+      logger.dim(
+        table(
+          Object.values(modifiers).map(({ name, affects, value, maxLevel }) => [
+            name,
+            affects,
+            `${value}`,
+            `${maxLevel}`,
+          ]),
+          {
+            title: `Testing combination: (${combinationsTested}/${modifierCombinations.length})`,
+            columns: [
+              { header: 'Name', width: 25 },
+              { header: 'Affects', width: 13 },
+              { header: 'Value', width: 6, align: 'right' },
+              { header: 'MaxLevel', width: 9, align: 'right' },
+            ],
+          },
+        ),
       );
     }
 

@@ -2,7 +2,7 @@ import { Command } from 'commander';
 
 import { ALL_MODIFIERS } from '../data/modifiers';
 import { ALL_SKILLS } from '../data/skills';
-import { logger } from '../infrastructure';
+import { logger, table } from '../infrastructure';
 import { DamageModifier } from '../models/modifier';
 import {
   calculateDamagePerCast,
@@ -30,53 +30,29 @@ interface RankOptions {
 }
 
 function formatTable(skills: SkillDamage[], limit: number): string {
-  const divider = '─'.repeat(85);
-  const lines: string[] = [
-    '',
-    'Skills Ranked by Damage Per Cast',
-    divider,
-    formatRow('#', 'Name', 'Source', 'Skill Line', 'Damage', 'Duration'),
-    divider,
-  ];
-
   const displaySkills = skills.slice(0, limit);
 
-  displaySkills.forEach((skill, i) => {
-    lines.push(
-      formatRow(
-        (i + 1).toString(),
-        skill.name,
-        skill.source,
-        skill.skillLine,
-        skill.damagePerCast.toFixed(0),
-        skill.duration > 0 ? `${skill.duration}s` : 'instant',
-      ),
-    );
+  const data = displaySkills.map((skill, i) => [
+    (i + 1).toString(),
+    skill.name,
+    skill.source,
+    skill.skillLine,
+    skill.damagePerCast.toFixed(0),
+    skill.duration > 0 ? `${skill.duration}s` : 'instant',
+  ]);
+
+  return table(data, {
+    title: 'Skills Ranked by Damage Per Cast',
+    columns: [
+      { header: '#', width: 4, align: 'right' },
+      { header: 'Name', width: 25 },
+      { header: 'Source', width: 12 },
+      { header: 'Skill Line', width: 18 },
+      { header: 'Damage', width: 10, align: 'right' },
+      { header: 'Duration', width: 10, align: 'right' },
+    ],
+    footer: `Showing ${displaySkills.length} of ${skills.length} skills`,
   });
-
-  lines.push(divider);
-  lines.push(`Showing ${displaySkills.length} of ${skills.length} skills`);
-  lines.push('');
-
-  return lines.join('\n');
-}
-
-function formatRow(
-  rank: string,
-  name: string,
-  source: string,
-  skillLine: string,
-  damage: string,
-  duration: string,
-): string {
-  const rankWidth = 4;
-  const nameWidth = 25;
-  const sourceWidth = 12;
-  const skillLineWidth = 18;
-  const damageWidth = 10;
-  const durationWidth = 10;
-
-  return `${rank.padStart(rankWidth)} ${name.padEnd(nameWidth)} ${source.padEnd(sourceWidth)} ${skillLine.padEnd(skillLineWidth)} ${damage.padStart(damageWidth)} ${duration.padStart(durationWidth)}`;
 }
 
 function formatJson(skills: SkillDamage[], limit: number): string {
