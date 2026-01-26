@@ -1,8 +1,28 @@
 import { ClassPassiveSkill } from '../../../models/passive';
 
-// Draconic Power passives are primarily defensive/utility focused
-// Only damage-relevant passives are included
 export const DRACONIC_POWER_PASSIVES: ClassPassiveSkill[] = [
-  // No damage-relevant passives in Draconic Power
-  // The skill line focuses on defensive abilities
+  {
+    name: 'Iron Skin',
+    skillLine: 'DraconicPower',
+    esoClass: 'Dragonknight',
+    bonuses: [], // Block mitigation - not relevant for damage
+  },
+  {
+    name: 'Burning Heart',
+    skillLine: 'DraconicPower',
+    esoClass: 'Dragonknight',
+    bonuses: [], // Healing received - not relevant for damage
+  },
+  {
+    name: 'Elder Dragon',
+    skillLine: 'DraconicPower',
+    esoClass: 'Dragonknight',
+    bonuses: [], // Health/Stamina/Magicka recovery - not relevant for damage
+  },
+  {
+    name: 'Scaled Armor',
+    skillLine: 'DraconicPower',
+    esoClass: 'Dragonknight',
+    bonuses: [], // Spell resistance - not relevant for damage
+  },
 ];

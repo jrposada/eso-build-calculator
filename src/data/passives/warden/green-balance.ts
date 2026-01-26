@@ -1,8 +1,28 @@
 import { ClassPassiveSkill } from '../../../models/passive';
 
-// Green Balance passives are primarily healing focused
-// Only damage-relevant passives are included
 export const GREEN_BALANCE_PASSIVES: ClassPassiveSkill[] = [
-  // No damage-relevant passives in Green Balance
-  // The skill line focuses on healing abilities
+  {
+    name: 'Accelerated Growth',
+    skillLine: 'GreenBalance',
+    esoClass: 'Warden',
+    bonuses: [], // Healing done - not relevant for damage
+  },
+  {
+    name: "Nature's Gift",
+    skillLine: 'GreenBalance',
+    esoClass: 'Warden',
+    bonuses: [], // Magicka/Stamina return - not relevant for damage
+  },
+  {
+    name: 'Emerald Moss',
+    skillLine: 'GreenBalance',
+    esoClass: 'Warden',
+    bonuses: [], // Healing received - not relevant for damage
+  },
+  {
+    name: 'Maturation',
+    skillLine: 'GreenBalance',
+    esoClass: 'Warden',
+    bonuses: [], // Minor Toughness - not relevant for damage
+  },
 ];

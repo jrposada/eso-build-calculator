@@ -4,16 +4,29 @@ export const BOW_PASSIVES: WeaponPassiveSkill[] = [
   {
     name: 'Long Shots',
     skillLine: 'Bow',
-    bonuses: [{ type: 'skillLine', value: 0.12 }],
+    bonuses: [], // Damage at range - situational, not tracked
   },
   {
     name: 'Accuracy',
     skillLine: 'Bow',
-    bonuses: [{ type: 'skillLine', value: 0.08 }],
+    bonuses: [
+      { type: 'critical-chance', value: 0.08, multiplier: 'skillLine' },
+    ],
+  },
+  {
+    name: 'Ranger',
+    skillLine: 'Bow',
+    bonuses: [], // Cost reduction while moving - not relevant for damage
   },
   {
     name: 'Hawk Eye',
     skillLine: 'Bow',
-    bonuses: [{ type: 'skillLine', value: 0.05 }],
+    bonuses: [
+      {
+        type: 'critical-damage',
+        value: 0.02,
+        multiplier: 'abilitySlottedCount',
+      },
+    ],
   },
 ];

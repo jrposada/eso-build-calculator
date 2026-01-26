@@ -4,33 +4,27 @@ export const DESTRUCTION_STAFF_PASSIVES: WeaponPassiveSkill[] = [
   {
     name: 'Tri Focus',
     skillLine: 'DestructionStaff',
-    bonuses: [
-      {
-        type: 'damageType',
-        value: 0.1,
-        damageTypes: ['flame', 'frost', 'shock'],
-      },
-    ],
+    bonuses: [], // Heavy attack effects - not tracked
   },
   {
     name: 'Penetrating Magic',
     skillLine: 'DestructionStaff',
-    bonuses: [{ type: 'skillLine', value: 0.08 }],
+    bonuses: [], // Penetration - handled by base skill damage
   },
   {
     name: 'Elemental Force',
     skillLine: 'DestructionStaff',
-    bonuses: [
-      {
-        type: 'statusEffect',
-        value: 0.3,
-        statusEffects: ['Burning', 'Chilled', 'Concussed'],
-      },
-    ],
+    bonuses: [], // Status effect chance - not tracked in stat-based system
   },
   {
     name: 'Ancient Knowledge',
     skillLine: 'DestructionStaff',
-    bonuses: [{ type: 'dot', value: 0.08 }],
+    bonuses: [
+      {
+        type: 'critical-chance',
+        value: 0.04,
+        multiplier: 'abilitySlottedCount',
+      },
+    ],
   },
 ];

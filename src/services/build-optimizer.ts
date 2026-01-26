@@ -19,6 +19,7 @@ import {
   calculateDamagePerCast,
   calculatePassiveBonus,
   getSkillSource,
+  SkillLineCounts,
 } from './skill-service';
 
 // Mapping from class skill lines to their ESO class
@@ -87,9 +88,19 @@ function generateCombinations<T>(items: T[], k: number): T[][] {
 }
 
 interface SkillLineUsage {
-  classSkillLines: Set<string>;
-  weaponSkillLines: Set<string>;
+  classSkillLineCounts: Map<string, number>;
+  weaponSkillLineCounts: Map<string, number>;
   hasRequiredClassSkillLine: boolean;
+}
+
+/**
+ * Convert SkillLineUsage Maps to SkillLineCounts object
+ */
+function getSkillLineCounts(usage: SkillLineUsage): SkillLineCounts {
+  const counts: SkillLineCounts = {};
+  for (const [line, count] of usage.classSkillLineCounts) counts[line] = count;
+  for (const [line, count] of usage.weaponSkillLineCounts) counts[line] = count;
+  return counts;
 }
 
 /**
@@ -118,25 +129,43 @@ function canAddSkill(
     }
   }
 
-  // If skill line already used, we can add it without using more slots
-  if (isClassSkill && usage.classSkillLines.has(skillLine)) {
+  // If skill line already used, we can add it (increment count) without using more slots
+  if (isClassSkill && usage.classSkillLineCounts.has(skillLine)) {
+    const newClassSkillLineCounts = new Map(usage.classSkillLineCounts);
+    newClassSkillLineCounts.set(
+      skillLine,
+      (newClassSkillLineCounts.get(skillLine) ?? 0) + 1,
+    );
     return {
       canAdd: true,
-      newUsage: { ...usage, hasRequiredClassSkillLine: satisfiesRequiredClass },
+      newUsage: {
+        classSkillLineCounts: newClassSkillLineCounts,
+        weaponSkillLineCounts: usage.weaponSkillLineCounts,
+        hasRequiredClassSkillLine: satisfiesRequiredClass,
+      },
       satisfiesRequiredClass,
     };
   }
-  if (isWeaponSkill && usage.weaponSkillLines.has(skillLine)) {
+  if (isWeaponSkill && usage.weaponSkillLineCounts.has(skillLine)) {
+    const newWeaponSkillLineCounts = new Map(usage.weaponSkillLineCounts);
+    newWeaponSkillLineCounts.set(
+      skillLine,
+      (newWeaponSkillLineCounts.get(skillLine) ?? 0) + 1,
+    );
     return {
       canAdd: true,
-      newUsage: usage,
+      newUsage: {
+        classSkillLineCounts: usage.classSkillLineCounts,
+        weaponSkillLineCounts: newWeaponSkillLineCounts,
+        hasRequiredClassSkillLine: usage.hasRequiredClassSkillLine,
+      },
       satisfiesRequiredClass,
     };
   }
 
   // Check if we have room for a new skill line
   if (isClassSkill) {
-    if (usage.classSkillLines.size >= constraints.maxClassSkillLines) {
+    if (usage.classSkillLineCounts.size >= constraints.maxClassSkillLines) {
       return { canAdd: false, newUsage: usage, satisfiesRequiredClass: false };
     }
 
@@ -146,34 +175,34 @@ function canAddSkill(
       !usage.hasRequiredClassSkillLine &&
       !satisfiesRequiredClass;
     const wouldFillLastSlot =
-      usage.classSkillLines.size === constraints.maxClassSkillLines - 1;
+      usage.classSkillLineCounts.size === constraints.maxClassSkillLines - 1;
 
     if (needsRequiredClassSlot && wouldFillLastSlot) {
       // Don't fill the last class skill line slot with a non-required class skill
       return { canAdd: false, newUsage: usage, satisfiesRequiredClass: false };
     }
-    const newClassSkillLines = new Set(usage.classSkillLines);
-    newClassSkillLines.add(skillLine);
+    const newClassSkillLineCounts = new Map(usage.classSkillLineCounts);
+    newClassSkillLineCounts.set(skillLine, 1);
     return {
       canAdd: true,
       newUsage: {
-        classSkillLines: newClassSkillLines,
-        weaponSkillLines: usage.weaponSkillLines,
+        classSkillLineCounts: newClassSkillLineCounts,
+        weaponSkillLineCounts: usage.weaponSkillLineCounts,
         hasRequiredClassSkillLine: satisfiesRequiredClass,
       },
       satisfiesRequiredClass,
     };
   } else {
-    if (usage.weaponSkillLines.size >= constraints.maxWeaponSkillLines) {
+    if (usage.weaponSkillLineCounts.size >= constraints.maxWeaponSkillLines) {
       return { canAdd: false, newUsage: usage, satisfiesRequiredClass: false };
     }
-    const newWeaponSkillLines = new Set(usage.weaponSkillLines);
-    newWeaponSkillLines.add(skillLine);
+    const newWeaponSkillLineCounts = new Map(usage.weaponSkillLineCounts);
+    newWeaponSkillLineCounts.set(skillLine, 1);
     return {
       canAdd: true,
       newUsage: {
-        classSkillLines: usage.classSkillLines,
-        weaponSkillLines: newWeaponSkillLines,
+        classSkillLineCounts: usage.classSkillLineCounts,
+        weaponSkillLineCounts: newWeaponSkillLineCounts,
         hasRequiredClassSkillLine: usage.hasRequiredClassSkillLine,
       },
       satisfiesRequiredClass,
@@ -193,15 +222,15 @@ interface ProcessedSkill {
  * Get all passives that apply based on selected skill lines
  */
 function getPassivesForSkillLines(
-  classSkillLines: Set<string>,
-  weaponSkillLines: Set<string>,
+  classSkillLineCounts: Map<string, number>,
+  weaponSkillLineCounts: Map<string, number>,
 ): AnyPassiveSkill[] {
   const passives: AnyPassiveSkill[] = [];
 
-  for (const skillLine of classSkillLines) {
+  for (const skillLine of classSkillLineCounts.keys()) {
     passives.push(...getClassPassivesBySkillLine(skillLine));
   }
-  for (const skillLine of weaponSkillLines) {
+  for (const skillLine of weaponSkillLineCounts.keys()) {
     passives.push(...getWeaponPassivesBySkillLine(skillLine));
   }
 
@@ -215,9 +244,10 @@ function calculateDamageWithPassives(
   skill: AnySkill,
   modifiers: DamageModifier[],
   passives: AnyPassiveSkill[],
+  skillLineCounts: SkillLineCounts,
 ): number {
   const baseDamage = calculateDamagePerCast(skill, modifiers);
-  const passiveBonus = calculatePassiveBonus(skill, passives);
+  const passiveBonus = calculatePassiveBonus(skill, passives, skillLineCounts);
   return baseDamage * (1 + passiveBonus);
 }
 
@@ -280,9 +310,13 @@ function calculateTotalDamage(
   skills: AnySkill[],
   modifiers: DamageModifier[],
   passives: AnyPassiveSkill[],
+  skillLineCounts: SkillLineCounts,
 ): number {
   return skills.reduce((total, skill) => {
-    return total + calculateDamageWithPassives(skill, modifiers, passives);
+    return (
+      total +
+      calculateDamageWithPassives(skill, modifiers, passives, skillLineCounts)
+    );
   }, 0);
 }
 
@@ -339,8 +373,8 @@ function findOptimalBuild(
     // considering which passives would be active with that skill added
     const selectedSkills: Array<(typeof processedSkills)[0]> = [];
     let usage: SkillLineUsage = {
-      classSkillLines: new Set(),
-      weaponSkillLines: new Set(),
+      classSkillLineCounts: new Map(),
+      weaponSkillLineCounts: new Map(),
       hasRequiredClassSkillLine: !requiredClass,
     };
 
@@ -388,17 +422,19 @@ function findOptimalBuild(
 
         // Calculate total damage if we add this skill
         const potentialPassives = getPassivesForSkillLines(
-          newUsage.classSkillLines,
-          newUsage.weaponSkillLines,
+          newUsage.classSkillLineCounts,
+          newUsage.weaponSkillLineCounts,
         );
         const potentialSkills = [
           ...selectedSkills.map((s) => s.skill),
           candidate.skill,
         ];
+        const potentialSkillLineCounts = getSkillLineCounts(newUsage);
         const totalDamageIfAdded = calculateTotalDamage(
           potentialSkills,
           modifiers,
           potentialPassives,
+          potentialSkillLineCounts,
         );
 
         // Keep track of best candidate
@@ -438,9 +474,10 @@ function findOptimalBuild(
 
     // Get final passives for the selected skill lines
     const finalPassives = getPassivesForSkillLines(
-      usage.classSkillLines,
-      usage.weaponSkillLines,
+      usage.classSkillLineCounts,
+      usage.weaponSkillLineCounts,
     );
+    const finalSkillLineCounts = getSkillLineCounts(usage);
 
     // Calculate final damages with the actual passive set
     const buildSkills: BuildSkill[] = selectedSkills.map((processedSkill) => {
@@ -448,6 +485,7 @@ function findOptimalBuild(
         processedSkill.skill,
         modifiers,
         finalPassives,
+        finalSkillLineCounts,
       );
       return {
         name: processedSkill.name,
@@ -470,8 +508,8 @@ function findOptimalBuild(
         passives: convertToBuildPassives(finalPassives),
         modifiers: modifiers.map((m) => m.name),
         totalDamagePerCast: totalDamage,
-        usedClassSkillLines: Array.from(usage.classSkillLines),
-        usedWeaponSkillLines: Array.from(usage.weaponSkillLines),
+        usedClassSkillLines: Array.from(usage.classSkillLineCounts.keys()),
+        usedWeaponSkillLines: Array.from(usage.weaponSkillLineCounts.keys()),
         requiredClass,
       };
     }

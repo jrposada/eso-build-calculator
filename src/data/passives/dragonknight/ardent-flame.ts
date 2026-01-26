@@ -5,36 +5,24 @@ export const ARDENT_FLAME_PASSIVES: ClassPassiveSkill[] = [
     name: 'Combustion',
     skillLine: 'ArdentFlame',
     esoClass: 'Dragonknight',
-    bonuses: [
-      {
-        type: 'statusEffect',
-        value: 0.33,
-        statusEffects: ['Burning', 'Poisoned'],
-      },
-    ],
+    bonuses: [], // Ultimate generation on status effect application - not relevant for damage
   },
   {
     name: 'Warmth',
     skillLine: 'ArdentFlame',
     esoClass: 'Dragonknight',
-    bonuses: [{ type: 'dot', value: 0.06 }],
+    bonuses: [], // Snare reduction - not relevant for damage
   },
   {
     name: 'Searing Heat',
     skillLine: 'ArdentFlame',
     esoClass: 'Dragonknight',
-    bonuses: [{ type: 'skillLine', value: 0.25 }],
+    bonuses: [{ type: 'duration', value: 2, multiplier: 'skillLine' }],
   },
   {
     name: 'World in Ruin',
     skillLine: 'ArdentFlame',
     esoClass: 'Dragonknight',
-    bonuses: [
-      {
-        type: 'damageType',
-        value: 0.05,
-        damageTypes: ['flame', 'poison'],
-      },
-    ],
+    bonuses: [], // Damage done - handled by base skill damage
   },
 ];

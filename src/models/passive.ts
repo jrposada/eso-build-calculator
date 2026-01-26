@@ -6,21 +6,32 @@ import {
 } from './skill';
 
 export type PassiveBonusType =
-  | 'damage' // General damage %
-  | 'damageType' // Specific type (flame, poison)
-  | 'dot' // DoT damage %
-  | 'direct' // Direct damage %
-  | 'statusEffect' // Burning/Poisoned effect damage
-  | 'skillLine'; // Affects all skills in the passive's skill line
+  | 'critical-chance'
+  | 'critical-damage'
+  | 'duration'
+  | 'max-stamina'
+  | 'max-magicka';
 
 export type StatusEffect = 'Burning' | 'Poisoned' | 'Chilled' | 'Concussed';
 
-export interface PassiveBonus {
-  type: PassiveBonusType;
-  value: number; // Decimal (0.05 = 5%)
-  damageTypes?: DamageType[]; // For damageType bonuses
-  statusEffects?: StatusEffect[]; // For statusEffect bonuses
-}
+export type PassiveBonus = {
+  /** How many times does the passive apply */
+  multiplier:
+    | 'skillLine' // Skill line is part of build
+    | 'abilitySlotted' // At least 1 skill from skill line is equipped on build
+    | 'abilitySlottedCount'; // Applied once per skill of related skill line equipped on build
+} & (
+  | {
+      type: PassiveBonusType;
+      //** Decimal (0.05 = 5%) or seconds */
+      value: number;
+      damageTypes?: DamageType[];
+      statusEffects?: StatusEffect[];
+    }
+  | {
+      buffId: 'Minor Savagery';
+    }
+);
 
 export interface ClassPassiveSkill {
   name: string;

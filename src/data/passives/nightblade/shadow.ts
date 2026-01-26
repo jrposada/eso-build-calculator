@@ -5,6 +5,24 @@ export const SHADOW_PASSIVES: ClassPassiveSkill[] = [
     name: 'Refreshing Shadows',
     skillLine: 'Shadow',
     esoClass: 'Nightblade',
-    bonuses: [{ type: 'skillLine', value: 0.1 }],
+    bonuses: [], // Non relevant
+  },
+  {
+    name: 'Shadow Barrier',
+    skillLine: 'Shadow',
+    esoClass: 'Nightblade',
+    bonuses: [], // Non relevant
+  },
+  {
+    name: 'Dark Vigor',
+    skillLine: 'Shadow',
+    esoClass: 'Nightblade',
+    bonuses: [], // Non relevant
+  },
+  {
+    name: 'Dark Veil',
+    skillLine: 'Shadow',
+    esoClass: 'Nightblade',
+    bonuses: [{ type: 'duration', value: 2, multiplier: 'skillLine' }],
   },
 ];

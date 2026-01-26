@@ -1,8 +1,28 @@
 import { ClassPassiveSkill } from '../../../models/passive';
 
-// Earthen Heart passives are primarily defensive/utility focused
-// Only damage-relevant passives are included
 export const EARTHEN_HEART_PASSIVES: ClassPassiveSkill[] = [
-  // No damage-relevant passives in Earthen Heart
-  // The skill line focuses on defensive/support abilities
+  {
+    name: 'Eternal Mountain',
+    skillLine: 'EarthenHeart',
+    esoClass: 'Dragonknight',
+    bonuses: [], // Buff duration - not relevant for damage
+  },
+  {
+    name: 'Battle Roar',
+    skillLine: 'EarthenHeart',
+    esoClass: 'Dragonknight',
+    bonuses: [], // Resource return on ultimate - not relevant for damage
+  },
+  {
+    name: "Mountain's Blessing",
+    skillLine: 'EarthenHeart',
+    esoClass: 'Dragonknight',
+    bonuses: [], // Ultimate generation - not relevant for damage
+  },
+  {
+    name: 'Helping Hands',
+    skillLine: 'EarthenHeart',
+    esoClass: 'Dragonknight',
+    bonuses: [], // Stamina return - not relevant for damage
+  },
 ];

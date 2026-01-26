@@ -2,24 +2,25 @@ import { WeaponPassiveSkill } from '../../../models/passive';
 
 export const DUAL_WIELD_PASSIVES: WeaponPassiveSkill[] = [
   {
-    name: 'Dual Wield Expert',
+    name: 'Slaughter',
     skillLine: 'DualWield',
-    bonuses: [{ type: 'skillLine', value: 0.06 }],
+    bonuses: [], // Damage to low health - situational, not tracked
   },
   {
-    name: 'Ruffian',
+    name: 'Dual Wield Expert',
     skillLine: 'DualWield',
-    bonuses: [{ type: 'skillLine', value: 0.1 }],
+    bonuses: [], // Off-hand weapon damage - handled by base damage
+  },
+  {
+    name: 'Controlled Fury',
+    skillLine: 'DualWield',
+    bonuses: [], // Cost reduction - not relevant for damage
   },
   {
     name: 'Twin Blade and Blunt',
     skillLine: 'DualWield',
     bonuses: [
-      {
-        type: 'damageType',
-        value: 0.05,
-        damageTypes: ['bleed'],
-      },
+      { type: 'critical-damage', value: 0.05, multiplier: 'skillLine' },
     ],
   },
 ];

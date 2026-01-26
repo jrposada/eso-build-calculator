@@ -6,11 +6,15 @@ import {
   PassiveBonus,
   WeaponPassiveSkill,
 } from '../models/passive';
-import { ClassSkill, DamageType, WeaponSkill } from '../models/skill';
+import { ClassSkill, WeaponSkill } from '../models/skill';
 
 export type AnySkill = ClassSkill | WeaponSkill;
 
 export type SkillMechanic = 'dot' | 'instant' | 'channeled';
+
+export interface SkillLineCounts {
+  [skillLine: string]: number;
+}
 
 export function getSkillSource(skill: AnySkill): string {
   if ('esoClass' in skill) {
@@ -149,52 +153,62 @@ export function calculateDamagePerCast(
   return totalDamage;
 }
 
-// Mapping from status effects to damage types that apply them
-const STATUS_EFFECT_TO_DAMAGE_TYPE: Record<string, DamageType> = {
-  Burning: 'flame',
-  Poisoned: 'poison',
-  Chilled: 'frost',
-  Concussed: 'shock',
-};
+// Base crit stats (assumed from gear/CP) - could be made configurable
+const BASE_CRIT_CHANCE = 0.15; // 15% base crit chance
+const BASE_CRIT_DAMAGE = 0.5; // 50% base crit damage
 
 /**
  * Check if a bonus applies to a skill and return the applicable bonus value
  */
 function getApplicableBonus(
-  skill: AnySkill,
+  _skill: AnySkill,
   bonus: PassiveBonus,
   passiveSkillLine: string,
+  skillLineCounts: SkillLineCounts,
 ): number {
-  switch (bonus.type) {
-    case 'damage':
-      // General damage bonus applies to all skills
-      return bonus.value;
+  // Handle buffId type
+  if ('buffId' in bonus) {
+    // Minor Savagery = +10% crit damage
+    if (bonus.buffId === 'Minor Savagery') {
+      const skillCount = skillLineCounts[passiveSkillLine] ?? 0;
+      if (skillCount === 0) return 0;
+      // Convert crit damage to expected damage: crit_chance * crit_damage_increase
+      return BASE_CRIT_CHANCE * 0.1;
+    }
+    return 0;
+  }
 
-    case 'damageType':
-      // Only applies if skill's damage type matches
-      return bonus.damageTypes?.includes(skill.damageType) ? bonus.value : 0;
+  // Get base value and apply multiplier
+  const skillCount = skillLineCounts[passiveSkillLine] ?? 0;
+  let multipliedValue = 0;
 
-    case 'dot':
-      // Only applies if skill has DoTs
-      return skill.damage.dots?.length ? bonus.value : 0;
-
-    case 'direct':
-      // Only applies if skill has direct hits
-      return skill.damage.hits?.length ? bonus.value : 0;
-
+  switch (bonus.multiplier) {
     case 'skillLine':
-      // Only applies if skill belongs to the same skill line as the passive
-      return skill.skillLine === passiveSkillLine ? bonus.value : 0;
+    case 'abilitySlotted':
+      multipliedValue = skillCount > 0 ? bonus.value : 0;
+      break;
+    case 'abilitySlottedCount':
+      multipliedValue = bonus.value * skillCount;
+      break;
+    default:
+      multipliedValue = skillCount > 0 ? bonus.value : 0;
+  }
 
-    case 'statusEffect':
-      // Status effects apply to skills that can apply them (based on damage type)
-      if (!bonus.statusEffects) return 0;
-      return bonus.statusEffects.some(
-        (se) => STATUS_EFFECT_TO_DAMAGE_TYPE[se] === skill.damageType,
-      )
-        ? bonus.value
-        : 0;
+  if (multipliedValue === 0) return 0;
 
+  // Convert stat types to expected damage bonus
+  switch (bonus.type) {
+    case 'critical-chance':
+      // More crit chance = more expected damage: crit_chance_increase * crit_damage
+      return multipliedValue * (1 + BASE_CRIT_DAMAGE);
+    case 'critical-damage':
+      // More crit damage = more expected damage: crit_chance * crit_damage_increase
+      return BASE_CRIT_CHANCE * multipliedValue;
+    case 'duration':
+    case 'max-stamina':
+    case 'max-magicka':
+      // These don't directly affect damage (could be expanded later)
+      return 0;
     default:
       return 0;
   }
@@ -206,12 +220,18 @@ function getApplicableBonus(
 export function calculatePassiveBonus(
   skill: AnySkill,
   passives: AnyPassiveSkill[],
+  skillLineCounts: SkillLineCounts,
 ): number {
   let totalBonus = 0;
 
   for (const passive of passives) {
     for (const bonus of passive.bonuses) {
-      totalBonus += getApplicableBonus(skill, bonus, passive.skillLine);
+      totalBonus += getApplicableBonus(
+        skill,
+        bonus,
+        passive.skillLine,
+        skillLineCounts,
+      );
     }
   }
 

@@ -1,8 +1,28 @@
 import { ClassPassiveSkill } from '../../../models/passive';
 
-// Curative Runeforms passives are primarily healing focused
-// Only damage-relevant passives are included
 export const CURATIVE_RUNEFORMS_PASSIVES: ClassPassiveSkill[] = [
-  // No damage-relevant passives in Curative Runeforms
-  // The skill line focuses on healing abilities
+  {
+    name: 'Erudition',
+    skillLine: 'CurativeRuneforms',
+    esoClass: 'Arcanist',
+    bonuses: [], // Magicka recovery - not relevant for damage
+  },
+  {
+    name: 'Circumscribed Recovery',
+    skillLine: 'CurativeRuneforms',
+    esoClass: 'Arcanist',
+    bonuses: [], // Healing done - not relevant for damage
+  },
+  {
+    name: 'Healing Tides',
+    skillLine: 'CurativeRuneforms',
+    esoClass: 'Arcanist',
+    bonuses: [], // Healing received - not relevant for damage
+  },
+  {
+    name: "Curator's Focus",
+    skillLine: 'CurativeRuneforms',
+    esoClass: 'Arcanist',
+    bonuses: [], // Crux gen on heal - not relevant for damage
+  },
 ];
