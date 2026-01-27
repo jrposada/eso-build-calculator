@@ -6,12 +6,15 @@ import { ALL_SKILLS } from '../data/skills';
 import { Build } from '../models/build';
 import { DamageModifier } from '../models/modifier';
 import { AnyPassiveSkill } from '../models/passive';
-import { ClassSkillLine, EsoClass, WeaponSkillLineName } from '../models/skill';
+import {
+  ClassSkillLine,
+  EsoClass,
+  Skill,
+  WeaponSkillLineName,
+} from '../models/skill';
 import {
   AnySkill,
-  calculateDamagePerCast,
   calculatePassiveBonus,
-  getSkillSource,
   SkillLineCounts,
 } from './skill-service';
 
@@ -49,13 +52,14 @@ export class BuildService {
 
     // Calculate base damage (without passives) and create processed skill data
     const processed = nonUltimates.map((skill) => {
-      const baseDamage = calculateDamagePerCast(skill, modifiers);
+      const skillInstance = Skill.fromData(skill);
+      const baseDamage = skillInstance.calculateDamagePerCast(modifiers);
       return {
         skill,
         name: skill.name,
         baseSkillName: skill.baseSkillName,
         skillLine: skill.skillLine,
-        source: getSkillSource(skill),
+        source: skillInstance.source,
         baseDamage,
       };
     });
@@ -118,7 +122,8 @@ export class BuildService {
     passives: AnyPassiveSkill[],
     skillLineCounts: SkillLineCounts,
   ): number {
-    const baseDamage = calculateDamagePerCast(skill, modifiers);
+    const skillInstance = Skill.fromData(skill);
+    const baseDamage = skillInstance.calculateDamagePerCast(modifiers);
     const passiveBonus = calculatePassiveBonus(
       skill,
       passives,

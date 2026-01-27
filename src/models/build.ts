@@ -1,13 +1,12 @@
 import { table } from '../infrastructure';
 import {
   AnySkill,
-  calculateDamagePerCast,
   calculatePassiveBonus,
   SkillLineCounts,
 } from '../services/skill-service';
 import { DamageModifier } from './modifier';
 import { AnyPassiveSkill } from './passive';
-import { ClassSkillLine, EsoClass, WeaponSkillLineName } from './skill';
+import { ClassSkillLine, EsoClass, Skill, WeaponSkillLineName } from './skill';
 
 export const BUILD_CONSTRAINTS = {
   maxSkills: 10,
@@ -159,8 +158,8 @@ export class Build {
     let totalDamage = 0;
 
     for (const skill of this.skills) {
-      const baseDamage = calculateDamagePerCast(
-        skill,
+      const skillInstance = Skill.fromData(skill);
+      const baseDamage = skillInstance.calculateDamagePerCast(
         this.modifiers as DamageModifier[],
       );
       const passiveBonus = calculatePassiveBonus(

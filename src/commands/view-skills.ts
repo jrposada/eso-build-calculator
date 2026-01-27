@@ -2,14 +2,7 @@ import { Command } from 'commander';
 
 import { ALL_SKILLS } from '../data/skills';
 import { logger } from '../infrastructure';
-import { DotDamage } from '../models/skill';
-import {
-  AnySkill,
-  calculateDamagePerCast,
-  getSkillDuration,
-  getSkillMechanic,
-  getSkillSource,
-} from '../services/skill-service';
+import { DotDamage, Skill } from '../models/skill';
 
 interface SkillData {
   name: string;
@@ -91,34 +84,35 @@ function formatTable(skills: SkillData[]): string {
   return lines.join('\n');
 }
 
-function mapSkillToData(skill: AnySkill): SkillData {
+function mapSkillToData(skill: Skill): SkillData {
   return {
     name: skill.name,
     baseSkillName: skill.baseSkillName,
-    source: getSkillSource(skill),
+    source: skill.source,
     skillLine: skill.skillLine,
     resource: skill.resource,
     damageType: skill.damageType,
     targetType: skill.targetType,
-    mechanic: getSkillMechanic(skill),
+    mechanic: skill.mechanic,
     channelTime: skill.channelTime ?? null,
-    hits: skill.damage.hits ?? [],
-    dots: skill.damage.dots ?? [],
-    duration: getSkillDuration(skill),
-    damagePerCast: calculateDamagePerCast(skill),
+    hits: skill.damage.hits ? [...skill.damage.hits] : [],
+    dots: skill.damage.dots ? [...skill.damage.dots] : [],
+    duration: skill.duration,
+    damagePerCast: skill.calculateDamagePerCast(),
   };
 }
 
 function action(name: string) {
-  const skill = ALL_SKILLS.find(
-    (skill) => name.trim().toLowerCase() === skill.name.toLowerCase(),
+  const skillData = ALL_SKILLS.find(
+    (s) => name.trim().toLowerCase() === s.name.toLowerCase(),
   );
 
-  if (!skill) {
+  if (!skillData) {
     logger.warn('Skill not found.');
     return;
   }
 
+  const skill = Skill.fromData(skillData);
   const skillsData: SkillData[] = [mapSkillToData(skill)];
 
   logger.log(formatTable(skillsData));

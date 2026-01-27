@@ -4,12 +4,7 @@ import { ALL_MODIFIERS } from '../data/modifiers';
 import { ALL_SKILLS } from '../data/skills';
 import { logger, table } from '../infrastructure';
 import { DamageModifier } from '../models/modifier';
-import {
-  calculateDamagePerCast,
-  getSkillDuration,
-  getSkillMechanic,
-  getSkillSource,
-} from '../services/skill-service';
+import { Skill } from '../models/skill';
 
 interface SkillDamage {
   name: string;
@@ -61,30 +56,27 @@ function action(options: RankOptions) {
     process.exit(1);
   }
 
-  let skills = ALL_SKILLS;
+  let skills = Skill.fromDataArray(ALL_SKILLS);
 
-  // Exclude ultimates if specified
   if (options.excludeUltimates) {
-    skills = skills.filter((skill) => skill.resource !== 'ultimate');
+    skills = skills.filter((skill) => !skill.isUltimate);
   }
 
-  // Filter by source if specified
   if (options.source) {
     const allowedSources = options.source
       .split(',')
       .map((s) => s.trim().toLowerCase());
     skills = skills.filter((skill) =>
-      allowedSources.includes(getSkillSource(skill).toLowerCase()),
+      allowedSources.includes(skill.source.toLowerCase()),
     );
   }
 
-  // Filter by mechanic if specified
   if (options.mechanic) {
     const allowedMechanics = options.mechanic
       .split(',')
       .map((s) => s.trim().toLowerCase());
     skills = skills.filter((skill) =>
-      allowedMechanics.includes(getSkillMechanic(skill)),
+      allowedMechanics.includes(skill.mechanic),
     );
   }
 
@@ -103,10 +95,10 @@ function action(options: RankOptions) {
     .map((skill) => ({
       name: skill.name,
       baseSkillName: skill.baseSkillName,
-      source: getSkillSource(skill),
+      source: skill.source,
       skillLine: skill.skillLine,
-      damagePerCast: calculateDamagePerCast(skill, modifiers),
-      duration: getSkillDuration(skill),
+      damagePerCast: skill.calculateDamagePerCast(modifiers),
+      duration: skill.duration,
     }))
     .filter((s) => s.damagePerCast > 0); // Only show skills that deal damage
 
