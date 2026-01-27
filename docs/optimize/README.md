@@ -32,13 +32,25 @@ An optimal build consists of:
 ## Algorithm
 
 1. **Preprocess skills**: Filter ultimates, deduplicate by baseSkillName (keep best morph)
-2. **Generate modifier combinations**: C(7,4) = 35 combinations
-3. **For each modifier combination**:
-   - Calculate damage for all skills with these modifiers
-   - Sort skills by damage descending
-   - Greedy select top 10 skills respecting constraints
+2. **Generate skill line combinations**:
+   - Class skill lines: up to 3 from any ESO class (C(21, 0..3) combinations)
+   - Weapon skill lines: up to 2 (C(4, 0..2) combinations)
+   - Only combinations with enough skills to fill 10 slots are valid
+3. **Generate modifier combinations**: C(7,4) = 35 combinations
+4. **For each skill line × modifier combination**:
+   - Collect all passives from selected skill lines
+   - Calculate damage for all skills from those skill lines, applying passive bonuses globally
+   - Select best 10 skills by damage (constraints satisfied by skill line selection)
    - Calculate total damage
-4. **Return best build** (highest total damage)
+5. **Return best build** (highest total damage)
+
+### Why Skill Line Combinations Matter
+
+A greedy approach that selects skills by individual damage can miss optimal builds. Skill line passives affect ALL skills in the build, not just skills from that line.
+
+**Example**: Skill Line A has a skill dealing 100 damage. Skill Line B has a skill dealing 99 damage but includes a passive granting +200% damage to all skills. Including Skill Line B results in higher total damage because the passive amplifies every skill in the build.
+
+This is why the algorithm must explore different skill line combinations rather than greedily selecting top-damage skills.
 
 ## Examples
 
