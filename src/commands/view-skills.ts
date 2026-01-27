@@ -27,7 +27,6 @@ interface SkillData {
   damagePerCast: number;
 }
 
-
 function formatTable(skills: SkillData[]): string {
   const lines: string[] = [];
 
@@ -125,7 +124,9 @@ function action(name: string) {
   logger.log(formatTable(skillsData));
 }
 
-export const viewCommand = new Command('view')
+const viewCommand = new Command('view')
   .description('View skill data')
   .argument('<name>', 'Skill names (comma-separated)')
   .action(action);
+
+export { viewCommand };

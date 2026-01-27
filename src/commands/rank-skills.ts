@@ -132,7 +132,7 @@ function action(options: RankOptions) {
   logger.log(formatTable(skillDamages, limit));
 }
 
-export const rankCommand = new Command('rank')
+const rankCommand = new Command('rank')
   .description('Rank skills by damage per cast')
   .option('-l, --limit <number>', 'Number of skills to show', '20')
   .option('--exclude-ultimates', 'Exclude ultimate abilities', false)
@@ -146,3 +146,5 @@ export const rankCommand = new Command('rank')
   )
   .option('--modifier <modifiers>', 'Apply list of modifiers (comma-separated)')
   .action(action);
+
+export { rankCommand };

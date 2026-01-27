@@ -1,6 +1,6 @@
 import { ALL_MODIFIERS } from '../data/modifiers';
 import { logger } from '../infrastructure';
-import { Build, BuildConstraints } from '../models/build';
+import { Build, BUILD_CONSTRAINTS } from '../models/build';
 import { ClassSkillLine, EsoClass, WeaponSkillLineName } from '../models/skill';
 import { BuildService, SkillLineCombination } from './build-service';
 import { AnySkill, SkillLineCounts } from './skill-service';
@@ -101,7 +101,6 @@ export class BuildOptimizer {
    * - Filter by requiredClass if specified
    */
   generateSkillLineCombinations(
-    constraints: BuildConstraints,
     skillCountByLine: Map<string, number>,
     requiredClass?: string,
   ): SkillLineCombination[] {
@@ -109,13 +108,13 @@ export class BuildOptimizer {
 
     // Generate all class skill line combinations (0 to maxClassSkillLines)
     const classLineCombos: ClassSkillLine[][] = [[]];
-    for (let k = 1; k <= constraints.maxClassSkillLines; k++) {
+    for (let k = 1; k <= BUILD_CONSTRAINTS.maxClassSkillLines; k++) {
       classLineCombos.push(...generateCombinations(ALL_CLASS_SKILL_LINES, k));
     }
 
     // Generate all weapon skill line combinations (0 to maxWeaponSkillLines)
     const weaponLineCombos: WeaponSkillLineName[][] = [[]];
-    for (let k = 1; k <= constraints.maxWeaponSkillLines; k++) {
+    for (let k = 1; k <= BUILD_CONSTRAINTS.maxWeaponSkillLines; k++) {
       weaponLineCombos.push(...generateCombinations(WEAPON_SKILL_LINES, k));
     }
 
@@ -142,7 +141,7 @@ export class BuildOptimizer {
           );
 
         // Filter: combination must have enough skills to fill maxSkills slots
-        if (totalAvailableSkills >= constraints.maxSkills) {
+        if (totalAvailableSkills >= BUILD_CONSTRAINTS.maxSkills) {
           combinations.push({ classLines, weaponLines });
         }
       }
@@ -155,13 +154,10 @@ export class BuildOptimizer {
    * Find the optimal build that maximizes total damage per cast
    * Uses exhaustive enumeration of skill line combinations instead of greedy selection
    */
-  findOptimalBuild(
-    constraints: BuildConstraints,
-    requiredClass?: EsoClass,
-  ): OptimizationResult {
+  findOptimalBuild(requiredClass?: EsoClass): OptimizationResult {
     const modifierCombinations = generateCombinations(
       ALL_MODIFIERS,
-      constraints.maxModifiers,
+      BUILD_CONSTRAINTS.maxModifiers,
     );
 
     // Preprocess skills once (without passives - they depend on skill line selection)
@@ -174,7 +170,6 @@ export class BuildOptimizer {
 
     // Generate all valid skill line combinations
     const skillLineCombinations = this.generateSkillLineCombinations(
-      constraints,
       skillCountByLine,
       requiredClass,
     );
@@ -255,11 +250,11 @@ export class BuildOptimizer {
         );
         const selectedSkills = skillsWithPassiveDamage.slice(
           0,
-          constraints.maxSkills,
+          BUILD_CONSTRAINTS.maxSkills,
         );
 
         // Skip if we couldn't fill all skill slots
-        if (selectedSkills.length < constraints.maxSkills) {
+        if (selectedSkills.length < BUILD_CONSTRAINTS.maxSkills) {
           continue;
         }
 
@@ -303,20 +298,4 @@ export class BuildOptimizer {
   }
 }
 
-/**
- * Find the optimal build that maximizes total damage per cast
- */
-function findOptimalBuild(
-  constraints: BuildConstraints,
-  requiredClass?: string,
-  verbose = false,
-): Build | null {
-  const optimizer = new BuildOptimizer({ verbose });
-  const result = optimizer.findOptimalBuild(
-    constraints,
-    requiredClass as EsoClass | undefined,
-  );
-  return result.build;
-}
-
-export { CLASS_SKILL_LINE_TO_CLASS, findOptimalBuild, WEAPON_SKILL_LINES };
+export { CLASS_SKILL_LINE_TO_CLASS, WEAPON_SKILL_LINES };
