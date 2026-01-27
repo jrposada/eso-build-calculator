@@ -1,11 +1,11 @@
-import { ClassSkill } from '../../../models/skill';
+import { WardenSkill } from './types';
 
-const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
+const ANIMAL_COMPANIONS_SKILLS: WardenSkill<'AnimalCompanions'>[] = [
   // Ultimate abilities - Feral Guardian line
   {
     name: 'Feral Guardian',
     baseSkillName: 'Feral Guardian',
-    esoClass: 'Warden',
+    className: 'Warden',
     skillLine: 'AnimalCompanions',
     damage: {
       hits: [{ value: 580 }], // swipe damage, also has 2323 AoE swipe and 3253 maul
@@ -17,7 +17,7 @@ const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
   {
     name: 'Eternal Guardian',
     baseSkillName: 'Feral Guardian',
-    esoClass: 'Warden',
+    className: 'Warden',
     skillLine: 'AnimalCompanions',
     damage: {
       hits: [{ value: 599 }], // swipe damage, also has 2399 AoE swipe and 3360 maul
@@ -29,7 +29,7 @@ const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
   {
     name: 'Wild Guardian',
     baseSkillName: 'Feral Guardian',
-    esoClass: 'Warden',
+    className: 'Warden',
     skillLine: 'AnimalCompanions',
     damage: {
       hits: [{ value: 659 }], // swipe damage, also has 2640 AoE swipe and 3697 maul
@@ -42,7 +42,7 @@ const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
   {
     name: 'Dive',
     baseSkillName: 'Dive',
-    esoClass: 'Warden',
+    className: 'Warden',
     skillLine: 'AnimalCompanions',
     damage: {
       hits: [{ value: 2090 }],
@@ -54,7 +54,7 @@ const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
   {
     name: 'Cutting Dive',
     baseSkillName: 'Dive',
-    esoClass: 'Warden',
+    className: 'Warden',
     skillLine: 'AnimalCompanions',
     damage: {
       hits: [{ value: 2091 }],
@@ -67,7 +67,7 @@ const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
   {
     name: 'Screaming Cliff Racer',
     baseSkillName: 'Dive',
-    esoClass: 'Warden',
+    className: 'Warden',
     skillLine: 'AnimalCompanions',
     damage: {
       hits: [{ value: 2160 }],
@@ -80,7 +80,7 @@ const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
   {
     name: 'Scorch',
     baseSkillName: 'Scorch',
-    esoClass: 'Warden',
+    className: 'Warden',
     skillLine: 'AnimalCompanions',
     damage: {
       hits: [
@@ -95,7 +95,7 @@ const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
   {
     name: 'Deep Fissure',
     baseSkillName: 'Scorch',
-    esoClass: 'Warden',
+    className: 'Warden',
     skillLine: 'AnimalCompanions',
     damage: {
       hits: [
@@ -110,7 +110,7 @@ const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
   {
     name: 'Subterranean Assault',
     baseSkillName: 'Scorch',
-    esoClass: 'Warden',
+    className: 'Warden',
     skillLine: 'AnimalCompanions',
     damage: {
       hits: [
@@ -126,7 +126,7 @@ const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
   {
     name: 'Swarm',
     baseSkillName: 'Swarm',
-    esoClass: 'Warden',
+    className: 'Warden',
     skillLine: 'AnimalCompanions',
     damage: {
       dots: [{ value: 4631, duration: 20 }],
@@ -138,7 +138,7 @@ const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
   {
     name: 'Fetcher Infection',
     baseSkillName: 'Swarm',
-    esoClass: 'Warden',
+    className: 'Warden',
     skillLine: 'AnimalCompanions',
     damage: {
       dots: [{ value: 4785, duration: 20 }],
@@ -150,7 +150,7 @@ const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
   {
     name: 'Growing Swarm',
     baseSkillName: 'Swarm',
-    esoClass: 'Warden',
+    className: 'Warden',
     skillLine: 'AnimalCompanions',
     damage: {
       dots: [{ value: 4785, duration: 20 }],
@@ -163,7 +163,7 @@ const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
   {
     name: 'Betty Netch',
     baseSkillName: 'Betty Netch',
-    esoClass: 'Warden',
+    className: 'Warden',
     skillLine: 'AnimalCompanions',
     damage: {},
     damageType: 'magic',
@@ -173,7 +173,7 @@ const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
   {
     name: 'Blue Betty',
     baseSkillName: 'Betty Netch',
-    esoClass: 'Warden',
+    className: 'Warden',
     skillLine: 'AnimalCompanions',
     damage: {},
     damageType: 'magic',
@@ -183,7 +183,7 @@ const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
   {
     name: 'Bull Netch',
     baseSkillName: 'Betty Netch',
-    esoClass: 'Warden',
+    className: 'Warden',
     skillLine: 'AnimalCompanions',
     damage: {},
     damageType: 'magic',
@@ -194,7 +194,7 @@ const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
   {
     name: "Falcon's Swiftness",
     baseSkillName: "Falcon's Swiftness",
-    esoClass: 'Warden',
+    className: 'Warden',
     skillLine: 'AnimalCompanions',
     damage: {},
     damageType: 'magic',
@@ -204,7 +204,7 @@ const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
   {
     name: 'Bird of Prey',
     baseSkillName: "Falcon's Swiftness",
-    esoClass: 'Warden',
+    className: 'Warden',
     skillLine: 'AnimalCompanions',
     damage: {},
     damageType: 'magic',
@@ -214,7 +214,7 @@ const ANIMAL_COMPANIONS_SKILLS: ClassSkill<'Warden', 'AnimalCompanions'>[] = [
   {
     name: 'Deceptive Predator',
     baseSkillName: "Falcon's Swiftness",
-    esoClass: 'Warden',
+    className: 'Warden',
     skillLine: 'AnimalCompanions',
     damage: {},
     damageType: 'magic',

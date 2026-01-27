@@ -1,8 +1,9 @@
 import { Command } from 'commander';
 
 import { ALL_SKILLS } from '../data/skills';
+import { DotDamage } from '../data/skills/types';
 import { logger } from '../infrastructure';
-import { DotDamage, Skill } from '../models/skill';
+import { Skill } from '../models/skill';
 
 interface SkillData {
   name: string;

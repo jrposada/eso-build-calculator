@@ -1,11 +1,11 @@
-import { ClassSkill } from '../../../models/skill';
+import { ArcanistSkill } from './types';
 
-const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
+const HERALD_OF_THE_TOME_SKILLS: ArcanistSkill<'HeraldOfTheTome'>[] = [
   // Ultimate abilities - The Unblinking Eye line
   {
     name: 'The Unblinking Eye',
     baseSkillName: 'The Unblinking Eye',
-    esoClass: 'Arcanist',
+    className: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
       dots: [{ value: 1115, duration: 6, interval: 0.5 }],
@@ -17,7 +17,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   {
     name: 'The Languid Eye',
     baseSkillName: 'The Unblinking Eye',
-    esoClass: 'Arcanist',
+    className: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
       dots: [
@@ -31,7 +31,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   {
     name: "The Tide King's Gaze",
     baseSkillName: 'The Unblinking Eye',
-    esoClass: 'Arcanist',
+    className: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
       dots: [{ value: 1151, duration: 8, interval: 0.5 }],
@@ -44,7 +44,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   {
     name: 'Runeblades',
     baseSkillName: 'Runeblades',
-    esoClass: 'Arcanist',
+    className: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
       hits: [{ value: 695 * 3 }], // 3 hits
@@ -56,7 +56,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   {
     name: 'Escalating Runeblades',
     baseSkillName: 'Runeblades',
-    esoClass: 'Arcanist',
+    className: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
       hits: [{ value: 696 + 766 + 917 }], // escalating 3 hits, last one is AoE
@@ -68,7 +68,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   {
     name: 'Writhing Runeblades',
     baseSkillName: 'Runeblades',
-    esoClass: 'Arcanist',
+    className: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
       hits: [{ value: 718 * 3 }], // 3 hits
@@ -81,7 +81,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   {
     name: 'Fatecarver',
     baseSkillName: 'Fatecarver',
-    esoClass: 'Arcanist',
+    className: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
       dots: [{ value: 879, duration: 4, interval: 0.3 }],
@@ -94,7 +94,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   {
     name: 'Exhausting Fatecarver',
     baseSkillName: 'Fatecarver',
-    esoClass: 'Arcanist',
+    className: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
       dots: [{ value: 879, duration: 4, interval: 0.3 }], // +0.3s per Crux spent
@@ -107,7 +107,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   {
     name: 'Pragmatic Fatecarver',
     baseSkillName: 'Fatecarver',
-    esoClass: 'Arcanist',
+    className: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
       dots: [{ value: 879, duration: 4, interval: 0.3 }],
@@ -121,7 +121,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   {
     name: 'Abyssal Impact', // You deal 5% increased damage to enemies drenched in Abyssal Ink.
     baseSkillName: 'Abyssal Impact',
-    esoClass: 'Arcanist',
+    className: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
       hits: [{ value: 1939 }],
@@ -133,7 +133,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   {
     name: "Cephaliarch's Flail", // You deal 5% increased damage to enemies drenched in Abyssal Ink.
     baseSkillName: 'Abyssal Impact',
-    esoClass: 'Arcanist',
+    className: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
       hits: [{ value: 1939 }],
@@ -145,7 +145,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   {
     name: 'Tentacular Dread', // You deal 5% increased damage to enemies drenched in Abyssal Ink.
     baseSkillName: 'Abyssal Impact',
-    esoClass: 'Arcanist',
+    className: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
       hits: [{ value: 2002 }],
@@ -158,7 +158,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   {
     name: "Tome-Bearer's Inspiration",
     baseSkillName: "Tome-Bearer's Inspiration",
-    esoClass: 'Arcanist',
+    className: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
       dots: [{ value: 1161, duration: 20, interval: 5 }], // assumed duration for buff
@@ -170,7 +170,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   {
     name: 'Inspired Scholarship',
     baseSkillName: "Tome-Bearer's Inspiration",
-    esoClass: 'Arcanist',
+    className: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
       dots: [{ value: 935, duration: 20, interval: 3 }], // assumed duration for buff
@@ -182,7 +182,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   {
     name: 'Recuperative Treatise',
     baseSkillName: "Tome-Bearer's Inspiration",
-    esoClass: 'Arcanist',
+    className: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
       dots: [{ value: 1161, duration: 20, interval: 5 }], // assumed duration for buff
@@ -195,7 +195,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   {
     name: 'The Imperfect Ring',
     baseSkillName: 'The Imperfect Ring',
-    esoClass: 'Arcanist',
+    className: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
       dots: [{ value: 4631, duration: 20 }],
@@ -207,7 +207,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   {
     name: 'Fulminating Rune',
     baseSkillName: 'The Imperfect Ring',
-    esoClass: 'Arcanist',
+    className: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
       hits: [{ value: 1438, delay: 6 }], // detonation after 6s
@@ -220,7 +220,7 @@ const HERALD_OF_THE_TOME_SKILLS: ClassSkill<'Arcanist', 'HeraldOfTheTome'>[] = [
   {
     name: 'Rune of Displacement',
     baseSkillName: 'The Imperfect Ring',
-    esoClass: 'Arcanist',
+    className: 'Arcanist',
     skillLine: 'HeraldOfTheTome',
     damage: {
       dots: [{ value: 4780, duration: 18 }],

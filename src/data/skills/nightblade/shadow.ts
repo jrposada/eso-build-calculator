@@ -1,11 +1,11 @@
-import { ClassSkill } from '../../../models/skill';
+import { NightbladeSkill } from './types';
 
-const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
+const SHADOW_SKILLS: NightbladeSkill<'Shadow'>[] = [
   // Ultimate abilities
   {
     name: 'Consuming Darkness',
     baseSkillName: 'Consuming Darkness',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
     damageType: 'magic',
@@ -15,7 +15,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   {
     name: 'Bolstering Darkness',
     baseSkillName: 'Consuming Darkness',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
     damageType: 'magic',
@@ -25,7 +25,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   {
     name: 'Veil of Blades',
     baseSkillName: 'Consuming Darkness',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     skillLine: 'Shadow',
     damage: {
       dots: [{ value: 1438, duration: 10, interval: 1 }],
@@ -38,7 +38,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   {
     name: 'Shadow Cloak',
     baseSkillName: 'Shadow Cloak',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
     damageType: 'magic',
@@ -48,7 +48,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   {
     name: 'Dark Cloak',
     baseSkillName: 'Shadow Cloak',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
     damageType: 'magic',
@@ -58,7 +58,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   {
     name: 'Shadowy Disguise',
     baseSkillName: 'Shadow Cloak',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
     damageType: 'magic',
@@ -69,7 +69,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   {
     name: 'Blur',
     baseSkillName: 'Blur',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
     damageType: 'magic',
@@ -79,7 +79,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   {
     name: 'Mirage',
     baseSkillName: 'Blur',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
     damageType: 'magic',
@@ -89,7 +89,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   {
     name: 'Phantasmal Escape',
     baseSkillName: 'Blur',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
     damageType: 'magic',
@@ -100,7 +100,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   {
     name: 'Path of Darkness',
     baseSkillName: 'Path of Darkness',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
     damageType: 'magic',
@@ -110,7 +110,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   {
     name: 'Refreshing Path',
     baseSkillName: 'Path of Darkness',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
     damageType: 'magic',
@@ -120,7 +120,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   {
     name: 'Twisting Path',
     baseSkillName: 'Path of Darkness',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     skillLine: 'Shadow',
     damage: {
       dots: [{ value: 377, duration: 10, interval: 1 }],
@@ -133,7 +133,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   {
     name: 'Aspect of Terror',
     baseSkillName: 'Aspect of Terror',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
     damageType: 'magic',
@@ -143,7 +143,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   {
     name: 'Manifestation of Terror',
     baseSkillName: 'Aspect of Terror',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
     damageType: 'magic',
@@ -153,7 +153,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   {
     name: 'Mass Hysteria',
     baseSkillName: 'Aspect of Terror',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     skillLine: 'Shadow',
     damage: {},
     damageType: 'magic',
@@ -164,7 +164,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   {
     name: 'Summon Shade',
     baseSkillName: 'Summon Shade',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     skillLine: 'Shadow',
     damage: {
       dots: [{ value: 462, duration: 20, interval: 2 }],
@@ -176,7 +176,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   {
     name: 'Dark Shade',
     baseSkillName: 'Summon Shade',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     skillLine: 'Shadow',
     damage: {
       dots: [{ value: 623, duration: 20, interval: 2 }],
@@ -188,7 +188,7 @@ const SHADOW_SKILLS: ClassSkill<'Nightblade', 'Shadow'>[] = [
   {
     name: 'Shadow Image',
     baseSkillName: 'Summon Shade',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     skillLine: 'Shadow',
     damage: {
       dots: [{ value: 478, duration: 20, interval: 2 }],

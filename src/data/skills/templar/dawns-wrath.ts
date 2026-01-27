@@ -1,11 +1,11 @@
-import { ClassSkill } from '../../../models/skill';
+import { TemplarSkill } from './types';
 
-const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
+const DAWNS_WRATH_SKILLS: TemplarSkill<'DawnsWrath'>[] = [
   // Ultimate abilities - Nova line
   {
     name: 'Nova',
     baseSkillName: 'Nova',
-    esoClass: 'Templar',
+    className: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
       dots: [{ value: 1161, duration: 8, interval: 1 }],
@@ -17,7 +17,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   {
     name: 'Solar Disturbance',
     baseSkillName: 'Nova',
-    esoClass: 'Templar',
+    className: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
       dots: [{ value: 1161, duration: 8, interval: 1 }],
@@ -29,7 +29,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   {
     name: 'Solar Prison',
     baseSkillName: 'Nova',
-    esoClass: 'Templar',
+    className: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
       dots: [{ value: 1199, duration: 8, interval: 1 }],
@@ -42,7 +42,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   {
     name: 'Sun Fire',
     baseSkillName: 'Sun Fire',
-    esoClass: 'Templar',
+    className: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
       hits: [{ value: 1161 }],
@@ -55,7 +55,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   {
     name: 'Reflective Light',
     baseSkillName: 'Sun Fire',
-    esoClass: 'Templar',
+    className: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
       hits: [{ value: 1199 }],
@@ -68,7 +68,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   {
     name: "Vampire's Bane",
     baseSkillName: 'Sun Fire',
-    esoClass: 'Templar',
+    className: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
       hits: [{ value: 1161 }],
@@ -82,7 +82,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   {
     name: 'Solar Flare', // Increase class abilities damage by 5% for 10s
     baseSkillName: 'Solar Flare',
-    esoClass: 'Templar',
+    className: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
       hits: [{ value: 2404 }],
@@ -94,7 +94,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   {
     name: 'Dark Flare', // Increase class abilities damage by 5% for 10s
     baseSkillName: 'Solar Flare',
-    esoClass: 'Templar',
+    className: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
       hits: [{ value: 2483 }],
@@ -106,7 +106,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   {
     name: 'Solar Barrage', // Increase class abilities damage by 5% for 20s
     baseSkillName: 'Solar Flare',
-    esoClass: 'Templar',
+    className: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
       dots: [{ value: 435, duration: 20, interval: 2 }],
@@ -119,7 +119,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   {
     name: 'Backlash',
     baseSkillName: 'Backlash',
-    esoClass: 'Templar',
+    className: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
       hits: [
@@ -134,7 +134,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   {
     name: 'Power of the Light',
     baseSkillName: 'Backlash',
-    esoClass: 'Templar',
+    className: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
       hits: [
@@ -149,7 +149,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   {
     name: 'Purifying Light',
     baseSkillName: 'Backlash',
-    esoClass: 'Templar',
+    className: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
       hits: [
@@ -165,7 +165,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   {
     name: 'Eclipse',
     baseSkillName: 'Eclipse',
-    esoClass: 'Templar',
+    className: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {},
     damageType: 'magic',
@@ -175,7 +175,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   {
     name: 'Living Dark',
     baseSkillName: 'Eclipse',
-    esoClass: 'Templar',
+    className: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {},
     damageType: 'magic',
@@ -185,7 +185,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   {
     name: 'Unstable Core',
     baseSkillName: 'Eclipse',
-    esoClass: 'Templar',
+    className: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
       hits: [{ value: 449 + 898 + 1799 }], // max damage if all 3 triggers hit
@@ -198,7 +198,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   {
     name: 'Radiant Destruction',
     baseSkillName: 'Radiant Destruction',
-    esoClass: 'Templar',
+    className: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
       hits: [{ value: 7248 }], // up to 500% more vs enemies below 33% HP
@@ -211,7 +211,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   {
     name: 'Radiant Glory',
     baseSkillName: 'Radiant Destruction',
-    esoClass: 'Templar',
+    className: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
       hits: [{ value: 7482 }], // up to 500% more vs enemies below 33% HP
@@ -224,7 +224,7 @@ const DAWNS_WRATH_SKILLS: ClassSkill<'Templar', 'DawnsWrath'>[] = [
   {
     name: 'Radiant Oppression',
     baseSkillName: 'Radiant Destruction',
-    esoClass: 'Templar',
+    className: 'Templar',
     skillLine: 'DawnsWrath',
     damage: {
       hits: [{ value: 7482 }], // up to 500% more vs enemies below 40% HP

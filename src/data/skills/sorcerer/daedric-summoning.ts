@@ -1,11 +1,11 @@
-import { ClassSkill } from '../../../models/skill';
+import { SorcererSkill } from './types';
 
-const DAEDRIC_SUMMONING_SKILLS: ClassSkill<'Sorcerer', 'DaedricSummoning'>[] = [
+const DAEDRIC_SUMMONING_SKILLS: SorcererSkill<'DaedricSummoning'>[] = [
   // Ultimate abilities - Summon Storm Atronach line
   {
     name: 'Summon Storm Atronach',
     baseSkillName: 'Summon Storm Atronach',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'DaedricSummoning',
     damage: {
       hits: [{ value: 2249 }],
@@ -18,7 +18,7 @@ const DAEDRIC_SUMMONING_SKILLS: ClassSkill<'Sorcerer', 'DaedricSummoning'>[] = [
   {
     name: 'Greater Storm Atronach',
     baseSkillName: 'Summon Storm Atronach',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'DaedricSummoning',
     damage: {
       hits: [{ value: 2249 }],
@@ -31,7 +31,7 @@ const DAEDRIC_SUMMONING_SKILLS: ClassSkill<'Sorcerer', 'DaedricSummoning'>[] = [
   {
     name: 'Summon Charged Atronach',
     baseSkillName: 'Summon Storm Atronach',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'DaedricSummoning',
     damage: {
       hits: [{ value: 2323 }],
@@ -45,7 +45,7 @@ const DAEDRIC_SUMMONING_SKILLS: ClassSkill<'Sorcerer', 'DaedricSummoning'>[] = [
   {
     name: 'Summon Unstable Familiar',
     baseSkillName: 'Summon Unstable Familiar',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'DaedricSummoning',
     damage: {
       dots: [{ value: 421, duration: 20, interval: 2 }],
@@ -57,7 +57,7 @@ const DAEDRIC_SUMMONING_SKILLS: ClassSkill<'Sorcerer', 'DaedricSummoning'>[] = [
   {
     name: 'Summon Unstable Clannfear',
     baseSkillName: 'Summon Unstable Familiar',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'DaedricSummoning',
     damage: {},
     damageType: 'physical',
@@ -67,7 +67,7 @@ const DAEDRIC_SUMMONING_SKILLS: ClassSkill<'Sorcerer', 'DaedricSummoning'>[] = [
   {
     name: 'Summon Volatile Familiar',
     baseSkillName: 'Summon Unstable Familiar',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'DaedricSummoning',
     damage: {
       dots: [{ value: 435, duration: 20, interval: 2 }],
@@ -80,7 +80,7 @@ const DAEDRIC_SUMMONING_SKILLS: ClassSkill<'Sorcerer', 'DaedricSummoning'>[] = [
   {
     name: 'Daedric Curse',
     baseSkillName: 'Daedric Curse',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'DaedricSummoning',
     damage: {
       hits: [{ value: 2904, delay: 6 }],
@@ -92,7 +92,7 @@ const DAEDRIC_SUMMONING_SKILLS: ClassSkill<'Sorcerer', 'DaedricSummoning'>[] = [
   {
     name: 'Daedric Prey',
     baseSkillName: 'Daedric Curse',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'DaedricSummoning',
     damage: {
       hits: [{ value: 2904, delay: 6 }],
@@ -104,7 +104,7 @@ const DAEDRIC_SUMMONING_SKILLS: ClassSkill<'Sorcerer', 'DaedricSummoning'>[] = [
   {
     name: 'Haunting Curse',
     baseSkillName: 'Daedric Curse',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'DaedricSummoning',
     damage: {
       hits: [
@@ -120,7 +120,7 @@ const DAEDRIC_SUMMONING_SKILLS: ClassSkill<'Sorcerer', 'DaedricSummoning'>[] = [
   {
     name: 'Summon Winged Twilight',
     baseSkillName: 'Summon Winged Twilight',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'DaedricSummoning',
     damage: {},
     damageType: 'shock',
@@ -130,7 +130,7 @@ const DAEDRIC_SUMMONING_SKILLS: ClassSkill<'Sorcerer', 'DaedricSummoning'>[] = [
   {
     name: 'Summon Twilight Matriarch',
     baseSkillName: 'Summon Winged Twilight',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'DaedricSummoning',
     damage: {},
     damageType: 'shock',
@@ -140,7 +140,7 @@ const DAEDRIC_SUMMONING_SKILLS: ClassSkill<'Sorcerer', 'DaedricSummoning'>[] = [
   {
     name: 'Summon Twilight Tormentor',
     baseSkillName: 'Summon Winged Twilight',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'DaedricSummoning',
     damage: {},
     damageType: 'shock',
@@ -151,7 +151,7 @@ const DAEDRIC_SUMMONING_SKILLS: ClassSkill<'Sorcerer', 'DaedricSummoning'>[] = [
   {
     name: 'Conjured Ward',
     baseSkillName: 'Conjured Ward',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'DaedricSummoning',
     damage: {},
     damageType: 'magic',
@@ -161,7 +161,7 @@ const DAEDRIC_SUMMONING_SKILLS: ClassSkill<'Sorcerer', 'DaedricSummoning'>[] = [
   {
     name: 'Hardened Ward',
     baseSkillName: 'Conjured Ward',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'DaedricSummoning',
     damage: {},
     damageType: 'magic',
@@ -171,7 +171,7 @@ const DAEDRIC_SUMMONING_SKILLS: ClassSkill<'Sorcerer', 'DaedricSummoning'>[] = [
   {
     name: 'Regenerative Ward',
     baseSkillName: 'Conjured Ward',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'DaedricSummoning',
     damage: {},
     damageType: 'magic',
@@ -182,7 +182,7 @@ const DAEDRIC_SUMMONING_SKILLS: ClassSkill<'Sorcerer', 'DaedricSummoning'>[] = [
   {
     name: 'Bound Armor',
     baseSkillName: 'Bound Armor',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'DaedricSummoning',
     damage: {},
     damageType: 'magic',
@@ -192,7 +192,7 @@ const DAEDRIC_SUMMONING_SKILLS: ClassSkill<'Sorcerer', 'DaedricSummoning'>[] = [
   {
     name: 'Bound Aegis',
     baseSkillName: 'Bound Armor',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'DaedricSummoning',
     damage: {},
     damageType: 'magic',
@@ -202,7 +202,7 @@ const DAEDRIC_SUMMONING_SKILLS: ClassSkill<'Sorcerer', 'DaedricSummoning'>[] = [
   {
     name: 'Bound Armaments',
     baseSkillName: 'Bound Armor',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'DaedricSummoning',
     damage: {
       hits: [

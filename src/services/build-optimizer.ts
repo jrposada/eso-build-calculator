@@ -1,12 +1,20 @@
 import { ALL_MODIFIERS } from '../data/modifiers';
+import { ClassSkillLineName, WeaponSkillLineName } from '../data/skills';
+import { SkillClassName, SkillData } from '../data/skills/types';
 import { logger } from '../infrastructure';
+import { generateCombinations } from '../infrastructure/combinatorics';
 import { Build, BUILD_CONSTRAINTS } from '../models/build';
-import { ClassSkillLine, EsoClass, WeaponSkillLineName } from '../models/skill';
 import { BuildService, SkillLineCombination } from './build-service';
-import { AnySkill, SkillLineCounts } from './skill-service';
+import { SkillLineCounts } from './skill-service';
+
+interface BuildOptimizerOptions {
+  verbose?: boolean;
+  className?: SkillClassName;
+  skills?: SkillData[];
+}
 
 // Mapping from class skill lines to their ESO class
-const CLASS_SKILL_LINE_TO_CLASS: Record<ClassSkillLine, EsoClass> = {
+const CLASS_SKILL_LINE_TO_CLASS: Record<ClassSkillLineName, SkillClassName> = {
   // Dragonknight
   ArdentFlame: 'Dragonknight',
   DraconicPower: 'Dragonknight',
@@ -24,9 +32,9 @@ const CLASS_SKILL_LINE_TO_CLASS: Record<ClassSkillLine, EsoClass> = {
   GreenBalance: 'Warden',
   WintersEmbrace: 'Warden',
   // Necromancer
-  GraveLord: 'Necromancer',
-  BoneTyrant: 'Necromancer',
-  LivingDeath: 'Necromancer',
+  // GraveLord: 'Necromancer',
+  // BoneTyrant: 'Necromancer',
+  // LivingDeath: 'Necromancer',
   // Templar
   AedricSpear: 'Templar',
   DawnsWrath: 'Templar',
@@ -39,7 +47,7 @@ const CLASS_SKILL_LINE_TO_CLASS: Record<ClassSkillLine, EsoClass> = {
 
 const ALL_CLASS_SKILL_LINES = Object.keys(
   CLASS_SKILL_LINE_TO_CLASS,
-) as ClassSkillLine[];
+) as ClassSkillLineName[];
 
 const WEAPON_SKILL_LINES: WeaponSkillLineName[] = [
   'Bow',
@@ -48,49 +56,20 @@ const WEAPON_SKILL_LINES: WeaponSkillLineName[] = [
   'DualWield',
 ];
 
-/**
- * Generate all C(n,k) combinations of items
- */
-function generateCombinations<T>(items: T[], k: number): T[][] {
-  const result: T[][] = [];
-
-  function backtrack(start: number, current: T[]): void {
-    if (current.length === k) {
-      result.push([...current]);
-      return;
-    }
-
-    for (let i = start; i < items.length; i++) {
-      const item = items[i];
-      if (item !== undefined) {
-        current.push(item);
-        backtrack(i + 1, current);
-        current.pop();
-      }
-    }
-  }
-
-  backtrack(0, []);
-  return result;
-}
-
-export interface OptimizationResult {
+interface OptimizationResult {
   build: Build | null;
   combinationsTested: number;
   totalCombinations: number;
 }
 
-export class BuildOptimizer {
+class BuildOptimizer {
   private readonly buildService: BuildService;
+  private readonly className?: SkillClassName;
   private readonly verbose: boolean;
 
-  constructor(options?: {
-    buildService?: BuildService;
-    verbose?: boolean;
-    skills?: AnySkill[];
-  }) {
-    this.buildService =
-      options?.buildService ?? new BuildService(options?.skills);
+  constructor(options?: BuildOptimizerOptions) {
+    this.buildService = new BuildService(options?.skills);
+    this.className = options?.className;
     this.verbose = options?.verbose ?? false;
   }
 
@@ -102,12 +81,11 @@ export class BuildOptimizer {
    */
   generateSkillLineCombinations(
     skillCountByLine: Map<string, number>,
-    requiredClass?: string,
   ): SkillLineCombination[] {
     const combinations: SkillLineCombination[] = [];
 
     // Generate all class skill line combinations (0 to maxClassSkillLines)
-    const classLineCombos: ClassSkillLine[][] = [[]];
+    const classLineCombos: ClassSkillLineName[][] = [[]];
     for (let k = 1; k <= BUILD_CONSTRAINTS.maxClassSkillLines; k++) {
       classLineCombos.push(...generateCombinations(ALL_CLASS_SKILL_LINES, k));
     }
@@ -120,10 +98,10 @@ export class BuildOptimizer {
 
     // Cross-product and filter
     for (const classLines of classLineCombos) {
-      // If requiredClass is set, at least one class line must be from that class
-      if (requiredClass) {
+      // If className is set, at least one class line must be from that class
+      if (this.className) {
         const hasRequiredClass = classLines.some(
-          (line) => CLASS_SKILL_LINE_TO_CLASS[line] === requiredClass,
+          (line) => CLASS_SKILL_LINE_TO_CLASS[line] === this.className,
         );
         if (!hasRequiredClass) continue;
       }
@@ -154,7 +132,7 @@ export class BuildOptimizer {
    * Find the optimal build that maximizes total damage per cast
    * Uses exhaustive enumeration of skill line combinations instead of greedy selection
    */
-  findOptimalBuild(requiredClass?: EsoClass): OptimizationResult {
+  findOptimalBuild(): OptimizationResult {
     const modifierCombinations = generateCombinations(
       ALL_MODIFIERS,
       BUILD_CONSTRAINTS.maxModifiers,
@@ -169,10 +147,8 @@ export class BuildOptimizer {
       this.buildService.getSkillCountByLine(processedSkills);
 
     // Generate all valid skill line combinations
-    const skillLineCombinations = this.generateSkillLineCombinations(
-      skillCountByLine,
-      requiredClass,
-    );
+    const skillLineCombinations =
+      this.generateSkillLineCombinations(skillCountByLine);
 
     if (this.verbose) {
       logger.dim(
@@ -217,9 +193,9 @@ export class BuildOptimizer {
 
         // Filter skills to only those from the selected skill lines
         const availableSkills = skillsWithDamage.filter((s) => {
-          const isClassSkill = 'esoClass' in s.skill;
+          const isClassSkill = s.skill.className !== 'Weapon';
           if (isClassSkill) {
-            return classLineSet.has(s.skillLine as ClassSkillLine);
+            return classLineSet.has(s.skillLine as ClassSkillLineName);
           } else {
             return weaponLineSet.has(s.skillLine as WeaponSkillLineName);
           }
@@ -278,7 +254,7 @@ export class BuildOptimizer {
             modifiers,
             passives,
             skillLineCombo,
-            requiredClass,
+            this.className,
           );
 
           if (this.verbose) {
@@ -298,4 +274,4 @@ export class BuildOptimizer {
   }
 }
 
-export { CLASS_SKILL_LINE_TO_CLASS, WEAPON_SKILL_LINES };
+export { BuildOptimizer };

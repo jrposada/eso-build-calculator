@@ -1,5 +1,4 @@
 import { ClassPassiveSkill, WeaponPassiveSkill } from '../../models/passive';
-import { ClassSkillLine, WeaponSkillLineName } from '../../models/skill';
 import { ARCANIST_PASSIVES } from './arcanist';
 import { DRAGONKNIGHT_PASSIVES } from './dragonknight';
 import { NIGHTBLADE_PASSIVES } from './nightblade';
@@ -28,7 +27,7 @@ export const ALL_PASSIVES: (ClassPassiveSkill | WeaponPassiveSkill)[] = [
  * Get all class passives for a specific skill line
  */
 export function getClassPassivesBySkillLine(
-  skillLine: ClassSkillLine | string,
+  skillLine: string,
 ): ClassPassiveSkill[] {
   return ALL_CLASS_PASSIVES.filter((p) => p.skillLine === skillLine);
 }
@@ -37,7 +36,7 @@ export function getClassPassivesBySkillLine(
  * Get all weapon passives for a specific skill line
  */
 export function getWeaponPassivesBySkillLine(
-  skillLine: WeaponSkillLineName | string,
+  skillLine: string,
 ): WeaponPassiveSkill[] {
   return ALL_WEAPON_PASSIVES.filter((p) => p.skillLine === skillLine);
 }

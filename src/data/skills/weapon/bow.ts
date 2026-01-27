@@ -1,10 +1,11 @@
-import { WeaponSkill } from '../../../models/skill';
+import { WeaponSkillData } from './types';
 
-const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
+const BOW_SKILLS: WeaponSkillData<'Bow'>[] = [
   // Ultimate abilities - Rapid Fire line
   {
     name: 'Rapid Fire',
     baseSkillName: 'Rapid Fire',
+    className: 'Weapon',
     skillLine: 'Bow',
     damage: {
       dots: [{ value: 17415, duration: 4 }],
@@ -17,6 +18,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   {
     name: 'Ballista',
     baseSkillName: 'Rapid Fire',
+    className: 'Weapon',
     skillLine: 'Bow',
     damage: {
       dots: [{ value: 15587, duration: 5 }],
@@ -28,6 +30,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   {
     name: 'Toxic Barrage',
     baseSkillName: 'Rapid Fire',
+    className: 'Weapon',
     skillLine: 'Bow',
     damage: {
       dots: [{ value: 17415, duration: 4 }],
@@ -41,6 +44,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   {
     name: 'Snipe',
     baseSkillName: 'Snipe',
+    className: 'Weapon',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 2404 }],
@@ -52,6 +56,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   {
     name: 'Focused Aim',
     baseSkillName: 'Snipe',
+    className: 'Weapon',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 2404 }],
@@ -63,6 +68,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   {
     name: 'Lethal Arrow',
     baseSkillName: 'Snipe',
+    className: 'Weapon',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 2483 }],
@@ -75,6 +81,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   {
     name: 'Volley',
     baseSkillName: 'Volley',
+    className: 'Weapon',
     skillLine: 'Bow',
     damage: {
       dots: [{ value: 342, duration: 8, delay: 2, interval: 1 }],
@@ -86,6 +93,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   {
     name: 'Arrow Barrage',
     baseSkillName: 'Volley',
+    className: 'Weapon',
     skillLine: 'Bow',
     damage: {
       dots: [{ value: 460, duration: 8, delay: 2, interval: 1 }],
@@ -97,6 +105,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   {
     name: 'Endless Hail',
     baseSkillName: 'Volley',
+    className: 'Weapon',
     skillLine: 'Bow',
     damage: {
       dots: [{ value: 343, duration: 13, delay: 2, interval: 1 }],
@@ -108,6 +117,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   {
     name: 'Endless Hail*',
     baseSkillName: 'Thunderous Volley',
+    className: 'Weapon',
     skillLine: 'Bow',
     damage: {
       dots: [
@@ -130,6 +140,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   {
     name: 'Scatter Shot',
     baseSkillName: 'Scatter Shot',
+    className: 'Weapon',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1392 }],
@@ -141,6 +152,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   {
     name: 'Draining Shot',
     baseSkillName: 'Scatter Shot',
+    className: 'Weapon',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1393 }],
@@ -152,6 +164,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   {
     name: 'Magnum Shot',
     baseSkillName: 'Scatter Shot',
+    className: 'Weapon',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1727 }],
@@ -164,6 +177,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   {
     name: 'Arrow Spray',
     baseSkillName: 'Arrow Spray',
+    className: 'Weapon',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1742 }],
@@ -175,6 +189,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   {
     name: 'Acid Spray',
     baseSkillName: 'Arrow Spray',
+    className: 'Weapon',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1742 }],
@@ -187,6 +202,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   {
     name: 'Bombard',
     baseSkillName: 'Arrow Spray',
+    className: 'Weapon',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1742 }],
@@ -199,6 +215,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   {
     name: 'Poison Arrow',
     baseSkillName: 'Poison Arrow',
+    className: 'Weapon',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1161 }],
@@ -211,6 +228,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   {
     name: 'Poison Injection',
     baseSkillName: 'Poison Arrow',
+    className: 'Weapon',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1161 }],
@@ -223,6 +241,7 @@ const BOW_SKILLS: WeaponSkill<'Bow'>[] = [
   {
     name: 'Venom Arrow',
     baseSkillName: 'Poison Arrow',
+    className: 'Weapon',
     skillLine: 'Bow',
     damage: {
       hits: [{ value: 1161 }],

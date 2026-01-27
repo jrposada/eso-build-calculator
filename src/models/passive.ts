@@ -1,9 +1,5 @@
-import {
-  ClassSkillLine,
-  DamageType,
-  EsoClass,
-  WeaponSkillLineName,
-} from './skill';
+import { ClassSkillLineName, WeaponSkillLineName } from '../data/skills';
+import { DamageType, SkillClassName } from '../data/skills/types';
 
 export type PassiveBonusType =
   | 'critical-chance'
@@ -35,8 +31,8 @@ export type PassiveBonus = {
 
 export interface ClassPassiveSkill {
   name: string;
-  skillLine: ClassSkillLine;
-  esoClass: EsoClass;
+  skillLine: ClassSkillLineName;
+  esoClass: SkillClassName;
   bonuses: PassiveBonus[];
 }
 

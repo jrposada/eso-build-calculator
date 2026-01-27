@@ -2,24 +2,20 @@ import {
   getClassPassivesBySkillLine,
   getWeaponPassivesBySkillLine,
 } from '../data/passives';
-import { ALL_SKILLS } from '../data/skills';
+import {
+  ALL_SKILLS,
+  ClassSkillLineName,
+  WeaponSkillLineName,
+} from '../data/skills';
+import { SkillClassName, SkillData } from '../data/skills/types';
 import { Build } from '../models/build';
 import { DamageModifier } from '../models/modifier';
 import { AnyPassiveSkill } from '../models/passive';
-import {
-  ClassSkillLine,
-  EsoClass,
-  Skill,
-  WeaponSkillLineName,
-} from '../models/skill';
-import {
-  AnySkill,
-  calculatePassiveBonus,
-  SkillLineCounts,
-} from './skill-service';
+import { Skill } from '../models/skill';
+import { calculatePassiveBonus, SkillLineCounts } from './skill-service';
 
 export interface ProcessedSkill {
-  skill: AnySkill;
+  skill: SkillData;
   name: string;
   baseSkillName: string;
   skillLine: string;
@@ -28,14 +24,14 @@ export interface ProcessedSkill {
 }
 
 export interface SkillLineCombination {
-  classLines: ClassSkillLine[];
+  classLines: ClassSkillLineName[];
   weaponLines: WeaponSkillLineName[];
 }
 
 export class BuildService {
-  private readonly skills: AnySkill[];
+  private readonly skills: SkillData[];
 
-  constructor(skills?: AnySkill[]) {
+  constructor(skills?: SkillData[]) {
     this.skills = skills ?? ALL_SKILLS;
   }
 
@@ -98,7 +94,7 @@ export class BuildService {
    * Get all passives that apply based on selected skill lines
    */
   getPassivesForSkillLines(
-    classSkillLines: ClassSkillLine[],
+    classSkillLines: ClassSkillLineName[],
     weaponSkillLines: WeaponSkillLineName[],
   ): AnyPassiveSkill[] {
     const passives: AnyPassiveSkill[] = [];
@@ -117,18 +113,14 @@ export class BuildService {
    * Calculate damage for a skill with applicable passives
    */
   calculateSkillDamage(
-    skill: AnySkill,
+    skill: SkillData,
     modifiers: DamageModifier[],
     passives: AnyPassiveSkill[],
     skillLineCounts: SkillLineCounts,
   ): number {
     const skillInstance = Skill.fromData(skill);
     const baseDamage = skillInstance.calculateDamagePerCast(modifiers);
-    const passiveBonus = calculatePassiveBonus(
-      skill,
-      passives,
-      skillLineCounts,
-    );
+    const passiveBonus = calculatePassiveBonus(passives, skillLineCounts);
     return baseDamage * (1 + passiveBonus);
   }
 
@@ -136,7 +128,7 @@ export class BuildService {
    * Calculate total damage for a set of skills with given passives
    */
   calculateTotalDamage(
-    skills: AnySkill[],
+    skills: SkillData[],
     modifiers: DamageModifier[],
     passives: AnyPassiveSkill[],
     skillLineCounts: SkillLineCounts,
@@ -152,7 +144,7 @@ export class BuildService {
   /**
    * Count skills per skill line from a set of skills
    */
-  countSkillsPerLine(skills: AnySkill[]): SkillLineCounts {
+  countSkillsPerLine(skills: SkillData[]): SkillLineCounts {
     const counts: SkillLineCounts = {};
     for (const skill of skills) {
       counts[skill.skillLine] = (counts[skill.skillLine] ?? 0) + 1;
@@ -164,11 +156,11 @@ export class BuildService {
    * Creates a Build from selected skills and configuration
    */
   createBuild(
-    selectedSkills: AnySkill[],
+    selectedSkills: SkillData[],
     modifiers: DamageModifier[],
     passives: AnyPassiveSkill[],
     skillLineCombination: SkillLineCombination,
-    requiredClass?: EsoClass,
+    requiredClass?: SkillClassName,
   ): Build {
     return new Build(
       selectedSkills,

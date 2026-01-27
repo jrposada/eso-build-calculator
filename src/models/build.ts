@@ -1,38 +1,39 @@
+import { ClassSkillLineName, WeaponSkillLineName } from '../data/skills';
+import { SkillClassName, SkillData } from '../data/skills/types';
 import { table } from '../infrastructure';
 import {
-  AnySkill,
   calculatePassiveBonus,
   SkillLineCounts,
 } from '../services/skill-service';
 import { DamageModifier } from './modifier';
 import { AnyPassiveSkill } from './passive';
-import { ClassSkillLine, EsoClass, Skill, WeaponSkillLineName } from './skill';
+import { Skill } from './skill';
 
-export const BUILD_CONSTRAINTS = {
+const BUILD_CONSTRAINTS = {
   maxSkills: 10,
   maxModifiers: 4,
   maxClassSkillLines: 3,
   maxWeaponSkillLines: 2,
 };
 
-export class Build {
-  readonly skills: readonly AnySkill[];
+class Build {
+  readonly skills: readonly SkillData[];
   readonly passives: readonly AnyPassiveSkill[];
   readonly modifiers: readonly DamageModifier[];
-  readonly usedClassSkillLines: readonly ClassSkillLine[];
+  readonly usedClassSkillLines: readonly ClassSkillLineName[];
   readonly usedWeaponSkillLines: readonly WeaponSkillLineName[];
-  readonly requiredClass?: EsoClass;
+  readonly requiredClass?: SkillClassName;
 
   private readonly _skillDamages: Map<string, number>;
   private readonly _totalDamage: number;
 
   constructor(
-    skills: AnySkill[],
+    skills: SkillData[],
     passives: AnyPassiveSkill[],
     modifiers: DamageModifier[],
-    usedClassSkillLines: ClassSkillLine[],
+    usedClassSkillLines: ClassSkillLineName[],
     usedWeaponSkillLines: WeaponSkillLineName[],
-    requiredClass?: EsoClass,
+    requiredClass?: SkillClassName,
   ) {
     this.skills = Object.freeze([...skills]);
     this.passives = Object.freeze([...passives]);
@@ -83,11 +84,10 @@ export class Build {
 
     // Skills table
     const skillsData = this.skills.map((skill, i) => {
-      const source = 'esoClass' in skill ? skill.esoClass : 'Weapon';
       return [
         (i + 1).toString(),
         skill.name,
-        source,
+        skill.className,
         skill.skillLine,
         this.getSkillDamage(skill.name).toFixed(0),
       ];
@@ -163,7 +163,6 @@ export class Build {
         this.modifiers as DamageModifier[],
       );
       const passiveBonus = calculatePassiveBonus(
-        skill,
         this.passives as AnyPassiveSkill[],
         skillLineCounts,
       );
@@ -176,3 +175,5 @@ export class Build {
     return { skillDamages, totalDamage };
   }
 }
+
+export { Build, BUILD_CONSTRAINTS };

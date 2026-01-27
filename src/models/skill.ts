@@ -1,112 +1,11 @@
-export type EsoClass =
-  | 'Dragonknight'
-  | 'Sorcerer'
-  | 'Nightblade'
-  | 'Warden'
-  | 'Necromancer'
-  | 'Templar'
-  | 'Arcanist';
-
-export type DragonknightSkillLineName =
-  | 'ArdentFlame'
-  | 'DraconicPower'
-  | 'EarthenHeart';
-
-export type SorcererSkillLineName =
-  | 'DarkMagic'
-  | 'DaedricSummoning'
-  | 'StormCalling';
-
-export type NightbladeSkillLineName = 'Assassination' | 'Shadow' | 'Siphoning';
-
-export type WardenSkillLineName =
-  | 'AnimalCompanions'
-  | 'GreenBalance'
-  | 'WintersEmbrace';
-
-export type NecromancerSkillLineName =
-  | 'GraveLord'
-  | 'BoneTyrant'
-  | 'LivingDeath';
-
-export type TemplarSkillLineName =
-  | 'AedricSpear'
-  | 'DawnsWrath'
-  | 'RestoringLight';
-
-export type ArcanistSkillLineName =
-  | 'CurativeRuneforms'
-  | 'SoldierOfApocrypha'
-  | 'HeraldOfTheTome';
-
-export type WeaponSkillLineName =
-  | 'Bow'
-  | 'TwoHanded'
-  | 'DestructionStaff'
-  | 'DualWield';
-
-export type ClassSkillLine =
-  | DragonknightSkillLineName
-  | SorcererSkillLineName
-  | NightbladeSkillLineName
-  | WardenSkillLineName
-  | NecromancerSkillLineName
-  | TemplarSkillLineName
-  | ArcanistSkillLineName;
-
-export type SkillLine = ClassSkillLine | WeaponSkillLineName;
-
-export type Resource = 'magicka' | 'stamina' | 'health' | 'ultimate';
-
-export type DamageType =
-  | 'magic'
-  | 'physical'
-  | 'disease'
-  | 'flame'
-  | 'poison'
-  | 'bleed'
-  | 'frost'
-  | 'shock';
-
-export type TargetType = 'single' | 'aoe';
-
-export interface DotDamage {
-  value: number;
-  duration: number;
-  delay?: number;
-  interval?: number; // Defaults to duration if not specified
-  increasePerTick?: number; // Percentage increase per tick (e.g., 0.12 for 12%)
-  flatIncreasePerTick?: number; // Flat increase per tick
-  ignoresModifier?: boolean;
-}
-
-interface BaseSkill {
-  name: string;
-  baseSkillName: string; // The base skill name for grouping (base, morph1, morph2)
-  damage: {
-    hits?: Array<{ value: number; delay?: number }>;
-    dots?: DotDamage[];
-  };
-  damageType: DamageType;
-  targetType: TargetType;
-  resource: Resource;
-  channelTime?: number;
-}
-
-export interface ClassSkill<
-  TEsoClass extends EsoClass = EsoClass,
-  TSkillLine extends ClassSkillLine = ClassSkillLine,
-> extends BaseSkill {
-  esoClass: TEsoClass;
-  skillLine: TSkillLine;
-}
-
-export interface WeaponSkill<
-  TSkillLine extends WeaponSkillLineName = WeaponSkillLineName,
-> extends BaseSkill {
-  skillLine: TSkillLine;
-}
-
+import type {
+  DamageType,
+  DotDamage,
+  Resource,
+  SkillClassName,
+  SkillData,
+  TargetType,
+} from '../data/skills/types';
 import { DamageModifier } from './modifier';
 
 export type SkillType = 'class' | 'weapon';
@@ -128,11 +27,11 @@ export class Skill {
   readonly targetType: TargetType;
   readonly resource: Resource;
   readonly channelTime?: number;
-  readonly skillLine: ClassSkillLine | WeaponSkillLineName;
+  readonly skillLine: string;
   readonly skillType: SkillType;
-  readonly esoClass?: EsoClass;
+  readonly className: SkillClassName;
 
-  private constructor(data: ClassSkill | WeaponSkill) {
+  private constructor(data: SkillData) {
     this.name = data.name;
     this.baseSkillName = data.baseSkillName;
     this.damage = Object.freeze({
@@ -148,35 +47,22 @@ export class Skill {
     this.resource = data.resource;
     this.channelTime = data.channelTime;
     this.skillLine = data.skillLine;
-
-    if ('esoClass' in data) {
-      this.skillType = 'class';
-      this.esoClass = data.esoClass;
-    } else {
-      this.skillType = 'weapon';
-    }
+    this.className = data.className;
+    this.skillType = data.className === 'Weapon' ? 'weapon' : 'class';
 
     Object.freeze(this);
   }
 
-  static fromData(data: ClassSkill | WeaponSkill): Skill {
+  static fromData(data: SkillData): Skill {
     return new Skill(data);
   }
 
-  static fromDataArray(data: (ClassSkill | WeaponSkill)[]): Skill[] {
+  static fromDataArray(data: SkillData[]): Skill[] {
     return data.map((d) => Skill.fromData(d));
   }
 
-  isClassSkill(): this is Skill & { esoClass: EsoClass } {
-    return this.skillType === 'class';
-  }
-
-  isWeaponSkill(): boolean {
-    return this.skillType === 'weapon';
-  }
-
   get source(): string {
-    return this.esoClass ?? 'Weapon';
+    return this.className;
   }
 
   get mechanic(): SkillMechanic {
@@ -267,35 +153,6 @@ export class Skill {
     }
 
     return totalDamage;
-  }
-
-  toData(): ClassSkill | WeaponSkill {
-    const baseData = {
-      name: this.name,
-      baseSkillName: this.baseSkillName,
-      damage: {
-        hits: this.damage.hits ? [...this.damage.hits] : undefined,
-        dots: this.damage.dots ? [...this.damage.dots] : undefined,
-      },
-      damageType: this.damageType,
-      targetType: this.targetType,
-      resource: this.resource,
-      channelTime: this.channelTime,
-      skillLine: this.skillLine,
-    };
-
-    if (this.isClassSkill()) {
-      return {
-        ...baseData,
-        esoClass: this.esoClass,
-        skillLine: this.skillLine as ClassSkillLine,
-      } as ClassSkill;
-    }
-
-    return {
-      ...baseData,
-      skillLine: this.skillLine as WeaponSkillLineName,
-    } as WeaponSkill;
   }
 
   toString(): string {

@@ -1,12 +1,12 @@
 import { Command, Option } from 'commander';
 
+import { SkillClassName } from '../data/skills/types';
 import { logger } from '../infrastructure';
 import { BUILD_CONSTRAINTS } from '../models/build';
-import { EsoClass } from '../models/skill';
 import { BuildOptimizer } from '../services/build-optimizer';
 
 interface OptimizeOptions {
-  class?: string;
+  class?: SkillClassName;
   verbose: boolean;
 }
 
@@ -19,10 +19,11 @@ function action(options: OptimizeOptions) {
     }
   }
 
-  const optimizer = new BuildOptimizer({ verbose: options.verbose });
-  const build = optimizer.findOptimalBuild(
-    options.class as EsoClass | undefined,
-  ).build;
+  const optimizer = new BuildOptimizer({
+    verbose: options.verbose,
+    className: options.class,
+  });
+  const build = optimizer.findOptimalBuild().build;
 
   if (!build) {
     logger.error('No valid build found with the given constraints.');

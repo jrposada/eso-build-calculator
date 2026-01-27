@@ -1,11 +1,11 @@
-import { ClassSkill } from '../../../models/skill';
+import { DragonknightSkill } from './types';
 
-const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
+const EARTHEN_HEART_SKILLS: DragonknightSkill<'EarthenHeart'>[] = [
   // Ultimate abilities - Magma Armor line
   {
     name: 'Magma Armor',
     baseSkillName: 'Magma Armor',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
       dots: [{ value: 336, duration: 10, interval: 1 }],
@@ -17,7 +17,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   {
     name: 'Corrosive Armor',
     baseSkillName: 'Magma Armor',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
       dots: [{ value: 347, duration: 10, interval: 1 }],
@@ -29,7 +29,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   {
     name: 'Magma Shell',
     baseSkillName: 'Magma Armor',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
       dots: [{ value: 347, duration: 10, interval: 1 }],
@@ -42,7 +42,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   {
     name: 'Stonefist',
     baseSkillName: 'Stonefist',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
       hits: [{ value: 2323 }], // initial AoE + 3x2323 projectile damage
@@ -54,7 +54,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   {
     name: 'Obsidian Shard',
     baseSkillName: 'Stonefist',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
       hits: [{ value: 448 }],
@@ -66,7 +66,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   {
     name: 'Stone Giant',
     baseSkillName: 'Stonefist',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
       hits: [{ value: 2323 }], // initial AoE + 3x2323 projectile damage
@@ -79,7 +79,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   {
     name: 'Molten Weapons',
     baseSkillName: 'Molten Weapons',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {},
     damageType: 'flame',
@@ -89,7 +89,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   {
     name: 'Igneous Weapons',
     baseSkillName: 'Molten Weapons',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {},
     damageType: 'flame',
@@ -99,7 +99,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   {
     name: 'Molten Armaments',
     baseSkillName: 'Molten Weapons',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {},
     damageType: 'flame',
@@ -110,7 +110,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   {
     name: 'Obsidian Shield',
     baseSkillName: 'Obsidian Shield',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {},
     damageType: 'magic',
@@ -120,7 +120,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   {
     name: 'Fragmented Shield',
     baseSkillName: 'Obsidian Shield',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {},
     damageType: 'magic',
@@ -130,7 +130,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   {
     name: 'Igneous Shield',
     baseSkillName: 'Obsidian Shield',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {},
     damageType: 'magic',
@@ -141,7 +141,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   {
     name: 'Petrify',
     baseSkillName: 'Petrify',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
       hits: [{ value: 1161, delay: 2.5 }], // damage when stun ends
@@ -153,7 +153,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   {
     name: 'Fossilize',
     baseSkillName: 'Petrify',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
       hits: [{ value: 1199, delay: 2.5 }], // damage when stun ends
@@ -165,7 +165,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   {
     name: 'Shattering Rocks',
     baseSkillName: 'Petrify',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
       hits: [{ value: 1199, delay: 2.5 }], // damage when stun ends
@@ -178,7 +178,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   {
     name: 'Ash Cloud',
     baseSkillName: 'Ash Cloud',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {},
     damageType: 'magic',
@@ -188,7 +188,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   {
     name: 'Cinder Storm',
     baseSkillName: 'Ash Cloud',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {},
     damageType: 'magic',
@@ -198,7 +198,7 @@ const EARTHEN_HEART_SKILLS: ClassSkill<'Dragonknight', 'EarthenHeart'>[] = [
   {
     name: 'Eruption',
     baseSkillName: 'Ash Cloud',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     skillLine: 'EarthenHeart',
     damage: {
       hits: [{ value: 1799 }],

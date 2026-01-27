@@ -1,11 +1,11 @@
-import { ClassSkill } from '../../../models/skill';
+import { SorcererSkill } from './types';
 
-const STORM_CALLING_SKILLS: ClassSkill<'Sorcerer', 'StormCalling'>[] = [
+const STORM_CALLING_SKILLS: SorcererSkill<'StormCalling'>[] = [
   // Ultimate abilities - Overload line
   {
     name: 'Overload',
     baseSkillName: 'Overload',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'StormCalling',
     damage: {
       hits: [{ value: 2323 }],
@@ -17,7 +17,7 @@ const STORM_CALLING_SKILLS: ClassSkill<'Sorcerer', 'StormCalling'>[] = [
   {
     name: 'Energy Overload',
     baseSkillName: 'Overload',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'StormCalling',
     damage: {
       hits: [{ value: 2399 }],
@@ -29,7 +29,7 @@ const STORM_CALLING_SKILLS: ClassSkill<'Sorcerer', 'StormCalling'>[] = [
   {
     name: 'Power Overload',
     baseSkillName: 'Overload',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'StormCalling',
     damage: {
       hits: [{ value: 2640 }],
@@ -42,7 +42,7 @@ const STORM_CALLING_SKILLS: ClassSkill<'Sorcerer', 'StormCalling'>[] = [
   {
     name: "Mages' Fury",
     baseSkillName: "Mages' Fury",
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'StormCalling',
     damage: {
       hits: [{ value: 870 }],
@@ -54,7 +54,7 @@ const STORM_CALLING_SKILLS: ClassSkill<'Sorcerer', 'StormCalling'>[] = [
   {
     name: 'Endless Fury',
     baseSkillName: "Mages' Fury",
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'StormCalling',
     damage: {
       hits: [{ value: 871 }],
@@ -66,7 +66,7 @@ const STORM_CALLING_SKILLS: ClassSkill<'Sorcerer', 'StormCalling'>[] = [
   {
     name: "Mages' Wrath",
     baseSkillName: "Mages' Fury",
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'StormCalling',
     damage: {
       hits: [{ value: 871 }],
@@ -79,7 +79,7 @@ const STORM_CALLING_SKILLS: ClassSkill<'Sorcerer', 'StormCalling'>[] = [
   {
     name: 'Lightning Form',
     baseSkillName: 'Lightning Form',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'StormCalling',
     damage: {
       dots: [{ value: 462, duration: 20, interval: 2 }],
@@ -91,7 +91,7 @@ const STORM_CALLING_SKILLS: ClassSkill<'Sorcerer', 'StormCalling'>[] = [
   {
     name: 'Boundless Storm',
     baseSkillName: 'Lightning Form',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'StormCalling',
     damage: {
       dots: [{ value: 463, duration: 30, interval: 2 }],
@@ -103,7 +103,7 @@ const STORM_CALLING_SKILLS: ClassSkill<'Sorcerer', 'StormCalling'>[] = [
   {
     name: 'Hurricane',
     baseSkillName: 'Lightning Form',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'StormCalling',
     damage: {
       dots: [{ value: 478, duration: 20, interval: 2, increasePerTick: 0.12 }],
@@ -116,7 +116,7 @@ const STORM_CALLING_SKILLS: ClassSkill<'Sorcerer', 'StormCalling'>[] = [
   {
     name: 'Lightning Splash',
     baseSkillName: 'Lightning Splash',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'StormCalling',
     damage: {
       dots: [{ value: 308, duration: 10, interval: 1 }],
@@ -128,7 +128,7 @@ const STORM_CALLING_SKILLS: ClassSkill<'Sorcerer', 'StormCalling'>[] = [
   {
     name: 'Lightning Flood',
     baseSkillName: 'Lightning Splash',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'StormCalling',
     damage: {
       dots: [{ value: 415, duration: 10, interval: 1 }],
@@ -140,7 +140,7 @@ const STORM_CALLING_SKILLS: ClassSkill<'Sorcerer', 'StormCalling'>[] = [
   {
     name: 'Liquid Lightning',
     baseSkillName: 'Lightning Splash',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'StormCalling',
     damage: {
       dots: [{ value: 309, duration: 15, interval: 1 }],
@@ -153,7 +153,7 @@ const STORM_CALLING_SKILLS: ClassSkill<'Sorcerer', 'StormCalling'>[] = [
   {
     name: 'Surge',
     baseSkillName: 'Surge',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'StormCalling',
     damage: {},
     damageType: 'shock',
@@ -163,7 +163,7 @@ const STORM_CALLING_SKILLS: ClassSkill<'Sorcerer', 'StormCalling'>[] = [
   {
     name: 'Critical Surge',
     baseSkillName: 'Surge',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'StormCalling',
     damage: {},
     damageType: 'shock',
@@ -173,7 +173,7 @@ const STORM_CALLING_SKILLS: ClassSkill<'Sorcerer', 'StormCalling'>[] = [
   {
     name: 'Power Surge',
     baseSkillName: 'Surge',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'StormCalling',
     damage: {},
     damageType: 'shock',
@@ -184,7 +184,7 @@ const STORM_CALLING_SKILLS: ClassSkill<'Sorcerer', 'StormCalling'>[] = [
   {
     name: 'Bolt Escape',
     baseSkillName: 'Bolt Escape',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'StormCalling',
     damage: {},
     damageType: 'shock',
@@ -194,7 +194,7 @@ const STORM_CALLING_SKILLS: ClassSkill<'Sorcerer', 'StormCalling'>[] = [
   {
     name: 'Ball of Lightning',
     baseSkillName: 'Bolt Escape',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'StormCalling',
     damage: {},
     damageType: 'shock',
@@ -204,7 +204,7 @@ const STORM_CALLING_SKILLS: ClassSkill<'Sorcerer', 'StormCalling'>[] = [
   {
     name: 'Streak',
     baseSkillName: 'Bolt Escape',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     skillLine: 'StormCalling',
     damage: {
       hits: [{ value: 1438 }],

@@ -1,10 +1,11 @@
-import { WeaponSkill } from '../../../models/skill';
+import { WeaponSkillData } from './types';
 
-const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
+const TWO_HANDED_SKILLS: WeaponSkillData<'TwoHanded'>[] = [
   // Ultimate abilities - Berserker Strike line
   {
     name: 'Berserker Strike',
     baseSkillName: 'Berserker Strike',
+    className: 'Weapon',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 3486 }],
@@ -16,6 +17,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   {
     name: 'Berserker Rage',
     baseSkillName: 'Berserker Strike',
+    className: 'Weapon',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 3600 }],
@@ -27,6 +29,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   {
     name: 'Onslaught',
     baseSkillName: 'Berserker Strike',
+    className: 'Weapon',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 3485 }],
@@ -39,6 +42,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   {
     name: 'Uppercut',
     baseSkillName: 'Uppercut',
+    className: 'Weapon',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 2672 }],
@@ -50,6 +54,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   {
     name: 'Dizzying Swing',
     baseSkillName: 'Uppercut',
+    className: 'Weapon',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 2760 }],
@@ -61,6 +66,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   {
     name: 'Wrecking Blow',
     baseSkillName: 'Uppercut',
+    className: 'Weapon',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 2760 }],
@@ -73,6 +79,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   {
     name: 'Critical Charge',
     baseSkillName: 'Critical Charge',
+    className: 'Weapon',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 1392 }],
@@ -84,6 +91,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   {
     name: 'Critical Rush',
     baseSkillName: 'Critical Charge',
+    className: 'Weapon',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 1393 }],
@@ -95,6 +103,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   {
     name: 'Stampede',
     baseSkillName: 'Critical Charge',
+    className: 'Weapon',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 1393 }],
@@ -108,6 +117,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   {
     name: 'Cleave',
     baseSkillName: 'Cleave',
+    className: 'Weapon',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 1742 }],
@@ -119,6 +129,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   {
     name: 'Brawler',
     baseSkillName: 'Cleave',
+    className: 'Weapon',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 1742 }],
@@ -130,6 +141,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   {
     name: 'Carve',
     baseSkillName: 'Cleave',
+    className: 'Weapon',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 1742 }],
@@ -143,6 +155,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   {
     name: 'Reverse Slash',
     baseSkillName: 'Reverse Slash',
+    className: 'Weapon',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 1161 }],
@@ -154,6 +167,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   {
     name: 'Executioner',
     baseSkillName: 'Reverse Slash',
+    className: 'Weapon',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 1161 }],
@@ -165,6 +179,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   {
     name: 'Reverse Slice',
     baseSkillName: 'Reverse Slash',
+    className: 'Weapon',
     skillLine: 'TwoHanded',
     damage: {
       hits: [{ value: 1199 }],
@@ -177,6 +192,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   {
     name: 'Momentum',
     baseSkillName: 'Momentum',
+    className: 'Weapon',
     skillLine: 'TwoHanded',
     damage: {},
     damageType: 'physical',
@@ -186,6 +202,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   {
     name: 'Forward Momentum',
     baseSkillName: 'Momentum',
+    className: 'Weapon',
     skillLine: 'TwoHanded',
     damage: {},
     damageType: 'physical',
@@ -195,6 +212,7 @@ const TWO_HANDED_SKILLS: WeaponSkill<'TwoHanded'>[] = [
   {
     name: 'Rally',
     baseSkillName: 'Momentum',
+    className: 'Weapon',
     skillLine: 'TwoHanded',
     damage: {},
     damageType: 'physical',

@@ -1,12 +1,4 @@
-import {
-  AnyPassiveSkill,
-  ClassPassiveSkill,
-  PassiveBonus,
-  WeaponPassiveSkill,
-} from '../models/passive';
-import { ClassSkill, WeaponSkill } from '../models/skill';
-
-export type AnySkill = ClassSkill | WeaponSkill;
+import { AnyPassiveSkill, PassiveBonus } from '../models/passive';
 
 export interface SkillLineCounts {
   [skillLine: string]: number;
@@ -20,7 +12,6 @@ const BASE_CRIT_DAMAGE = 0.5; // 50% base crit damage
  * Check if a bonus applies to a skill and return the applicable bonus value
  */
 function getApplicableBonus(
-  _skill: AnySkill,
   bonus: PassiveBonus,
   passiveSkillLine: string,
   skillLineCounts: SkillLineCounts,
@@ -77,7 +68,6 @@ function getApplicableBonus(
  * Calculate total passive bonus percentage for a skill
  */
 export function calculatePassiveBonus(
-  skill: AnySkill,
   passives: AnyPassiveSkill[],
   skillLineCounts: SkillLineCounts,
 ): number {
@@ -86,7 +76,6 @@ export function calculatePassiveBonus(
   for (const passive of passives) {
     for (const bonus of passive.bonuses) {
       totalBonus += getApplicableBonus(
-        skill,
         bonus,
         passive.skillLine,
         skillLineCounts,
@@ -95,21 +84,4 @@ export function calculatePassiveBonus(
   }
 
   return totalBonus;
-}
-
-/**
- * Get passives that apply to a skill based on its skill line
- */
-export function getApplicablePassives(
-  skill: AnySkill,
-  allClassPassives: ClassPassiveSkill[],
-  allWeaponPassives: WeaponPassiveSkill[],
-): AnyPassiveSkill[] {
-  const isClassSkill = 'esoClass' in skill;
-
-  if (isClassSkill) {
-    return allClassPassives.filter((p) => p.skillLine === skill.skillLine);
-  } else {
-    return allWeaponPassives.filter((p) => p.skillLine === skill.skillLine);
-  }
 }
