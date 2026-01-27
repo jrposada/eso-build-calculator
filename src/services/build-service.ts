@@ -3,10 +3,10 @@ import {
   getWeaponPassivesBySkillLine,
 } from '../data/passives';
 import { ALL_SKILLS } from '../data/skills';
-import { Build, BuildPassive, BuildSkill } from '../models/build';
+import { Build } from '../models/build';
 import { DamageModifier } from '../models/modifier';
 import { AnyPassiveSkill } from '../models/passive';
-import { ClassSkillLine, WeaponSkillLineName } from '../models/skill';
+import { ClassSkillLine, EsoClass, WeaponSkillLineName } from '../models/skill';
 import {
   AnySkill,
   calculateDamagePerCast,
@@ -110,17 +110,6 @@ export class BuildService {
   }
 
   /**
-   * Convert passives to BuildPassive format for output
-   */
-  convertToBuildPassives(passives: AnyPassiveSkill[]): BuildPassive[] {
-    return passives.map((p) => ({
-      name: p.name,
-      skillLine: p.skillLine,
-      source: 'esoClass' in p ? p.esoClass : 'Weapon',
-    }));
-  }
-
-  /**
    * Calculate damage for a skill with applicable passives
    */
   calculateSkillDamage(
@@ -170,29 +159,16 @@ export class BuildService {
    * Creates a Build from selected skills and configuration
    */
   createBuild(
-    selectedSkills: Array<ProcessedSkill & { damageWithPassives: number }>,
+    selectedSkills: AnySkill[],
     modifiers: DamageModifier[],
     passives: AnyPassiveSkill[],
     skillLineCombination: SkillLineCombination,
-    skillLineCounts: SkillLineCounts,
-    requiredClass?: string,
+    requiredClass?: EsoClass,
   ): Build {
-    const buildSkills: BuildSkill[] = selectedSkills.map((s) => ({
-      name: s.name,
-      skillLine: s.skillLine,
-      source: s.source,
-      damagePerCast: this.calculateSkillDamage(
-        s.skill,
-        modifiers,
-        passives,
-        skillLineCounts,
-      ),
-    }));
-
     return new Build(
-      buildSkills,
-      this.convertToBuildPassives(passives),
-      modifiers.map((m) => m.name),
+      selectedSkills,
+      passives,
+      modifiers,
       skillLineCombination.classLines,
       skillLineCombination.weaponLines,
       requiredClass,

@@ -279,11 +279,10 @@ export class BuildOptimizer {
         // Check if this is the best build
         if (!bestBuild || totalDamage > bestBuild.totalDamagePerCast) {
           bestBuild = this.buildService.createBuild(
-            selectedSkills,
+            selectedSkills.map((s) => s.skill),
             modifiers,
             passives,
             skillLineCombo,
-            actualSkillLineCounts,
             requiredClass,
           );
 
