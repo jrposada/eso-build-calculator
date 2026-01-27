@@ -124,7 +124,7 @@ function formatRow(
 }
 
 function formatJson(build: Build): string {
-  return JSON.stringify(build, null, 2);
+  return JSON.stringify(build.toJSON(), null, 2);
 }
 
 function action(options: OptimizeOptions) {
