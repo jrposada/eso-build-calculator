@@ -6,7 +6,6 @@ import { EsoClass } from '../models/skill';
 import { findOptimalBuild } from '../services/build-optimizer';
 
 interface OptimizeOptions {
-  format: 'table' | 'json';
   class?: string;
   verbose: boolean;
 }
@@ -36,7 +35,7 @@ function formatTable(build: Build): string {
     divider,
     `Total Damage: ${build.totalDamagePerCast.toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
     '',
-    `Modifiers: ${build.modifiers.join(', ')}`,
+    `Modifiers: ${build.modifiers.map((m) => m.name).join(', ')}`,
     '',
     'Skills',
     divider,
@@ -45,13 +44,14 @@ function formatTable(build: Build): string {
   ];
 
   build.skills.forEach((skill, i) => {
+    const source = 'esoClass' in skill ? skill.esoClass : 'Weapon';
     lines.push(
       formatRow(
         (i + 1).toString(),
         skill.name,
-        skill.source,
+        source,
         skill.skillLine,
-        skill.damagePerCast.toFixed(0),
+        build.getSkillDamage(skill.name).toFixed(0),
       ),
     );
   });
@@ -82,9 +82,8 @@ function formatTable(build: Build): string {
     lines.push(divider);
 
     build.passives.forEach((passive) => {
-      lines.push(
-        formatPassiveRow(passive.name, passive.source, passive.skillLine),
-      );
+      const source = 'esoClass' in passive ? passive.esoClass : 'Weapon';
+      lines.push(formatPassiveRow(passive.name, source, passive.skillLine));
     });
 
     lines.push(divider);
@@ -123,10 +122,6 @@ function formatRow(
   return `${rank.padStart(rankWidth)} ${name.padEnd(nameWidth)} ${source.padEnd(sourceWidth)} ${skillLine.padEnd(skillLineWidth)} ${damage.padStart(damageWidth)}`;
 }
 
-function formatJson(build: Build): string {
-  return JSON.stringify(build.toJSON(), null, 2);
-}
-
 function action(options: OptimizeOptions) {
   // Validate class option if provided
   if (options.class) {
@@ -162,16 +157,11 @@ function action(options: OptimizeOptions) {
     process.exit(1);
   }
 
-  if (options.format === 'json') {
-    logger.log(formatJson(build));
-  } else {
-    logger.log(formatTable(build));
-  }
+  logger.log(formatTable(build));
 }
 
 export const optimizeCommand = new Command('optimize')
   .description('Find the optimal build to maximize total damage per cast')
-  .option('-f, --format <format>', 'Output format (table/json)', 'table')
   .option(
     '-c, --class <class>',
     'Require at least 1 skill line from this class',

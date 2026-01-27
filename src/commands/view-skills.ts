@@ -27,9 +27,6 @@ interface SkillData {
   damagePerCast: number;
 }
 
-interface ViewOptions {
-  format: 'table' | 'json';
-}
 
 function formatTable(skills: SkillData[]): string {
   const lines: string[] = [];
@@ -95,10 +92,6 @@ function formatTable(skills: SkillData[]): string {
   return lines.join('\n');
 }
 
-function formatJson(skills: SkillData[]): string {
-  return JSON.stringify(skills, null, 2);
-}
-
 function mapSkillToData(skill: AnySkill): SkillData {
   return {
     name: skill.name,
@@ -117,7 +110,7 @@ function mapSkillToData(skill: AnySkill): SkillData {
   };
 }
 
-function action(name: string, options: ViewOptions) {
+function action(name: string) {
   const skill = ALL_SKILLS.find(
     (skill) => name.trim().toLowerCase() === skill.name.toLowerCase(),
   );
@@ -129,11 +122,7 @@ function action(name: string, options: ViewOptions) {
 
   const skillsData: SkillData[] = [mapSkillToData(skill)];
 
-  if (options.format === 'json') {
-    logger.log(formatJson(skillsData));
-  } else {
-    logger.log(formatTable(skillsData));
-  }
+  logger.log(formatTable(skillsData));
 }
 
 export const viewCommand = new Command('view')

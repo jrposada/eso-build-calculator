@@ -22,7 +22,6 @@ interface SkillDamage {
 
 interface RankOptions {
   limit: string;
-  format: 'table' | 'json';
   excludeUltimates: boolean;
   source?: string;
   mechanic?: string;
@@ -53,10 +52,6 @@ function formatTable(skills: SkillDamage[], limit: number): string {
     ],
     footer: `Showing ${displaySkills.length} of ${skills.length} skills`,
   });
-}
-
-function formatJson(skills: SkillDamage[], limit: number): string {
-  return JSON.stringify(skills.slice(0, limit), null, 2);
 }
 
 function action(options: RankOptions) {
@@ -134,17 +129,12 @@ function action(options: RankOptions) {
     return;
   }
 
-  if (options.format === 'json') {
-    logger.log(formatJson(skillDamages, limit));
-  } else {
-    logger.log(formatTable(skillDamages, limit));
-  }
+  logger.log(formatTable(skillDamages, limit));
 }
 
 export const rankCommand = new Command('rank')
   .description('Rank skills by damage per cast')
   .option('-l, --limit <number>', 'Number of skills to show', '20')
-  .option('-f, --format <format>', 'Output format (table/json)', 'table')
   .option('--exclude-ultimates', 'Exclude ultimate abilities', false)
   .option(
     '-s, --source <sources>',
