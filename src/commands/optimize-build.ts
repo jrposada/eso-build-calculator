@@ -23,7 +23,7 @@ function action(options: OptimizeOptions) {
     verbose: options.verbose,
     className: options.class,
   });
-  const build = optimizer.findOptimalBuild().build;
+  const build = optimizer.findOptimalBuild();
 
   if (!build) {
     logger.error('No valid build found with the given constraints.');

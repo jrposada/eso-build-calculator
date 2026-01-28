@@ -20,6 +20,7 @@ const ALL_WEAPON_SKILLS = [...WEAPON_SKILLS];
 type WeaponSkillLineName = (typeof ALL_WEAPON_SKILLS)[number]['skillLine'];
 
 const ALL_SKILLS = [...ALL_CLASS_SKILLS, ...ALL_WEAPON_SKILLS];
+type SkillLineName = (typeof ALL_SKILLS)[number]['skillLine'];
 
+export type { ClassSkillLineName, SkillLineName, WeaponSkillLineName };
 export { ALL_CLASS_SKILLS, ALL_SKILLS, ALL_WEAPON_SKILLS };
-export type { ClassSkillLineName, WeaponSkillLineName };

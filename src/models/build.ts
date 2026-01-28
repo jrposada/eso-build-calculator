@@ -1,13 +1,16 @@
 import { BonusData } from '../data/bonuses/types';
 import { PassiveData } from '../data/passives/types';
 import { ClassSkillLineName, WeaponSkillLineName } from '../data/skills';
-import { SkillData } from '../data/skills/types';
 import { ClassName } from '../data/types';
 import { table } from '../infrastructure';
 import {
+  getClassPassivesBySkillLine,
+  getWeaponPassivesBySkillLine,
+} from '../services/passive-service';
+import {
   calculatePassiveBonus,
-  SkillLineCounts,
-} from '../services/skill-service';
+  SkillsService,
+} from '../services/skills-service';
 import { Skill } from './skill';
 
 const BUILD_CONSTRAINTS = {
@@ -18,35 +21,75 @@ const BUILD_CONSTRAINTS = {
 };
 
 class Build {
-  readonly skills: readonly SkillData[];
-  readonly passives: readonly PassiveData[];
+  readonly skills: readonly Skill[];
+  readonly championPoints: readonly BonusData[];
+
   readonly modifiers: readonly BonusData[];
   readonly usedClassSkillLines: readonly ClassSkillLineName[];
   readonly usedWeaponSkillLines: readonly WeaponSkillLineName[];
   readonly requiredClass?: ClassName;
+  readonly passives: readonly PassiveData[];
 
   private readonly _skillDamages: Map<string, number>;
   private readonly _totalDamage: number;
 
-  constructor(
-    skills: SkillData[],
-    passives: PassiveData[],
-    modifiers: BonusData[],
-    usedClassSkillLines: ClassSkillLineName[],
-    usedWeaponSkillLines: WeaponSkillLineName[],
-    requiredClass?: ClassName,
-  ) {
+  constructor(skills: Skill[], championPoints: BonusData[]) {
     this.skills = Object.freeze([...skills]);
-    this.passives = Object.freeze([...passives]);
-    this.modifiers = Object.freeze([...modifiers]);
-    this.usedClassSkillLines = Object.freeze([...usedClassSkillLines]);
-    this.usedWeaponSkillLines = Object.freeze([...usedWeaponSkillLines]);
-    this.requiredClass = requiredClass;
+    this.championPoints = Object.freeze([...championPoints]);
+
+    // Derive skill lines from skills
+    this.usedClassSkillLines = Object.freeze([
+      ...new Set(
+        skills
+          .filter((s) => s.skillType === 'class')
+          .map((s) => s.skillLine as ClassSkillLineName),
+      ),
+    ]);
+    this.usedWeaponSkillLines = Object.freeze([
+      ...new Set(
+        skills
+          .filter((s) => s.skillType === 'weapon')
+          .map((s) => s.skillLine as WeaponSkillLineName),
+      ),
+    ]);
+
+    // championPoints ARE the modifiers
+    this.modifiers = this.championPoints;
+
+    // Derive required class from class skill lines
+    this.requiredClass = this.deriveRequiredClass();
+
+    // Get passives for skill lines
+    this.passives = Object.freeze(this.getPassivesForSkillLines());
 
     // Calculate and cache damages at construction time
     const { skillDamages, totalDamage } = this.calculateDamages();
     this._skillDamages = skillDamages;
     this._totalDamage = totalDamage;
+  }
+
+  private deriveRequiredClass(): ClassName | undefined {
+    // Get unique class names from class skill lines
+    const classNames = new Set<ClassName>();
+    for (const line of this.usedClassSkillLines) {
+      classNames.add(SkillsService.getClassName(line));
+    }
+    // If all class skill lines belong to the same class, that's the required class
+    if (classNames.size === 1) {
+      return [...classNames][0];
+    }
+    return undefined;
+  }
+
+  private getPassivesForSkillLines(): PassiveData[] {
+    const passives: PassiveData[] = [];
+    for (const line of this.usedClassSkillLines) {
+      passives.push(...getClassPassivesBySkillLine(line));
+    }
+    for (const line of this.usedWeaponSkillLines) {
+      passives.push(...getWeaponPassivesBySkillLine(line));
+    }
+    return passives;
   }
 
   /** Sum of all skill damages */
@@ -67,6 +110,13 @@ class Build {
       this.usedClassSkillLines.length <= BUILD_CONSTRAINTS.maxClassSkillLines &&
       this.usedWeaponSkillLines.length <= BUILD_CONSTRAINTS.maxWeaponSkillLines
     );
+  }
+
+  isBetterThan(other: Build | null): boolean {
+    if (other === null) {
+      return true;
+    }
+    return this.totalDamagePerCast > other.totalDamagePerCast;
   }
 
   toString(): string {
@@ -140,8 +190,8 @@ class Build {
   }
 
   /** Count skills per skill line */
-  private getSkillLineCounts(): SkillLineCounts {
-    const counts: SkillLineCounts = {};
+  private getSkillLineCounts(): Record<string, number> {
+    const counts: Record<string, number> = {};
     for (const skill of this.skills) {
       counts[skill.skillLine] = (counts[skill.skillLine] ?? 0) + 1;
     }
@@ -158,12 +208,9 @@ class Build {
     let totalDamage = 0;
 
     for (const skill of this.skills) {
-      const skillInstance = Skill.fromData(skill);
-      const baseDamage = skillInstance.calculateDamagePerCast(this.modifiers);
-      const passiveBonus = calculatePassiveBonus(
-        this.passives,
-        skillLineCounts,
-      );
+      const baseDamage = skill.calculateDamagePerCast(this.modifiers);
+      const skillLineCount = skillLineCounts[skill.skillLine] ?? 0;
+      const passiveBonus = calculatePassiveBonus(this.passives, skillLineCount);
       const damage = baseDamage * (1 + passiveBonus);
 
       skillDamages.set(skill.name, damage);

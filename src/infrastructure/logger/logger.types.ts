@@ -1,4 +1,11 @@
-export type LogLevel = 'log' | 'info' | 'warn' | 'error' | 'success' | 'dim';
+export type LogLevel =
+  | 'log'
+  | 'info'
+  | 'warn'
+  | 'error'
+  | 'success'
+  | 'dim'
+  | 'progress';
 
 export interface Logger {
   log: (message: string, ...args: unknown[]) => void;
@@ -7,4 +14,6 @@ export interface Logger {
   error: (message: string, ...args: unknown[]) => void;
   success: (message: string, ...args: unknown[]) => void;
   dim: (message: string, ...args: unknown[]) => void;
+  /** Overwrites the previous line if it was also a progress call */
+  progress: (message: string) => void;
 }
