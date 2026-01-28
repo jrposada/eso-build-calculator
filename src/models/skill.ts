@@ -61,10 +61,6 @@ export class Skill {
     return data.map((d) => Skill.fromData(d));
   }
 
-  get source(): string {
-    return this.className;
-  }
-
   get mechanic(): SkillMechanic {
     if (this.channelTime) {
       return 'channeled';
@@ -165,7 +161,7 @@ export class Skill {
     lines.push('  Basic Info');
     lines.push('  ' + '─'.repeat(56));
     lines.push(`  Base Skill:      ${this.baseSkillName}`);
-    lines.push(`  Source:          ${this.source}`);
+    lines.push(`  Source:          ${this.className}`);
     lines.push(`  Skill Line:      ${this.skillLine}`);
     lines.push(`  Resource:        ${this.resource}`);
     lines.push(`  Damage Type:     ${this.damageType}`);

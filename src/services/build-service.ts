@@ -56,7 +56,7 @@ export class BuildService {
         name: skill.name,
         baseSkillName: skill.baseSkillName,
         skillLine: skill.skillLine,
-        source: skillInstance.source,
+        source: skillInstance.className,
         baseDamage,
       };
     });

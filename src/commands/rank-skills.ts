@@ -24,7 +24,7 @@ function formatTable(
   const data = displaySkills.map((skill, i) => [
     (i + 1).toString(),
     skill.name,
-    skill.source,
+    skill.className,
     skill.skillLine,
     (damageMap.get(skill) ?? 0).toFixed(0),
     skill.duration > 0 ? `${skill.duration}s` : 'instant',
@@ -62,7 +62,7 @@ function action(options: RankOptions) {
       .split(',')
       .map((s) => s.trim().toLowerCase());
     skills = skills.filter((skill) =>
-      allowedSources.includes(skill.source.toLowerCase()),
+      allowedSources.includes(skill.className.toLowerCase()),
     );
   }
 
@@ -97,7 +97,7 @@ function action(options: RankOptions) {
   // Group by baseSkillName and pick the highest damage version from each group
   const skillsByBase = new Map<string, Skill>();
   for (const skill of damagingSkills) {
-    const key = `${skill.source}-${skill.baseSkillName}`;
+    const key = `${skill.className}-${skill.baseSkillName}`;
     const existing = skillsByBase.get(key);
     const skillDamage = damageMap.get(skill) ?? 0;
     const existingDamage = existing ? (damageMap.get(existing) ?? 0) : 0;
