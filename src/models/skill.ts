@@ -156,7 +156,59 @@ export class Skill {
   }
 
   toString(): string {
-    return `${this.name} (${this.source}/${this.skillLine})`;
+    const lines: string[] = [];
+
+    lines.push('═'.repeat(60));
+    lines.push(`  ${this.name}`);
+    lines.push('═'.repeat(60));
+    lines.push('');
+    lines.push('  Basic Info');
+    lines.push('  ' + '─'.repeat(56));
+    lines.push(`  Base Skill:      ${this.baseSkillName}`);
+    lines.push(`  Source:          ${this.source}`);
+    lines.push(`  Skill Line:      ${this.skillLine}`);
+    lines.push(`  Resource:        ${this.resource}`);
+    lines.push(`  Damage Type:     ${this.damageType}`);
+    lines.push(`  Target Type:     ${this.targetType}`);
+    lines.push(`  Mechanic:        ${this.mechanic}`);
+    if (this.channelTime !== undefined) {
+      lines.push(`  Channel Time:    ${this.channelTime}s`);
+    }
+    lines.push('');
+    lines.push('  Damage');
+    lines.push('  ' + '─'.repeat(56));
+    if (this.damage.hits && this.damage.hits.length > 0) {
+      lines.push(`  Hits:`);
+      this.damage.hits.forEach((hit, j) => {
+        const delay = hit.delay !== undefined ? ` (delay: ${hit.delay}s)` : '';
+        lines.push(`    ${j + 1}. ${hit.value}${delay}`);
+      });
+    }
+    if (this.damage.dots && this.damage.dots.length > 0) {
+      lines.push(`  DoTs:`);
+      this.damage.dots.forEach((dot, j) => {
+        const interval =
+          dot.interval !== undefined ? ` every ${dot.interval}s` : '';
+        const increase = dot.increasePerTick
+          ? ` (+${(dot.increasePerTick * 100).toFixed(0)}%/tick)`
+          : '';
+        const flatIncrease = dot.flatIncreasePerTick
+          ? ` (+${dot.flatIncreasePerTick}/tick)`
+          : '';
+        lines.push(
+          `    ${j + 1}. ${dot.value}${interval} for ${dot.duration}s${increase}${flatIncrease}`,
+        );
+      });
+    }
+    lines.push('');
+    lines.push('  Calculated');
+    lines.push('  ' + '─'.repeat(56));
+    lines.push(
+      `  Duration:        ${this.duration > 0 ? `${this.duration}s` : 'instant'}`,
+    );
+    lines.push(`  Damage/Cast:     ${this.calculateDamagePerCast().toFixed(0)}`);
+
+    return lines.join('\n');
   }
 
   private applyDamageModifier(
