@@ -1,11 +1,16 @@
 import { CHAMPION_POINTS } from '../data/bonuses/champion-points/champion-points';
+import { BonusData } from '../data/bonuses/types';
 import { ClassSkillLineName, WeaponSkillLineName } from '../data/skills';
 import { SkillData } from '../data/skills/types';
 import { ClassName } from '../data/types';
 import { logger } from '../infrastructure';
 import { generateCombinations } from '../infrastructure/combinatorics';
 import { Build, BUILD_CONSTRAINTS } from '../models/build';
-import { BuildService, SkillLineCombination } from './build-service';
+import {
+  BuildService,
+  ProcessedSkill,
+  SkillLineCombination,
+} from './build-service';
 import { SkillLineCounts } from './skill-service';
 
 interface BuildOptimizerOptions {
@@ -75,15 +80,17 @@ class BuildOptimizer {
   }
 
   /**
-   * Generate all valid skill line combinations
-   * - 0 to maxClassSkillLines class skill lines from 21 available
-   * - 0 to maxWeaponSkillLines weapon skill lines from 4 available
-   * - Filter by requiredClass if specified
+   * Generate all possible builds for a given set of modifiers
+   * - Generates skill line combinations (0-3 class lines, 0-2 weapon lines)
+   * - Filters by requiredClass if specified
+   * - Creates Build objects with optimal skill selection for each combination
    */
-  generateSkillLineCombinations(
+  generatePossibleBuilds(
+    modifiers: BonusData[],
+    processedSkills: ProcessedSkill[],
     skillCountByLine: Map<string, number>,
-  ): SkillLineCombination[] {
-    const combinations: SkillLineCombination[] = [];
+  ): Build[] {
+    const builds: Build[] = [];
 
     // Generate all class skill line combinations (0 to maxClassSkillLines)
     const classLineCombos: ClassSkillLineName[][] = [[]];
@@ -96,6 +103,17 @@ class BuildOptimizer {
     for (let k = 1; k <= BUILD_CONSTRAINTS.maxWeaponSkillLines; k++) {
       weaponLineCombos.push(...generateCombinations(WEAPON_SKILL_LINES, k));
     }
+
+    // Calculate skill damages with modifiers
+    const skillsWithDamage = processedSkills.map((ps) => ({
+      ...ps,
+      baseDamage: this.buildService.calculateSkillDamage(
+        ps.skill,
+        modifiers,
+        [],
+        {},
+      ),
+    }));
 
     // Cross-product and filter
     for (const classLines of classLineCombos) {
@@ -120,76 +138,19 @@ class BuildOptimizer {
           );
 
         // Filter: combination must have enough skills to fill maxSkills slots
-        if (totalAvailableSkills >= BUILD_CONSTRAINTS.maxSkills) {
-          combinations.push({ classLines, weaponLines });
+        if (totalAvailableSkills < BUILD_CONSTRAINTS.maxSkills) {
+          continue;
         }
-      }
-    }
 
-    return combinations;
-  }
-
-  /**
-   * Find the optimal build that maximizes total damage per cast
-   * Uses exhaustive enumeration of skill line combinations instead of greedy selection
-   */
-  findOptimalBuild(): OptimizationResult {
-    const modifierCombinations = generateCombinations(
-      CHAMPION_POINTS,
-      BUILD_CONSTRAINTS.maxModifiers,
-    );
-
-    // Preprocess skills once (without passives - they depend on skill line selection)
-    // Use a dummy modifier set for deduplication (base damage comparison)
-    const processedSkills = this.buildService.preprocessSkills([]);
-
-    // Count available skills per skill line (for filtering valid combinations)
-    const skillCountByLine =
-      this.buildService.getSkillCountByLine(processedSkills);
-
-    // Generate all valid skill line combinations
-    const skillLineCombinations =
-      this.generateSkillLineCombinations(skillCountByLine);
-
-    if (this.verbose) {
-      logger.dim(
-        `Testing ${skillLineCombinations.length} skill line combinations × ${modifierCombinations.length} modifier combinations...`,
-      );
-    }
-
-    let bestBuild: Build | null = null;
-    let combinationsTested = 0;
-    const totalCombinations =
-      skillLineCombinations.length * modifierCombinations.length;
-
-    for (const modifiers of modifierCombinations) {
-      // Recalculate skill damages with these modifiers
-      const skillsWithDamage = processedSkills.map((ps) => ({
-        ...ps,
-        baseDamage: this.buildService.calculateSkillDamage(
-          ps.skill,
-          modifiers,
-          [],
-          {},
-        ),
-      }));
-
-      for (const skillLineCombo of skillLineCombinations) {
-        combinationsTested++;
-
-        if (this.verbose && combinationsTested % 1000 === 0) {
-          logger.dim(
-            `Progress: ${combinationsTested}/${totalCombinations} combinations tested. Best damage so far: ${bestBuild?.totalDamagePerCast.toFixed(0) ?? 'N/A'}`,
-          );
-        }
+        const skillLineCombo: SkillLineCombination = { classLines, weaponLines };
 
         // Get all passives for these skill lines
-        const classLineSet = new Set(skillLineCombo.classLines);
-        const weaponLineSet = new Set(skillLineCombo.weaponLines);
+        const classLineSet = new Set(classLines);
+        const weaponLineSet = new Set(weaponLines);
 
         const passives = this.buildService.getPassivesForSkillLines(
-          skillLineCombo.classLines,
-          skillLineCombo.weaponLines,
+          classLines,
+          weaponLines,
         );
 
         // Filter skills to only those from the selected skill lines
@@ -203,13 +164,9 @@ class BuildOptimizer {
         });
 
         // Calculate damage for each skill with passives applied
-        // We need to estimate skill line counts for passive calculations
-        // Since we're taking top N skills, we use a preliminary count based on available skills
         const preliminarySkillLineCounts: SkillLineCounts = {};
-        for (const line of skillLineCombo.classLines)
-          preliminarySkillLineCounts[line] = 1;
-        for (const line of skillLineCombo.weaponLines)
-          preliminarySkillLineCounts[line] = 1;
+        for (const line of classLines) preliminarySkillLineCounts[line] = 1;
+        for (const line of weaponLines) preliminarySkillLineCounts[line] = 1;
 
         const skillsWithPassiveDamage = availableSkills.map((s) => ({
           ...s,
@@ -235,32 +192,72 @@ class BuildOptimizer {
           continue;
         }
 
-        // Calculate actual skill line counts from selected skills
-        const actualSkillLineCounts = this.buildService.countSkillsPerLine(
-          selectedSkills.map((s) => s.skill),
-        );
-
-        // Recalculate total damage with actual skill line counts
-        const totalDamage = this.buildService.calculateTotalDamage(
+        // Create build
+        const build = this.buildService.createBuild(
           selectedSkills.map((s) => s.skill),
           modifiers,
           passives,
-          actualSkillLineCounts,
+          skillLineCombo,
+          this.className,
         );
 
-        // Check if this is the best build
-        if (!bestBuild || totalDamage > bestBuild.totalDamagePerCast) {
-          bestBuild = this.buildService.createBuild(
-            selectedSkills.map((s) => s.skill),
-            modifiers,
-            passives,
-            skillLineCombo,
-            this.className,
+        builds.push(build);
+      }
+    }
+
+    return builds;
+  }
+
+  /**
+   * Find the optimal build that maximizes total damage per cast
+   * Uses exhaustive enumeration of skill line combinations instead of greedy selection
+   */
+  findOptimalBuild(): OptimizationResult {
+    const modifierCombinations = generateCombinations(
+      CHAMPION_POINTS,
+      BUILD_CONSTRAINTS.maxModifiers,
+    );
+
+    // Preprocess skills once (without passives - they depend on skill line selection)
+    // Use a dummy modifier set for deduplication (base damage comparison)
+    const processedSkills = this.buildService.preprocessSkills([]);
+
+    // Count available skills per skill line (for filtering valid combinations)
+    const skillCountByLine =
+      this.buildService.getSkillCountByLine(processedSkills);
+
+    // Count builds per modifier combination for progress tracking
+    const sampleBuilds = this.generatePossibleBuilds([], processedSkills, skillCountByLine);
+    const buildsPerModifierCombo = sampleBuilds.length;
+
+    if (this.verbose) {
+      logger.dim(
+        `Testing ${buildsPerModifierCombo} skill line combinations × ${modifierCombinations.length} modifier combinations...`,
+      );
+    }
+
+    let bestBuild: Build | null = null;
+    let combinationsTested = 0;
+    const totalCombinations = buildsPerModifierCombo * modifierCombinations.length;
+
+    for (const modifiers of modifierCombinations) {
+      const builds = this.generatePossibleBuilds(modifiers, processedSkills, skillCountByLine);
+
+      for (const build of builds) {
+        combinationsTested++;
+
+        if (this.verbose && combinationsTested % 1000 === 0) {
+          logger.dim(
+            `Progress: ${combinationsTested}/${totalCombinations} combinations tested. Best damage so far: ${bestBuild?.totalDamagePerCast.toFixed(0) ?? 'N/A'}`,
           );
+        }
+
+        if (!bestBuild || build.totalDamagePerCast > bestBuild.totalDamagePerCast) {
+          bestBuild = build;
 
           if (this.verbose) {
             logger.dim(
-              `New best build found: ${totalDamage.toFixed(0)} damage`,
+              `New best build found: ${build.totalDamagePerCast.toFixed(0)} damage`,
             );
           }
         }
