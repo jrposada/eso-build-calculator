@@ -6,15 +6,6 @@ import { logger, table } from '../infrastructure';
 import { DamageModifier } from '../models/modifier';
 import { Skill } from '../models/skill';
 
-interface SkillDamage {
-  name: string;
-  baseSkillName: string;
-  source: string;
-  skillLine: string;
-  damagePerCast: number;
-  duration: number;
-}
-
 interface RankOptions {
   limit: string;
   excludeUltimates: boolean;
@@ -23,7 +14,11 @@ interface RankOptions {
   modifier?: string;
 }
 
-function formatTable(skills: SkillDamage[], limit: number): string {
+function formatTable(
+  skills: Skill[],
+  damageMap: Map<Skill, number>,
+  limit: number,
+): string {
   const displaySkills = skills.slice(0, limit);
 
   const data = displaySkills.map((skill, i) => [
@@ -31,7 +26,7 @@ function formatTable(skills: SkillDamage[], limit: number): string {
     skill.name,
     skill.source,
     skill.skillLine,
-    skill.damagePerCast.toFixed(0),
+    (damageMap.get(skill) ?? 0).toFixed(0),
     skill.duration > 0 ? `${skill.duration}s` : 'instant',
   ]);
 
@@ -90,38 +85,37 @@ function action(options: RankOptions) {
     );
   }
 
-  // Calculate damage and create ranking data
-  const allSkillDamages: SkillDamage[] = skills
-    .map((skill) => ({
-      name: skill.name,
-      baseSkillName: skill.baseSkillName,
-      source: skill.source,
-      skillLine: skill.skillLine,
-      damagePerCast: skill.calculateDamagePerCast(modifiers),
-      duration: skill.duration,
-    }))
-    .filter((s) => s.damagePerCast > 0); // Only show skills that deal damage
+  // Calculate damage for each skill and cache in map
+  const damageMap = new Map<Skill, number>();
+  for (const skill of skills) {
+    damageMap.set(skill, skill.calculateDamagePerCast(modifiers));
+  }
+
+  // Filter out skills with no damage
+  const damagingSkills = skills.filter((skill) => (damageMap.get(skill) ?? 0) > 0);
 
   // Group by baseSkillName and pick the highest damage version from each group
-  const skillsByBase = new Map<string, SkillDamage>();
-  for (const skill of allSkillDamages) {
+  const skillsByBase = new Map<string, Skill>();
+  for (const skill of damagingSkills) {
     const key = `${skill.source}-${skill.baseSkillName}`;
     const existing = skillsByBase.get(key);
-    if (!existing || skill.damagePerCast > existing.damagePerCast) {
+    const skillDamage = damageMap.get(skill) ?? 0;
+    const existingDamage = existing ? (damageMap.get(existing) ?? 0) : 0;
+    if (!existing || skillDamage > existingDamage) {
       skillsByBase.set(key, skill);
     }
   }
 
-  const skillDamages = Array.from(skillsByBase.values()).sort(
-    (a, b) => b.damagePerCast - a.damagePerCast,
+  const rankedSkills = Array.from(skillsByBase.values()).sort(
+    (a, b) => (damageMap.get(b) ?? 0) - (damageMap.get(a) ?? 0),
   );
 
-  if (skillDamages.length === 0) {
+  if (rankedSkills.length === 0) {
     logger.warn('No damaging skills found.');
     return;
   }
 
-  logger.log(formatTable(skillDamages, limit));
+  logger.log(formatTable(rankedSkills, damageMap, limit));
 }
 
 const rankCommand = new Command('rank')
