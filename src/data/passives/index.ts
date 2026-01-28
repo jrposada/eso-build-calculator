@@ -40,13 +40,3 @@ export function getClassPassivesBySkillLine(skillLine: string): PassiveData[] {
 export function getWeaponPassivesBySkillLine(skillLine: string): PassiveData[] {
   return ALL_WEAPON_PASSIVES.filter((p) => p.skillLine === skillLine);
 }
-
-export {
-  ARCANIST_PASSIVES,
-  DRAGONKNIGHT_PASSIVES,
-  NIGHTBLADE_PASSIVES,
-  SORCERER_PASSIVES,
-  TEMPLAR_PASSIVES,
-  WARDEN_PASSIVES,
-  WEAPON_PASSIVES,
-};
