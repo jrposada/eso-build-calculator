@@ -11,7 +11,7 @@ interface RankOptions {
   excludeUltimates: boolean;
   source?: string;
   mechanic?: string;
-  modifier?: string;
+  championBonus?: string;
 }
 
 function formatTable(
@@ -75,20 +75,20 @@ function action(options: RankOptions) {
     );
   }
 
-  let modifiers: ChampionPointBonus[] = [];
-  if (options.modifier) {
-    const allowedModifiers = options.modifier
+  let championBonuses: ChampionPointBonus[] = [];
+  if (options.championBonus) {
+    const allowedChampionPoints = options.championBonus
       .split(',')
       .map((s) => s.trim().toLowerCase());
-    modifiers = CHAMPION_POINTS.filter((modifier) =>
-      allowedModifiers.includes(modifier.name.toLowerCase()),
+    championBonuses = CHAMPION_POINTS.filter((bonus) =>
+      allowedChampionPoints.includes(bonus.name.toLowerCase()),
     );
   }
 
   // Calculate damage for each skill and cache in map
   const damageMap = new Map<Skill, number>();
   for (const skill of skills) {
-    damageMap.set(skill, skill.calculateDamagePerCast(modifiers));
+    damageMap.set(skill, skill.calculateDamagePerCast(championBonuses));
   }
 
   // Filter out skills with no damage
@@ -132,7 +132,10 @@ const rankCommand = new Command('rank')
     '-m, --mechanic <mechanics>',
     'Only include skills of specified mechanic (comma-separated)',
   )
-  .option('--modifier <modifiers>', 'Apply list of modifiers (comma-separated)')
+  .option(
+    '--champion-bonus <championBonuses>',
+    'Apply list of champion bonuses (comma-separated)',
+  )
   .action(action);
 
 export { rankCommand };

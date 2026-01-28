@@ -90,7 +90,7 @@ class Skill {
     return this.resource === 'ultimate';
   }
 
-  calculateDamagePerCast(modifiers: Readonly<BonusData[]> = []): number {
+  calculateDamagePerCast(bonuses: Readonly<BonusData[]> = []): number {
     let totalDamage = 0;
 
     // Map target type to bonus type
@@ -101,7 +101,7 @@ class Skill {
     if (this.damage.hits) {
       const hitAffectedBy: BonusType[] = ['direct-damage', targetBonusType];
 
-      const hitModifiers = modifiers.filter((m) =>
+      const hitModifiers = bonuses.filter((m) =>
         hitAffectedBy.includes(m.type),
       );
 
@@ -115,7 +115,7 @@ class Skill {
     if (this.damage.dots) {
       const dotAffectedBy: BonusType[] = ['dot-damage', targetBonusType];
 
-      const dotModifiers = modifiers.filter((m) =>
+      const dotModifiers = bonuses.filter((m) =>
         dotAffectedBy.includes(m.type),
       );
 
