@@ -4,7 +4,7 @@ import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import tseslint from 'typescript-eslint';
 
 export default [
-  { ignores: ['dist'] },
+  { ignores: ['dist', 'coverage'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

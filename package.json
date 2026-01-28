@@ -28,7 +28,9 @@
     "lint:eslint": "eslint .",
     "lint:format": "prettier . --check",
     "lint:types": "tsc --noEmit",
-    "lint": "run-s lint:*"
+    "lint": "run-s lint:*",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "chalk": "^4.1.2",
@@ -46,6 +48,7 @@
     "prettier": "^3.8.1",
     "tsx": "^4.19.2",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.46.2"
+    "typescript-eslint": "^8.46.2",
+    "vitest": "^4.0.18"
   }
 }
