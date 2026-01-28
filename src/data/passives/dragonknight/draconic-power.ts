@@ -1,28 +1,28 @@
-import { ClassPassiveSkill } from '../../../models/passive';
+import { DragonknightPassive } from './types';
 
-export const DRACONIC_POWER_PASSIVES: ClassPassiveSkill[] = [
+export const DRACONIC_POWER_PASSIVES: DragonknightPassive<'DraconicPower'>[] = [
   {
     name: 'Iron Skin',
     skillLine: 'DraconicPower',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     bonuses: [], // Block mitigation - not relevant for damage
   },
   {
     name: 'Burning Heart',
     skillLine: 'DraconicPower',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     bonuses: [], // Healing received - not relevant for damage
   },
   {
     name: 'Elder Dragon',
     skillLine: 'DraconicPower',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     bonuses: [], // Health/Stamina/Magicka recovery - not relevant for damage
   },
   {
     name: 'Scaled Armor',
     skillLine: 'DraconicPower',
-    esoClass: 'Dragonknight',
+    className: 'Dragonknight',
     bonuses: [], // Spell resistance - not relevant for damage
   },
 ];

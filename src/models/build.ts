@@ -1,5 +1,6 @@
 import { ClassSkillLineName, WeaponSkillLineName } from '../data/skills';
-import { SkillClassName, SkillData } from '../data/skills/types';
+import { SkillData } from '../data/skills/types';
+import { ClassName } from '../data/types';
 import { table } from '../infrastructure';
 import {
   calculatePassiveBonus,
@@ -22,7 +23,7 @@ class Build {
   readonly modifiers: readonly DamageModifier[];
   readonly usedClassSkillLines: readonly ClassSkillLineName[];
   readonly usedWeaponSkillLines: readonly WeaponSkillLineName[];
-  readonly requiredClass?: SkillClassName;
+  readonly requiredClass?: ClassName;
 
   private readonly _skillDamages: Map<string, number>;
   private readonly _totalDamage: number;
@@ -33,7 +34,7 @@ class Build {
     modifiers: DamageModifier[],
     usedClassSkillLines: ClassSkillLineName[],
     usedWeaponSkillLines: WeaponSkillLineName[],
-    requiredClass?: SkillClassName,
+    requiredClass?: ClassName,
   ) {
     this.skills = Object.freeze([...skills]);
     this.passives = Object.freeze([...passives]);
@@ -120,8 +121,7 @@ class Build {
     // Passives table
     if (this.passives.length > 0) {
       const passivesData = this.passives.map((passive) => {
-        const source = 'esoClass' in passive ? passive.esoClass : 'Weapon';
-        return [passive.name, source, passive.skillLine];
+        return [passive.name, passive.className, passive.skillLine];
       });
 
       lines.push(

@@ -1,3 +1,5 @@
+import { ClassName } from '../types';
+
 export type Resource = 'magicka' | 'stamina' | 'health' | 'ultimate';
 
 export type DamageType =
@@ -22,24 +24,14 @@ export interface DotDamage {
   ignoresModifier?: boolean;
 }
 
-export type SkillClassName =
-  | 'Dragonknight'
-  | 'Sorcerer'
-  | 'Nightblade'
-  | 'Warden'
-  | 'Necromancer'
-  | 'Templar'
-  | 'Arcanist'
-  | 'Weapon';
-
 export interface SkillData<
-  TSkillClassName extends SkillClassName = SkillClassName,
+  TClassName extends ClassName = ClassName,
   TSkillLine extends string = string,
 > {
   name: string;
   baseSkillName: string;
 
-  className: TSkillClassName;
+  className: TClassName;
   skillLine: TSkillLine;
 
   damage: {

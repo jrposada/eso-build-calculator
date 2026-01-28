@@ -1,10 +1,10 @@
-import { ClassPassiveSkill } from '../../../models/passive';
+import { NightbladePassive } from './types';
 
-export const ASSASSINATION_PASSIVES: ClassPassiveSkill[] = [
+export const ASSASSINATION_PASSIVES: NightbladePassive<'Assassination'>[] = [
   {
     name: 'Master Assassin',
     skillLine: 'Assassination',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     bonuses: [
       { type: 'critical-chance', value: 0.066, multiplier: 'skillLine' },
     ],
@@ -12,13 +12,13 @@ export const ASSASSINATION_PASSIVES: ClassPassiveSkill[] = [
   {
     name: 'Executioner',
     skillLine: 'Assassination',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     bonuses: [], // Non relevant
   },
   {
     name: 'Pressure Point',
     skillLine: 'Assassination',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     bonuses: [
       {
         type: 'critical-chance',
@@ -30,7 +30,7 @@ export const ASSASSINATION_PASSIVES: ClassPassiveSkill[] = [
   {
     name: 'Hemorrhage',
     skillLine: 'Assassination',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     bonuses: [
       { type: 'critical-damage', value: 0.1, multiplier: 'abilitySlotted' },
       { buffId: 'Minor Savagery', multiplier: 'abilitySlotted' },

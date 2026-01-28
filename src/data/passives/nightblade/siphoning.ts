@@ -1,28 +1,28 @@
-import { ClassPassiveSkill } from '../../../models/passive';
+import { NightbladePassive } from './types';
 
-export const SIPHONING_PASSIVES: ClassPassiveSkill[] = [
+export const SIPHONING_PASSIVES: NightbladePassive<'Siphoning'>[] = [
   {
     name: 'Catalyst',
     skillLine: 'Siphoning',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     bonuses: [], // Non relevant
   },
   {
     name: 'Magicka Flood',
     skillLine: 'Siphoning',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     bonuses: [{ type: 'max-stamina', value: 0.06, multiplier: 'skillLine' }],
   },
   {
     name: 'Soul Siphoner',
     skillLine: 'Siphoning',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     bonuses: [], // Non relevant
   },
   {
     name: 'Transfer',
     skillLine: 'Siphoning',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     bonuses: [], // Non relevant
   },
 ];

@@ -2,10 +2,10 @@ import type {
   DamageType,
   DotDamage,
   Resource,
-  SkillClassName,
   SkillData,
   TargetType,
 } from '../data/skills/types';
+import { ClassName } from '../data/types';
 import { DamageModifier } from './modifier';
 
 export type SkillType = 'class' | 'weapon';
@@ -29,7 +29,7 @@ export class Skill {
   readonly channelTime?: number;
   readonly skillLine: string;
   readonly skillType: SkillType;
-  readonly className: SkillClassName;
+  readonly className: ClassName;
 
   private constructor(data: SkillData) {
     this.name = data.name;

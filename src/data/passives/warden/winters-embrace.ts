@@ -1,28 +1,28 @@
-import { ClassPassiveSkill } from '../../../models/passive';
+import { WardenPassive } from './types';
 
-export const WINTERS_EMBRACE_PASSIVES: ClassPassiveSkill[] = [
+export const WINTERS_EMBRACE_PASSIVES: WardenPassive<'WintersEmbrace'>[] = [
   {
     name: 'Glacial Presence',
     skillLine: 'WintersEmbrace',
-    esoClass: 'Warden',
+    className: 'Warden',
     bonuses: [], // Chilled proc chance - not tracked in stat-based system
   },
   {
     name: 'Frozen Armor',
     skillLine: 'WintersEmbrace',
-    esoClass: 'Warden',
+    className: 'Warden',
     bonuses: [], // Physical/Spell resistance - not relevant for damage
   },
   {
     name: 'Icy Aura',
     skillLine: 'WintersEmbrace',
-    esoClass: 'Warden',
+    className: 'Warden',
     bonuses: [], // Block cost reduction + Minor Protection - not relevant for damage
   },
   {
     name: 'Piercing Cold',
     skillLine: 'WintersEmbrace',
-    esoClass: 'Warden',
+    className: 'Warden',
     bonuses: [], // Frost damage penetration - handled by base skill damage
   },
 ];

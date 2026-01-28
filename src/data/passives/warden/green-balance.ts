@@ -1,28 +1,28 @@
-import { ClassPassiveSkill } from '../../../models/passive';
+import { WardenPassive } from './types';
 
-export const GREEN_BALANCE_PASSIVES: ClassPassiveSkill[] = [
+export const GREEN_BALANCE_PASSIVES: WardenPassive<'GreenBalance'>[] = [
   {
     name: 'Accelerated Growth',
     skillLine: 'GreenBalance',
-    esoClass: 'Warden',
+    className: 'Warden',
     bonuses: [], // Healing done - not relevant for damage
   },
   {
     name: "Nature's Gift",
     skillLine: 'GreenBalance',
-    esoClass: 'Warden',
+    className: 'Warden',
     bonuses: [], // Magicka/Stamina return - not relevant for damage
   },
   {
     name: 'Emerald Moss',
     skillLine: 'GreenBalance',
-    esoClass: 'Warden',
+    className: 'Warden',
     bonuses: [], // Healing received - not relevant for damage
   },
   {
     name: 'Maturation',
     skillLine: 'GreenBalance',
-    esoClass: 'Warden',
+    className: 'Warden',
     bonuses: [], // Minor Toughness - not relevant for damage
   },
 ];

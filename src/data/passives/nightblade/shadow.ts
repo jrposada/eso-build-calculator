@@ -1,28 +1,28 @@
-import { ClassPassiveSkill } from '../../../models/passive';
+import { NightbladePassive } from './types';
 
-export const SHADOW_PASSIVES: ClassPassiveSkill[] = [
+export const SHADOW_PASSIVES: NightbladePassive<'Shadow'>[] = [
   {
     name: 'Refreshing Shadows',
     skillLine: 'Shadow',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     bonuses: [], // Non relevant
   },
   {
     name: 'Shadow Barrier',
     skillLine: 'Shadow',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     bonuses: [], // Non relevant
   },
   {
     name: 'Dark Vigor',
     skillLine: 'Shadow',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     bonuses: [], // Non relevant
   },
   {
     name: 'Dark Veil',
     skillLine: 'Shadow',
-    esoClass: 'Nightblade',
+    className: 'Nightblade',
     bonuses: [{ type: 'duration', value: 2, multiplier: 'skillLine' }],
   },
 ];

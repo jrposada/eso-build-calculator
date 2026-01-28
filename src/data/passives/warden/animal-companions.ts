@@ -1,28 +1,28 @@
-import { ClassPassiveSkill } from '../../../models/passive';
+import { WardenPassive } from './types';
 
-export const ANIMAL_COMPANIONS_PASSIVES: ClassPassiveSkill[] = [
+export const ANIMAL_COMPANIONS_PASSIVES: WardenPassive<'AnimalCompanions'>[] = [
   {
     name: 'Bond With Nature',
     skillLine: 'AnimalCompanions',
-    esoClass: 'Warden',
+    className: 'Warden',
     bonuses: [], // Healing received - not relevant for damage
   },
   {
     name: 'Savage Beast',
     skillLine: 'AnimalCompanions',
-    esoClass: 'Warden',
+    className: 'Warden',
     bonuses: [], // Ultimate gain - not relevant for damage
   },
   {
     name: 'Flourish',
     skillLine: 'AnimalCompanions',
-    esoClass: 'Warden',
+    className: 'Warden',
     bonuses: [], // Magicka/Stamina recovery - not relevant for damage
   },
   {
     name: 'Advanced Species',
     skillLine: 'AnimalCompanions',
-    esoClass: 'Warden',
+    className: 'Warden',
     bonuses: [
       {
         type: 'critical-damage',

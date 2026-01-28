@@ -1,12 +1,12 @@
 import { Command, Option } from 'commander';
 
-import { SkillClassName } from '../data/skills/types';
+import { ClassName } from '../data/types';
 import { logger } from '../infrastructure';
 import { BUILD_CONSTRAINTS } from '../models/build';
 import { BuildOptimizer } from '../services/build-optimizer';
 
 interface OptimizeOptions {
-  class?: SkillClassName;
+  class?: ClassName;
   verbose: boolean;
 }
 

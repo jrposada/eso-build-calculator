@@ -7,7 +7,8 @@ import {
   ClassSkillLineName,
   WeaponSkillLineName,
 } from '../data/skills';
-import { SkillClassName, SkillData } from '../data/skills/types';
+import { SkillData } from '../data/skills/types';
+import { ClassName } from '../data/types';
 import { Build } from '../models/build';
 import { DamageModifier } from '../models/modifier';
 import { AnyPassiveSkill } from '../models/passive';
@@ -160,7 +161,7 @@ export class BuildService {
     modifiers: DamageModifier[],
     passives: AnyPassiveSkill[],
     skillLineCombination: SkillLineCombination,
-    requiredClass?: SkillClassName,
+    requiredClass?: ClassName,
   ): Build {
     return new Build(
       selectedSkills,

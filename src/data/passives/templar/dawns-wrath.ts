@@ -1,28 +1,28 @@
-import { ClassPassiveSkill } from '../../../models/passive';
+import { TemplarPassive } from './types';
 
-export const DAWNS_WRATH_PASSIVES: ClassPassiveSkill[] = [
+export const DAWNS_WRATH_PASSIVES: TemplarPassive<'DawnsWrath'>[] = [
   {
     name: 'Illuminate',
     skillLine: 'DawnsWrath',
-    esoClass: 'Templar',
+    className: 'Templar',
     bonuses: [], // Minor Sorcery for group - not tracked
   },
   {
     name: 'Restoring Spirit',
     skillLine: 'DawnsWrath',
-    esoClass: 'Templar',
+    className: 'Templar',
     bonuses: [], // Cost reduction - not relevant for damage
   },
   {
     name: 'Enduring Rays',
     skillLine: 'DawnsWrath',
-    esoClass: 'Templar',
+    className: 'Templar',
     bonuses: [{ type: 'duration', value: 3, multiplier: 'skillLine' }],
   },
   {
     name: 'Prism',
     skillLine: 'DawnsWrath',
-    esoClass: 'Templar',
+    className: 'Templar',
     bonuses: [], // Ultimate gain - not relevant for damage
   },
 ];

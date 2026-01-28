@@ -1,6 +1,7 @@
 import { ALL_MODIFIERS } from '../data/modifiers';
 import { ClassSkillLineName, WeaponSkillLineName } from '../data/skills';
-import { SkillClassName, SkillData } from '../data/skills/types';
+import { SkillData } from '../data/skills/types';
+import { ClassName } from '../data/types';
 import { logger } from '../infrastructure';
 import { generateCombinations } from '../infrastructure/combinatorics';
 import { Build, BUILD_CONSTRAINTS } from '../models/build';
@@ -9,12 +10,12 @@ import { SkillLineCounts } from './skill-service';
 
 interface BuildOptimizerOptions {
   verbose?: boolean;
-  className?: SkillClassName;
+  className?: ClassName;
   skills?: SkillData[];
 }
 
 // Mapping from class skill lines to their ESO class
-const CLASS_SKILL_LINE_TO_CLASS: Record<ClassSkillLineName, SkillClassName> = {
+const CLASS_SKILL_LINE_TO_CLASS: Record<ClassSkillLineName, ClassName> = {
   // Dragonknight
   ArdentFlame: 'Dragonknight',
   DraconicPower: 'Dragonknight',
@@ -64,7 +65,7 @@ interface OptimizationResult {
 
 class BuildOptimizer {
   private readonly buildService: BuildService;
-  private readonly className?: SkillClassName;
+  private readonly className?: ClassName;
   private readonly verbose: boolean;
 
   constructor(options?: BuildOptimizerOptions) {

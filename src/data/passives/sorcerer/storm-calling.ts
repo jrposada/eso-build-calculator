@@ -1,28 +1,28 @@
-import { ClassPassiveSkill } from '../../../models/passive';
+import { SorcererPassive } from './types';
 
-export const STORM_CALLING_PASSIVES: ClassPassiveSkill[] = [
+export const STORM_CALLING_PASSIVES: SorcererPassive<'StormCalling'>[] = [
   {
     name: 'Capacitor',
     skillLine: 'StormCalling',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     bonuses: [], // Magicka recovery - not relevant for damage
   },
   {
     name: 'Energized',
     skillLine: 'StormCalling',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     bonuses: [], // Shock/Physical damage done - handled by base skill damage
   },
   {
     name: 'Amplitude',
     skillLine: 'StormCalling',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     bonuses: [], // Damage based on missing Magicka - situational, not tracked
   },
   {
     name: 'Expert Mage',
     skillLine: 'StormCalling',
-    esoClass: 'Sorcerer',
+    className: 'Sorcerer',
     bonuses: [
       {
         type: 'critical-damage',
