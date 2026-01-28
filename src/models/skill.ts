@@ -8,10 +8,10 @@ import type {
 import { ClassName } from '../data/types';
 import { DamageModifier } from './modifier';
 
-export type SkillType = 'class' | 'weapon';
-export type SkillMechanic = 'dot' | 'instant' | 'channeled' | 'unknown';
+type SkillMechanic = 'dot' | 'instant' | 'channeled' | 'unknown';
+type SkillType = 'class' | 'weapon';
 
-export class Skill {
+class Skill {
   readonly name: string;
   readonly baseSkillName: string;
   readonly damage: SkillDamage;
@@ -212,3 +212,6 @@ export class Skill {
     return value * (1 + totalModifier);
   }
 }
+
+export { Skill };
+export type { SkillMechanic, SkillType };
