@@ -45,6 +45,10 @@ function formatTable(
 }
 
 function action(options: RankOptions) {
+  logger.warn(
+    'Rank command is experimental and may produce inaccurate results.',
+  );
+
   const limit = parseInt(options.limit, 10);
   if (isNaN(limit) || limit <= 0) {
     logger.error('Error: Limit must be a positive number.');
