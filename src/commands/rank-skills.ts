@@ -1,9 +1,9 @@
 import { Command } from 'commander';
 
-import { ALL_MODIFIERS } from '../data/modifiers';
+import { CHAMPION_POINTS } from '../data/bonuses/champion-points/champion-points';
+import { ChampionPointBonus } from '../data/bonuses/champion-points/types';
 import { ALL_SKILLS } from '../data/skills';
 import { logger, table } from '../infrastructure';
-import { DamageModifier } from '../models/modifier';
 import { Skill } from '../models/skill';
 
 interface RankOptions {
@@ -75,12 +75,12 @@ function action(options: RankOptions) {
     );
   }
 
-  let modifiers: DamageModifier[] = [];
+  let modifiers: ChampionPointBonus[] = [];
   if (options.modifier) {
     const allowedModifiers = options.modifier
       .split(',')
       .map((s) => s.trim().toLowerCase());
-    modifiers = ALL_MODIFIERS.filter((modifier) =>
+    modifiers = CHAMPION_POINTS.filter((modifier) =>
       allowedModifiers.includes(modifier.name.toLowerCase()),
     );
   }

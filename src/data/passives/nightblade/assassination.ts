@@ -1,3 +1,4 @@
+import { MINOR_SAVAGERY } from '../../bonuses/buff/buff';
 import { NightbladePassive } from './types';
 
 export const ASSASSINATION_PASSIVES: NightbladePassive<'Assassination'>[] = [
@@ -6,7 +7,11 @@ export const ASSASSINATION_PASSIVES: NightbladePassive<'Assassination'>[] = [
     skillLine: 'Assassination',
     className: 'Nightblade',
     bonuses: [
-      { type: 'critical-chance', value: 0.066, multiplier: 'skillLine' },
+      {
+        className: 'skill-line',
+        type: 'critical-chance',
+        value: 0.066,
+      },
     ],
   },
   {
@@ -21,9 +26,9 @@ export const ASSASSINATION_PASSIVES: NightbladePassive<'Assassination'>[] = [
     className: 'Nightblade',
     bonuses: [
       {
+        className: 'ability-slotted-count',
         type: 'critical-chance',
         value: 0.025,
-        multiplier: 'abilitySlottedCount',
       },
     ],
   },
@@ -32,8 +37,12 @@ export const ASSASSINATION_PASSIVES: NightbladePassive<'Assassination'>[] = [
     skillLine: 'Assassination',
     className: 'Nightblade',
     bonuses: [
-      { type: 'critical-damage', value: 0.1, multiplier: 'abilitySlotted' },
-      { buffId: 'Minor Savagery', multiplier: 'abilitySlotted' },
+      {
+        className: 'ability-slotted',
+        type: 'critical-damage',
+        value: 0.1,
+      },
+      MINOR_SAVAGERY, // REVIEW duration
     ],
   },
 ];

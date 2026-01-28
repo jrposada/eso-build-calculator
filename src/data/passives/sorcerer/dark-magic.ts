@@ -1,3 +1,4 @@
+import { MINOR_PROPHECY } from '../../bonuses/buff/buff';
 import { SorcererPassive } from './types';
 
 export const DARK_MAGIC_PASSIVES: SorcererPassive<'DarkMagic'>[] = [
@@ -23,12 +24,6 @@ export const DARK_MAGIC_PASSIVES: SorcererPassive<'DarkMagic'>[] = [
     name: 'Exploitation',
     skillLine: 'DarkMagic',
     className: 'Sorcerer',
-    bonuses: [
-      {
-        type: 'critical-chance',
-        value: 0.03,
-        multiplier: 'abilitySlottedCount',
-      },
-    ],
+    bonuses: [MINOR_PROPHECY],
   },
 ];

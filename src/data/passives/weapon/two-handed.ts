@@ -12,7 +12,11 @@ export const TWO_HANDED_PASSIVES: WeaponPassive<'TwoHanded'>[] = [
     className: 'Weapon',
     skillLine: 'TwoHanded',
     bonuses: [
-      { type: 'critical-damage', value: 0.12, multiplier: 'skillLine' },
+      {
+        className: 'skill-line',
+        type: 'critical-damage',
+        value: 0.12,
+      },
     ],
   },
   {

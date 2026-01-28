@@ -1,3 +1,5 @@
+import { BonusData } from '../data/bonuses/types';
+import { PassiveData } from '../data/passives/types';
 import { ClassSkillLineName, WeaponSkillLineName } from '../data/skills';
 import { SkillData } from '../data/skills/types';
 import { ClassName } from '../data/types';
@@ -6,8 +8,6 @@ import {
   calculatePassiveBonus,
   SkillLineCounts,
 } from '../services/skill-service';
-import { DamageModifier } from './modifier';
-import { AnyPassiveSkill } from './passive';
 import { Skill } from './skill';
 
 const BUILD_CONSTRAINTS = {
@@ -19,8 +19,8 @@ const BUILD_CONSTRAINTS = {
 
 class Build {
   readonly skills: readonly SkillData[];
-  readonly passives: readonly AnyPassiveSkill[];
-  readonly modifiers: readonly DamageModifier[];
+  readonly passives: readonly PassiveData[];
+  readonly modifiers: readonly BonusData[];
   readonly usedClassSkillLines: readonly ClassSkillLineName[];
   readonly usedWeaponSkillLines: readonly WeaponSkillLineName[];
   readonly requiredClass?: ClassName;
@@ -30,8 +30,8 @@ class Build {
 
   constructor(
     skills: SkillData[],
-    passives: AnyPassiveSkill[],
-    modifiers: DamageModifier[],
+    passives: PassiveData[],
+    modifiers: BonusData[],
     usedClassSkillLines: ClassSkillLineName[],
     usedWeaponSkillLines: WeaponSkillLineName[],
     requiredClass?: ClassName,
@@ -159,11 +159,9 @@ class Build {
 
     for (const skill of this.skills) {
       const skillInstance = Skill.fromData(skill);
-      const baseDamage = skillInstance.calculateDamagePerCast(
-        this.modifiers as DamageModifier[],
-      );
+      const baseDamage = skillInstance.calculateDamagePerCast(this.modifiers);
       const passiveBonus = calculatePassiveBonus(
-        this.passives as AnyPassiveSkill[],
+        this.passives,
         skillLineCounts,
       );
       const damage = baseDamage * (1 + passiveBonus);

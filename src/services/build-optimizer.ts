@@ -1,4 +1,4 @@
-import { ALL_MODIFIERS } from '../data/modifiers';
+import { CHAMPION_POINTS } from '../data/bonuses/champion-points/champion-points';
 import { ClassSkillLineName, WeaponSkillLineName } from '../data/skills';
 import { SkillData } from '../data/skills/types';
 import { ClassName } from '../data/types';
@@ -135,7 +135,7 @@ class BuildOptimizer {
    */
   findOptimalBuild(): OptimizationResult {
     const modifierCombinations = generateCombinations(
-      ALL_MODIFIERS,
+      CHAMPION_POINTS,
       BUILD_CONSTRAINTS.maxModifiers,
     );
 

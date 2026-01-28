@@ -25,9 +25,9 @@ export const ANIMAL_COMPANIONS_PASSIVES: WardenPassive<'AnimalCompanions'>[] = [
     className: 'Warden',
     bonuses: [
       {
+        className: 'ability-slotted-count',
         type: 'critical-damage',
         value: 0.03,
-        multiplier: 'abilitySlottedCount',
       },
     ],
   },

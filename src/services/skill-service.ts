@@ -1,4 +1,5 @@
-import { AnyPassiveSkill, PassiveBonus } from '../models/passive';
+import { BonusData } from '../data/bonuses/types';
+import { PassiveData } from '../data/passives/types';
 
 export interface SkillLineCounts {
   [skillLine: string]: number;
@@ -12,34 +13,29 @@ const BASE_CRIT_DAMAGE = 0.5; // 50% base crit damage
  * Check if a bonus applies to a skill and return the applicable bonus value
  */
 function getApplicableBonus(
-  bonus: PassiveBonus,
+  bonus: BonusData,
   passiveSkillLine: string,
   skillLineCounts: SkillLineCounts,
 ): number {
-  // Handle buffId type
-  if ('buffId' in bonus) {
-    // Minor Savagery = +10% crit damage
-    if (bonus.buffId === 'Minor Savagery') {
-      const skillCount = skillLineCounts[passiveSkillLine] ?? 0;
-      if (skillCount === 0) return 0;
-      // Convert crit damage to expected damage: crit_chance * crit_damage_increase
-      return BASE_CRIT_CHANCE * 0.1;
-    }
-    return 0;
-  }
-
-  // Get base value and apply multiplier
+  // Get base value and apply multiplier based on className
   const skillCount = skillLineCounts[passiveSkillLine] ?? 0;
   let multipliedValue = 0;
 
-  switch (bonus.multiplier) {
-    case 'skillLine':
-    case 'abilitySlotted':
+  switch (bonus.className) {
+    case 'skill-line':
+    case 'ability-slotted':
       multipliedValue = skillCount > 0 ? bonus.value : 0;
       break;
-    case 'abilitySlottedCount':
+    case 'ability-slotted-count':
       multipliedValue = bonus.value * skillCount;
       break;
+    case 'passive':
+      // Always applied bonuses
+      multipliedValue = bonus.value;
+      break;
+    case 'duration':
+      // TODO: Duration buffs not yet implemented
+      return 0;
     default:
       multipliedValue = skillCount > 0 ? bonus.value : 0;
   }
@@ -49,6 +45,8 @@ function getApplicableBonus(
   // Convert stat types to expected damage bonus
   switch (bonus.type) {
     case 'critical-chance':
+    case 'spell-critical-chance':
+    case 'weapon-critical-chance':
       // More crit chance = more expected damage: crit_chance_increase * crit_damage
       return multipliedValue * (1 + BASE_CRIT_DAMAGE);
     case 'critical-damage':
@@ -57,7 +55,8 @@ function getApplicableBonus(
     case 'duration':
     case 'max-stamina':
     case 'max-magicka':
-      // These don't directly affect damage (could be expanded later)
+    case 'spell-damage':
+      // TODO: These don't directly affect damage yet (could be expanded later)
       return 0;
     default:
       return 0;
@@ -68,7 +67,7 @@ function getApplicableBonus(
  * Calculate total passive bonus percentage for a skill
  */
 export function calculatePassiveBonus(
-  passives: AnyPassiveSkill[],
+  passives: Readonly<PassiveData[]>,
   skillLineCounts: SkillLineCounts,
 ): number {
   let totalBonus = 0;

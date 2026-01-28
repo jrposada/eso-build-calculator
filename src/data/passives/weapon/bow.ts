@@ -12,7 +12,11 @@ export const BOW_PASSIVES: WeaponPassive<'Bow'>[] = [
     className: 'Weapon',
     skillLine: 'Bow',
     bonuses: [
-      { type: 'critical-chance', value: 0.08, multiplier: 'skillLine' },
+      {
+        className: 'skill-line',
+        type: 'critical-chance',
+        value: 0.08,
+      },
     ],
   },
   {
@@ -27,9 +31,9 @@ export const BOW_PASSIVES: WeaponPassive<'Bow'>[] = [
     skillLine: 'Bow',
     bonuses: [
       {
+        className: 'ability-slotted-count',
         type: 'critical-damage',
         value: 0.02,
-        multiplier: 'abilitySlottedCount',
       },
     ],
   },

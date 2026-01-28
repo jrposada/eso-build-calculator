@@ -11,7 +11,13 @@ export const SIPHONING_PASSIVES: NightbladePassive<'Siphoning'>[] = [
     name: 'Magicka Flood',
     skillLine: 'Siphoning',
     className: 'Nightblade',
-    bonuses: [{ type: 'max-stamina', value: 0.06, multiplier: 'skillLine' }],
+    bonuses: [
+      {
+        className: 'skill-line',
+        type: 'max-stamina',
+        value: 0.06,
+      },
+    ],
   },
   {
     name: 'Soul Siphoner',

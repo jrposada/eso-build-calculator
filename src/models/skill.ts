@@ -1,3 +1,4 @@
+import { BonusData, BonusType } from '../data/bonuses/types';
 import type {
   DamageType,
   Resource,
@@ -6,7 +7,6 @@ import type {
   TargetType,
 } from '../data/skills/types';
 import { ClassName } from '../data/types';
-import { DamageModifier } from './modifier';
 
 type SkillMechanic = 'dot' | 'instant' | 'channeled' | 'unknown';
 type SkillType = 'class' | 'weapon';
@@ -90,18 +90,19 @@ class Skill {
     return this.resource === 'ultimate';
   }
 
-  calculateDamagePerCast(modifiers: DamageModifier[] = []): number {
+  calculateDamagePerCast(modifiers: Readonly<BonusData[]> = []): number {
     let totalDamage = 0;
+
+    // Map target type to bonus type
+    const targetBonusType: BonusType =
+      this.targetType === 'aoe' ? 'aoe-damage' : 'single-damage';
 
     // Sum all direct hits
     if (this.damage.hits) {
-      const hitAffectedBy: DamageModifier['affects'][] = [
-        'direct',
-        this.targetType,
-      ];
+      const hitAffectedBy: BonusType[] = ['direct-damage', targetBonusType];
 
       const hitModifiers = modifiers.filter((m) =>
-        hitAffectedBy.includes(m.affects),
+        hitAffectedBy.includes(m.type),
       );
 
       totalDamage += this.damage.hits.reduce(
@@ -112,13 +113,10 @@ class Skill {
 
     // Add DoT damage over full duration
     if (this.damage.dots) {
-      const dotAffectedBy: DamageModifier['affects'][] = [
-        'dot',
-        this.targetType,
-      ];
+      const dotAffectedBy: BonusType[] = ['dot-damage', targetBonusType];
 
       const dotModifiers = modifiers.filter((m) =>
-        dotAffectedBy.includes(m.affects),
+        dotAffectedBy.includes(m.type),
       );
 
       for (const dot of this.damage.dots) {
@@ -201,12 +199,9 @@ class Skill {
     return lines.join('\n');
   }
 
-  private applyDamageModifier(
-    modifiers: DamageModifier[],
-    value: number,
-  ): number {
+  private applyDamageModifier(modifiers: BonusData[], value: number): number {
     const totalModifier = modifiers.reduce(
-      (sum, modifier) => sum + modifier.value * modifier.maxLevel,
+      (sum, modifier) => sum + modifier.value,
       0,
     );
     return value * (1 + totalModifier);

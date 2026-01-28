@@ -5,7 +5,13 @@ export const AEDRIC_SPEAR_PASSIVES: TemplarPassive<'AedricSpear'>[] = [
     name: 'Piercing Spear',
     skillLine: 'AedricSpear',
     className: 'Templar',
-    bonuses: [{ type: 'critical-damage', value: 0.1, multiplier: 'skillLine' }],
+    bonuses: [
+      {
+        className: 'skill-line',
+        type: 'critical-damage',
+        value: 0.1,
+      },
+    ],
   },
   {
     name: 'Spear Wall',

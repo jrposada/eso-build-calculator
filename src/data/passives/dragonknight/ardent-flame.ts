@@ -17,7 +17,13 @@ export const ARDENT_FLAME_PASSIVES: DragonknightPassive<'ArdentFlame'>[] = [
     name: 'Searing Heat',
     skillLine: 'ArdentFlame',
     className: 'Dragonknight',
-    bonuses: [{ type: 'duration', value: 2, multiplier: 'skillLine' }],
+    bonuses: [
+      {
+        className: 'skill-line',
+        type: 'duration',
+        value: 2,
+      },
+    ],
   },
   {
     name: 'World in Ruin',

@@ -25,9 +25,9 @@ export const DESTRUCTION_STAFF_PASSIVES: WeaponPassive<'DestructionStaff'>[] = [
     skillLine: 'DestructionStaff',
     bonuses: [
       {
+        className: 'ability-slotted-count',
         type: 'critical-chance',
         value: 0.04,
-        multiplier: 'abilitySlottedCount',
       },
     ],
   },

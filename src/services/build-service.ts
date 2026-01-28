@@ -1,3 +1,5 @@
+import { BonusData } from '../data/bonuses/types';
+import { PassiveData } from '../data/passives/types';
 import {
   ALL_SKILLS,
   ClassSkillLineName,
@@ -6,8 +8,6 @@ import {
 import { SkillData } from '../data/skills/types';
 import { ClassName } from '../data/types';
 import { Build } from '../models/build';
-import { DamageModifier } from '../models/modifier';
-import { AnyPassiveSkill } from '../models/passive';
 import { Skill } from '../models/skill';
 import {
   getClassPassivesBySkillLine,
@@ -41,7 +41,7 @@ export class BuildService {
    * Note: We use base damage (without passives) for deduplication since passive availability
    * depends on which skill lines end up being selected
    */
-  preprocessSkills(modifiers: DamageModifier[]): ProcessedSkill[] {
+  preprocessSkills(modifiers: BonusData[]): ProcessedSkill[] {
     // Filter out ultimates
     const nonUltimates = this.skills.filter(
       (skill) => skill.resource !== 'ultimate',
@@ -97,8 +97,8 @@ export class BuildService {
   getPassivesForSkillLines(
     classSkillLines: ClassSkillLineName[],
     weaponSkillLines: WeaponSkillLineName[],
-  ): AnyPassiveSkill[] {
-    const passives: AnyPassiveSkill[] = [];
+  ): PassiveData[] {
+    const passives: PassiveData[] = [];
 
     for (const skillLine of classSkillLines) {
       passives.push(...getClassPassivesBySkillLine(skillLine));
@@ -115,8 +115,8 @@ export class BuildService {
    */
   calculateSkillDamage(
     skill: SkillData,
-    modifiers: DamageModifier[],
-    passives: AnyPassiveSkill[],
+    modifiers: BonusData[],
+    passives: PassiveData[],
     skillLineCounts: SkillLineCounts,
   ): number {
     const skillInstance = Skill.fromData(skill);
@@ -130,8 +130,8 @@ export class BuildService {
    */
   calculateTotalDamage(
     skills: SkillData[],
-    modifiers: DamageModifier[],
-    passives: AnyPassiveSkill[],
+    modifiers: BonusData[],
+    passives: PassiveData[],
     skillLineCounts: SkillLineCounts,
   ): number {
     return skills.reduce((total, skill) => {
@@ -158,8 +158,8 @@ export class BuildService {
    */
   createBuild(
     selectedSkills: SkillData[],
-    modifiers: DamageModifier[],
-    passives: AnyPassiveSkill[],
+    modifiers: BonusData[],
+    passives: PassiveData[],
     skillLineCombination: SkillLineCombination,
     requiredClass?: ClassName,
   ): Build {

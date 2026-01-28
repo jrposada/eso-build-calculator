@@ -25,9 +25,9 @@ export const STORM_CALLING_PASSIVES: SorcererPassive<'StormCalling'>[] = [
     className: 'Sorcerer',
     bonuses: [
       {
-        type: 'critical-damage',
+        className: 'ability-slotted-count',
+        type: 'spell-damage',
         value: 0.05,
-        multiplier: 'abilitySlottedCount',
       },
     ],
   },

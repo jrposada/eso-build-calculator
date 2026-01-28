@@ -23,6 +23,12 @@ export const SHADOW_PASSIVES: NightbladePassive<'Shadow'>[] = [
     name: 'Dark Veil',
     skillLine: 'Shadow',
     className: 'Nightblade',
-    bonuses: [{ type: 'duration', value: 2, multiplier: 'skillLine' }],
+    bonuses: [
+      {
+        className: 'skill-line',
+        type: 'duration',
+        value: 2,
+      },
+    ],
   },
 ];

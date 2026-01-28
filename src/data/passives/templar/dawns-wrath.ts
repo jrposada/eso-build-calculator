@@ -17,7 +17,13 @@ export const DAWNS_WRATH_PASSIVES: TemplarPassive<'DawnsWrath'>[] = [
     name: 'Enduring Rays',
     skillLine: 'DawnsWrath',
     className: 'Templar',
-    bonuses: [{ type: 'duration', value: 3, multiplier: 'skillLine' }],
+    bonuses: [
+      {
+        className: 'skill-line',
+        type: 'duration',
+        value: 3,
+      },
+    ],
   },
   {
     name: 'Prism',

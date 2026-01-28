@@ -24,6 +24,12 @@ export const DAEDRIC_SUMMONING_PASSIVES: SorcererPassive<'DaedricSummoning'>[] =
       name: 'Expert Summoner',
       skillLine: 'DaedricSummoning',
       className: 'Sorcerer',
-      bonuses: [{ type: 'max-magicka', value: 0.08, multiplier: 'skillLine' }],
+      bonuses: [
+        {
+          className: 'skill-line',
+          type: 'max-magicka',
+          value: 0.08,
+        },
+      ],
     },
   ];

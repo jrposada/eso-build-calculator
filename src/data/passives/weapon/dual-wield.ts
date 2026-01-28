@@ -24,7 +24,11 @@ export const DUAL_WIELD_PASSIVES: WeaponPassive<'DualWield'>[] = [
     className: 'Weapon',
     skillLine: 'DualWield',
     bonuses: [
-      { type: 'critical-damage', value: 0.05, multiplier: 'skillLine' },
+      {
+        className: 'skill-line',
+        type: 'critical-damage',
+        value: 0.05,
+      },
     ],
   },
 ];

@@ -26,9 +26,9 @@ export const HERALD_OF_THE_TOME_PASSIVES: ArcanistPassive<'HeraldOfTheTome'>[] =
       className: 'Arcanist',
       bonuses: [
         {
+          className: 'ability-slotted-count',
           type: 'critical-chance',
           value: 0.03,
-          multiplier: 'abilitySlottedCount',
         },
       ],
     },
