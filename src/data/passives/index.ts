@@ -3,7 +3,6 @@ import { DRAGONKNIGHT_PASSIVES } from './dragonknight';
 import { NIGHTBLADE_PASSIVES } from './nightblade';
 import { SORCERER_PASSIVES } from './sorcerer';
 import { TEMPLAR_PASSIVES } from './templar';
-import { PassiveData } from './types';
 import { WARDEN_PASSIVES } from './warden';
 import { WEAPON_PASSIVES } from './weapon';
 
@@ -26,17 +25,3 @@ const ALL_PASSIVES = [...ALL_CLASS_PASSIVES, ...ALL_WEAPON_PASSIVES];
 
 export { ALL_CLASS_PASSIVES, ALL_PASSIVES, ALL_WEAPON_PASSIVES };
 export type { ClassPassiveSkillLineName, WeaponPassiveSkillLineName };
-
-/**
- * Get all class passives for a specific skill line
- */
-export function getClassPassivesBySkillLine(skillLine: string): PassiveData[] {
-  return ALL_CLASS_PASSIVES.filter((p) => p.skillLine === skillLine);
-}
-
-/**
- * Get all weapon passives for a specific skill line
- */
-export function getWeaponPassivesBySkillLine(skillLine: string): PassiveData[] {
-  return ALL_WEAPON_PASSIVES.filter((p) => p.skillLine === skillLine);
-}

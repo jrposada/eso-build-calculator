@@ -1,8 +1,4 @@
 import {
-  getClassPassivesBySkillLine,
-  getWeaponPassivesBySkillLine,
-} from '../data/passives';
-import {
   ALL_SKILLS,
   ClassSkillLineName,
   WeaponSkillLineName,
@@ -13,6 +9,10 @@ import { Build } from '../models/build';
 import { DamageModifier } from '../models/modifier';
 import { AnyPassiveSkill } from '../models/passive';
 import { Skill } from '../models/skill';
+import {
+  getClassPassivesBySkillLine,
+  getWeaponPassivesBySkillLine,
+} from './passive-service';
 import { calculatePassiveBonus, SkillLineCounts } from './skill-service';
 
 export interface ProcessedSkill {
