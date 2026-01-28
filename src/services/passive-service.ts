@@ -1,7 +1,4 @@
-import {
-  ALL_CLASS_PASSIVES,
-  ALL_WEAPON_PASSIVES,
-} from '../data/passives';
+import { ALL_CLASS_PASSIVES, ALL_WEAPON_PASSIVES } from '../data/passives';
 import { PassiveData } from '../data/passives/types';
 
 /**

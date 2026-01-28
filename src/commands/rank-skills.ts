@@ -92,7 +92,9 @@ function action(options: RankOptions) {
   }
 
   // Filter out skills with no damage
-  const damagingSkills = skills.filter((skill) => (damageMap.get(skill) ?? 0) > 0);
+  const damagingSkills = skills.filter(
+    (skill) => (damageMap.get(skill) ?? 0) > 0,
+  );
 
   // Group by baseSkillName and pick the highest damage version from each group
   const skillsByBase = new Map<string, Skill>();

@@ -1,7 +1,7 @@
 import type {
   DamageType,
-  DotDamage,
   Resource,
+  SkillDamage,
   SkillData,
   TargetType,
 } from '../data/skills/types';
@@ -10,14 +10,6 @@ import { DamageModifier } from './modifier';
 
 export type SkillType = 'class' | 'weapon';
 export type SkillMechanic = 'dot' | 'instant' | 'channeled' | 'unknown';
-
-interface SkillDamage {
-  readonly hits?: ReadonlyArray<{
-    readonly value: number;
-    readonly delay?: number;
-  }>;
-  readonly dots?: ReadonlyArray<DotDamage>;
-}
 
 export class Skill {
   readonly name: string;
@@ -202,7 +194,9 @@ export class Skill {
     lines.push(
       `  Duration:        ${this.duration > 0 ? `${this.duration}s` : 'instant'}`,
     );
-    lines.push(`  Damage/Cast:     ${this.calculateDamagePerCast().toFixed(0)}`);
+    lines.push(
+      `  Damage/Cast:     ${this.calculateDamagePerCast().toFixed(0)}`,
+    );
 
     return lines.join('\n');
   }

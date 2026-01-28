@@ -24,6 +24,14 @@ export interface DotDamage {
   ignoresModifier?: boolean;
 }
 
+export interface SkillDamage {
+  readonly hits?: ReadonlyArray<{
+    readonly value: number;
+    readonly delay?: number;
+  }>;
+  readonly dots?: ReadonlyArray<DotDamage>;
+}
+
 export interface SkillData<
   TClassName extends ClassName = ClassName,
   TSkillLine extends string = string,
@@ -34,10 +42,7 @@ export interface SkillData<
   className: TClassName;
   skillLine: TSkillLine;
 
-  damage: {
-    hits?: Array<{ value: number; delay?: number }>;
-    dots?: DotDamage[];
-  };
+  damage: SkillDamage;
   damageType: DamageType;
   targetType: TargetType;
   resource: Resource;
