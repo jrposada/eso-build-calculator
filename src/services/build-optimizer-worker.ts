@@ -2,7 +2,7 @@ import { parentPort } from 'worker_threads';
 
 import { BonusData } from '../data/bonuses/types';
 import { SkillData } from '../data/skills/types';
-import { generateGroupedCombinationsIterator } from '../infrastructure/combinatorics';
+import { generateCombinationsIterator } from '../infrastructure/combinatorics';
 import { Build, BUILD_CONSTRAINTS } from '../models/build';
 import { Skill } from '../models/skill';
 
@@ -44,20 +44,16 @@ export interface WorkerResult {
 }
 
 /**
- * Generate skill combinations from pre-filtered allowed skills
+ * Generate skill combinations from pre-filtered allowed skills.
+ * Since morphs are already pre-selected (one per base skill), we use simple combinations.
  */
 function* generateSkillCombinations(
   allowedSkills: SkillData[],
 ): Generator<Skill[], void, unknown> {
   const skills = allowedSkills.map(Skill.fromData);
 
-  // Yield skill combinations lazily using iterator
-  // Group by baseSkillName to avoid invalid combinations with multiple morphs of the same skill
-  yield* generateGroupedCombinationsIterator(
-    skills,
-    BUILD_CONSTRAINTS.maxSkills,
-    (skill) => skill.baseSkillName,
-  );
+  // Simple combinations since morphs are already pre-selected
+  yield* generateCombinationsIterator(skills, BUILD_CONSTRAINTS.maxSkills);
 }
 
 /**

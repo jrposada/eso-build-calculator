@@ -6,6 +6,7 @@ import { BuildOptimizer } from '../services/build-optimizer';
 
 interface OptimizeOptions {
   classes?: ClassClassName[];
+  morphs?: string[];
   verbose: boolean;
   workers?: number;
   threads?: number;
@@ -17,6 +18,7 @@ async function action(options: OptimizeOptions) {
   const optimizer = new BuildOptimizer({
     verbose: options.verbose,
     classNames: options.classes,
+    forcedMorphs: options.morphs,
     workers: options.workers,
     threads: options.threads,
   });
@@ -52,9 +54,18 @@ classOption.argParser((value: string): ClassClassName[] => {
   return classes;
 });
 
+const morphsOption = new Option(
+  '-m, --morphs <morphs>',
+  'Force specific morph selections (comma-separated morph names)',
+);
+morphsOption.argParser((value: string): string[] => {
+  return value.split(',').map((m) => m.trim());
+});
+
 const optimizeCommand = new Command('optimize')
   .description('Find the optimal build to maximize total damage per cast')
   .addOption(classOption)
+  .addOption(morphsOption)
   .option('-v, --verbose', 'Show optimization progress', false)
   .option(
     '-w, --workers <number>',

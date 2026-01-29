@@ -9,9 +9,10 @@ import { SkillData } from '../data/skills/types';
 import { ClassName } from '../data/types';
 import { batch, logger, table } from '../infrastructure';
 import {
-  countGroupedCombinations,
+  countCombinations,
   generateCombinations,
 } from '../infrastructure/combinatorics';
+import { MorphSelector } from './morph-selector';
 import { Build, BUILD_CONSTRAINTS } from '../models/build';
 import { Skill } from '../models/skill';
 import type {
@@ -28,6 +29,7 @@ function getDefaultParallelism(): number {
 interface BuildOptimizerOptions {
   verbose?: boolean;
   classNames?: ClassClassName[];
+  forcedMorphs?: string[];
   skills?: SkillData[];
   workers?: number;
   threads?: number;
@@ -100,7 +102,8 @@ class BuildOptimizer {
       );
     }
 
-    this.allowedSkills = [...this.classNames].flatMap((className) => {
+    // Gather all skills from allowed classes
+    const allSkills = [...this.classNames].flatMap((className) => {
       const skills = this.skillsService.getSkillsByClassName(className, {
         excludeBaseSkills: true,
         excludeUltimates: true,
@@ -116,14 +119,36 @@ class BuildOptimizer {
 
     if (this.verbose) {
       logger.dim(
-        `Filtered to ${this.allowedSkills.length.toLocaleString()} allowed skills`,
+        `Total skills before morph selection: ${allSkills.length.toLocaleString()}`,
       );
     }
 
-    this.allowedSkillsCombinationsCount = countGroupedCombinations(
+    // Use MorphSelector to pre-select one morph per base skill
+    const morphSelector = new MorphSelector({
+      forcedMorphs: options?.forcedMorphs,
+    });
+
+    // Validate forced morphs and warn about invalid names
+    const invalidMorphs = morphSelector.validateForcedMorphs(allSkills);
+    if (invalidMorphs.length > 0) {
+      logger.warn(
+        `Warning: The following morph names are invalid and will be ignored: ${invalidMorphs.join(', ')}`,
+      );
+    }
+
+    // Select one morph per base skill (greedy or forced)
+    this.allowedSkills = morphSelector.selectMorphs(allSkills);
+
+    if (this.verbose) {
+      logger.dim(
+        `After morph selection: ${this.allowedSkills.length.toLocaleString()} skills (one per base skill)`,
+      );
+    }
+
+    // Simple combination count since morphs are already pre-selected
+    this.allowedSkillsCombinationsCount = countCombinations(
       this.allowedSkills,
       BUILD_CONSTRAINTS.maxSkills,
-      (skill) => skill.baseSkillName,
     );
 
     if (this.verbose) {
