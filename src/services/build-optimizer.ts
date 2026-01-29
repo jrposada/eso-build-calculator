@@ -72,12 +72,6 @@ class BuildOptimizer {
         BUILD_CONSTRAINTS.maxWeaponSkillLines,
       );
 
-    if (this.verbose) {
-      logger.info(
-        `Generated ${(classSkillLineNameCombinations.length * weaponSkillLineNameCombinations.length).toLocaleString()} skill line combinations.`,
-      );
-    }
-
     // Determine worker script path based on whether we're in dist or src
     const workerPath = __filename.endsWith('.ts')
       ? path.resolve(__dirname, 'build-optimizer-worker.ts')
@@ -159,9 +153,11 @@ class BuildOptimizer {
       });
     }
 
-    logger.info(`Starting ${batches.length} worker(s)...`);
-
     if (this.verbose) {
+      const totalSkillLinesCombinations =
+        classSkillLineNameCombinations.length *
+        weaponSkillLineNameCombinations.length;
+
       // Calculate total skill combinations across all skill line combinations
       const totalSkillCombinations = countTotalSkillCombinations(
         this.skillsService,
@@ -181,6 +177,7 @@ class BuildOptimizer {
         tableData.push([
           `Worker ${i + 1}`,
           batch.championPointBatches.length.toLocaleString(),
+          totalSkillLinesCombinations.toLocaleString(),
           totalSkillCombinations.toLocaleString(),
           batchCombinations.toLocaleString(),
         ]);
@@ -191,7 +188,8 @@ class BuildOptimizer {
           title: 'Worker Distribution',
           columns: [
             { header: 'Worker', width: 10 },
-            { header: 'CP Batches', width: 12, align: 'right' },
+            { header: 'CP Combos', width: 12, align: 'right' },
+            { header: 'Skill Lines Combos', width: 25, align: 'right' },
             { header: 'Skill Combos', width: 25, align: 'right' },
             { header: 'Total', width: 25, align: 'right' },
           ],
@@ -199,6 +197,8 @@ class BuildOptimizer {
         }),
       );
     }
+
+    logger.info(`Starting ${batches.length} worker(s)...`);
 
     // Submit all batches to worker pool
     const results = await Promise.all(

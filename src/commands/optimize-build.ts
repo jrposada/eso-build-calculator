@@ -13,12 +13,14 @@ interface OptimizeOptions {
 }
 
 async function action(options: OptimizeOptions) {
+  logger.info('Finding optimal build...');
+
   if (options.verbose) {
-    logger.info('Finding optimal build...');
     logger.info(`Constraints: ${JSON.stringify(BUILD_CONSTRAINTS)}`);
-    if (options.class) {
-      logger.info(`Required class: ${options.class}`);
-    }
+  }
+
+  if (options.class) {
+    logger.info(`Required class: ${options.class}`);
   }
 
   const optimizer = new BuildOptimizer({
