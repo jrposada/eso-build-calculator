@@ -89,14 +89,56 @@ class BuildOptimizer {
       maxThreads: this.threads,
     });
 
+    // Track progress for each worker
+    const workerProgress = new Map<
+      number,
+      { evaluated: number; bestDamage: number | null }
+    >();
+
     // Listen for progress messages from workers
     pool.on('message', (message: WorkerProgress) => {
-      logger.progress(
-        `Worker ${message.workerId}: ${message.evaluated.toLocaleString()} evaluated` +
-          (message.currentBestDamage
-            ? ` (best: ${message.currentBestDamage.toFixed(2)})`
-            : ''),
-      );
+      workerProgress.set(message.workerId, {
+        evaluated: message.evaluated,
+        bestDamage: message.currentBestDamage,
+      });
+
+      // Build table data from all workers
+      const tableData: string[][] = [];
+      let totalEvaluated = 0;
+      let overallBestDamage: number | null = null;
+
+      for (let i = 1; i <= this.workers; i++) {
+        const progress = workerProgress.get(i);
+        const evaluated = progress?.evaluated ?? 0;
+        const bestDamage = progress?.bestDamage;
+
+        totalEvaluated += evaluated;
+        if (bestDamage !== null && bestDamage !== undefined) {
+          if (overallBestDamage === null || bestDamage > overallBestDamage) {
+            overallBestDamage = bestDamage;
+          }
+        }
+
+        tableData.push([
+          `Worker ${i}`,
+          evaluated.toLocaleString(),
+          bestDamage !== null && bestDamage !== undefined
+            ? bestDamage.toFixed(2)
+            : '-',
+        ]);
+      }
+
+      const progressTable = table(tableData, {
+        title: 'Worker Progress',
+        columns: [
+          { header: 'Worker', width: 10 },
+          { header: 'Evaluated', width: 25, align: 'right' },
+          { header: 'Best Damage', width: 15, align: 'right' },
+        ],
+        footer: `Total: ${totalEvaluated.toLocaleString()} evaluated${overallBestDamage !== null ? ` | Best: ${overallBestDamage.toFixed(2)}` : ''}`,
+      });
+
+      logger.progressMultiline(progressTable);
     });
 
     // Split champion point combinations into batches for workers

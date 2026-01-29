@@ -94,7 +94,7 @@ export default function evaluateBatch(
     classSkillLineNameCombinations,
     weaponSkillLineNameCombinations,
     className,
-    progressInterval = 10000,
+    progressInterval = 200_000,
   } = payload;
 
   // Create SkillsService instance with the provided skill data

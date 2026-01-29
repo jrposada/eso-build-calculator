@@ -5,7 +5,8 @@ export type LogLevel =
   | 'error'
   | 'success'
   | 'dim'
-  | 'progress';
+  | 'progress'
+  | 'progressMultiline';
 
 export interface Logger {
   log: (message: string, ...args: unknown[]) => void;
@@ -16,4 +17,6 @@ export interface Logger {
   dim: (message: string, ...args: unknown[]) => void;
   /** Overwrites the previous line if it was also a progress call */
   progress: (message: string) => void;
+  /** Overwrites multiple previous lines if it was also a progressMultiline call */
+  progressMultiline: (message: string) => void;
 }

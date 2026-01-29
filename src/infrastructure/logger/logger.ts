@@ -3,8 +3,20 @@ import chalk from 'chalk';
 import { Logger } from './logger.types';
 
 let lastWasProgress = false;
+let lastProgressLineCount = 0;
+
+const clearMultilineProgress = (): void => {
+  if (lastProgressLineCount > 0) {
+    // Move cursor up and clear each line
+    for (let i = 0; i < lastProgressLineCount; i++) {
+      process.stdout.write('\x1b[A\x1b[K');
+    }
+    lastProgressLineCount = 0;
+  }
+};
 
 const clearProgress = (): void => {
+  clearMultilineProgress();
   if (lastWasProgress) {
     process.stdout.write('\r\x1b[K');
     lastWasProgress = false;
@@ -43,10 +55,18 @@ export const logger: Logger = {
   },
 
   progress: (message: string): void => {
+    clearMultilineProgress();
     if (lastWasProgress) {
       process.stdout.write('\r\x1b[K');
     }
     process.stdout.write(chalk.dim(message));
     lastWasProgress = true;
+  },
+
+  progressMultiline: (message: string): void => {
+    clearProgress();
+    const lines = message.split('\n');
+    process.stdout.write(chalk.dim(message) + '\n');
+    lastProgressLineCount = lines.length;
   },
 };
