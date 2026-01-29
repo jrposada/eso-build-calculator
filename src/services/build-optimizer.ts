@@ -1,75 +1,60 @@
+import os from 'os';
+import path from 'path';
+import Piscina from 'piscina';
+
 import { CHAMPION_POINTS } from '../data/bonuses/champion-points/champion-points';
 import { ClassSkillLineName, WeaponSkillLineName } from '../data/skills';
 import { SkillData } from '../data/skills/types';
 import { ClassName } from '../data/types';
-import { logger, table } from '../infrastructure';
-import {
-  countGroupedCombinations,
-  generateCombinations,
-  generateGroupedCombinationsIterator,
-} from '../infrastructure/combinatorics';
+import { logger } from '../infrastructure';
+import { generateCombinations } from '../infrastructure/combinatorics';
 import { Build, BUILD_CONSTRAINTS } from '../models/build';
 import { Skill } from '../models/skill';
 import {
   CLASS_SKILL_LINES_NAMES,
-  GetSkillsOptions,
   SkillsService,
   WEAPON_SKILL_LINE_NAMES,
 } from './skills-service';
+import type { WorkerPayload, WorkerResult } from './build-optimizer-worker';
+
+function getDefaultParallelism(): number {
+  return Math.max(1, os.cpus().length - 1);
+}
 
 interface BuildOptimizerOptions {
   verbose?: boolean;
   className?: ClassName;
   skills?: SkillData[];
+  workers?: number;
+  threads?: number;
 }
 
 class BuildOptimizer {
   private readonly skillsService: SkillsService;
   private readonly className?: ClassName;
   private readonly verbose: boolean;
+  private readonly workers: number;
+  private readonly threads: number;
 
   constructor(options?: BuildOptimizerOptions) {
     this.skillsService = new SkillsService(options?.skills);
     this.className = options?.className;
     this.verbose = options?.verbose ?? false;
+    this.workers = options?.workers ?? getDefaultParallelism();
+    this.threads = options?.threads ?? getDefaultParallelism();
   }
 
   /**
    * Find the optimal build that maximizes total damage per cast
-   * Uses exhaustive enumeration of skill line combinations
+   * Uses exhaustive enumeration of skill line combinations with parallel workers
    */
-  findOptimalBuild(): Build | null {
+  async findOptimalBuild(): Promise<Build | null> {
     const championPointCombinations = generateCombinations(
       CHAMPION_POINTS,
       BUILD_CONSTRAINTS.maxModifiers,
     );
 
-    // Cross-product of skill combinations and champion point combinations and
-    // keep track of the best build found
-    let bestBuild: Build | null = null;
-    let evaluatedCount = 0;
-    for (const championPointCombination of championPointCombinations) {
-      // Use generator to iterate lazily - only one skill combination in memory at a time
-      for (const skillCombination of this.generateSkillCombinations()) {
-        const build = new Build(skillCombination, championPointCombination);
-        if (build.isBetterThan(bestBuild)) {
-          bestBuild = build;
-        }
-        evaluatedCount++;
-        if (this.verbose && evaluatedCount % 200000 === 0) {
-          logger.progress(`Evaluated ${evaluatedCount.toLocaleString()} builds...`);
-        }
-      }
-    }
-
-    if (this.verbose) {
-      logger.info(`Evaluated ${evaluatedCount} total build combinations.`);
-    }
-
-    return bestBuild;
-  }
-
-  private *generateSkillCombinations(): Generator<Skill[], void, unknown> {
+    // Pre-compute skill line combinations for workers
     const classSkillLineNameCombinations: ClassSkillLineName[][] =
       generateCombinations(
         CLASS_SKILL_LINES_NAMES,
@@ -88,72 +73,74 @@ class BuildOptimizer {
       );
     }
 
-    // Cross-product of class and weapon skill line combinations and filter out invalid ones
-    for (const classSkillLineCombination of classSkillLineNameCombinations) {
-      if (this.className) {
-        const hasRequiredClass = classSkillLineCombination.some(
-          (line) => SkillsService.getClassName(line) === this.className,
-        );
+    // Determine worker script path based on whether we're in dist or src
+    const workerPath = __filename.endsWith('.ts')
+      ? path.resolve(__dirname, 'build-optimizer-worker.ts')
+      : path.resolve(__dirname, 'build-optimizer-worker.js');
 
-        if (!hasRequiredClass) continue;
-      }
+    // Create worker pool
+    const pool = new Piscina({
+      filename: workerPath,
+      maxThreads: this.threads,
+    });
 
-      for (const weaponSkillLineCombination of weaponSkillLineNameCombinations) {
-        const skillOptions: GetSkillsOptions = {
-          excludeBaseSkills: true,
-          excludeUltimates: true,
-          excludeNonDamaging: true,
-        };
-        const allCombinationPossibleSkills = [
-          ...classSkillLineCombination.flatMap((line) =>
-            this.skillsService
-              .getSkillsBySkillLineName(line, skillOptions)
-              .map(Skill.fromData),
-          ),
-          ...weaponSkillLineCombination.flatMap((line) =>
-            this.skillsService
-              .getSkillsBySkillLineName(line, skillOptions)
-              .map(Skill.fromData),
-          ),
-        ];
+    // Split champion point combinations into batches for workers
+    const batchSize = Math.ceil(
+      championPointCombinations.length / this.workers,
+    );
+    const batches: WorkerPayload[] = [];
 
-        if (this.verbose) {
-          logger.info(
-            `Evaluating ${allCombinationPossibleSkills.length} skills from class lines [${classSkillLineCombination.join(', ')}] and weapon lines [${weaponSkillLineCombination.join(', ')}]`,
-          );
-          logger.info(
-            table(
-              allCombinationPossibleSkills.map((skill) => [
-                skill.name,
-                skill.skillLine,
-              ]),
-              {
-                columns: [
-                  { header: 'Skill', width: 40 },
-                  { header: 'Source', width: 25 },
-                ],
-              },
-            ),
-          );
-          logger.info(
-            `Total skills combinations for current lines combination: ${countGroupedCombinations(
-              allCombinationPossibleSkills,
-              BUILD_CONSTRAINTS.maxSkills,
-              (skill) => skill.baseSkillName,
-            )}`,
-          );
+    for (let i = 0; i < championPointCombinations.length; i += batchSize) {
+      const batch = championPointCombinations.slice(i, i + batchSize);
+      batches.push({
+        championPointBatches: batch,
+        skillData: this.skillsService['skills'],
+        classSkillLineNameCombinations,
+        weaponSkillLineNameCombinations,
+        className: this.className,
+      });
+    }
+
+    if (this.verbose) {
+      logger.info(
+        `Starting ${batches.length} worker(s) with ${this.threads} max threads...`,
+      );
+    }
+
+    // Submit all batches to worker pool
+    const results = await Promise.all(
+      batches.map(
+        (payload) => pool.run(payload) as Promise<WorkerResult | null>,
+      ),
+    );
+
+    // Destroy the pool
+    await pool.destroy();
+
+    // Find the best build across all worker results
+    let bestResult: WorkerResult | null = null;
+    let totalEvaluated = 0;
+
+    for (const result of results) {
+      if (result) {
+        totalEvaluated += result.evaluatedCount;
+        if (!bestResult || result.totalDamage > bestResult.totalDamage) {
+          bestResult = result;
         }
-
-        // Yield skill combinations lazily using iterator
-        // Group by baseSkillName to avoid invalid combinations with multiple morphs of the same skill
-        yield *
-          generateGroupedCombinationsIterator(
-            allCombinationPossibleSkills,
-            BUILD_CONSTRAINTS.maxSkills,
-            (skill) => skill.baseSkillName,
-          );
       }
     }
+
+    if (this.verbose) {
+      logger.info(`Evaluated ${totalEvaluated} total build combinations.`);
+    }
+
+    if (!bestResult) {
+      return null;
+    }
+
+    // Reconstruct the best Build from the worker result
+    const skills = bestResult.skills.map(Skill.fromData);
+    return new Build(skills, bestResult.championPoints);
   }
 }
 

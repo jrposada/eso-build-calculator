@@ -8,9 +8,11 @@ import { BuildOptimizer } from '../services/build-optimizer';
 interface OptimizeOptions {
   class?: ClassName;
   verbose: boolean;
+  workers?: number;
+  threads?: number;
 }
 
-function action(options: OptimizeOptions) {
+async function action(options: OptimizeOptions) {
   if (options.verbose) {
     logger.info('Finding optimal build...');
     logger.info(`Constraints: ${JSON.stringify(BUILD_CONSTRAINTS)}`);
@@ -22,8 +24,10 @@ function action(options: OptimizeOptions) {
   const optimizer = new BuildOptimizer({
     verbose: options.verbose,
     className: options.class,
+    workers: options.workers,
+    threads: options.threads,
   });
-  const build = optimizer.findOptimalBuild();
+  const build = await optimizer.findOptimalBuild();
 
   if (!build) {
     logger.error('No valid build found with the given constraints.');
@@ -51,6 +55,16 @@ const optimizeCommand = new Command('optimize')
   .description('Find the optimal build to maximize total damage per cast')
   .addOption(classOption)
   .option('-v, --verbose', 'Show optimization progress', false)
+  .option(
+    '-w, --workers <number>',
+    'Number of worker batches (default: CPU cores - 1)',
+    (value) => parseInt(value, 10),
+  )
+  .option(
+    '-t, --threads <number>',
+    'Max threads in worker pool (default: CPU cores - 1)',
+    (value) => parseInt(value, 10),
+  )
   .action(action);
 
 export { optimizeCommand };

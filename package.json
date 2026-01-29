@@ -34,7 +34,8 @@
   },
   "dependencies": {
     "chalk": "^4.1.2",
-    "commander": "^12.1.0"
+    "commander": "^12.1.0",
+    "piscina": "^5.1.4"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^20.0.0",
