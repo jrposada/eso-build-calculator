@@ -6,19 +6,20 @@ import { CHAMPION_POINTS } from '../data/bonuses/champion-points/champion-points
 import { ClassSkillLineName, WeaponSkillLineName } from '../data/skills';
 import { SkillData } from '../data/skills/types';
 import { ClassName } from '../data/types';
-import { logger } from '../infrastructure';
+import { logger, table } from '../infrastructure';
 import { generateCombinations } from '../infrastructure/combinatorics';
 import { Build, BUILD_CONSTRAINTS } from '../models/build';
 import { Skill } from '../models/skill';
+import { countTotalSkillCombinations } from './build-optimizer-common';
+import type { WorkerPayload, WorkerResult } from './build-optimizer-worker';
 import {
   CLASS_SKILL_LINES_NAMES,
   SkillsService,
   WEAPON_SKILL_LINE_NAMES,
 } from './skills-service';
-import type { WorkerPayload, WorkerResult } from './build-optimizer-worker';
 
 function getDefaultParallelism(): number {
-  return Math.max(1, os.cpus().length - 1);
+  return Math.max(1, Math.floor(os.cpus().length / 2));
 }
 
 interface BuildOptimizerOptions {
@@ -69,7 +70,7 @@ class BuildOptimizer {
 
     if (this.verbose) {
       logger.info(
-        `Generated ${classSkillLineNameCombinations.length * weaponSkillLineNameCombinations.length} skill line combinations.`,
+        `Generated ${(classSkillLineNameCombinations.length * weaponSkillLineNameCombinations.length).toLocaleString()} skill line combinations.`,
       );
     }
 
@@ -101,9 +102,44 @@ class BuildOptimizer {
       });
     }
 
+    logger.info(`Starting ${batches.length} worker(s)...`);
+
     if (this.verbose) {
+      // Calculate total skill combinations across all skill line combinations
+      const totalSkillCombinations = countTotalSkillCombinations(
+        this.skillsService,
+        classSkillLineNameCombinations,
+        weaponSkillLineNameCombinations,
+        this.className,
+      );
+
+      const tableData: string[][] = [];
+      let totalCombinations = 0;
+
+      for (let i = 0; i < batches.length; i++) {
+        const batch = batches[i]!;
+        const batchCombinations =
+          batch.championPointBatches.length * totalSkillCombinations;
+        totalCombinations += batchCombinations;
+        tableData.push([
+          `Worker ${i + 1}`,
+          batch.championPointBatches.length.toLocaleString(),
+          totalSkillCombinations.toLocaleString(),
+          batchCombinations.toLocaleString(),
+        ]);
+      }
+
       logger.info(
-        `Starting ${batches.length} worker(s) with ${this.threads} max threads...`,
+        table(tableData, {
+          title: 'Worker Distribution',
+          columns: [
+            { header: 'Worker', width: 10 },
+            { header: 'CP Batches', width: 12, align: 'right' },
+            { header: 'Skill Combos', width: 25, align: 'right' },
+            { header: 'Total', width: 25, align: 'right' },
+          ],
+          footer: `Total combinations: ${totalCombinations.toLocaleString()}`,
+        }),
       );
     }
 

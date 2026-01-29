@@ -5,6 +5,7 @@ import { ClassName } from '../data/types';
 import { generateGroupedCombinationsIterator } from '../infrastructure/combinatorics';
 import { Build, BUILD_CONSTRAINTS } from '../models/build';
 import { Skill } from '../models/skill';
+import { iterateSkillLineCombinations } from './build-optimizer-common';
 import { SkillsService } from './skills-service';
 
 /**
@@ -37,12 +38,6 @@ export interface WorkerResult {
   evaluatedCount: number;
 }
 
-const SKILL_OPTIONS = {
-  excludeBaseSkills: true,
-  excludeUltimates: true,
-  excludeNonDamaging: true,
-};
-
 /**
  * Generate skill combinations from skill data and skill line combinations
  */
@@ -52,37 +47,21 @@ function* generateSkillCombinations(
   weaponSkillLineNameCombinations: WeaponSkillLineName[][],
   className?: ClassName,
 ): Generator<Skill[], void, unknown> {
-  // Cross-product of class and weapon skill line combinations
-  for (const classSkillLineCombination of classSkillLineNameCombinations) {
-    if (className) {
-      const hasRequiredClass = classSkillLineCombination.some(
-        (line) => SkillsService.getClassName(line) === className,
-      );
-      if (!hasRequiredClass) continue;
-    }
+  for (const skillsData of iterateSkillLineCombinations(
+    skillsService,
+    classSkillLineNameCombinations,
+    weaponSkillLineNameCombinations,
+    className,
+  )) {
+    const skills = skillsData.map(Skill.fromData);
 
-    for (const weaponSkillLineCombination of weaponSkillLineNameCombinations) {
-      const allCombinationPossibleSkills = [
-        ...classSkillLineCombination.flatMap((line) =>
-          skillsService
-            .getSkillsBySkillLineName(line, SKILL_OPTIONS)
-            .map(Skill.fromData),
-        ),
-        ...weaponSkillLineCombination.flatMap((line) =>
-          skillsService
-            .getSkillsBySkillLineName(line, SKILL_OPTIONS)
-            .map(Skill.fromData),
-        ),
-      ];
-
-      // Yield skill combinations lazily using iterator
-      // Group by baseSkillName to avoid invalid combinations with multiple morphs of the same skill
-      yield* generateGroupedCombinationsIterator(
-        allCombinationPossibleSkills,
-        BUILD_CONSTRAINTS.maxSkills,
-        (skill) => skill.baseSkillName,
-      );
-    }
+    // Yield skill combinations lazily using iterator
+    // Group by baseSkillName to avoid invalid combinations with multiple morphs of the same skill
+    yield* generateGroupedCombinationsIterator(
+      skills,
+      BUILD_CONSTRAINTS.maxSkills,
+      (skill) => skill.baseSkillName,
+    );
   }
 }
 
