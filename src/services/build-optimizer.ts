@@ -3,24 +3,23 @@ import path from 'path';
 import Piscina from 'piscina';
 
 import { CHAMPION_POINTS } from '../data/bonuses/champion-points/champion-points';
-import { ClassSkillLineName, WeaponSkillLineName } from '../data/skills';
+import { ChampionPointBonus } from '../data/bonuses/champion-points/types';
+import { CLASS_CLASS_NAMES, ClassClassName } from '../data/skills';
 import { SkillData } from '../data/skills/types';
 import { ClassName } from '../data/types';
-import { logger, table } from '../infrastructure';
-import { generateCombinations } from '../infrastructure/combinatorics';
+import { batch, logger, table } from '../infrastructure';
+import {
+  countGroupedCombinations,
+  generateCombinations,
+} from '../infrastructure/combinatorics';
 import { Build, BUILD_CONSTRAINTS } from '../models/build';
 import { Skill } from '../models/skill';
-import { countTotalSkillCombinations } from './build-optimizer-common';
 import type {
   WorkerPayload,
   WorkerProgress,
   WorkerResult,
 } from './build-optimizer-worker';
-import {
-  CLASS_SKILL_LINES_NAMES,
-  SkillsService,
-  WEAPON_SKILL_LINE_NAMES,
-} from './skills-service';
+import { SkillsService } from './skills-service';
 
 function getDefaultParallelism(): number {
   return Math.max(1, Math.floor(os.cpus().length / 2));
@@ -28,7 +27,7 @@ function getDefaultParallelism(): number {
 
 interface BuildOptimizerOptions {
   verbose?: boolean;
-  className?: ClassName;
+  classNames?: ClassClassName[];
   skills?: SkillData[];
   workers?: number;
   threads?: number;
@@ -36,41 +35,114 @@ interface BuildOptimizerOptions {
 
 class BuildOptimizer {
   private readonly skillsService: SkillsService;
-  private readonly className?: ClassName;
   private readonly verbose: boolean;
   private readonly workers: number;
   private readonly threads: number;
 
+  private readonly requiredClassNames: ClassClassName[];
+  private readonly classNames: Set<ClassName>;
+
+  private readonly championPointCombinations: ChampionPointBonus[][];
+  private readonly classClassNameCombinations: ClassClassName[][];
+  private readonly allowedSkills: SkillData[] = [];
+
+  private readonly allowedSkillsCombinationsCount: number;
+
+  // Track progress for each worker
+  private readonly workerProgress = new Map<
+    number,
+    { evaluated: number; bestDamage: number | null }
+  >();
+
   constructor(options?: BuildOptimizerOptions) {
     this.skillsService = new SkillsService(options?.skills);
-    this.className = options?.className;
+    this.requiredClassNames = options?.classNames ?? [];
     this.verbose = options?.verbose ?? false;
     this.workers = options?.workers ?? getDefaultParallelism();
     this.threads = options?.threads ?? getDefaultParallelism();
-  }
 
-  /**
-   * Find the optimal build that maximizes total damage per cast
-   * Uses exhaustive enumeration of skill line combinations with parallel workers
-   */
-  async findOptimalBuild(): Promise<Build | null> {
-    const championPointCombinations = generateCombinations(
+    this.championPointCombinations = generateCombinations(
       CHAMPION_POINTS,
       BUILD_CONSTRAINTS.maxModifiers,
     );
 
-    // Pre-compute skill line combinations for workers
-    const classSkillLineNameCombinations: ClassSkillLineName[][] =
-      generateCombinations(
-        CLASS_SKILL_LINES_NAMES,
-        BUILD_CONSTRAINTS.maxClassSkillLines,
+    if (this.verbose) {
+      logger.dim(
+        `Generated ${this.championPointCombinations.length.toLocaleString()} champion point combinations`,
       );
+    }
 
-    const weaponSkillLineNameCombinations: WeaponSkillLineName[][] =
-      generateCombinations(
-        WEAPON_SKILL_LINE_NAMES,
-        BUILD_CONSTRAINTS.maxWeaponSkillLines,
+    this.classNames = new Set<ClassName>(); // TODO: Add Weapons in the future. They work slightly different than classes.
+    this.classClassNameCombinations = generateCombinations(
+      CLASS_CLASS_NAMES,
+      BUILD_CONSTRAINTS.maxClassSkillLines,
+    ).filter((combination) => {
+      if (this.requiredClassNames.length > 0) {
+        const hasRequiredClass = this.requiredClassNames.every((className) =>
+          combination.includes(className),
+        );
+
+        if (hasRequiredClass) {
+          combination.forEach((className) => this.classNames.add(className));
+        }
+
+        return hasRequiredClass;
+      }
+
+      combination.forEach((className) => this.classNames.add(className));
+
+      return true;
+    });
+
+    if (this.verbose) {
+      logger.dim(
+        `Generated ${this.classClassNameCombinations.length.toLocaleString()} class skill line combinations using ${this.classNames.size} classes`,
       );
+    }
+
+    this.allowedSkills = [...this.classNames].flatMap((className) => {
+      const skills = this.skillsService.getSkillsByClassName(className, {
+        excludeBaseSkills: true,
+        excludeUltimates: true,
+        excludeNonDamaging: true,
+      });
+
+      if (this.verbose) {
+        logger.dim(`Class: ${className}, Skills found: ${skills.length}`);
+      }
+
+      return skills;
+    });
+
+    if (this.verbose) {
+      logger.dim(
+        `Filtered to ${this.allowedSkills.length.toLocaleString()} allowed skills`,
+      );
+    }
+
+    this.allowedSkillsCombinationsCount = countGroupedCombinations(
+      this.allowedSkills,
+      BUILD_CONSTRAINTS.maxSkills,
+      (skill) => skill.baseSkillName,
+    );
+
+    if (this.verbose) {
+      logger.dim(
+        `Total skill combinations: ${this.allowedSkillsCombinationsCount.toLocaleString()}`,
+      );
+    }
+
+    logger.info(this.toString());
+  }
+
+  /**
+   * Find the optimal build that maximizes total damage per cast
+   * Uses parallel workers to evaluate champion point combinations
+   */
+  async findOptimalBuild(): Promise<Build | null> {
+    if (this.workerProgress.size > 0) {
+      throw new Error('Optimization already in progress');
+    }
 
     // Determine worker script path based on whether we're in dist or src
     const workerPath = __filename.endsWith('.ts')
@@ -83,15 +155,195 @@ class BuildOptimizer {
       maxThreads: this.threads,
     });
 
-    // Track progress for each worker
-    const workerProgress = new Map<
-      number,
-      { evaluated: number; bestDamage: number | null }
-    >();
+    this.registerWorkerProgressHandlers(pool);
 
-    // Listen for progress messages from workers
+    // Split champion point combinations into batches for workers
+    const batchSize = Math.ceil(
+      this.championPointCombinations.length / this.workers,
+    );
+    const batches: WorkerPayload[] = batch(
+      this.championPointCombinations,
+      batchSize,
+    ).map((cpBatch, i) => ({
+      workerId: i + 1,
+      championPointBatches: cpBatch,
+      allowedSkills: this.allowedSkills,
+    }));
+
+    if (this.verbose) {
+      const tableData: string[][] = batches.map((batch, i) => [
+        `Worker ${i + 1}`,
+        (
+          batch.championPointBatches.length *
+          this.allowedSkillsCombinationsCount
+        ).toLocaleString(),
+      ]);
+
+      logger.info(
+        table(tableData, {
+          title: 'Worker Distribution',
+          columns: [
+            { header: 'Worker', width: 10 },
+            { header: 'Iterations', width: 25, align: 'right' },
+          ],
+        }),
+      );
+    }
+
+    logger.info(`Starting ${batches.length} worker(s)...`);
+
+    // Submit all batches to worker pool
+    const results = await Promise.all(
+      batches.map(
+        (payload) => pool.run(payload) as Promise<WorkerResult | null>,
+      ),
+    );
+
+    // Destroy the pool
+    await pool.destroy();
+    this.workerProgress.clear();
+
+    // Find the best build across all worker results
+    let bestResult: WorkerResult | null = null;
+    let totalEvaluated = 0;
+
+    for (const result of results) {
+      if (result) {
+        totalEvaluated += result.evaluatedCount;
+        if (!bestResult || result.totalDamage > bestResult.totalDamage) {
+          bestResult = result;
+        }
+      }
+    }
+
+    // Clear progress line and show completion summary
+    logger.info(
+      `Completed: ${totalEvaluated.toLocaleString()} builds evaluated`,
+    );
+
+    if (!bestResult) {
+      return null;
+    }
+
+    // Reconstruct the best Build from the worker result
+    const skills = bestResult.skills.map(Skill.fromData);
+    return new Build(skills, bestResult.championPoints);
+  }
+
+  toString(): string {
+    const lines: string[] = [];
+
+    // Configuration table
+    const configData: string[][] = [
+      ['Max Skills', BUILD_CONSTRAINTS.maxSkills.toString()],
+      ['Max Modifiers', BUILD_CONSTRAINTS.maxModifiers.toString()],
+      [
+        'Max Class Skill Lines',
+        BUILD_CONSTRAINTS.maxClassSkillLines.toString(),
+      ],
+      [
+        'Max Weapon Skill Lines',
+        BUILD_CONSTRAINTS.maxWeaponSkillLines.toString(),
+      ],
+    ];
+
+    lines.push(
+      table(configData, {
+        title: 'Build Constraints',
+        columns: [
+          { header: 'Constraint', width: 25 },
+          { header: 'Value', width: 10, align: 'right' },
+        ],
+      }),
+    );
+
+    // Classes table
+    const usedClassesStr = [...this.classNames].join(', ') || 'None';
+    const requiredClassesStr = this.requiredClassNames.join(', ') || 'None';
+    const classesColumnWidth = Math.max(
+      'Classes'.length,
+      usedClassesStr.length,
+      requiredClassesStr.length,
+    );
+
+    const classesData: string[][] = [
+      ['Used Classes', usedClassesStr],
+      ['Required Classes', requiredClassesStr],
+    ];
+
+    lines.push(
+      table(classesData, {
+        title: 'Class Configuration',
+        columns: [
+          { header: 'Setting', width: 20 },
+          { header: 'Classes', width: classesColumnWidth },
+        ],
+      }),
+    );
+
+    const tableData: string[][] = this.classClassNameCombinations.map(
+      (combination, i) => [String(i + 1), combination.join(', ')],
+    );
+
+    lines.push(
+      table(tableData, {
+        title: 'Class Skill Line Combinations',
+        columns: [
+          { header: '#', width: 5, align: 'right' },
+          { header: 'Classes', width: 50 },
+        ],
+      }),
+    );
+
+    // Combinations table
+    const combinationsData: string[][] = [
+      [
+        'Champion Points',
+        this.championPointCombinations.length.toLocaleString(),
+      ],
+      [
+        'Class Skill Lines',
+        this.classClassNameCombinations.length.toLocaleString(),
+      ],
+      ['Allowed Skills', this.allowedSkills.length.toLocaleString()],
+      [
+        'Skill Combinations',
+        this.allowedSkillsCombinationsCount.toLocaleString(),
+      ],
+    ];
+
+    lines.push(
+      table(combinationsData, {
+        title: 'Combination Counts',
+        columns: [
+          { header: 'Type', width: 20 },
+          { header: 'Count', width: 20, align: 'right' },
+        ],
+      }),
+    );
+
+    // Worker configuration table
+    const workerData: string[][] = [
+      ['Workers', this.workers.toString()],
+      ['Threads per Worker', this.threads.toString()],
+    ];
+
+    lines.push(
+      table(workerData, {
+        title: 'Parallelism',
+        columns: [
+          { header: 'Setting', width: 20 },
+          { header: 'Value', width: 10, align: 'right' },
+        ],
+      }),
+    );
+
+    return lines.join('\n');
+  }
+
+  private registerWorkerProgressHandlers(pool: Piscina) {
     pool.on('message', (message: WorkerProgress) => {
-      workerProgress.set(message.workerId, {
+      this.workerProgress.set(message.workerId, {
         evaluated: message.evaluated,
         bestDamage: message.currentBestDamage,
       });
@@ -102,7 +354,7 @@ class BuildOptimizer {
       let overallBestDamage: number | null = null;
 
       for (let i = 1; i <= this.workers; i++) {
-        const progress = workerProgress.get(i);
+        const progress = this.workerProgress.get(i);
         const evaluated = progress?.evaluated ?? 0;
         const bestDamage = progress?.bestDamage;
 
@@ -134,107 +386,6 @@ class BuildOptimizer {
 
       logger.progressMultiline(progressTable);
     });
-
-    // Split champion point combinations into batches for workers
-    const batchSize = Math.ceil(
-      championPointCombinations.length / this.workers,
-    );
-    const batches: WorkerPayload[] = [];
-
-    for (let i = 0; i < championPointCombinations.length; i += batchSize) {
-      const batch = championPointCombinations.slice(i, i + batchSize);
-      batches.push({
-        workerId: batches.length + 1, // 1-indexed worker ID
-        championPointBatches: batch,
-        skillData: this.skillsService['skills'],
-        classSkillLineNameCombinations,
-        weaponSkillLineNameCombinations,
-        className: this.className,
-      });
-    }
-
-    if (this.verbose) {
-      const totalSkillLinesCombinations =
-        classSkillLineNameCombinations.length *
-        weaponSkillLineNameCombinations.length;
-
-      // Calculate total skill combinations across all skill line combinations
-      const totalSkillCombinations = countTotalSkillCombinations(
-        this.skillsService,
-        classSkillLineNameCombinations,
-        weaponSkillLineNameCombinations,
-        this.className,
-      );
-
-      const tableData: string[][] = [];
-      let totalCombinations = 0;
-
-      for (let i = 0; i < batches.length; i++) {
-        const batch = batches[i]!;
-        const batchCombinations =
-          batch.championPointBatches.length * totalSkillCombinations;
-        totalCombinations += batchCombinations;
-        tableData.push([
-          `Worker ${i + 1}`,
-          batch.championPointBatches.length.toLocaleString(),
-          totalSkillLinesCombinations.toLocaleString(),
-          totalSkillCombinations.toLocaleString(),
-          batchCombinations.toLocaleString(),
-        ]);
-      }
-
-      logger.info(
-        table(tableData, {
-          title: 'Worker Distribution',
-          columns: [
-            { header: 'Worker', width: 10 },
-            { header: 'CP Combos', width: 12, align: 'right' },
-            { header: 'Skill Lines Combos', width: 25, align: 'right' },
-            { header: 'Skill Combos', width: 25, align: 'right' },
-            { header: 'Total', width: 25, align: 'right' },
-          ],
-          footer: `Total combinations: ${totalCombinations.toLocaleString()}`,
-        }),
-      );
-    }
-
-    logger.info(`Starting ${batches.length} worker(s)...`);
-
-    // Submit all batches to worker pool
-    const results = await Promise.all(
-      batches.map(
-        (payload) => pool.run(payload) as Promise<WorkerResult | null>,
-      ),
-    );
-
-    // Destroy the pool
-    await pool.destroy();
-
-    // Find the best build across all worker results
-    let bestResult: WorkerResult | null = null;
-    let totalEvaluated = 0;
-
-    for (const result of results) {
-      if (result) {
-        totalEvaluated += result.evaluatedCount;
-        if (!bestResult || result.totalDamage > bestResult.totalDamage) {
-          bestResult = result;
-        }
-      }
-    }
-
-    // Clear progress line and show completion summary
-    logger.info(
-      `Completed: ${totalEvaluated.toLocaleString()} builds evaluated`,
-    );
-
-    if (!bestResult) {
-      return null;
-    }
-
-    // Reconstruct the best Build from the worker result
-    const skills = bestResult.skills.map(Skill.fromData);
-    return new Build(skills, bestResult.championPoints);
   }
 }
 

@@ -1,14 +1,10 @@
 import { parentPort } from 'worker_threads';
 
 import { BonusData } from '../data/bonuses/types';
-import { ClassSkillLineName, WeaponSkillLineName } from '../data/skills';
 import { SkillData } from '../data/skills/types';
-import { ClassName } from '../data/types';
 import { generateGroupedCombinationsIterator } from '../infrastructure/combinatorics';
 import { Build, BUILD_CONSTRAINTS } from '../models/build';
 import { Skill } from '../models/skill';
-import { iterateSkillLineCombinations } from './build-optimizer-common';
-import { SkillsService } from './skills-service';
 
 /**
  * Payload sent to worker for evaluation
@@ -18,14 +14,8 @@ export interface WorkerPayload {
   workerId: number;
   /** Batch of champion point combinations to evaluate */
   championPointBatches: BonusData[][];
-  /** All skill data needed for combination generation */
-  skillData: SkillData[];
-  /** Class skill line combinations to iterate */
-  classSkillLineNameCombinations: ClassSkillLineName[][];
-  /** Weapon skill line combinations to iterate */
-  weaponSkillLineNameCombinations: WeaponSkillLineName[][];
-  /** Optional class filter */
-  className?: ClassName;
+  /** Pre-filtered skills to generate combinations from */
+  allowedSkills: SkillData[];
   /** How often to report progress (number of evaluations) */
   progressInterval?: number;
 }
@@ -54,30 +44,20 @@ export interface WorkerResult {
 }
 
 /**
- * Generate skill combinations from skill data and skill line combinations
+ * Generate skill combinations from pre-filtered allowed skills
  */
 function* generateSkillCombinations(
-  skillsService: SkillsService,
-  classSkillLineNameCombinations: ClassSkillLineName[][],
-  weaponSkillLineNameCombinations: WeaponSkillLineName[][],
-  className?: ClassName,
+  allowedSkills: SkillData[],
 ): Generator<Skill[], void, unknown> {
-  for (const skillsData of iterateSkillLineCombinations(
-    skillsService,
-    classSkillLineNameCombinations,
-    weaponSkillLineNameCombinations,
-    className,
-  )) {
-    const skills = skillsData.map(Skill.fromData);
+  const skills = allowedSkills.map(Skill.fromData);
 
-    // Yield skill combinations lazily using iterator
-    // Group by baseSkillName to avoid invalid combinations with multiple morphs of the same skill
-    yield* generateGroupedCombinationsIterator(
-      skills,
-      BUILD_CONSTRAINTS.maxSkills,
-      (skill) => skill.baseSkillName,
-    );
-  }
+  // Yield skill combinations lazily using iterator
+  // Group by baseSkillName to avoid invalid combinations with multiple morphs of the same skill
+  yield* generateGroupedCombinationsIterator(
+    skills,
+    BUILD_CONSTRAINTS.maxSkills,
+    (skill) => skill.baseSkillName,
+  );
 }
 
 /**
@@ -90,26 +70,15 @@ export default function evaluateBatch(
   const {
     workerId,
     championPointBatches,
-    skillData,
-    classSkillLineNameCombinations,
-    weaponSkillLineNameCombinations,
-    className,
+    allowedSkills,
     progressInterval = 200_000,
   } = payload;
-
-  // Create SkillsService instance with the provided skill data
-  const skillsService = new SkillsService(skillData);
 
   let bestBuild: Build | null = null;
   let evaluatedCount = 0;
 
   for (const championPointCombination of championPointBatches) {
-    for (const skillCombination of generateSkillCombinations(
-      skillsService,
-      classSkillLineNameCombinations,
-      weaponSkillLineNameCombinations,
-      className,
-    )) {
+    for (const skillCombination of generateSkillCombinations(allowedSkills)) {
       const build = new Build(skillCombination, championPointCombination);
       if (build.isBetterThan(bestBuild)) {
         bestBuild = build;

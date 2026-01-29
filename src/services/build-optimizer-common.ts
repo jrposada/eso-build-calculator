@@ -14,18 +14,21 @@ const SKILL_OPTIONS: GetSkillsOptions = {
 
 /**
  * Iterate through all valid skill line combinations and yield the skills for each.
- * Applies class filtering when className is provided.
+ * Applies class filtering when classNames is provided - at least one skill line must
+ * belong to one of the specified classes.
  */
 function* iterateSkillLineCombinations(
   skillsService: SkillsService,
   classSkillLineNameCombinations: ClassSkillLineName[][],
   weaponSkillLineNameCombinations: WeaponSkillLineName[][],
-  className?: ClassName,
+  classNames?: ClassName[],
 ): Generator<SkillData[], void, unknown> {
   for (const classSkillLineCombination of classSkillLineNameCombinations) {
-    if (className) {
-      const hasRequiredClass = classSkillLineCombination.some(
-        (line) => SkillsService.getClassName(line) === className,
+    if (classNames && classNames.length > 0) {
+      const hasRequiredClass = classNames.every((className) =>
+        classSkillLineCombination.some(
+          (line) => SkillsService.getClassName(line) === className,
+        ),
       );
       if (!hasRequiredClass) continue;
     }
@@ -53,16 +56,16 @@ function countTotalSkillCombinations(
   skillsService: SkillsService,
   classSkillLineNameCombinations: ClassSkillLineName[][],
   weaponSkillLineNameCombinations: WeaponSkillLineName[][],
-  className?: ClassName,
+  classNames?: ClassName[],
 ): number {
   let total = 0;
 
   for (const classSkillLineCombination of classSkillLineNameCombinations) {
     logger.progress(`Counting combinations: ${total.toLocaleString()}`);
 
-    if (className) {
-      const hasRequiredClass = classSkillLineCombination.some(
-        (line) => SkillsService.getClassName(line) === className,
+    if (classNames && classNames.length > 0) {
+      const hasRequiredClass = classSkillLineCombination.some((line) =>
+        classNames.includes(SkillsService.getClassName(line)),
       );
       if (!hasRequiredClass) continue;
     }

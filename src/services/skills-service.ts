@@ -8,6 +8,7 @@ import {
 } from '../data/skills';
 import { SkillData } from '../data/skills/types';
 import { ClassName } from '../data/types';
+import { logger } from '../infrastructure';
 
 // Base crit stats (assumed from gear/CP) - could be made configurable
 const BASE_CRIT_CHANCE = 0.15; // 15% base crit chance
@@ -144,6 +145,30 @@ class SkillsService {
 
   static getClassName(classSkillLine: ClassSkillLineName): ClassName {
     return CLASS_SKILL_LINE_NAME_TO_CLASS_NAME[classSkillLine];
+  }
+
+  getSkillsByClassName(
+    className: ClassName,
+    options?: GetSkillsOptions,
+  ): SkillData[] {
+    const skills = this.skills.filter((skill) => skill.className === className);
+    return skills.filter((skill) => {
+      if (options?.excludeBaseSkills && skill.name === skill.baseSkillName) {
+        return false;
+      }
+      if (options?.excludeUltimates && skill.resource === 'ultimate') {
+        return false;
+      }
+      if (options?.excludeNonDamaging) {
+        const hasDamage =
+          (skill.damage.hits?.length ?? 0) > 0 ||
+          (skill.damage.dots?.length ?? 0) > 0;
+        if (!hasDamage) {
+          return false;
+        }
+      }
+      return true;
+    });
   }
 
   getSkillsBySkillLineName(

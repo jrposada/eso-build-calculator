@@ -1,12 +1,11 @@
 import { Command, Option } from 'commander';
 
-import { ClassName } from '../data/types';
+import { CLASS_CLASS_NAMES, ClassClassName } from '../data/skills';
 import { logger } from '../infrastructure';
-import { BUILD_CONSTRAINTS } from '../models/build';
 import { BuildOptimizer } from '../services/build-optimizer';
 
 interface OptimizeOptions {
-  class?: ClassName;
+  classes?: ClassClassName[];
   verbose: boolean;
   workers?: number;
   threads?: number;
@@ -15,17 +14,9 @@ interface OptimizeOptions {
 async function action(options: OptimizeOptions) {
   logger.info('Finding optimal build...');
 
-  if (options.verbose) {
-    logger.info(`Constraints: ${JSON.stringify(BUILD_CONSTRAINTS)}`);
-  }
-
-  if (options.class) {
-    logger.info(`Required class: ${options.class}`);
-  }
-
   const optimizer = new BuildOptimizer({
     verbose: options.verbose,
-    className: options.class,
+    classNames: options.classes,
     workers: options.workers,
     threads: options.threads,
   });
@@ -40,18 +31,26 @@ async function action(options: OptimizeOptions) {
 }
 
 const classOption = new Option(
-  '-c, --class <class>',
-  'Require at least 1 skill line from this class',
+  '-c, --classes <classes>',
+  'Require at least 1 skill line from these classes (comma-separated, max 3)',
 );
-classOption.choices([
-  'Dragonknight',
-  'Sorcerer',
-  'Nightblade',
-  'Warden',
-  'Necromancer',
-  'Templar',
-  'Arcanist',
-]);
+classOption.argParser((value: string): ClassClassName[] => {
+  const classes = value.split(',').map((c) => c.trim()) as ClassClassName[];
+
+  if (classes.length > 3) {
+    throw new Error('Maximum 3 classes allowed');
+  }
+
+  for (const c of classes) {
+    if (!CLASS_CLASS_NAMES.includes(c)) {
+      throw new Error(
+        `Invalid class "${c}". Valid options: ${CLASS_CLASS_NAMES.join(', ')}`,
+      );
+    }
+  }
+
+  return classes;
+});
 
 const optimizeCommand = new Command('optimize')
   .description('Find the optimal build to maximize total damage per cast')
