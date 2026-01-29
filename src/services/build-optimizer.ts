@@ -11,7 +11,11 @@ import { generateCombinations } from '../infrastructure/combinatorics';
 import { Build, BUILD_CONSTRAINTS } from '../models/build';
 import { Skill } from '../models/skill';
 import { countTotalSkillCombinations } from './build-optimizer-common';
-import type { WorkerPayload, WorkerResult } from './build-optimizer-worker';
+import type {
+  WorkerPayload,
+  WorkerProgress,
+  WorkerResult,
+} from './build-optimizer-worker';
 import {
   CLASS_SKILL_LINES_NAMES,
   SkillsService,
@@ -85,6 +89,16 @@ class BuildOptimizer {
       maxThreads: this.threads,
     });
 
+    // Listen for progress messages from workers
+    pool.on('message', (message: WorkerProgress) => {
+      logger.progress(
+        `Worker ${message.workerId}: ${message.evaluated.toLocaleString()} evaluated` +
+          (message.currentBestDamage
+            ? ` (best: ${message.currentBestDamage.toFixed(2)})`
+            : ''),
+      );
+    });
+
     // Split champion point combinations into batches for workers
     const batchSize = Math.ceil(
       championPointCombinations.length / this.workers,
@@ -94,6 +108,7 @@ class BuildOptimizer {
     for (let i = 0; i < championPointCombinations.length; i += batchSize) {
       const batch = championPointCombinations.slice(i, i + batchSize);
       batches.push({
+        workerId: batches.length + 1, // 1-indexed worker ID
         championPointBatches: batch,
         skillData: this.skillsService['skills'],
         classSkillLineNameCombinations,
@@ -166,9 +181,10 @@ class BuildOptimizer {
       }
     }
 
-    if (this.verbose) {
-      logger.info(`Evaluated ${totalEvaluated} total build combinations.`);
-    }
+    // Clear progress line and show completion summary
+    logger.info(
+      `Completed: ${totalEvaluated.toLocaleString()} builds evaluated`,
+    );
 
     if (!bestResult) {
       return null;

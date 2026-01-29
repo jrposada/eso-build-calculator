@@ -1,3 +1,5 @@
+import { parentPort } from 'worker_threads';
+
 import { BonusData } from '../data/bonuses/types';
 import { ClassSkillLineName, WeaponSkillLineName } from '../data/skills';
 import { SkillData } from '../data/skills/types';
@@ -12,6 +14,8 @@ import { SkillsService } from './skills-service';
  * Payload sent to worker for evaluation
  */
 export interface WorkerPayload {
+  /** Worker identifier for progress reporting */
+  workerId: number;
   /** Batch of champion point combinations to evaluate */
   championPointBatches: BonusData[][];
   /** All skill data needed for combination generation */
@@ -22,6 +26,17 @@ export interface WorkerPayload {
   weaponSkillLineNameCombinations: WeaponSkillLineName[][];
   /** Optional class filter */
   className?: ClassName;
+  /** How often to report progress (number of evaluations) */
+  progressInterval?: number;
+}
+
+/**
+ * Progress message sent from worker to main thread
+ */
+export interface WorkerProgress {
+  workerId: number;
+  evaluated: number;
+  currentBestDamage: number | null;
 }
 
 /**
@@ -73,11 +88,13 @@ export default function evaluateBatch(
   payload: WorkerPayload,
 ): WorkerResult | null {
   const {
+    workerId,
     championPointBatches,
     skillData,
     classSkillLineNameCombinations,
     weaponSkillLineNameCombinations,
     className,
+    progressInterval = 10000,
   } = payload;
 
   // Create SkillsService instance with the provided skill data
@@ -98,6 +115,15 @@ export default function evaluateBatch(
         bestBuild = build;
       }
       evaluatedCount++;
+
+      // Report progress periodically
+      if (evaluatedCount % progressInterval === 0) {
+        parentPort?.postMessage({
+          workerId,
+          evaluated: evaluatedCount,
+          currentBestDamage: bestBuild?.totalDamagePerCast ?? null,
+        } satisfies WorkerProgress);
+      }
     }
   }
 
