@@ -5,6 +5,11 @@
 ### Prerequisites
 
 - [Rust](https://rustup.rs/) (1.70 or later)
+- A C linker (required by some Rust crates):
+  - **Ubuntu/Debian**: `sudo apt install build-essential`
+  - **Fedora/RHEL**: `sudo dnf install gcc`
+  - **Arch**: `sudo pacman -S base-devel`
+  - **macOS**: `xcode-select --install`
 
 ### Build Commands
 
