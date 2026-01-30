@@ -59,11 +59,7 @@ pub struct CombinationIterator<'a, T> {
 impl<'a, T> CombinationIterator<'a, T> {
     pub fn new(items: &'a [T], k: usize) -> Self {
         let done = k > items.len();
-        let indices = if done {
-            Vec::new()
-        } else {
-            (0..k).collect()
-        };
+        let indices = if done { Vec::new() } else { (0..k).collect() };
         Self {
             items,
             k,
@@ -87,7 +83,11 @@ impl<'a, T: Clone> Iterator for CombinationIterator<'a, T> {
         }
 
         // Generate current combination
-        let result: Vec<T> = self.indices.iter().map(|&i| self.items[i].clone()).collect();
+        let result: Vec<T> = self
+            .indices
+            .iter()
+            .map(|&i| self.items[i].clone())
+            .collect();
 
         // Find rightmost index that can be incremented
         let n = self.items.len();

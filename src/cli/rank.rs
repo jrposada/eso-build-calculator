@@ -104,7 +104,9 @@ impl RankArgs {
         ranked_skills.sort_by(|a, b| {
             let a_dmg = damage_map.get(a.name()).copied().unwrap_or(0.0);
             let b_dmg = damage_map.get(b.name()).copied().unwrap_or(0.0);
-            b_dmg.partial_cmp(&a_dmg).unwrap_or(std::cmp::Ordering::Equal)
+            b_dmg
+                .partial_cmp(&a_dmg)
+                .unwrap_or(std::cmp::Ordering::Equal)
         });
 
         if ranked_skills.is_empty() {

@@ -4,8 +4,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Mutex;
 
 static LAST_PROGRESS_LINE_COUNT: AtomicUsize = AtomicUsize::new(0);
-static LAST_WAS_PROGRESS: std::sync::atomic::AtomicBool =
-    std::sync::atomic::AtomicBool::new(false);
+static LAST_WAS_PROGRESS: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
 static STDOUT_LOCK: Mutex<()> = Mutex::new(());
 
 fn clear_multiline_progress() {

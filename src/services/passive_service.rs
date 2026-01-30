@@ -92,7 +92,9 @@ mod tests {
     fn test_get_passives_by_skill_line() {
         let passives = get_passives_by_skill_line(SkillLineName::ArdentFlame);
         assert!(!passives.is_empty());
-        assert!(passives.iter().all(|p| p.skill_line == SkillLineName::ArdentFlame));
+        assert!(passives
+            .iter()
+            .all(|p| p.skill_line == SkillLineName::ArdentFlame));
     }
 
     #[test]

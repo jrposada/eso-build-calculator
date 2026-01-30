@@ -1,7 +1,7 @@
 use crate::data::bonuses::CHAMPION_POINTS;
 use crate::data::skills::ALL_SKILLS;
 use crate::data::{ClassName, SkillLineName};
-use crate::domain::{Build, BonusData, ChampionPointBonus, Skill, SkillData, BUILD_CONSTRAINTS};
+use crate::domain::{BonusData, Build, ChampionPointBonus, Skill, SkillData, BUILD_CONSTRAINTS};
 use crate::infrastructure::{combinatorics, logger, table};
 use crate::services::{GetSkillsOptions, MorphSelector, MorphSelectorOptions, SkillsService};
 use rayon::prelude::*;
@@ -79,29 +79,30 @@ impl BuildOptimizer {
 
         // Generate class combinations
         let mut class_names: HashSet<ClassName> = HashSet::new();
-        let class_class_name_combinations: Vec<Vec<ClassName>> = combinatorics::generate_combinations(
-            &ClassName::CLASS_ONLY.to_vec(),
-            BUILD_CONSTRAINTS.class_skill_line_count,
-        )
-        .into_iter()
-        .filter(|combination| {
-            let has_required_class = if required_class_names.is_empty() {
-                true
-            } else {
-                required_class_names
-                    .iter()
-                    .all(|required| combination.contains(required))
-            };
+        let class_class_name_combinations: Vec<Vec<ClassName>> =
+            combinatorics::generate_combinations(
+                &ClassName::CLASS_ONLY.to_vec(),
+                BUILD_CONSTRAINTS.class_skill_line_count,
+            )
+            .into_iter()
+            .filter(|combination| {
+                let has_required_class = if required_class_names.is_empty() {
+                    true
+                } else {
+                    required_class_names
+                        .iter()
+                        .all(|required| combination.contains(required))
+                };
 
-            if has_required_class {
-                for class in combination {
-                    class_names.insert(*class);
+                if has_required_class {
+                    for class in combination {
+                        class_names.insert(*class);
+                    }
                 }
-            }
 
-            has_required_class
-        })
-        .collect();
+                has_required_class
+            })
+            .collect();
 
         if verbose {
             let required_str = if required_class_names.is_empty() {
@@ -218,7 +219,9 @@ impl BuildOptimizer {
         // Calculate total skill combinations
         let skill_combinations_count: u64 = skills_combinations
             .iter()
-            .map(|skills| combinatorics::count_combinations(skills.len(), BUILD_CONSTRAINTS.skill_count))
+            .map(|skills| {
+                combinatorics::count_combinations(skills.len(), BUILD_CONSTRAINTS.skill_count)
+            })
             .sum();
 
         let optimizer = Self {
@@ -260,18 +263,17 @@ impl BuildOptimizer {
             .champion_point_combinations
             .par_iter()
             .map(|cp_combo| {
-                let cp_bonuses: Vec<BonusData> = cp_combo
-                    .iter()
-                    .map(|cp| cp.to_bonus_data())
-                    .collect();
+                let cp_bonuses: Vec<BonusData> =
+                    cp_combo.iter().map(|cp| cp.to_bonus_data()).collect();
 
                 let mut local_best: Option<Build> = None;
 
                 for skills in &self.skills_combinations {
                     // Generate skill combinations
-                    for skill_combo in
-                        combinatorics::CombinationIterator::new(skills, BUILD_CONSTRAINTS.skill_count)
-                    {
+                    for skill_combo in combinatorics::CombinationIterator::new(
+                        skills,
+                        BUILD_CONSTRAINTS.skill_count,
+                    ) {
                         let count = evaluated_count.fetch_add(1, Ordering::Relaxed) + 1;
 
                         // Create skills from data
@@ -357,7 +359,10 @@ impl std::fmt::Display for BuildOptimizer {
 
         // Configuration table
         let config_data = vec![
-            vec!["Skills".to_string(), BUILD_CONSTRAINTS.skill_count.to_string()],
+            vec![
+                "Skills".to_string(),
+                BUILD_CONSTRAINTS.skill_count.to_string(),
+            ],
             vec![
                 "Champion Points".to_string(),
                 BUILD_CONSTRAINTS.champion_point_count.to_string(),
@@ -421,7 +426,11 @@ impl std::fmt::Display for BuildOptimizer {
             sorted.join(", ")
         };
 
-        let required_weapons: Vec<_> = self.required_weapons.iter().map(|w| w.to_string()).collect();
+        let required_weapons: Vec<_> = self
+            .required_weapons
+            .iter()
+            .map(|w| w.to_string())
+            .collect();
         let required_weapons_str = if required_weapons.is_empty() {
             "None".to_string()
         } else {

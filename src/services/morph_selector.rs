@@ -31,7 +31,11 @@ impl MorphSelector {
             sorted_morphs.sort();
             logger::warn(&format!(
                 "Warning: The following morph names are invalid and will be ignored: {}",
-                sorted_morphs.into_iter().cloned().collect::<Vec<_>>().join(", ")
+                sorted_morphs
+                    .into_iter()
+                    .cloned()
+                    .collect::<Vec<_>>()
+                    .join(", ")
             ));
         }
 
@@ -48,7 +52,8 @@ impl MorphSelector {
 
         for (_, morphs) in skills_by_base {
             // Check if any morph is forced
-            if let Some(forced_morph) = morphs.iter().find(|m| self.forced_morphs.contains(&m.name)) {
+            if let Some(forced_morph) = morphs.iter().find(|m| self.forced_morphs.contains(&m.name))
+            {
                 selected_skills.push(forced_morph);
             } else {
                 // Use greedy strategy: select morph with highest base damage

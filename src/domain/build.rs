@@ -1,6 +1,6 @@
 use crate::data::{ClassName, SkillLineName};
 use crate::domain::{BonusData, PassiveData, Skill};
-use crate::services::{get_passives_by_skill_line, calculate_passive_bonus};
+use crate::services::{calculate_passive_bonus, get_passives_by_skill_line};
 use std::collections::{HashMap, HashSet};
 
 /// Build constraints
@@ -54,10 +54,8 @@ impl Build {
         let required_class = Self::derive_required_class(&used_class_skill_lines);
 
         // Get passives for skill lines
-        let passives = Self::get_passives_for_skill_lines(
-            &used_class_skill_lines,
-            &used_weapon_skill_lines,
-        );
+        let passives =
+            Self::get_passives_for_skill_lines(&used_class_skill_lines, &used_weapon_skill_lines);
 
         // Calculate damages
         let (skill_damages, total_damage) =
@@ -120,7 +118,10 @@ impl Build {
 
         for skill in skills {
             let base_damage = skill.calculate_damage_per_cast(champion_points);
-            let skill_line_count = skill_line_counts.get(&skill.skill_line()).copied().unwrap_or(0);
+            let skill_line_count = skill_line_counts
+                .get(&skill.skill_line())
+                .copied()
+                .unwrap_or(0);
             let passive_bonus = calculate_passive_bonus(passives, skill_line_count);
             let damage = base_damage * (1.0 + passive_bonus);
 

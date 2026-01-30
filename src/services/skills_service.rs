@@ -1,4 +1,4 @@
-use crate::data::skills::{ALL_CLASS_SKILLS, ALL_WEAPON_SKILLS, ALL_SKILLS};
+use crate::data::skills::{ALL_CLASS_SKILLS, ALL_SKILLS, ALL_WEAPON_SKILLS};
 use crate::data::{ClassName, Resource, SkillLineName};
 use crate::domain::SkillData;
 use std::collections::HashMap;
@@ -47,7 +47,11 @@ impl SkillsService {
     }
 
     /// Get all skills for a class
-    pub fn get_skills_by_class(&self, class_name: ClassName, options: &GetSkillsOptions) -> Vec<&'static SkillData> {
+    pub fn get_skills_by_class(
+        &self,
+        class_name: ClassName,
+        options: &GetSkillsOptions,
+    ) -> Vec<&'static SkillData> {
         let skills = if class_name == ClassName::Weapon {
             ALL_WEAPON_SKILLS.iter().copied().collect()
         } else {
@@ -133,17 +137,23 @@ mod tests {
     #[test]
     fn test_get_skills_by_class() {
         let service = SkillsService::new();
-        let skills = service.get_skills_by_class(ClassName::Dragonknight, &GetSkillsOptions::default());
+        let skills =
+            service.get_skills_by_class(ClassName::Dragonknight, &GetSkillsOptions::default());
         assert!(!skills.is_empty());
-        assert!(skills.iter().all(|s| s.class_name == ClassName::Dragonknight));
+        assert!(skills
+            .iter()
+            .all(|s| s.class_name == ClassName::Dragonknight));
     }
 
     #[test]
     fn test_get_skills_by_skill_line() {
         let service = SkillsService::new();
-        let skills = service.get_skills_by_skill_line(SkillLineName::ArdentFlame, &GetSkillsOptions::default());
+        let skills = service
+            .get_skills_by_skill_line(SkillLineName::ArdentFlame, &GetSkillsOptions::default());
         assert!(!skills.is_empty());
-        assert!(skills.iter().all(|s| s.skill_line == SkillLineName::ArdentFlame));
+        assert!(skills
+            .iter()
+            .all(|s| s.skill_line == SkillLineName::ArdentFlame));
     }
 
     #[test]

@@ -286,9 +286,9 @@ impl SkillLineName {
             | SkillLineName::DraconicPower
             | SkillLineName::EarthenHeart => ClassName::Dragonknight,
 
-            SkillLineName::Assassination
-            | SkillLineName::Shadow
-            | SkillLineName::Siphoning => ClassName::Nightblade,
+            SkillLineName::Assassination | SkillLineName::Shadow | SkillLineName::Siphoning => {
+                ClassName::Nightblade
+            }
 
             SkillLineName::DarkMagic
             | SkillLineName::DaedricSummoning

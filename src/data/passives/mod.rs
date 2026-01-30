@@ -1,20 +1,20 @@
+pub mod arcanist;
 pub mod dragonknight;
-pub mod sorcerer;
 pub mod nightblade;
+pub mod sorcerer;
 pub mod templar;
 pub mod warden;
-pub mod arcanist;
 pub mod weapon;
 
 use crate::domain::PassiveData;
 use once_cell::sync::Lazy;
 
+pub use arcanist::ARCANIST_PASSIVES;
 pub use dragonknight::DRAGONKNIGHT_PASSIVES;
-pub use sorcerer::SORCERER_PASSIVES;
 pub use nightblade::NIGHTBLADE_PASSIVES;
+pub use sorcerer::SORCERER_PASSIVES;
 pub use templar::TEMPLAR_PASSIVES;
 pub use warden::WARDEN_PASSIVES;
-pub use arcanist::ARCANIST_PASSIVES;
 pub use weapon::WEAPON_PASSIVES;
 
 /// All class passives combined
@@ -30,9 +30,8 @@ pub static ALL_CLASS_PASSIVES: Lazy<Vec<&'static PassiveData>> = Lazy::new(|| {
 });
 
 /// All weapon passives combined
-pub static ALL_WEAPON_PASSIVES: Lazy<Vec<&'static PassiveData>> = Lazy::new(|| {
-    WEAPON_PASSIVES.iter().collect()
-});
+pub static ALL_WEAPON_PASSIVES: Lazy<Vec<&'static PassiveData>> =
+    Lazy::new(|| WEAPON_PASSIVES.iter().collect());
 
 /// All passives (class + weapon)
 pub static ALL_PASSIVES: Lazy<Vec<&'static PassiveData>> = Lazy::new(|| {

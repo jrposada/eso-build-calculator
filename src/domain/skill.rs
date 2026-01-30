@@ -241,7 +241,13 @@ impl Skill {
             return SkillMechanic::Channeled;
         }
 
-        if self.data.damage.dots.as_ref().is_some_and(|d| !d.is_empty()) {
+        if self
+            .data
+            .damage
+            .dots
+            .as_ref()
+            .is_some_and(|d| !d.is_empty())
+        {
             return SkillMechanic::Dot;
         }
 
