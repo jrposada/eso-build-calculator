@@ -1,14 +1,8 @@
 import { BonusData } from '../data/bonuses/types';
 import { PassiveData } from '../data/passives/types';
-import {
-  ALL_SKILLS,
-  ClassSkillLineName,
-  SkillLineName,
-  WeaponSkillLineName,
-} from '../data/skills';
+import { ALL_SKILLS, SkillLineName } from '../data/skills';
 import { SkillData } from '../data/skills/types';
 import { ClassName } from '../data/types';
-import { logger } from '../infrastructure';
 
 // Base crit stats (assumed from gear/CP) - could be made configurable
 const BASE_CRIT_CHANCE = 0.15; // 15% base crit chance
@@ -82,17 +76,18 @@ export function calculatePassiveBonus(
   return totalBonus;
 }
 
-const WEAPON_SKILL_LINE_NAMES: WeaponSkillLineName[] = [
-  'Bow',
-  'TwoHanded',
-  'DestructionStaff',
-  'DualWield',
-];
+const CLASS_NAME_MAPPER: Record<ClassName, ClassName> = {
+  Arcanist: 'Arcanist',
+  Dragonknight: 'Dragonknight',
+  Nightblade: 'Nightblade',
+  Sorcerer: 'Sorcerer',
+  Templar: 'Templar',
+  Warden: 'Warden',
+  Weapon: 'Weapon',
+};
+const CLASS_NAMES: ClassName[] = Object.keys(CLASS_NAME_MAPPER) as ClassName[];
 
-const CLASS_SKILL_LINE_NAME_TO_CLASS_NAME: Record<
-  ClassSkillLineName,
-  ClassName
-> = {
+const SKILL_LINE_NAME_TO_CLASS_NAME: Record<SkillLineName, ClassName> = {
   CurativeRuneforms: 'Arcanist',
   SoldierOfApocrypha: 'Arcanist',
   HeraldOfTheTome: 'Arcanist',
@@ -111,11 +106,15 @@ const CLASS_SKILL_LINE_NAME_TO_CLASS_NAME: Record<
   AnimalCompanions: 'Warden',
   GreenBalance: 'Warden',
   WintersEmbrace: 'Warden',
+  Bow: 'Weapon',
+  TwoHanded: 'Weapon',
+  DestructionStaff: 'Weapon',
+  DualWield: 'Weapon',
 };
 
-const CLASS_SKILL_LINES_NAMES = Object.keys(
-  CLASS_SKILL_LINE_NAME_TO_CLASS_NAME,
-) as ClassSkillLineName[];
+const SKILL_LINES_NAMES = Object.keys(
+  SKILL_LINE_NAME_TO_CLASS_NAME,
+) as SkillLineName[];
 
 interface GetSkillsOptions {
   excludeBaseSkills?: boolean;
@@ -143,11 +142,18 @@ class SkillsService {
     }
   }
 
-  static getClassName(classSkillLine: ClassSkillLineName): ClassName {
-    return CLASS_SKILL_LINE_NAME_TO_CLASS_NAME[classSkillLine];
+  static getClass(skillLine: SkillLineName): ClassName {
+    return SKILL_LINE_NAME_TO_CLASS_NAME[skillLine];
   }
 
-  getSkillsByClassName(
+  static isSkillLineFromClass(
+    className: ClassName,
+    skillLineName: SkillLineName,
+  ): boolean {
+    return SKILL_LINE_NAME_TO_CLASS_NAME[skillLineName] === className;
+  }
+
+  getSkillsByClass(
     className: ClassName,
     options?: GetSkillsOptions,
   ): SkillData[] {
@@ -171,7 +177,7 @@ class SkillsService {
     });
   }
 
-  getSkillsBySkillLineName(
+  getSkillsBySkillLine(
     skillLineName: SkillLineName,
     options?: GetSkillsOptions,
   ): SkillData[] {
@@ -196,5 +202,5 @@ class SkillsService {
   }
 }
 
-export { CLASS_SKILL_LINES_NAMES, SkillsService, WEAPON_SKILL_LINE_NAMES };
+export { CLASS_NAMES, SKILL_LINES_NAMES, SkillsService };
 export type { GetSkillsOptions };

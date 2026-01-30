@@ -16,14 +16,6 @@ const ALL_CLASS_SKILLS = [
 ];
 type ClassSkillLineName = (typeof ALL_CLASS_SKILLS)[number]['skillLine'];
 type ClassClassName = (typeof ALL_CLASS_SKILLS)[number]['className'];
-const CLASS_CLASS_NAMES: ClassClassName[] = [
-  'Arcanist',
-  'Dragonknight',
-  'Nightblade',
-  'Sorcerer',
-  'Templar',
-  'Warden',
-];
 
 const ALL_WEAPON_SKILLS = [...WEAPON_SKILLS];
 type WeaponSkillLineName = (typeof ALL_WEAPON_SKILLS)[number]['skillLine'];
@@ -37,4 +29,4 @@ export type {
   SkillLineName,
   WeaponSkillLineName,
 };
-export { ALL_CLASS_SKILLS, ALL_SKILLS, ALL_WEAPON_SKILLS, CLASS_CLASS_NAMES };
+export { ALL_CLASS_SKILLS, ALL_SKILLS, ALL_WEAPON_SKILLS };

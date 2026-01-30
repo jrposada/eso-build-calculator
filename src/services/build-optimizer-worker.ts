@@ -14,8 +14,10 @@ export interface WorkerPayload {
   workerId: number;
   /** Batch of champion point combinations to evaluate */
   championPointBatches: BonusData[][];
-  /** Pre-filtered skills to generate combinations from */
-  allowedSkills: SkillData[];
+  /** Skills grouped by skill line combination - each entry is the skills available for one skill line combination */
+  skillsCombinations: SkillData[][];
+  /** Total iterations this worker will perform (for progress calculation) */
+  totalIterations: number;
   /** How often to report progress (number of evaluations) */
   progressInterval?: number;
 }
@@ -25,7 +27,7 @@ export interface WorkerPayload {
  */
 export interface WorkerProgress {
   workerId: number;
-  evaluated: number;
+  progressPercent: number;
   currentBestDamage: number | null;
 }
 
@@ -53,7 +55,7 @@ function* generateSkillCombinations(
   const skills = allowedSkills.map(Skill.fromData);
 
   // Simple combinations since morphs are already pre-selected
-  yield* generateCombinationsIterator(skills, BUILD_CONSTRAINTS.maxSkills);
+  yield* generateCombinationsIterator(skills, BUILD_CONSTRAINTS.skillCount);
 }
 
 /**
@@ -66,7 +68,8 @@ export default function evaluateBatch(
   const {
     workerId,
     championPointBatches,
-    allowedSkills,
+    skillsCombinations,
+    totalIterations,
     progressInterval = 200_000,
   } = payload;
 
@@ -74,20 +77,26 @@ export default function evaluateBatch(
   let evaluatedCount = 0;
 
   for (const championPointCombination of championPointBatches) {
-    for (const skillCombination of generateSkillCombinations(allowedSkills)) {
-      const build = new Build(skillCombination, championPointCombination);
-      if (build.isBetterThan(bestBuild)) {
-        bestBuild = build;
-      }
-      evaluatedCount++;
+    for (const skillLineSkills of skillsCombinations) {
+      for (const skillCombination of generateSkillCombinations(
+        skillLineSkills,
+      )) {
+        const build = new Build(skillCombination, championPointCombination);
+        if (build.isBetterThan(bestBuild)) {
+          bestBuild = build;
+        }
+        evaluatedCount++;
 
-      // Report progress periodically
-      if (evaluatedCount % progressInterval === 0) {
-        parentPort?.postMessage({
-          workerId,
-          evaluated: evaluatedCount,
-          currentBestDamage: bestBuild?.totalDamagePerCast ?? null,
-        } satisfies WorkerProgress);
+        // Report progress periodically
+        if (evaluatedCount % progressInterval === 0) {
+          const progressPercent =
+            totalIterations > 0 ? (evaluatedCount / totalIterations) * 100 : 0;
+          parentPort?.postMessage({
+            workerId,
+            progressPercent,
+            currentBestDamage: bestBuild?.totalDamagePerCast ?? null,
+          } satisfies WorkerProgress);
+        }
       }
     }
   }

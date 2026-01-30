@@ -1,15 +1,21 @@
 import { Command, Option } from 'commander';
 
-import { CLASS_CLASS_NAMES, ClassClassName } from '../data/skills';
+import { ClassClassName, WeaponSkillLineName } from '../data/skills';
 import { logger } from '../infrastructure';
+import { BUILD_CONSTRAINTS } from '../models/build';
 import { BuildOptimizer } from '../services/build-optimizer';
+import {
+  CLASS_NAMES,
+  SKILL_LINES_NAMES,
+  SkillsService,
+} from '../services/skills-service';
 
 interface OptimizeOptions {
   classes?: ClassClassName[];
+  weapons?: WeaponSkillLineName[];
   morphs?: string[];
   verbose: boolean;
-  workers?: number;
-  threads?: number;
+  parallelism?: number;
 }
 
 async function action(options: OptimizeOptions) {
@@ -17,10 +23,10 @@ async function action(options: OptimizeOptions) {
 
   const optimizer = new BuildOptimizer({
     verbose: options.verbose,
-    classNames: options.classes,
+    requiredClassNames: options.classes,
+    requiredWeapons: options.weapons,
     forcedMorphs: options.morphs,
-    workers: options.workers,
-    threads: options.threads,
+    workers: options.parallelism,
   });
   const build = await optimizer.findOptimalBuild();
 
@@ -34,24 +40,59 @@ async function action(options: OptimizeOptions) {
 
 const classOption = new Option(
   '-c, --classes <classes>',
-  'Require at least 1 skill line from these classes (comma-separated, max 3)',
+  `Require at least 1 skill line from these classes (comma-separated, max ${BUILD_CONSTRAINTS.classSkillLineCount})`,
 );
 classOption.argParser((value: string): ClassClassName[] => {
   const classes = value.split(',').map((c) => c.trim()) as ClassClassName[];
 
-  if (classes.length > 3) {
-    throw new Error('Maximum 3 classes allowed');
+  if (classes.length > BUILD_CONSTRAINTS.classSkillLineCount) {
+    throw new Error(
+      `Maximum ${BUILD_CONSTRAINTS.classSkillLineCount} classes allowed`,
+    );
   }
 
+  const validClassNames = CLASS_NAMES.filter(
+    (className) => className !== 'Weapon',
+  );
   for (const c of classes) {
-    if (!CLASS_CLASS_NAMES.includes(c)) {
+    if (!validClassNames.includes(c)) {
       throw new Error(
-        `Invalid class "${c}". Valid options: ${CLASS_CLASS_NAMES.join(', ')}`,
+        `Invalid class "${c}". Valid options: ${validClassNames.join(', ')}`,
       );
     }
   }
 
   return classes;
+});
+
+const weaponOption = new Option(
+  '-w, --weapons <weapons>',
+  `Require at least 1 skill line from these weapons (comma-separated, max ${BUILD_CONSTRAINTS.weaponSkillLineCount})`,
+);
+weaponOption.argParser((value: string): WeaponSkillLineName[] => {
+  const weapons = value
+    .split(',')
+    .map((w) => w.trim()) as WeaponSkillLineName[];
+
+  if (weapons.length > BUILD_CONSTRAINTS.weaponSkillLineCount) {
+    throw new Error(
+      `Maximum ${BUILD_CONSTRAINTS.weaponSkillLineCount} weapons allowed`,
+    );
+  }
+
+  const validWeaponSkillLineNames = SKILL_LINES_NAMES.filter(
+    (skillLineName): skillLineName is WeaponSkillLineName =>
+      SkillsService.getClass(skillLineName) === 'Weapon',
+  );
+  for (const w of weapons) {
+    if (!validWeaponSkillLineNames.includes(w)) {
+      throw new Error(
+        `Invalid weapon "${w}". Valid options: ${validWeaponSkillLineNames.join(', ')}`,
+      );
+    }
+  }
+
+  return weapons;
 });
 
 const morphsOption = new Option(
@@ -65,16 +106,12 @@ morphsOption.argParser((value: string): string[] => {
 const optimizeCommand = new Command('optimize')
   .description('Find the optimal build to maximize total damage per cast')
   .addOption(classOption)
+  .addOption(weaponOption)
   .addOption(morphsOption)
   .option('-v, --verbose', 'Show optimization progress', false)
   .option(
-    '-w, --workers <number>',
-    'Number of worker batches (default: CPU cores - 1)',
-    (value) => parseInt(value, 10),
-  )
-  .option(
-    '-t, --threads <number>',
-    'Max threads in worker pool (default: CPU cores - 1)',
+    '-p, --parallelism <number>',
+    'Number of worker batches (default: CPU cores / 2)',
     (value) => parseInt(value, 10),
   )
   .action(action);

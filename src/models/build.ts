@@ -14,10 +14,10 @@ import {
 import { Skill } from './skill';
 
 const BUILD_CONSTRAINTS = {
-  maxSkills: 10,
-  maxModifiers: 4,
-  maxClassSkillLines: 3,
-  maxWeaponSkillLines: 2,
+  skillCount: 10,
+  championPointCount: 4,
+  classSkillLineCount: 3,
+  weaponSkillLineCount: 2,
 };
 
 class Build {
@@ -72,7 +72,7 @@ class Build {
     // Get unique class names from class skill lines
     const classNames = new Set<ClassName>();
     for (const line of this.usedClassSkillLines) {
-      classNames.add(SkillsService.getClassName(line));
+      classNames.add(SkillsService.getClass(line));
     }
     // If all class skill lines belong to the same class, that's the required class
     if (classNames.size === 1) {
@@ -105,10 +105,11 @@ class Build {
   /** Validate build against constraints */
   isValid(): boolean {
     return (
-      this.skills.length <= BUILD_CONSTRAINTS.maxSkills &&
-      this.modifiers.length <= BUILD_CONSTRAINTS.maxModifiers &&
-      this.usedClassSkillLines.length <= BUILD_CONSTRAINTS.maxClassSkillLines &&
-      this.usedWeaponSkillLines.length <= BUILD_CONSTRAINTS.maxWeaponSkillLines
+      this.skills.length <= BUILD_CONSTRAINTS.skillCount &&
+      this.modifiers.length <= BUILD_CONSTRAINTS.championPointCount &&
+      this.usedClassSkillLines.length <=
+        BUILD_CONSTRAINTS.classSkillLineCount &&
+      this.usedWeaponSkillLines.length <= BUILD_CONSTRAINTS.weaponSkillLineCount
     );
   }
 

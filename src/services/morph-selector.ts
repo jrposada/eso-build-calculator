@@ -1,4 +1,5 @@
 import { SkillData } from '../data/skills/types';
+import { logger } from '../infrastructure/logger';
 import { Skill } from '../models/skill';
 
 interface MorphSelectorOptions {
@@ -17,6 +18,13 @@ class MorphSelector {
    * or forced selections from CLI options.
    */
   selectMorphs(skills: SkillData[]): SkillData[] {
+    const invalidMorphs = this.validateForcedMorphs(skills);
+    if (invalidMorphs.length > 0) {
+      logger.warn(
+        `Warning: The following morph names are invalid and will be ignored: ${invalidMorphs.sort().join(', ')}`,
+      );
+    }
+
     // Group skills by base skill name
     const skillsByBase = new Map<string, SkillData[]>();
     for (const skill of skills) {
@@ -48,7 +56,7 @@ class MorphSelector {
   /**
    * Returns list of invalid morph names that don't exist in the skill list
    */
-  validateForcedMorphs(skills: SkillData[]): string[] {
+  private validateForcedMorphs(skills: SkillData[]): string[] {
     const validMorphNames = new Set(skills.map((s) => s.name));
     const invalidMorphs: string[] = [];
 

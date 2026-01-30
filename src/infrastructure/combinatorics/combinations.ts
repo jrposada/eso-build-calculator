@@ -72,7 +72,16 @@ function* generateCombinationsIterator<T>(
   yield* backtrack(0, []);
 }
 
+/**
+ * Compute the Cartesian product of two arrays of arrays.
+ * Each result is the concatenation of one element from the first array with one from the second.
+ */
+function cartesianProduct<T, U>(first: T[][], second: U[][]): (T | U)[][] {
+  return first.flatMap((a) => second.map((b) => [...a, ...b]));
+}
+
 export {
+  cartesianProduct,
   countCombinations,
   generateCombinations,
   generateCombinationsIterator,

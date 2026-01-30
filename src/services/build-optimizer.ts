@@ -4,15 +4,18 @@ import Piscina from 'piscina';
 
 import { CHAMPION_POINTS } from '../data/bonuses/champion-points/champion-points';
 import { ChampionPointBonus } from '../data/bonuses/champion-points/types';
-import { CLASS_CLASS_NAMES, ClassClassName } from '../data/skills';
+import {
+  ALL_SKILLS,
+  ClassClassName,
+  WeaponSkillLineName,
+} from '../data/skills';
 import { SkillData } from '../data/skills/types';
-import { ClassName } from '../data/types';
 import { batch, logger, table } from '../infrastructure';
 import {
+  cartesianProduct,
   countCombinations,
   generateCombinations,
 } from '../infrastructure/combinatorics';
-import { MorphSelector } from './morph-selector';
 import { Build, BUILD_CONSTRAINTS } from '../models/build';
 import { Skill } from '../models/skill';
 import type {
@@ -20,7 +23,12 @@ import type {
   WorkerProgress,
   WorkerResult,
 } from './build-optimizer-worker';
-import { SkillsService } from './skills-service';
+import { MorphSelector } from './morph-selector';
+import {
+  CLASS_NAMES,
+  SKILL_LINES_NAMES,
+  SkillsService,
+} from './skills-service';
 
 function getDefaultParallelism(): number {
   return Math.max(1, Math.floor(os.cpus().length / 2));
@@ -28,44 +36,65 @@ function getDefaultParallelism(): number {
 
 interface BuildOptimizerOptions {
   verbose?: boolean;
-  classNames?: ClassClassName[];
+  requiredClassNames?: ClassClassName[];
+  requiredWeapons?: WeaponSkillLineName[];
   forcedMorphs?: string[];
   skills?: SkillData[];
   workers?: number;
-  threads?: number;
 }
 
 class BuildOptimizer {
   private readonly skillsService: SkillsService;
+  private readonly morphSelector: MorphSelector;
   private readonly verbose: boolean;
   private readonly workers: number;
-  private readonly threads: number;
 
   private readonly requiredClassNames: ClassClassName[];
-  private readonly classNames: Set<ClassName>;
+  private readonly requiredWeapons: WeaponSkillLineName[];
+  private readonly classNames: Set<ClassClassName>;
+  private readonly weaponSkillLinesNames: Set<WeaponSkillLineName>;
+  private readonly skillNames: Set<string>;
 
   private readonly championPointCombinations: ChampionPointBonus[][];
-  private readonly classClassNameCombinations: ClassClassName[][];
-  private readonly allowedSkills: SkillData[] = [];
-
-  private readonly allowedSkillsCombinationsCount: number;
+  private readonly skillsCombinations;
+  private readonly skillCombinationsCount: number;
 
   // Track progress for each worker
   private readonly workerProgress = new Map<
     number,
-    { evaluated: number; bestDamage: number | null }
+    { progressPercent: number; bestDamage: number | null }
   >();
 
   constructor(options?: BuildOptimizerOptions) {
-    this.skillsService = new SkillsService(options?.skills);
-    this.requiredClassNames = options?.classNames ?? [];
+    this.morphSelector = new MorphSelector({
+      forcedMorphs: options?.forcedMorphs,
+    });
+
+    if (options?.verbose) {
+      logger.dim(
+        `Total skills before greedy morph selection: ${(options?.skills ?? ALL_SKILLS).length.toLocaleString()}`,
+      );
+    }
+
+    const skills = this.morphSelector.selectMorphs(
+      options?.skills ?? ALL_SKILLS,
+    );
+
+    if (options?.verbose) {
+      logger.dim(
+        `Total skills after greedy morph selection: ${skills.length.toLocaleString()}`,
+      );
+    }
+
+    this.skillsService = new SkillsService(skills);
+    this.requiredClassNames = options?.requiredClassNames ?? [];
+    this.requiredWeapons = options?.requiredWeapons ?? [];
     this.verbose = options?.verbose ?? false;
     this.workers = options?.workers ?? getDefaultParallelism();
-    this.threads = options?.threads ?? getDefaultParallelism();
 
     this.championPointCombinations = generateCombinations(
       CHAMPION_POINTS,
-      BUILD_CONSTRAINTS.maxModifiers,
+      BUILD_CONSTRAINTS.championPointCount,
     );
 
     if (this.verbose) {
@@ -74,88 +103,125 @@ class BuildOptimizer {
       );
     }
 
-    this.classNames = new Set<ClassName>(); // TODO: Add Weapons in the future. They work slightly different than classes.
-    this.classClassNameCombinations = generateCombinations(
-      CLASS_CLASS_NAMES,
-      BUILD_CONSTRAINTS.maxClassSkillLines,
+    this.classNames = new Set<ClassClassName>();
+    const classClassNameCombinations = generateCombinations(
+      CLASS_NAMES.filter(
+        (className): className is ClassClassName => className !== 'Weapon',
+      ),
+      BUILD_CONSTRAINTS.classSkillLineCount,
     ).filter((combination) => {
+      let hasRequiredClass = this.requiredClassNames.length === 0;
+
       if (this.requiredClassNames.length > 0) {
-        const hasRequiredClass = this.requiredClassNames.every((className) =>
-          combination.includes(className),
+        hasRequiredClass = this.requiredClassNames.every((requiredClassName) =>
+          combination.some((className) => className === requiredClassName),
         );
-
-        if (hasRequiredClass) {
-          combination.forEach((className) => this.classNames.add(className));
-        }
-
-        return hasRequiredClass;
       }
 
-      combination.forEach((className) => this.classNames.add(className));
-
-      return true;
-    });
-
-    if (this.verbose) {
-      logger.dim(
-        `Generated ${this.classClassNameCombinations.length.toLocaleString()} class skill line combinations using ${this.classNames.size} classes`,
-      );
-    }
-
-    // Gather all skills from allowed classes
-    const allSkills = [...this.classNames].flatMap((className) => {
-      const skills = this.skillsService.getSkillsByClassName(className, {
-        excludeBaseSkills: true,
-        excludeUltimates: true,
-        excludeNonDamaging: true,
-      });
-
-      if (this.verbose) {
-        logger.dim(`Class: ${className}, Skills found: ${skills.length}`);
+      if (hasRequiredClass) {
+        combination.forEach((className) => this.classNames.add(className));
       }
 
-      return skills;
+      return hasRequiredClass;
     });
 
     if (this.verbose) {
       logger.dim(
-        `Total skills before morph selection: ${allSkills.length.toLocaleString()}`,
+        [
+          `Generated ${classClassNameCombinations.length.toLocaleString()}`,
+          `class combinations using ${this.classNames.size} classes`,
+          `(required: ${this.requiredClassNames.sort().join(', ') || 'none'})`,
+        ].join(' '),
       );
     }
 
-    // Use MorphSelector to pre-select one morph per base skill
-    const morphSelector = new MorphSelector({
-      forcedMorphs: options?.forcedMorphs,
+    const classSkillLineCombinations = classClassNameCombinations.map(
+      (classCombination) =>
+        classCombination.flatMap((className) =>
+          SKILL_LINES_NAMES.filter((skillLine) =>
+            SkillsService.isSkillLineFromClass(className, skillLine),
+          ),
+        ),
+    );
+
+    this.weaponSkillLinesNames = new Set<WeaponSkillLineName>();
+    const weaponSkillLinesCombinations = generateCombinations(
+      SKILL_LINES_NAMES.filter(
+        (skillLineName): skillLineName is WeaponSkillLineName =>
+          SkillsService.getClass(skillLineName) === 'Weapon',
+      ),
+      BUILD_CONSTRAINTS.weaponSkillLineCount,
+    ).filter((combination) => {
+      let hasRequiredWeapon = this.requiredWeapons.length === 0;
+
+      if (this.requiredWeapons.length > 0) {
+        hasRequiredWeapon = this.requiredWeapons.every(
+          (requiredWeaponSkillLineName) =>
+            combination.some(
+              (weaponSkillLineName) =>
+                weaponSkillLineName === requiredWeaponSkillLineName,
+            ),
+        );
+      }
+
+      if (hasRequiredWeapon) {
+        combination.forEach((weaponSkillLineName) =>
+          this.weaponSkillLinesNames.add(weaponSkillLineName),
+        );
+      }
+
+      return hasRequiredWeapon;
     });
-
-    // Validate forced morphs and warn about invalid names
-    const invalidMorphs = morphSelector.validateForcedMorphs(allSkills);
-    if (invalidMorphs.length > 0) {
-      logger.warn(
-        `Warning: The following morph names are invalid and will be ignored: ${invalidMorphs.join(', ')}`,
-      );
-    }
-
-    // Select one morph per base skill (greedy or forced)
-    this.allowedSkills = morphSelector.selectMorphs(allSkills);
 
     if (this.verbose) {
       logger.dim(
-        `After morph selection: ${this.allowedSkills.length.toLocaleString()} skills (one per base skill)`,
+        [
+          `Generated ${weaponSkillLinesCombinations.length.toLocaleString()}`,
+          `weapon skill line combinations using ${this.weaponSkillLinesNames.size} weapons`,
+          `(required: ${this.requiredWeapons.sort().join(', ') || 'none'})`,
+        ].join(' '),
       );
     }
 
-    // Simple combination count since morphs are already pre-selected
-    this.allowedSkillsCombinationsCount = countCombinations(
-      this.allowedSkills,
-      BUILD_CONSTRAINTS.maxSkills,
+    const skillLineCombinations = cartesianProduct(
+      classSkillLineCombinations,
+      weaponSkillLinesCombinations,
     );
 
     if (this.verbose) {
       logger.dim(
-        `Total skill combinations: ${this.allowedSkillsCombinationsCount.toLocaleString()}`,
+        [
+          `Generated ${skillLineCombinations.length.toLocaleString()}`,
+          'total skill line combinations (class + weapon)',
+        ].join(' '),
       );
     }
+
+    this.skillNames = new Set<string>();
+    this.skillsCombinations = skillLineCombinations.map(
+      (skillLineCombination) =>
+        skillLineCombination.flatMap((skillLine) => {
+          const skillLineSkills = this.skillsService.getSkillsBySkillLine(
+            skillLine,
+            {
+              excludeBaseSkills: true,
+              excludeUltimates: true,
+              excludeNonDamaging: true,
+            },
+          );
+
+          skillLineSkills.forEach((skill) => this.skillNames.add(skill.name));
+
+          return skillLineSkills;
+        }),
+    );
+
+    // Calculate total skill combinations across all skill line combinations
+    this.skillCombinationsCount = this.skillsCombinations.reduce(
+      (sum, skills) =>
+        sum + countCombinations(skills, BUILD_CONSTRAINTS.skillCount),
+      0,
+    );
 
     logger.info(this.toString());
   }
@@ -177,7 +243,7 @@ class BuildOptimizer {
     // Create worker pool
     const pool = new Piscina({
       filename: workerPath,
-      maxThreads: this.threads,
+      maxThreads: this.workers,
     });
 
     this.registerWorkerProgressHandlers(pool);
@@ -192,28 +258,9 @@ class BuildOptimizer {
     ).map((cpBatch, i) => ({
       workerId: i + 1,
       championPointBatches: cpBatch,
-      allowedSkills: this.allowedSkills,
+      skillsCombinations: this.skillsCombinations,
+      totalIterations: cpBatch.length * this.skillCombinationsCount,
     }));
-
-    if (this.verbose) {
-      const tableData: string[][] = batches.map((batch, i) => [
-        `Worker ${i + 1}`,
-        (
-          batch.championPointBatches.length *
-          this.allowedSkillsCombinationsCount
-        ).toLocaleString(),
-      ]);
-
-      logger.info(
-        table(tableData, {
-          title: 'Worker Distribution',
-          columns: [
-            { header: 'Worker', width: 10 },
-            { header: 'Iterations', width: 25, align: 'right' },
-          ],
-        }),
-      );
-    }
 
     logger.info(`Starting ${batches.length} worker(s)...`);
 
@@ -258,109 +305,66 @@ class BuildOptimizer {
   toString(): string {
     const lines: string[] = [];
 
-    // Configuration table
-    const configData: string[][] = [
-      ['Max Skills', BUILD_CONSTRAINTS.maxSkills.toString()],
-      ['Max Modifiers', BUILD_CONSTRAINTS.maxModifiers.toString()],
-      [
-        'Max Class Skill Lines',
-        BUILD_CONSTRAINTS.maxClassSkillLines.toString(),
-      ],
-      [
-        'Max Weapon Skill Lines',
-        BUILD_CONSTRAINTS.maxWeaponSkillLines.toString(),
-      ],
-    ];
-
     lines.push(
-      table(configData, {
-        title: 'Build Constraints',
-        columns: [
-          { header: 'Constraint', width: 25 },
-          { header: 'Value', width: 10, align: 'right' },
+      table(
+        [
+          ['Skills', BUILD_CONSTRAINTS.skillCount.toString()],
+          ['Champion Points', BUILD_CONSTRAINTS.championPointCount.toString()],
+          [
+            'Class Skill Lines',
+            BUILD_CONSTRAINTS.classSkillLineCount.toString(),
+          ],
+          [
+            'Weapon Skill Lines',
+            BUILD_CONSTRAINTS.weaponSkillLineCount.toString(),
+          ],
+          ['Workers', this.workers.toString()],
         ],
-      }),
+        {
+          title: 'Configuration',
+          columns: [
+            { header: 'Constraint', width: 25 },
+            { header: 'Value', width: 10, align: 'right' },
+          ],
+        },
+      ),
     );
 
-    // Classes table
-    const usedClassesStr = [...this.classNames].join(', ') || 'None';
-    const requiredClassesStr = this.requiredClassNames.join(', ') || 'None';
+    const usedClassesStr = [...this.classNames].sort().join(', ') || 'None';
+    const requiredClassesStr =
+      this.requiredClassNames.sort().join(', ') || 'None';
+    const usedWeaponsStr =
+      [...this.weaponSkillLinesNames].sort().join(', ') || 'None';
+    const requiredWeaponsStr = this.requiredWeapons.sort().join(', ') || 'None';
     const classesColumnWidth = Math.max(
       'Classes'.length,
       usedClassesStr.length,
       requiredClassesStr.length,
     );
-
-    const classesData: string[][] = [
-      ['Used Classes', usedClassesStr],
-      ['Required Classes', requiredClassesStr],
-    ];
-
     lines.push(
-      table(classesData, {
-        title: 'Class Configuration',
-        columns: [
-          { header: 'Setting', width: 20 },
-          { header: 'Classes', width: classesColumnWidth },
+      table(
+        [
+          ['Used Classes', usedClassesStr],
+          ['Required Classes', requiredClassesStr],
+          ['Used Weapons', usedWeaponsStr],
+          ['Required Weapons', requiredWeaponsStr],
+          ['Used Champion Points', CHAMPION_POINTS.length.toString()],
+          ['Required Champion Points', 'N/A'],
         ],
-      }),
+        {
+          title: 'Skill Line Configuration',
+          columns: [
+            { header: 'Setting', width: 25 },
+            { header: 'Name', width: classesColumnWidth },
+          ],
+        },
+      ),
     );
 
-    const tableData: string[][] = this.classClassNameCombinations.map(
-      (combination, i) => [String(i + 1), combination.join(', ')],
-    );
-
+    const totalCombinations =
+      this.championPointCombinations.length * this.skillCombinationsCount;
     lines.push(
-      table(tableData, {
-        title: 'Class Skill Line Combinations',
-        columns: [
-          { header: '#', width: 5, align: 'right' },
-          { header: 'Classes', width: 50 },
-        ],
-      }),
-    );
-
-    // Combinations table
-    const combinationsData: string[][] = [
-      [
-        'Champion Points',
-        this.championPointCombinations.length.toLocaleString(),
-      ],
-      [
-        'Class Skill Lines',
-        this.classClassNameCombinations.length.toLocaleString(),
-      ],
-      ['Allowed Skills', this.allowedSkills.length.toLocaleString()],
-      [
-        'Skill Combinations',
-        this.allowedSkillsCombinationsCount.toLocaleString(),
-      ],
-    ];
-
-    lines.push(
-      table(combinationsData, {
-        title: 'Combination Counts',
-        columns: [
-          { header: 'Type', width: 20 },
-          { header: 'Count', width: 20, align: 'right' },
-        ],
-      }),
-    );
-
-    // Worker configuration table
-    const workerData: string[][] = [
-      ['Workers', this.workers.toString()],
-      ['Threads per Worker', this.threads.toString()],
-    ];
-
-    lines.push(
-      table(workerData, {
-        title: 'Parallelism',
-        columns: [
-          { header: 'Setting', width: 20 },
-          { header: 'Value', width: 10, align: 'right' },
-        ],
-      }),
+      `Estimated total combinations to evaluate: ${totalCombinations.toLocaleString()}`,
     );
 
     return lines.join('\n');
@@ -369,21 +373,21 @@ class BuildOptimizer {
   private registerWorkerProgressHandlers(pool: Piscina) {
     pool.on('message', (message: WorkerProgress) => {
       this.workerProgress.set(message.workerId, {
-        evaluated: message.evaluated,
+        progressPercent: message.progressPercent,
         bestDamage: message.currentBestDamage,
       });
 
       // Build table data from all workers
       const tableData: string[][] = [];
-      let totalEvaluated = 0;
+      let totalPercent = 0;
       let overallBestDamage: number | null = null;
 
       for (let i = 1; i <= this.workers; i++) {
         const progress = this.workerProgress.get(i);
-        const evaluated = progress?.evaluated ?? 0;
+        const progressPercent = progress?.progressPercent ?? 0;
         const bestDamage = progress?.bestDamage;
 
-        totalEvaluated += evaluated;
+        totalPercent += progressPercent;
         if (bestDamage !== null && bestDamage !== undefined) {
           if (overallBestDamage === null || bestDamage > overallBestDamage) {
             overallBestDamage = bestDamage;
@@ -392,21 +396,22 @@ class BuildOptimizer {
 
         tableData.push([
           `Worker ${i}`,
-          evaluated.toLocaleString(),
+          `${progressPercent.toFixed(1)}%`,
           bestDamage !== null && bestDamage !== undefined
             ? bestDamage.toFixed(2)
             : '-',
         ]);
       }
 
+      const averagePercent = totalPercent / this.workers;
       const progressTable = table(tableData, {
         title: 'Worker Progress',
         columns: [
           { header: 'Worker', width: 10 },
-          { header: 'Evaluated', width: 25, align: 'right' },
+          { header: 'Progress', width: 15, align: 'right' },
           { header: 'Best Damage', width: 15, align: 'right' },
         ],
-        footer: `Total: ${totalEvaluated.toLocaleString()} evaluated${overallBestDamage !== null ? ` | Best: ${overallBestDamage.toFixed(2)}` : ''}`,
+        footer: `Overall: ${averagePercent.toFixed(1)}%${overallBestDamage !== null ? ` | Best: ${overallBestDamage.toFixed(2)}` : ''}`,
       });
 
       logger.progressMultiline(progressTable);

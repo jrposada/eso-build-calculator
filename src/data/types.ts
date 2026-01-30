@@ -3,7 +3,6 @@ export type ClassName =
   | 'Sorcerer'
   | 'Nightblade'
   | 'Warden'
-  | 'Necromancer'
   | 'Templar'
   | 'Arcanist'
   | 'Weapon';
