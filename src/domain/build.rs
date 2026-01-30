@@ -1,5 +1,6 @@
 use crate::data::{ClassName, SkillLineName};
 use crate::domain::{BonusData, PassiveData, Skill};
+use crate::infrastructure::format;
 use crate::services::{calculate_passive_bonus, get_passives_by_skill_line};
 use std::collections::{HashMap, HashSet};
 
@@ -197,7 +198,7 @@ impl Build {
         lines.push(divider.clone());
         lines.push(format!(
             "Total Damage: {}",
-            format_number(self.total_damage)
+            format::format_number(self.total_damage as u64) // FIXME
         ));
         lines.push(String::new());
 
@@ -300,17 +301,4 @@ impl Build {
 
         lines.join("\n")
     }
-}
-
-fn format_number(n: f64) -> String {
-    let n = n as i64;
-    let s = n.to_string();
-    let mut result = String::new();
-    for (i, c) in s.chars().rev().enumerate() {
-        if i > 0 && i % 3 == 0 {
-            result.push(',');
-        }
-        result.push(c);
-    }
-    result.chars().rev().collect()
 }

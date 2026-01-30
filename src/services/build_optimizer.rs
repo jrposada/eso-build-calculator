@@ -2,7 +2,8 @@ use crate::data::bonuses::CHAMPION_POINTS;
 use crate::data::skills::ALL_SKILLS;
 use crate::data::{ClassName, SkillLineName};
 use crate::domain::{BonusData, Build, ChampionPointBonus, Skill, SkillData, BUILD_CONSTRAINTS};
-use crate::infrastructure::{combinatorics, logger, table};
+use crate::infrastructure::{combinatorics, format, logger, table};
+use crate::services::skills_service::SkillsServiceOptions;
 use crate::services::{GetSkillsOptions, MorphSelector, MorphSelectorOptions, SkillsService};
 use rayon::prelude::*;
 use std::collections::HashSet;
@@ -14,33 +15,29 @@ use std::time::Instant;
 pub struct BuildOptimizerOptions {
     pub verbose: bool,
     pub required_class_names: Vec<ClassName>,
-    pub required_weapons: Vec<SkillLineName>,
+    pub required_weapon_skill_lines: Vec<SkillLineName>,
     pub forced_morphs: Vec<String>,
+    pub parallelism: u8,
 }
 
 /// Build optimizer that finds the optimal skill/champion point combination
 pub struct BuildOptimizer {
-    #[allow(dead_code)]
-    skills_service: SkillsService,
-    #[allow(dead_code)]
-    verbose: bool,
-
     required_class_names: Vec<ClassName>,
-    required_weapons: Vec<SkillLineName>,
     class_names: HashSet<ClassName>,
+    required_weapon_skill_lines: Vec<SkillLineName>,
     weapon_skill_line_names: HashSet<SkillLineName>,
-    #[allow(dead_code)]
     skill_names: HashSet<String>,
+    parallelism: u8,
 
     champion_point_combinations: Vec<Vec<ChampionPointBonus>>,
     skills_combinations: Vec<Vec<&'static SkillData>>,
-    skill_combinations_count: u64,
+    total_possible_build_count: u64,
 }
 
 impl BuildOptimizer {
     pub fn new(options: BuildOptimizerOptions) -> Self {
         let morph_selector = MorphSelector::new(MorphSelectorOptions {
-            forced_morphs: options.forced_morphs.clone(),
+            forced_morphs: options.forced_morphs,
         });
 
         if options.verbose {
@@ -60,10 +57,13 @@ impl BuildOptimizer {
             ));
         }
 
-        let skills_service = SkillsService::new();
+        let skills_service = SkillsService::new(SkillsServiceOptions {
+            skills: Some(skills),
+        });
         let required_class_names = options.required_class_names;
-        let required_weapons = options.required_weapons;
+        let required_weapon_skill_lines = options.required_weapon_skill_lines;
         let verbose = options.verbose;
+        let parallelism = options.parallelism;
 
         // Generate champion point combinations
         let cp_vec: Vec<_> = CHAMPION_POINTS.iter().cloned().collect();
@@ -122,7 +122,8 @@ impl BuildOptimizer {
             ));
         }
 
-        // Map class combinations to skill line combinations
+        // Map class combinations to class skill line combinations by expanding
+        // skill lines
         let class_skill_line_combinations: Vec<Vec<SkillLineName>> = class_class_name_combinations
             .iter()
             .map(|class_combination| {
@@ -142,10 +143,10 @@ impl BuildOptimizer {
             )
             .into_iter()
             .filter(|combination| {
-                let has_required_weapon = if required_weapons.is_empty() {
+                let has_required_weapon = if required_weapon_skill_lines.is_empty() {
                     true
                 } else {
-                    required_weapons
+                    required_weapon_skill_lines
                         .iter()
                         .all(|required| combination.contains(required))
                 };
@@ -161,10 +162,10 @@ impl BuildOptimizer {
             .collect();
 
         if verbose {
-            let required_str = if required_weapons.is_empty() {
+            let required_str = if required_weapon_skill_lines.is_empty() {
                 "none".to_string()
             } else {
-                required_weapons
+                required_weapon_skill_lines
                     .iter()
                     .map(|w| w.to_string())
                     .collect::<Vec<_>>()
@@ -191,14 +192,13 @@ impl BuildOptimizer {
             ));
         }
 
-        // Get skills for each skill line combination
+        // Map skill line combinations to skills by expanding skill lines
         let mut skill_names: HashSet<String> = HashSet::new();
         let filter_options = GetSkillsOptions {
             exclude_base_skills: true,
             exclude_ultimates: true,
             exclude_non_damaging: true,
         };
-
         let skills_combinations: Vec<Vec<&'static SkillData>> = skill_line_combinations
             .iter()
             .map(|skill_line_combination| {
@@ -223,18 +223,19 @@ impl BuildOptimizer {
                 combinatorics::count_combinations(skills.len(), BUILD_CONSTRAINTS.skill_count)
             })
             .sum();
+        let total_possible_build_count =
+            champion_point_combinations.len() as u64 * skill_combinations_count;
 
         let optimizer = Self {
-            skills_service,
-            verbose,
             required_class_names,
-            required_weapons,
             class_names,
+            required_weapon_skill_lines,
             weapon_skill_line_names,
             skill_names,
+            parallelism,
             champion_point_combinations,
             skills_combinations,
-            skill_combinations_count,
+            total_possible_build_count,
         };
 
         logger::info(&optimizer.to_string());
@@ -246,12 +247,10 @@ impl BuildOptimizer {
     /// Uses Rayon for parallel evaluation
     pub fn find_optimal_build(&self) -> Option<Build> {
         let start_time = Instant::now();
-        let total_combinations =
-            self.champion_point_combinations.len() as u64 * self.skill_combinations_count;
 
         logger::info(&format!(
             "Starting optimization with {} total combinations...",
-            format_number(total_combinations as i64)
+            format::format_number(self.total_possible_build_count)
         ));
 
         let evaluated_count = AtomicU64::new(0);
@@ -301,7 +300,8 @@ impl BuildOptimizer {
                         if count % 100_000 == 0 {
                             let last = last_progress_update.swap(count, Ordering::Relaxed);
                             if count > last {
-                                let progress = (count as f64 / total_combinations as f64) * 100.0;
+                                let progress =
+                                    (count as f64 / self.total_possible_build_count as f64) * 100.0;
                                 let elapsed = start_time.elapsed().as_secs_f64();
                                 let eta = if progress > 0.0 {
                                     elapsed * (100.0 - progress) / progress
@@ -313,9 +313,9 @@ impl BuildOptimizer {
                                 logger::progress(&format!(
                                     "Progress: {:.1}% ({}) | Best: {} | ETA: {}",
                                     progress,
-                                    format_number(count as i64),
-                                    format_number(best as i64),
-                                    format_duration(eta)
+                                    format::format_number(count),
+                                    format::format_number(best as u64), // FIXME: potential loss of precision
+                                    format::format_duration((eta * 1000.0) as u64) // FIXME
                                 ));
                             }
                         }
@@ -345,7 +345,7 @@ impl BuildOptimizer {
 
         logger::info(&format!(
             "Completed: {} builds evaluated in {:.1}s",
-            format_number(total_evaluated as i64),
+            format::format_number(total_evaluated),
             elapsed.as_secs_f64()
         ));
 
@@ -427,7 +427,7 @@ impl std::fmt::Display for BuildOptimizer {
         };
 
         let required_weapons: Vec<_> = self
-            .required_weapons
+            .required_weapon_skill_lines
             .iter()
             .map(|w| w.to_string())
             .collect();
@@ -461,6 +461,10 @@ impl std::fmt::Display for BuildOptimizer {
                 CHAMPION_POINTS.len().to_string(),
             ],
             vec!["Required Champion Points".to_string(), "N/A".to_string()],
+            vec![
+                "Used Skills".to_string(),
+                self.skill_names.len().to_string(),
+            ],
         ];
 
         lines.push(table::table(
@@ -475,39 +479,11 @@ impl std::fmt::Display for BuildOptimizer {
             },
         ));
 
-        let total_combinations =
-            self.champion_point_combinations.len() as u64 * self.skill_combinations_count;
         lines.push(format!(
-            "Estimated total combinations to evaluate: {}",
-            format_number(total_combinations as i64)
+            "Total builds to be evaluated: {}",
+            format::format_number(self.total_possible_build_count)
         ));
 
         write!(f, "{}", lines.join("\n"))
-    }
-}
-
-fn format_number(n: i64) -> String {
-    let s = n.to_string();
-    let mut result = String::new();
-    for (i, c) in s.chars().rev().enumerate() {
-        if i > 0 && i % 3 == 0 {
-            result.push(',');
-        }
-        result.push(c);
-    }
-    result.chars().rev().collect()
-}
-
-fn format_duration(seconds: f64) -> String {
-    let secs = seconds as u64;
-    let mins = secs / 60;
-    let hours = mins / 60;
-
-    if hours > 0 {
-        format!("{}h {}m", hours, mins % 60)
-    } else if mins > 0 {
-        format!("{}m {}s", mins, secs % 60)
-    } else {
-        format!("{}s", secs)
     }
 }

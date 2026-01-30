@@ -114,12 +114,11 @@ impl Default for MorphSelector {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::services::SkillsService;
+    use crate::data::skills::ALL_SKILLS;
 
     #[test]
     fn test_morph_selector_groups_by_base() {
-        let service = SkillsService::new();
-        let skills: Vec<_> = service.get_all_skills(&Default::default());
+        let skills: Vec<_> = ALL_SKILLS.iter().copied().collect();
         let selector = MorphSelector::default();
 
         let selected = selector.select_morphs(&skills);
@@ -140,8 +139,7 @@ mod tests {
 
     #[test]
     fn test_forced_morphs() {
-        let service = SkillsService::new();
-        let skills: Vec<_> = service.get_all_skills(&Default::default());
+        let skills: Vec<_> = ALL_SKILLS.iter().copied().collect();
 
         // Find a skill to force
         let forced_skill = skills.iter().find(|s| s.name != s.base_skill_name);

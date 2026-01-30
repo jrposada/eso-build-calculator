@@ -22,6 +22,10 @@ pub struct OptimizeArgs {
     /// Show optimization progress
     #[arg(short = 'v', long)]
     pub verbose: bool,
+
+    /// Number of parallel threads to use (default: half of available CPUs)
+    #[arg(short = 'p', long)]
+    pub parallelism: Option<u8>,
 }
 
 fn parse_class_name(s: &str) -> Result<ClassName, String> {
@@ -83,8 +87,11 @@ impl OptimizeArgs {
         let optimizer = BuildOptimizer::new(BuildOptimizerOptions {
             verbose: self.verbose,
             required_class_names: self.classes.clone().unwrap_or_default(),
-            required_weapons: self.weapons.clone().unwrap_or_default(),
+            required_weapon_skill_lines: self.weapons.clone().unwrap_or_default(),
             forced_morphs: self.morphs.clone().unwrap_or_default(),
+            parallelism: self
+                .parallelism
+                .unwrap_or_else(|| (num_cpus::get() / 2).max(1) as u8),
         });
 
         let build = optimizer.find_optimal_build();

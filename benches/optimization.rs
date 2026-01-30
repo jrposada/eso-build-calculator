@@ -8,7 +8,7 @@ fn benchmark_optimize_single_class(c: &mut Criterion) {
             let optimizer = BuildOptimizer::new(BuildOptimizerOptions {
                 verbose: false,
                 required_class_names: vec![ClassName::Dragonknight],
-                required_weapons: vec![],
+                required_weapon_skill_lines: vec![],
                 forced_morphs: vec![],
             });
             black_box(optimizer.find_optimal_build())

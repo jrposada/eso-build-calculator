@@ -14,17 +14,29 @@ pub struct GetSkillsOptions {
     pub exclude_non_damaging: bool,
 }
 
+/// Options for morph selection
+#[derive(Debug, Clone, Default)]
+pub struct SkillsServiceOptions {
+    /// List of skills to include; if None, include all skills
+    pub skills: Option<Vec<&'static SkillData>>,
+}
+
 /// Service for querying and filtering skills
 pub struct SkillsService {
     skills_by_skill_line: HashMap<SkillLineName, Vec<&'static SkillData>>,
 }
 
 impl SkillsService {
-    pub fn new() -> Self {
+    pub fn new(options: SkillsServiceOptions) -> Self {
+        let skills = match options.skills {
+            Some(s) => s,
+            None => ALL_SKILLS.iter().copied().collect(),
+        };
+
         let mut skills_by_skill_line: HashMap<SkillLineName, Vec<&'static SkillData>> =
             HashMap::new();
 
-        for skill in ALL_SKILLS.iter() {
+        for skill in skills.iter() {
             skills_by_skill_line
                 .entry(skill.skill_line)
                 .or_default()
@@ -126,7 +138,7 @@ impl SkillsService {
 
 impl Default for SkillsService {
     fn default() -> Self {
-        Self::new()
+        Self::new(SkillsServiceOptions::default())
     }
 }
 
@@ -136,7 +148,7 @@ mod tests {
 
     #[test]
     fn test_get_skills_by_class() {
-        let service = SkillsService::new();
+        let service = SkillsService::new(SkillsServiceOptions::default());
         let skills =
             service.get_skills_by_class(ClassName::Dragonknight, &GetSkillsOptions::default());
         assert!(!skills.is_empty());
@@ -147,7 +159,7 @@ mod tests {
 
     #[test]
     fn test_get_skills_by_skill_line() {
-        let service = SkillsService::new();
+        let service = SkillsService::new(SkillsServiceOptions::default());
         let skills = service
             .get_skills_by_skill_line(SkillLineName::ArdentFlame, &GetSkillsOptions::default());
         assert!(!skills.is_empty());
@@ -158,7 +170,7 @@ mod tests {
 
     #[test]
     fn test_exclude_base_skills() {
-        let service = SkillsService::new();
+        let service = SkillsService::new(SkillsServiceOptions::default());
         let options = GetSkillsOptions {
             exclude_base_skills: true,
             ..Default::default()
@@ -170,7 +182,7 @@ mod tests {
 
     #[test]
     fn test_exclude_ultimates() {
-        let service = SkillsService::new();
+        let service = SkillsService::new(SkillsServiceOptions::default());
         let options = GetSkillsOptions {
             exclude_ultimates: true,
             ..Default::default()
@@ -181,7 +193,7 @@ mod tests {
 
     #[test]
     fn test_exclude_non_damaging() {
-        let service = SkillsService::new();
+        let service = SkillsService::new(SkillsServiceOptions::default());
         let options = GetSkillsOptions {
             exclude_non_damaging: true,
             ..Default::default()
