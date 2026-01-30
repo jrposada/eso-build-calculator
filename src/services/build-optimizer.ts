@@ -402,10 +402,19 @@ class BuildOptimizer {
       let totalPercent = 0;
       let overallBestDamage: number | null = null;
 
+      let activeWorkerCount = 0;
       for (let i = 1; i <= this.workers; i++) {
         const progress = this.workerProgress.get(i);
-        const progressPercent = progress?.progressPercent ?? 0;
-        const bestDamage = progress?.bestDamage;
+
+        // Unused workers (no progress reported) show N/A
+        if (!progress) {
+          tableData.push([`Worker ${i}`, 'N/A', 'N/A']);
+          continue;
+        }
+
+        activeWorkerCount++;
+        const progressPercent = progress.progressPercent;
+        const bestDamage = progress.bestDamage;
 
         totalPercent += progressPercent;
         if (bestDamage !== null && bestDamage !== undefined) {
@@ -423,7 +432,8 @@ class BuildOptimizer {
         ]);
       }
 
-      const averagePercent = totalPercent / this.workers;
+      const averagePercent =
+        activeWorkerCount > 0 ? totalPercent / activeWorkerCount : 0;
 
       // Calculate ETA
       let etaStr = '';
@@ -440,7 +450,7 @@ class BuildOptimizer {
           { header: 'Progress', width: 15, align: 'right' },
           { header: 'Best Damage', width: 15, align: 'right' },
         ],
-        footer: `Overall: ${averagePercent.toFixed(1)}%${overallBestDamage !== null ? ` | Best: ${overallBestDamage.toFixed(2)}` : ''}${etaStr}`,
+        footer: `Overall: ${averagePercent.toFixed(1)}%${overallBestDamage !== null ? ` | Best: ${overallBestDamage.toLocaleString()}` : ''}${etaStr}`,
       });
 
       logger.progressMultiline(progressTable);
