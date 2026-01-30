@@ -34,6 +34,20 @@ function getDefaultParallelism(): number {
   return Math.max(1, Math.floor(os.cpus().length / 2));
 }
 
+function formatDuration(ms: number): string {
+  const seconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+
+  if (hours > 0) {
+    return `${hours}h ${minutes % 60}m`;
+  }
+  if (minutes > 0) {
+    return `${minutes}m ${seconds % 60}s`;
+  }
+  return `${seconds}s`;
+}
+
 interface BuildOptimizerOptions {
   verbose?: boolean;
   requiredClassNames?: ClassClassName[];
@@ -64,6 +78,9 @@ class BuildOptimizer {
     number,
     { progressPercent: number; bestDamage: number | null }
   >();
+
+  // Track when optimization started for ETA calculation
+  private optimizationStartTime: number | null = null;
 
   constructor(options?: BuildOptimizerOptions) {
     this.morphSelector = new MorphSelector({
@@ -235,6 +252,8 @@ class BuildOptimizer {
       throw new Error('Optimization already in progress');
     }
 
+    this.optimizationStartTime = Date.now();
+
     // Determine worker script path based on whether we're in dist or src
     const workerPath = __filename.endsWith('.ts')
       ? path.resolve(__dirname, 'build-optimizer-worker.ts')
@@ -274,6 +293,7 @@ class BuildOptimizer {
     // Destroy the pool
     await pool.destroy();
     this.workerProgress.clear();
+    this.optimizationStartTime = null;
 
     // Find the best build across all worker results
     let bestResult: WorkerResult | null = null;
@@ -404,6 +424,15 @@ class BuildOptimizer {
       }
 
       const averagePercent = totalPercent / this.workers;
+
+      // Calculate ETA
+      let etaStr = '';
+      if (averagePercent > 1 && this.optimizationStartTime !== null) {
+        const elapsedMs = Date.now() - this.optimizationStartTime;
+        const etaMs = (elapsedMs * (100 - averagePercent)) / averagePercent;
+        etaStr = ` | ETA: ${formatDuration(etaMs)}`;
+      }
+
       const progressTable = table(tableData, {
         title: 'Worker Progress',
         columns: [
@@ -411,7 +440,7 @@ class BuildOptimizer {
           { header: 'Progress', width: 15, align: 'right' },
           { header: 'Best Damage', width: 15, align: 'right' },
         ],
-        footer: `Overall: ${averagePercent.toFixed(1)}%${overallBestDamage !== null ? ` | Best: ${overallBestDamage.toFixed(2)}` : ''}`,
+        footer: `Overall: ${averagePercent.toFixed(1)}%${overallBestDamage !== null ? ` | Best: ${overallBestDamage.toFixed(2)}` : ''}${etaStr}`,
       });
 
       logger.progressMultiline(progressTable);
