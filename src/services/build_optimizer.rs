@@ -5,7 +5,9 @@ use crate::domain::{BonusData, Build, ChampionPointBonus, Skill, SkillData, BUIL
 use crate::infrastructure::{combinatorics, format, logger, table};
 use crate::services::skills_service::SkillsServiceOptions;
 use crate::services::{GetSkillsOptions, MorphSelector, MorphSelectorOptions, SkillsService};
+use rayon::iter::ParallelBridge;
 use rayon::prelude::*;
+use rayon::ThreadPoolBuilder;
 use std::collections::HashSet;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Instant;
@@ -244,101 +246,95 @@ impl BuildOptimizer {
     }
 
     /// Find the optimal build that maximizes total damage per cast
-    /// Uses Rayon for parallel evaluation
+    /// Uses Rayon for parallel evaluation with fine-grained parallelism
     pub fn find_optimal_build(&self) -> Option<Build> {
         let start_time = Instant::now();
 
         logger::info(&format!(
-            "Starting optimization with {} total combinations...",
-            format::format_number(self.total_possible_build_count)
+            "Starting optimization with {} total combinations using {} threads...",
+            format::format_number(self.total_possible_build_count),
+            self.parallelism
         ));
 
         let evaluated_count = AtomicU64::new(0);
         let last_progress_update = AtomicU64::new(0);
         let best_damage = AtomicU64::new(0);
 
-        // Parallel iteration over champion point combinations
-        let best_build: Option<Build> = self
+        // Build thread pool with configured parallelism
+        let pool = ThreadPoolBuilder::new()
+            .num_threads(self.parallelism as usize)
+            .build()
+            .expect("Failed to create thread pool");
+
+        // Pre-compute CP bonuses for each combination to avoid repeated conversion
+        let cp_bonuses_list: Vec<Vec<BonusData>> = self
             .champion_point_combinations
-            .par_iter()
-            .map(|cp_combo| {
-                let cp_bonuses: Vec<BonusData> =
-                    cp_combo.iter().map(|cp| cp.to_bonus_data()).collect();
+            .iter()
+            .map(|cp_combo| cp_combo.iter().map(|cp| cp.to_bonus_data()).collect())
+            .collect();
 
-                let mut local_best: Option<Build> = None;
+        // Use fine-grained parallelism: flatten all (cp_combo, skills, skill_combo) combinations
+        // and parallelize at the individual build level using par_bridge()
+        let best_build: Option<Build> = pool.install(|| {
+            cp_bonuses_list
+                .iter()
+                .flat_map(|cp_bonuses| {
+                    self.skills_combinations.iter().flat_map(move |skills| {
+                        combinatorics::CombinationIterator::new(skills, BUILD_CONSTRAINTS.skill_count)
+                            .map(move |skill_combo| (cp_bonuses, skill_combo))
+                    })
+                })
+                .par_bridge() // Convert sequential iterator to parallel - distributes work across all threads
+                .map(|(cp_bonuses, skill_combo)| {
+                    let count = evaluated_count.fetch_add(1, Ordering::Relaxed) + 1;
 
-                for skills in &self.skills_combinations {
-                    // Generate skill combinations
-                    for skill_combo in combinatorics::CombinationIterator::new(
-                        skills,
-                        BUILD_CONSTRAINTS.skill_count,
-                    ) {
-                        let count = evaluated_count.fetch_add(1, Ordering::Relaxed) + 1;
+                    // Create skills from data
+                    let build_skills: Vec<Skill> = skill_combo
+                        .iter()
+                        .map(|&data| Skill::new(data.clone()))
+                        .collect();
 
-                        // Create skills from data
-                        let build_skills: Vec<Skill> = skill_combo
-                            .iter()
-                            .map(|&data| Skill::new(data.clone()))
-                            .collect();
+                    let build = Build::new(build_skills, cp_bonuses.clone());
+                    let damage = build.total_damage_per_cast();
 
-                        let build = Build::new(build_skills, cp_bonuses.clone());
-                        let damage = build.total_damage_per_cast();
+                    // Atomically update global best damage for progress display
+                    let damage_bits = damage.to_bits();
+                    let _ = best_damage.fetch_max(damage_bits, Ordering::Relaxed);
 
-                        // Update local best
-                        if local_best
-                            .as_ref()
-                            .is_none_or(|b| damage > b.total_damage_per_cast())
-                        {
-                            local_best = Some(build);
+                    // Progress update every 100k iterations
+                    if count % 100_000 == 0 {
+                        let last = last_progress_update.swap(count, Ordering::Relaxed);
+                        if count > last {
+                            let progress =
+                                (count as f64 / self.total_possible_build_count as f64) * 100.0;
+                            let elapsed = start_time.elapsed().as_secs_f64();
+                            let eta = if progress > 0.0 {
+                                elapsed * (100.0 - progress) / progress
+                            } else {
+                                0.0
+                            };
+                            let best = f64::from_bits(best_damage.load(Ordering::Relaxed));
 
-                            // Atomically update global best damage for progress display
-                            let damage_bits = damage.to_bits();
-                            let _ = best_damage.fetch_max(damage_bits, Ordering::Relaxed);
-                        }
-
-                        // Progress update every 100k iterations
-                        if count % 100_000 == 0 {
-                            let last = last_progress_update.swap(count, Ordering::Relaxed);
-                            if count > last {
-                                let progress =
-                                    (count as f64 / self.total_possible_build_count as f64) * 100.0;
-                                let elapsed = start_time.elapsed().as_secs_f64();
-                                let eta = if progress > 0.0 {
-                                    elapsed * (100.0 - progress) / progress
-                                } else {
-                                    0.0
-                                };
-                                let best = f64::from_bits(best_damage.load(Ordering::Relaxed));
-
-                                logger::progress(&format!(
-                                    "Progress: {:.1}% ({}) | Best: {} | ETA: {}",
-                                    progress,
-                                    format::format_number(count),
-                                    format::format_number(best as u64), // FIXME: potential loss of precision
-                                    format::format_duration((eta * 1000.0) as u64) // FIXME
-                                ));
-                            }
+                            logger::progress(&format!(
+                                "Progress: {:.1}% ({}) | Best: {} | ETA: {}",
+                                progress,
+                                format::format_number(count),
+                                format::format_number(best as u64),
+                                format::format_duration((eta * 1000.0) as u64)
+                            ));
                         }
                     }
-                }
 
-                local_best
-            })
-            .reduce(
-                || None,
-                |a, b| match (a, b) {
-                    (Some(a), Some(b)) => {
-                        if a.total_damage_per_cast() > b.total_damage_per_cast() {
-                            Some(a)
-                        } else {
-                            Some(b)
-                        }
+                    build
+                })
+                .reduce_with(|a, b| {
+                    if a.total_damage_per_cast() > b.total_damage_per_cast() {
+                        a
+                    } else {
+                        b
                     }
-                    (Some(a), None) => Some(a),
-                    (None, Some(b)) => Some(b),
-                    (None, None) => None,
-                },
-            );
+                })
+        });
 
         let total_evaluated = evaluated_count.load(Ordering::Relaxed);
         let elapsed = start_time.elapsed();
@@ -375,7 +371,7 @@ impl std::fmt::Display for BuildOptimizer {
                 "Weapon Skill Lines".to_string(),
                 BUILD_CONSTRAINTS.weapon_skill_line_count.to_string(),
             ],
-            vec!["Workers".to_string(), num_cpus::get().to_string()],
+            vec!["Workers".to_string(), self.parallelism.to_string()],
         ];
 
         lines.push(table::table(
