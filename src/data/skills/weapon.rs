@@ -107,8 +107,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Stamina,
         ),
         SkillData::new(
-            "Endless Hail*",
             "Thunderous Volley",
+            "Volley",
             ClassName::Weapon,
             SkillLineName::Bow,
             SkillDamage::new().with_dots(vec![

@@ -251,8 +251,7 @@ impl BuildOptimizer {
         let start_time = Instant::now();
 
         logger::info(&format!(
-            "Starting optimization with {} total combinations using {} threads...",
-            format::format_number(self.total_possible_build_count),
+            "Using {} threads...",
             self.parallelism
         ));
 
