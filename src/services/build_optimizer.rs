@@ -16,6 +16,7 @@ use std::time::Instant;
 #[derive(Debug, Clone, Default)]
 pub struct BuildOptimizerOptions {
     pub verbose: bool,
+    pub pure_class: Option<ClassName>,
     pub required_class_names: Vec<ClassName>,
     pub required_weapon_skill_lines: Vec<SkillLineName>,
     pub forced_morphs: Vec<String>,
@@ -62,6 +63,7 @@ impl BuildOptimizer {
         let skills_service = SkillsService::new(SkillsServiceOptions {
             skills: Some(skills),
         });
+        let pure_class = options.pure_class;
         let required_class_names = options.required_class_names;
         let required_weapon_skill_lines = options.required_weapon_skill_lines;
         let verbose = options.verbose;
@@ -81,7 +83,10 @@ impl BuildOptimizer {
 
         // Generate class combinations
         let mut class_names: HashSet<ClassName> = HashSet::new();
-        let class_class_name_combinations: Vec<Vec<ClassName>> =
+        let class_class_name_combinations: Vec<Vec<ClassName>> = if let Some(class) = pure_class {
+            class_names.insert(class);
+            vec![vec![class]]
+        } else {
             combinatorics::generate_combinations(
                 &ClassName::CLASS_ONLY.to_vec(),
                 BUILD_CONSTRAINTS.class_skill_line_count,
@@ -104,7 +109,8 @@ impl BuildOptimizer {
 
                 has_required_class
             })
-            .collect();
+            .collect()
+        };
 
         if verbose {
             let required_str = if required_class_names.is_empty() {
@@ -250,10 +256,7 @@ impl BuildOptimizer {
     pub fn find_optimal_build(&self) -> Option<Build> {
         let start_time = Instant::now();
 
-        logger::info(&format!(
-            "Using {} threads...",
-            self.parallelism
-        ));
+        logger::info(&format!("Using {} threads...", self.parallelism));
 
         let evaluated_count = AtomicU64::new(0);
         let last_progress_update = AtomicU64::new(0);
@@ -279,8 +282,11 @@ impl BuildOptimizer {
                 .iter()
                 .flat_map(|cp_bonuses| {
                     self.skills_combinations.iter().flat_map(move |skills| {
-                        combinatorics::CombinationIterator::new(skills, BUILD_CONSTRAINTS.skill_count)
-                            .map(move |skill_combo| (cp_bonuses, skill_combo))
+                        combinatorics::CombinationIterator::new(
+                            skills,
+                            BUILD_CONSTRAINTS.skill_count,
+                        )
+                        .map(move |skill_combo| (cp_bonuses, skill_combo))
                     })
                 })
                 .par_bridge() // Convert sequential iterator to parallel - distributes work across all threads

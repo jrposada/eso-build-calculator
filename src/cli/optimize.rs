@@ -10,8 +10,12 @@ use clap::Args;
 #[derive(Args, Debug)]
 pub struct OptimizeArgs {
     /// Require at least 1 skill line from these classes (comma-separated)
-    #[arg(short = 'c', long, value_delimiter = ',', value_parser = parse_class_name)]
+    #[arg(short = 'c', long, value_delimiter = ',', value_parser = parse_class_name, conflicts_with = "pure")]
     pub classes: Option<Vec<ClassName>>,
+
+    /// Use only skills from a single class (pure build)
+    #[arg(long, value_parser = parse_class_name, conflicts_with = "classes")]
+    pub pure: Option<ClassName>,
 
     /// Require at least 1 skill line from these weapons (comma-separated)
     #[arg(short = 'w', long, value_delimiter = ',', value_parser = parse_weapon)]
@@ -88,6 +92,7 @@ impl OptimizeArgs {
 
         let optimizer = BuildOptimizer::new(BuildOptimizerOptions {
             verbose: self.verbose,
+            pure_class: self.pure,
             required_class_names: self.classes.clone().unwrap_or_default(),
             required_weapon_skill_lines: self.weapons.clone().unwrap_or_default(),
             forced_morphs: self.morphs.clone().unwrap_or_default(),
