@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use crate::data::{ClassName, SkillLineName};
 use crate::domain::BUILD_CONSTRAINTS;
 use crate::infrastructure::logger;
@@ -94,7 +96,9 @@ impl OptimizeArgs {
                 .unwrap_or_else(|| (num_cpus::get() / 2).max(1) as u8),
         });
 
+        let start = Instant::now();
         let build = optimizer.find_optimal_build();
+        let elapsed = start.elapsed();
 
         match build {
             Some(b) => {
@@ -105,5 +109,7 @@ impl OptimizeArgs {
                 std::process::exit(1);
             }
         }
+
+        logger::info(&format!("Optimization completed in {:.2?}", elapsed));
     }
 }
