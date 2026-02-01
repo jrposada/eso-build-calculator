@@ -3,14 +3,11 @@ use crate::infrastructure::logger;
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
-/// Options for morph selection
 #[derive(Debug, Clone, Default)]
 pub struct MorphSelectorOptions {
-    /// Skill names to force select (overrides greedy selection)
     pub forced_morphs: Vec<String>,
 }
 
-/// Selects morphs using greedy strategy or forced selections
 pub struct MorphSelector {
     forced_morphs: HashSet<String>,
 }
@@ -22,8 +19,6 @@ impl MorphSelector {
         }
     }
 
-    /// Select one morph per base skill using greedy strategy (highest damage)
-    /// or forced selections from CLI options.
     pub fn select_morphs<'a>(&self, skills: &[&'a SkillData]) -> Vec<&'a SkillData> {
         let invalid_morphs = self.validate_forced_morphs(skills);
         if !invalid_morphs.is_empty() {
@@ -66,7 +61,6 @@ impl MorphSelector {
         selected_skills
     }
 
-    /// Returns list of invalid morph names that don't exist in the skill list
     fn validate_forced_morphs(&self, skills: &[&SkillData]) -> HashSet<String> {
         let valid_morph_names: HashSet<&str> = skills.iter().map(|s| s.name.as_str()).collect();
         let mut invalid_morphs = HashSet::new();

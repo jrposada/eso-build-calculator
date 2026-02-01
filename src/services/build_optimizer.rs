@@ -15,7 +15,6 @@ use std::collections::HashSet;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Instant;
 
-/// Options for the build optimizer
 #[derive(Debug, Clone, Default)]
 pub struct BuildOptimizerOptions {
     pub verbose: bool,
@@ -26,7 +25,6 @@ pub struct BuildOptimizerOptions {
     pub parallelism: u8,
 }
 
-/// Build optimizer that finds the optimal skill/champion point combination
 pub struct BuildOptimizer {
     required_class_names: Vec<ClassName>,
     class_names: HashSet<ClassName>,
@@ -195,7 +193,6 @@ impl BuildOptimizer {
             ));
         }
 
-        // Map class combinations to skill line combinations
         let skill_line_combinations: Vec<Vec<SkillLineName>> = class_name_combinations
             .iter()
             .map(|class_combination| {
@@ -334,8 +331,6 @@ impl BuildOptimizer {
         champion_point_combinations.len() as u64 * skill_combinations_count
     }
 
-    /// Find the optimal build that maximizes total damage per cast
-    /// Uses Rayon for parallel evaluation with fine-grained parallelism
     pub fn find_optimal_build(&self) -> Option<Build> {
         let start_time = Instant::now();
 
@@ -345,7 +340,6 @@ impl BuildOptimizer {
         let last_progress_update = AtomicU64::new(0);
         let best_damage = AtomicU64::new(0);
 
-        // Build thread pool with configured parallelism
         let pool = ThreadPoolBuilder::new()
             .num_threads(self.parallelism as usize)
             .build()
@@ -445,7 +439,6 @@ impl std::fmt::Display for BuildOptimizer {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut lines = Vec::new();
 
-        // Configuration table
         let config_data = vec![
             vec![
                 "Skills".to_string(),
@@ -478,7 +471,6 @@ impl std::fmt::Display for BuildOptimizer {
             },
         ));
 
-        // Skill line configuration table
         let used_classes: Vec<_> = self.class_names.iter().map(|c| c.to_string()).collect();
         let used_classes_str = if used_classes.is_empty() {
             "None".to_string()
