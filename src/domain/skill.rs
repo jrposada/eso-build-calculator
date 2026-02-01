@@ -1,6 +1,5 @@
 use crate::data::{
-    BonusTarget, ClassName, DamageType, Resource, SkillLineName, SkillMechanic, SkillType,
-    TargetType,
+    BonusTarget, ClassName, DamageType, Resource, SkillLineName, SkillMechanic, TargetType,
 };
 use crate::domain::BonusData;
 use serde::{Deserialize, Serialize};
@@ -178,10 +177,6 @@ impl Skill {
         Self { data }
     }
 
-    pub fn from_arc(data: Arc<SkillData>) -> Self {
-        Self { data }
-    }
-
     // Getters
     pub fn name(&self) -> &str {
         &self.data.name
@@ -199,10 +194,6 @@ impl Skill {
         self.data.skill_line
     }
 
-    pub fn damage(&self) -> &SkillDamage {
-        &self.data.damage
-    }
-
     pub fn damage_type(&self) -> DamageType {
         self.data.damage_type
     }
@@ -217,23 +208,6 @@ impl Skill {
 
     pub fn channel_time(&self) -> Option<f64> {
         self.data.channel_time
-    }
-
-    pub fn data(&self) -> &SkillData {
-        &self.data
-    }
-
-    pub fn data_arc(&self) -> Arc<SkillData> {
-        Arc::clone(&self.data)
-    }
-
-    /// Get the skill type (class or weapon)
-    pub fn skill_type(&self) -> SkillType {
-        if self.data.class_name == ClassName::Weapon {
-            SkillType::Weapon
-        } else {
-            SkillType::Class
-        }
     }
 
     /// Get the skill mechanic
@@ -272,11 +246,6 @@ impl Skill {
             }
         }
         self.data.channel_time.unwrap_or(0.0)
-    }
-
-    /// Check if this is an ultimate skill
-    pub fn is_ultimate(&self) -> bool {
-        self.data.resource == Resource::Ultimate
     }
 
     /// Calculate the total damage per cast with optional bonuses
