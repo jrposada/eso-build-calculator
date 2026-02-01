@@ -22,7 +22,7 @@ pub struct BuildConstraints {
 /// A complete build with skills, champion points, and calculated damages
 #[derive(Debug, Clone)]
 pub struct Build {
-    skills: Vec<&'static SkillData>,
+    skills: Vec<SkillData>,
     champion_bonuses: Vec<BonusData>,
     skill_line_counts: HashMap<SkillLineName, usize>,
     pub total_damage: f64,
@@ -38,6 +38,9 @@ impl Build {
         for skill in &skills {
             *skill_line_counts.entry(skill.skill_line).or_insert(0) += 1;
         }
+
+        // Clone skills for storage (better cache locality in parallel execution)
+        let skills: Vec<SkillData> = skills.into_iter().map(|s| s.clone()).collect();
 
         // FIXME: some passives are only active while on that bar,
         // do we wanna apply combination here too?
@@ -126,7 +129,7 @@ impl std::fmt::Display for Build {
             .map(|(i, skill)| {
                 vec![
                     (i + 1).to_string(),
-                    skill.name.clone(),
+                    skill.name.to_string(),
                     skill.class_name.to_string(),
                     skill.skill_line.to_string(),
                 ]
