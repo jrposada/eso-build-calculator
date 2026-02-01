@@ -6,7 +6,7 @@ use crate::infrastructure::{combinatorics, format, logger, table};
 use crate::services::passive_service::PassiveServiceOptions;
 use crate::services::skills_service::SkillsServiceOptions;
 use crate::services::{
-    GetSkillsOptions, MorphSelector, MorphSelectorOptions, PassiveService, SkillsService,
+    FilterSkillsOptions, MorphSelector, MorphSelectorOptions, PassiveService, SkillsService,
 };
 use rayon::iter::ParallelBridge;
 use rayon::prelude::*;
@@ -259,7 +259,7 @@ impl BuildOptimizer {
         skills_service: &SkillsService,
     ) -> (HashSet<String>, Vec<Vec<&'static SkillData>>) {
         let mut skill_names: HashSet<String> = HashSet::new();
-        let filter_options = GetSkillsOptions {
+        let filter_options = FilterSkillsOptions {
             exclude_base_skills: true,
             exclude_ultimates: true,
             exclude_non_damaging: true,

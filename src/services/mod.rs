@@ -6,4 +6,4 @@ pub mod skills_service;
 pub use build_optimizer::{BuildOptimizer, BuildOptimizerOptions};
 pub use morph_selector::{MorphSelector, MorphSelectorOptions};
 pub use passive_service::{PassiveService, PassiveServiceOptions};
-pub use skills_service::{GetSkillsOptions, SkillsService};
+pub use skills_service::{FilterSkillsOptions, SkillsService};
