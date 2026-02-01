@@ -43,158 +43,31 @@ pub struct BuildOptimizer {
 
 impl BuildOptimizer {
     pub fn new(options: BuildOptimizerOptions) -> Self {
-        let morph_selector = MorphSelector::new(MorphSelectorOptions {
-            forced_morphs: options.forced_morphs,
-        });
+        let verbose = options.verbose;
+        let parallelism = options.parallelism;
+        let required_class_names = options.required_class_names;
+        let required_weapon_skill_lines = options.required_weapon_skill_lines;
 
-        if options.verbose {
-            logger::dim(&format!(
-                "Total skills before greedy morph selection: {}",
-                ALL_SKILLS.len()
-            ));
-        }
-
-        let all_skills: Vec<&SkillData> = ALL_SKILLS.iter().copied().collect();
-        let skills = morph_selector.select_morphs(&all_skills);
-
-        if options.verbose {
-            logger::dim(&format!(
-                "Total skills after greedy morph selection: {}",
-                skills.len()
-            ));
-        }
-
+        let skills = Self::prepare_skills(&options.forced_morphs, verbose);
         let skills_service = SkillsService::new(SkillsServiceOptions {
             skills: Some(skills),
         });
-        let pure_class = options.pure_class;
-        let required_class_names = options.required_class_names;
-        let required_weapon_skill_lines = options.required_weapon_skill_lines;
-        let verbose = options.verbose;
-        let parallelism = options.parallelism;
 
-        // Generate champion point combinations
-        let cp_vec: Vec<_> = CHAMPION_POINTS.iter().cloned().collect();
-        let champion_point_combinations =
-            combinatorics::generate_combinations(&cp_vec, BUILD_CONSTRAINTS.champion_point_count);
+        let champion_point_combinations = Self::generate_champion_point_combinations(verbose);
 
-        if verbose {
-            logger::dim(&format!(
-                "Generated {} champion point combinations",
-                champion_point_combinations.len()
-            ));
-        }
+        let (class_names, class_skill_line_combinations) =
+            Self::generate_class_skill_line_combinations(
+                options.pure_class,
+                &required_class_names,
+                verbose,
+            );
 
-        // Generate class combinations
-        let mut class_names: HashSet<ClassName> = HashSet::new();
-        let class_class_name_combinations: Vec<Vec<ClassName>> = if let Some(class) = pure_class {
-            class_names.insert(class);
-            vec![vec![class]]
-        } else {
-            combinatorics::generate_combinations(
-                &ClassName::CLASS_ONLY.to_vec(),
-                BUILD_CONSTRAINTS.class_skill_line_count,
-            )
-            .into_iter()
-            .filter(|combination| {
-                let has_required_class = if required_class_names.is_empty() {
-                    true
-                } else {
-                    required_class_names
-                        .iter()
-                        .all(|required| combination.contains(required))
-                };
+        let (weapon_skill_line_names, weapon_skill_line_combinations) =
+            Self::generate_weapon_skill_line_combinations(&required_weapon_skill_lines, verbose);
 
-                if has_required_class {
-                    for class in combination {
-                        class_names.insert(*class);
-                    }
-                }
-
-                has_required_class
-            })
-            .collect()
-        };
-
-        if verbose {
-            let required_str = if required_class_names.is_empty() {
-                "none".to_string()
-            } else {
-                required_class_names
-                    .iter()
-                    .map(|c| c.to_string())
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            };
-            logger::dim(&format!(
-                "Generated {} class combinations using {} classes (required: {})",
-                class_class_name_combinations.len(),
-                class_names.len(),
-                required_str
-            ));
-        }
-
-        // Map class combinations to class skill line combinations by expanding
-        // skill lines
-        let class_skill_line_combinations: Vec<Vec<SkillLineName>> = class_class_name_combinations
-            .iter()
-            .map(|class_combination| {
-                class_combination
-                    .iter()
-                    .flat_map(|class_name| SkillLineName::for_class(*class_name))
-                    .collect()
-            })
-            .collect();
-
-        // Generate weapon skill line combinations
-        let mut weapon_skill_line_names: HashSet<SkillLineName> = HashSet::new();
-        let weapon_skill_lines_combinations: Vec<Vec<SkillLineName>> =
-            combinatorics::generate_combinations(
-                &SkillLineName::WEAPON.to_vec(),
-                BUILD_CONSTRAINTS.weapon_skill_line_count,
-            )
-            .into_iter()
-            .filter(|combination| {
-                let has_required_weapon = if required_weapon_skill_lines.is_empty() {
-                    true
-                } else {
-                    required_weapon_skill_lines
-                        .iter()
-                        .all(|required| combination.contains(required))
-                };
-
-                if has_required_weapon {
-                    for weapon in combination {
-                        weapon_skill_line_names.insert(*weapon);
-                    }
-                }
-
-                has_required_weapon
-            })
-            .collect();
-
-        if verbose {
-            let required_str = if required_weapon_skill_lines.is_empty() {
-                "none".to_string()
-            } else {
-                required_weapon_skill_lines
-                    .iter()
-                    .map(|w| w.to_string())
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            };
-            logger::dim(&format!(
-                "Generated {} weapon skill line combinations using {} weapons (required: {})",
-                weapon_skill_lines_combinations.len(),
-                weapon_skill_line_names.len(),
-                required_str
-            ));
-        }
-
-        // Cartesian product of class and weapon skill line combinations
         let skill_line_combinations = combinatorics::cartesian_product(
             &class_skill_line_combinations,
-            &weapon_skill_lines_combinations,
+            &weapon_skill_line_combinations,
         );
 
         if verbose {
@@ -204,66 +77,14 @@ impl BuildOptimizer {
             ));
         }
 
-        // Create passive service with only used skill lines
-        let all_used_skill_lines: HashSet<SkillLineName> =
-            skill_line_combinations.iter().flatten().copied().collect();
+        let (skill_names, skills_combinations) =
+            Self::generate_skills_combinations(&skill_line_combinations, &skills_service);
 
-        let passive_service = PassiveService::new(PassiveServiceOptions {
-            skill_lines: Some(all_used_skill_lines),
-        });
+        let passive_bonuses_list =
+            Self::generate_passive_bonuses(&skill_line_combinations, verbose);
 
-        // Map skill line combinations to skills by expanding skill lines
-        let mut skill_names: HashSet<String> = HashSet::new();
-        let filter_options = GetSkillsOptions {
-            exclude_base_skills: true,
-            exclude_ultimates: true,
-            exclude_non_damaging: true,
-        };
-        let skills_combinations: Vec<Vec<&'static SkillData>> = skill_line_combinations
-            .iter()
-            .map(|skill_line_combination| {
-                skill_line_combination
-                    .iter()
-                    .flat_map(|skill_line| {
-                        let skill_line_skills =
-                            skills_service.get_skills_by_skill_line(*skill_line, &filter_options);
-                        for skill in &skill_line_skills {
-                            skill_names.insert(skill.name.clone());
-                        }
-                        skill_line_skills
-                    })
-                    .collect()
-            })
-            .collect();
-
-        // Pre-compute passive bonuses for each skill line combination
-        let passive_bonuses_list: Vec<Vec<BonusData>> = skill_line_combinations
-            .iter()
-            .map(|skill_lines| {
-                skill_lines
-                    .iter()
-                    .flat_map(|sl| passive_service.get_passives_by_skill_line(*sl))
-                    .flat_map(|passive| passive.bonuses.iter().cloned())
-                    .collect()
-            })
-            .collect();
-
-        if verbose {
-            logger::dim(&format!(
-                "Pre-computed passive bonuses for {} skill line combinations",
-                passive_bonuses_list.len()
-            ));
-        }
-
-        // Calculate total skill combinations
-        let skill_combinations_count: u64 = skills_combinations
-            .iter()
-            .map(|skills| {
-                combinatorics::count_combinations(skills.len(), BUILD_CONSTRAINTS.skill_count)
-            })
-            .sum();
         let total_possible_build_count =
-            champion_point_combinations.len() as u64 * skill_combinations_count;
+            Self::calculate_total_build_count(&champion_point_combinations, &skills_combinations);
 
         let optimizer = Self {
             required_class_names,
@@ -281,6 +102,236 @@ impl BuildOptimizer {
         logger::log(&optimizer.to_string());
 
         optimizer
+    }
+
+    fn prepare_skills(forced_morphs: &[String], verbose: bool) -> Vec<&'static SkillData> {
+        let morph_selector = MorphSelector::new(MorphSelectorOptions {
+            forced_morphs: forced_morphs.to_vec(),
+        });
+
+        if verbose {
+            logger::dim(&format!(
+                "Total skills before greedy morph selection: {}",
+                ALL_SKILLS.len()
+            ));
+        }
+
+        let all_skills: Vec<&SkillData> = ALL_SKILLS.iter().copied().collect();
+        let skills = morph_selector.select_morphs(&all_skills);
+
+        if verbose {
+            logger::dim(&format!(
+                "Total skills after greedy morph selection: {}",
+                skills.len()
+            ));
+        }
+
+        skills
+    }
+
+    fn generate_champion_point_combinations(verbose: bool) -> Vec<Vec<ChampionPointBonus>> {
+        let cp_vec: Vec<_> = CHAMPION_POINTS.iter().cloned().collect();
+        let combinations =
+            combinatorics::generate_combinations(&cp_vec, BUILD_CONSTRAINTS.champion_point_count);
+
+        if verbose {
+            logger::dim(&format!(
+                "Generated {} champion point combinations",
+                combinations.len()
+            ));
+        }
+
+        combinations
+    }
+
+    fn generate_class_skill_line_combinations(
+        pure_class: Option<ClassName>,
+        required_class_names: &[ClassName],
+        verbose: bool,
+    ) -> (HashSet<ClassName>, Vec<Vec<SkillLineName>>) {
+        let mut class_names: HashSet<ClassName> = HashSet::new();
+
+        let class_name_combinations: Vec<Vec<ClassName>> = if let Some(class) = pure_class {
+            class_names.insert(class);
+            vec![vec![class]]
+        } else {
+            combinatorics::generate_combinations(
+                &ClassName::CLASS_ONLY.to_vec(),
+                BUILD_CONSTRAINTS.class_skill_line_count,
+            )
+            .into_iter()
+            .filter(|combination| {
+                let has_required = required_class_names.is_empty()
+                    || required_class_names
+                        .iter()
+                        .all(|required| combination.contains(required));
+
+                if has_required {
+                    for class in combination {
+                        class_names.insert(*class);
+                    }
+                }
+
+                has_required
+            })
+            .collect()
+        };
+
+        if verbose {
+            let required_str = if required_class_names.is_empty() {
+                "none".to_string()
+            } else {
+                required_class_names
+                    .iter()
+                    .map(|c| c.to_string())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            };
+            logger::dim(&format!(
+                "Generated {} class combinations using {} classes (required: {})",
+                class_name_combinations.len(),
+                class_names.len(),
+                required_str
+            ));
+        }
+
+        // Map class combinations to skill line combinations
+        let skill_line_combinations: Vec<Vec<SkillLineName>> = class_name_combinations
+            .iter()
+            .map(|class_combination| {
+                class_combination
+                    .iter()
+                    .flat_map(|class_name| SkillLineName::for_class(*class_name))
+                    .collect()
+            })
+            .collect();
+
+        (class_names, skill_line_combinations)
+    }
+
+    fn generate_weapon_skill_line_combinations(
+        required_weapon_skill_lines: &[SkillLineName],
+        verbose: bool,
+    ) -> (HashSet<SkillLineName>, Vec<Vec<SkillLineName>>) {
+        let mut weapon_skill_line_names: HashSet<SkillLineName> = HashSet::new();
+
+        let combinations: Vec<Vec<SkillLineName>> = combinatorics::generate_combinations(
+            &SkillLineName::WEAPON.to_vec(),
+            BUILD_CONSTRAINTS.weapon_skill_line_count,
+        )
+        .into_iter()
+        .filter(|combination| {
+            let has_required = required_weapon_skill_lines.is_empty()
+                || required_weapon_skill_lines
+                    .iter()
+                    .all(|required| combination.contains(required));
+
+            if has_required {
+                for weapon in combination {
+                    weapon_skill_line_names.insert(*weapon);
+                }
+            }
+
+            has_required
+        })
+        .collect();
+
+        if verbose {
+            let required_str = if required_weapon_skill_lines.is_empty() {
+                "none".to_string()
+            } else {
+                required_weapon_skill_lines
+                    .iter()
+                    .map(|w| w.to_string())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            };
+            logger::dim(&format!(
+                "Generated {} weapon skill line combinations using {} weapons (required: {})",
+                combinations.len(),
+                weapon_skill_line_names.len(),
+                required_str
+            ));
+        }
+
+        (weapon_skill_line_names, combinations)
+    }
+
+    fn generate_skills_combinations(
+        skill_line_combinations: &[Vec<SkillLineName>],
+        skills_service: &SkillsService,
+    ) -> (HashSet<String>, Vec<Vec<&'static SkillData>>) {
+        let mut skill_names: HashSet<String> = HashSet::new();
+        let filter_options = GetSkillsOptions {
+            exclude_base_skills: true,
+            exclude_ultimates: true,
+            exclude_non_damaging: true,
+        };
+
+        let combinations: Vec<Vec<&'static SkillData>> = skill_line_combinations
+            .iter()
+            .map(|skill_line_combination| {
+                skill_line_combination
+                    .iter()
+                    .flat_map(|skill_line| {
+                        let skills =
+                            skills_service.get_skills_by_skill_line(*skill_line, &filter_options);
+                        for skill in &skills {
+                            skill_names.insert(skill.name.clone());
+                        }
+                        skills
+                    })
+                    .collect()
+            })
+            .collect();
+
+        (skill_names, combinations)
+    }
+
+    fn generate_passive_bonuses(
+        skill_line_combinations: &[Vec<SkillLineName>],
+        verbose: bool,
+    ) -> Vec<Vec<BonusData>> {
+        let all_used_skill_lines: HashSet<SkillLineName> =
+            skill_line_combinations.iter().flatten().copied().collect();
+
+        let passive_service = PassiveService::new(PassiveServiceOptions {
+            skill_lines: Some(all_used_skill_lines),
+        });
+
+        let bonuses: Vec<Vec<BonusData>> = skill_line_combinations
+            .iter()
+            .map(|skill_lines| {
+                skill_lines
+                    .iter()
+                    .flat_map(|sl| passive_service.get_passives_by_skill_line(*sl))
+                    .flat_map(|passive| passive.bonuses.iter().cloned())
+                    .collect()
+            })
+            .collect();
+
+        if verbose {
+            logger::dim(&format!(
+                "Pre-computed passive bonuses for {} skill line combinations",
+                bonuses.len()
+            ));
+        }
+
+        bonuses
+    }
+
+    fn calculate_total_build_count(
+        champion_point_combinations: &[Vec<ChampionPointBonus>],
+        skills_combinations: &[Vec<&'static SkillData>],
+    ) -> u64 {
+        let skill_combinations_count: u64 = skills_combinations
+            .iter()
+            .map(|skills| {
+                combinatorics::count_combinations(skills.len(), BUILD_CONSTRAINTS.skill_count)
+            })
+            .sum();
+
+        champion_point_combinations.len() as u64 * skill_combinations_count
     }
 
     /// Find the optimal build that maximizes total damage per cast
