@@ -1,5 +1,5 @@
-use crate::data::skills::{ALL_CLASS_SKILLS, ALL_SKILLS, ALL_WEAPON_SKILLS};
-use crate::data::{ClassName, Resource, SkillLineName};
+use crate::data::skills::ALL_SKILLS;
+use crate::data::{Resource, SkillLineName};
 use crate::domain::SkillData;
 use std::collections::HashMap;
 
@@ -48,35 +48,6 @@ impl SkillsService {
         }
     }
 
-    /// Get the class that a skill line belongs to
-    pub fn get_class(skill_line: SkillLineName) -> ClassName {
-        skill_line.get_class()
-    }
-
-    /// Check if a skill line belongs to a specific class
-    pub fn is_skill_line_from_class(class_name: ClassName, skill_line: SkillLineName) -> bool {
-        skill_line.get_class() == class_name
-    }
-
-    /// Get all skills for a class
-    pub fn get_skills_by_class(
-        &self,
-        class_name: ClassName,
-        options: &GetSkillsOptions,
-    ) -> Vec<&'static SkillData> {
-        let skills = if class_name == ClassName::Weapon {
-            ALL_WEAPON_SKILLS.iter().copied().collect()
-        } else {
-            ALL_CLASS_SKILLS
-                .iter()
-                .copied()
-                .filter(|s| s.class_name == class_name)
-                .collect()
-        };
-
-        self.filter_skills(skills, options)
-    }
-
     /// Get all skills for a skill line
     pub fn get_skills_by_skill_line(
         &self,
@@ -89,24 +60,6 @@ impl SkillsService {
             .cloned()
             .unwrap_or_default();
 
-        self.filter_skills(skills, options)
-    }
-
-    /// Get all skills (class + weapon)
-    pub fn get_all_skills(&self, options: &GetSkillsOptions) -> Vec<&'static SkillData> {
-        let skills: Vec<_> = ALL_SKILLS.iter().copied().collect();
-        self.filter_skills(skills, options)
-    }
-
-    /// Get all class skills
-    pub fn get_all_class_skills(&self, options: &GetSkillsOptions) -> Vec<&'static SkillData> {
-        let skills: Vec<_> = ALL_CLASS_SKILLS.iter().copied().collect();
-        self.filter_skills(skills, options)
-    }
-
-    /// Get all weapon skills
-    pub fn get_all_weapon_skills(&self, options: &GetSkillsOptions) -> Vec<&'static SkillData> {
-        let skills: Vec<_> = ALL_WEAPON_SKILLS.iter().copied().collect();
         self.filter_skills(skills, options)
     }
 
@@ -147,17 +100,6 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_get_skills_by_class() {
-        let service = SkillsService::new(SkillsServiceOptions::default());
-        let skills =
-            service.get_skills_by_class(ClassName::Dragonknight, &GetSkillsOptions::default());
-        assert!(!skills.is_empty());
-        assert!(skills
-            .iter()
-            .all(|s| s.class_name == ClassName::Dragonknight));
-    }
-
-    #[test]
     fn test_get_skills_by_skill_line() {
         let service = SkillsService::new(SkillsServiceOptions::default());
         let skills = service
@@ -189,16 +131,5 @@ mod tests {
         };
         let skills = service.get_skills_by_skill_line(SkillLineName::ArdentFlame, &options);
         assert!(skills.iter().all(|s| s.resource != Resource::Ultimate));
-    }
-
-    #[test]
-    fn test_exclude_non_damaging() {
-        let service = SkillsService::new(SkillsServiceOptions::default());
-        let options = GetSkillsOptions {
-            exclude_non_damaging: true,
-            ..Default::default()
-        };
-        let skills = service.get_all_skills(&options);
-        assert!(skills.iter().all(|s| s.damage.has_damage()));
     }
 }

@@ -107,7 +107,7 @@ impl OptimizeArgs {
 
         match build {
             Some(b) => {
-                println!("{}", b.format_display());
+                logger::info(&b.to_string());
             }
             None => {
                 logger::error("No valid build found with the given constraints.");

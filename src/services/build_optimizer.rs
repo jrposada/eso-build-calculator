@@ -3,8 +3,11 @@ use crate::data::skills::ALL_SKILLS;
 use crate::data::{ClassName, SkillLineName};
 use crate::domain::{BonusData, Build, ChampionPointBonus, Skill, SkillData, BUILD_CONSTRAINTS};
 use crate::infrastructure::{combinatorics, format, logger, table};
+use crate::services::passive_service::PassiveServiceOptions;
 use crate::services::skills_service::SkillsServiceOptions;
-use crate::services::{GetSkillsOptions, MorphSelector, MorphSelectorOptions, SkillsService};
+use crate::services::{
+    GetSkillsOptions, MorphSelector, MorphSelectorOptions, PassiveService, SkillsService,
+};
 use rayon::iter::ParallelBridge;
 use rayon::prelude::*;
 use rayon::ThreadPoolBuilder;
@@ -34,6 +37,7 @@ pub struct BuildOptimizer {
 
     champion_point_combinations: Vec<Vec<ChampionPointBonus>>,
     skills_combinations: Vec<Vec<&'static SkillData>>,
+    passive_bonuses_list: Vec<Vec<BonusData>>,
     total_possible_build_count: u64,
 }
 
@@ -200,6 +204,14 @@ impl BuildOptimizer {
             ));
         }
 
+        // Create passive service with only used skill lines
+        let all_used_skill_lines: HashSet<SkillLineName> =
+            skill_line_combinations.iter().flatten().copied().collect();
+
+        let passive_service = PassiveService::new(PassiveServiceOptions {
+            skill_lines: Some(all_used_skill_lines),
+        });
+
         // Map skill line combinations to skills by expanding skill lines
         let mut skill_names: HashSet<String> = HashSet::new();
         let filter_options = GetSkillsOptions {
@@ -224,6 +236,25 @@ impl BuildOptimizer {
             })
             .collect();
 
+        // Pre-compute passive bonuses for each skill line combination
+        let passive_bonuses_list: Vec<Vec<BonusData>> = skill_line_combinations
+            .iter()
+            .map(|skill_lines| {
+                skill_lines
+                    .iter()
+                    .flat_map(|sl| passive_service.get_passives_by_skill_line(*sl))
+                    .flat_map(|passive| passive.bonuses.iter().cloned())
+                    .collect()
+            })
+            .collect();
+
+        if verbose {
+            logger::dim(&format!(
+                "Pre-computed passive bonuses for {} skill line combinations",
+                passive_bonuses_list.len()
+            ));
+        }
+
         // Calculate total skill combinations
         let skill_combinations_count: u64 = skills_combinations
             .iter()
@@ -243,10 +274,11 @@ impl BuildOptimizer {
             parallelism,
             champion_point_combinations,
             skills_combinations,
+            passive_bonuses_list,
             total_possible_build_count,
         };
 
-        logger::info(&optimizer.to_string());
+        logger::log(&optimizer.to_string());
 
         optimizer
     }
@@ -256,7 +288,7 @@ impl BuildOptimizer {
     pub fn find_optimal_build(&self) -> Option<Build> {
         let start_time = Instant::now();
 
-        logger::info(&format!("Using {} threads...", self.parallelism));
+        logger::log(&format!("Using {} threads...", self.parallelism));
 
         let evaluated_count = AtomicU64::new(0);
         let last_progress_update = AtomicU64::new(0);
@@ -275,22 +307,26 @@ impl BuildOptimizer {
             .map(|cp_combo| cp_combo.iter().map(|cp| cp.to_bonus_data()).collect())
             .collect();
 
-        // Use fine-grained parallelism: flatten all (cp_combo, skills, skill_combo) combinations
-        // and parallelize at the individual build level using par_bridge()
+        // Use fine-grained parallelism: flatten all (cp_combo, skills,
+        // passive_bonuses, skill_combo) combinations and parallelize at the
+        // individual build level using par_bridge()
         let best_build: Option<Build> = pool.install(|| {
             cp_bonuses_list
                 .iter()
                 .flat_map(|cp_bonuses| {
-                    self.skills_combinations.iter().flat_map(move |skills| {
-                        combinatorics::CombinationIterator::new(
-                            skills,
-                            BUILD_CONSTRAINTS.skill_count,
-                        )
-                        .map(move |skill_combo| (cp_bonuses, skill_combo))
-                    })
+                    self.skills_combinations
+                        .iter()
+                        .zip(self.passive_bonuses_list.iter())
+                        .flat_map(move |(skills, passive_bonuses)| {
+                            combinatorics::CombinationIterator::new(
+                                skills,
+                                BUILD_CONSTRAINTS.skill_count,
+                            )
+                            .map(move |skill_combo| (cp_bonuses, passive_bonuses, skill_combo))
+                        })
                 })
-                .par_bridge() // Convert sequential iterator to parallel - distributes work across all threads
-                .map(|(cp_bonuses, skill_combo)| {
+                .par_bridge()
+                .map(|(cp_bonuses, passive_bonuses, skill_combo)| {
                     let count = evaluated_count.fetch_add(1, Ordering::Relaxed) + 1;
 
                     // Create skills from data
@@ -299,8 +335,8 @@ impl BuildOptimizer {
                         .map(|&data| Skill::new(data.clone()))
                         .collect();
 
-                    let build = Build::new(build_skills, cp_bonuses.clone());
-                    let damage = build.total_damage_per_cast();
+                    let build = Build::new(build_skills, cp_bonuses.clone(), passive_bonuses);
+                    let damage = build.total_damage;
 
                     // Atomically update global best damage for progress display
                     let damage_bits = damage.to_bits();
@@ -333,7 +369,7 @@ impl BuildOptimizer {
                     build
                 })
                 .reduce_with(|a, b| {
-                    if a.total_damage_per_cast() > b.total_damage_per_cast() {
+                    if a.total_damage > b.total_damage {
                         a
                     } else {
                         b
@@ -344,7 +380,7 @@ impl BuildOptimizer {
         let total_evaluated = evaluated_count.load(Ordering::Relaxed);
         let elapsed = start_time.elapsed();
 
-        logger::info(&format!(
+        logger::log(&format!(
             "Completed: {} builds evaluated in {:.1}s",
             format::format_number(total_evaluated),
             elapsed.as_secs_f64()
