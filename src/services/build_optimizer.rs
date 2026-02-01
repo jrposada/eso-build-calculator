@@ -1,7 +1,7 @@
 use crate::data::bonuses::CHAMPION_POINTS;
 use crate::data::skills::ALL_SKILLS;
 use crate::data::{ClassName, SkillLineName};
-use crate::domain::{BonusData, Build, Skill, SkillData, BUILD_CONSTRAINTS};
+use crate::domain::{BonusData, Build, SkillData, BUILD_CONSTRAINTS};
 use crate::infrastructure::{combinatorics, format, logger, table};
 use crate::services::passive_service::PassiveServiceOptions;
 use crate::services::skills_service::SkillsServiceOptions;
@@ -368,13 +368,7 @@ impl BuildOptimizer {
                 .map(|(cp_bonuses, passive_bonuses, skill_combo)| {
                     let count = evaluated_count.fetch_add(1, Ordering::Relaxed) + 1;
 
-                    // Create skills from data
-                    let build_skills: Vec<Skill> = skill_combo
-                        .iter()
-                        .map(|&data| Skill::new(data.clone()))
-                        .collect();
-
-                    let build = Build::new(build_skills, cp_bonuses.clone(), passive_bonuses);
+                    let build = Build::new(skill_combo, cp_bonuses.clone(), passive_bonuses);
                     let damage = build.total_damage;
 
                     // Atomically update global best damage for progress display

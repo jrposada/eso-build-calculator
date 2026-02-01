@@ -1,5 +1,4 @@
 use crate::data::skills::ALL_SKILLS;
-use crate::domain::Skill;
 use crate::infrastructure::logger;
 use clap::Args;
 
@@ -18,8 +17,7 @@ impl ViewArgs {
 
         match skill_data {
             Some(data) => {
-                let skill = Skill::new((*data).clone());
-                println!("{}", skill.format_details());
+                println!("{}", data.format_details());
                 println!();
             }
             None => {

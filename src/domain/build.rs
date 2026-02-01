@@ -1,5 +1,5 @@
 use crate::data::{ClassName, SkillLineName};
-use crate::domain::{BonusData, Skill};
+use crate::domain::{BonusData, SkillData};
 use crate::infrastructure::{format, table};
 use std::collections::{HashMap, HashSet};
 
@@ -22,7 +22,7 @@ pub struct BuildConstraints {
 /// A complete build with skills, champion points, and calculated damages
 #[derive(Debug, Clone)]
 pub struct Build {
-    skills: Vec<Skill>,
+    skills: Vec<&'static SkillData>,
     champion_bonuses: Vec<BonusData>,
     skill_line_counts: HashMap<SkillLineName, usize>,
     pub total_damage: f64,
@@ -30,13 +30,13 @@ pub struct Build {
 
 impl Build {
     pub fn new(
-        skills: Vec<Skill>,
+        skills: Vec<&'static SkillData>,
         champion_bonuses: Vec<BonusData>,
         passive_bonuses: &[BonusData],
     ) -> Self {
         let mut skill_line_counts: HashMap<SkillLineName, usize> = HashMap::new();
         for skill in &skills {
-            *skill_line_counts.entry(skill.skill_line()).or_insert(0) += 1;
+            *skill_line_counts.entry(skill.skill_line).or_insert(0) += 1;
         }
 
         // FIXME: some passives are only active while on that bar,
@@ -126,9 +126,9 @@ impl std::fmt::Display for Build {
             .map(|(i, skill)| {
                 vec![
                     (i + 1).to_string(),
-                    skill.name().to_string(),
-                    skill.class_name().to_string(),
-                    skill.skill_line().to_string(),
+                    skill.name.clone(),
+                    skill.class_name.to_string(),
+                    skill.skill_line.to_string(),
                 ]
             })
             .collect();

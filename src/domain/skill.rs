@@ -3,7 +3,6 @@ use crate::data::{
 };
 use crate::domain::BonusData;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 
 /// Hit damage data
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -158,75 +157,18 @@ impl SkillData {
         self.channel_time = Some(channel_time);
         self
     }
-}
-
-/// A skill with calculated properties
-#[derive(Debug, Clone)]
-pub struct Skill {
-    data: Arc<SkillData>,
-}
-
-impl Skill {
-    pub fn new(data: SkillData) -> Self {
-        Self {
-            data: Arc::new(data),
-        }
-    }
-
-    pub fn from_data(data: Arc<SkillData>) -> Self {
-        Self { data }
-    }
-
-    // Getters
-    pub fn name(&self) -> &str {
-        &self.data.name
-    }
-
-    pub fn base_skill_name(&self) -> &str {
-        &self.data.base_skill_name
-    }
-
-    pub fn class_name(&self) -> ClassName {
-        self.data.class_name
-    }
-
-    pub fn skill_line(&self) -> SkillLineName {
-        self.data.skill_line
-    }
-
-    pub fn damage_type(&self) -> DamageType {
-        self.data.damage_type
-    }
-
-    pub fn target_type(&self) -> TargetType {
-        self.data.target_type
-    }
-
-    pub fn resource(&self) -> Resource {
-        self.data.resource
-    }
-
-    pub fn channel_time(&self) -> Option<f64> {
-        self.data.channel_time
-    }
 
     /// Get the skill mechanic
     pub fn mechanic(&self) -> SkillMechanic {
-        if self.data.channel_time.is_some() {
+        if self.channel_time.is_some() {
             return SkillMechanic::Channeled;
         }
 
-        if self
-            .data
-            .damage
-            .dots
-            .as_ref()
-            .is_some_and(|d| !d.is_empty())
-        {
+        if self.damage.dots.as_ref().is_some_and(|d| !d.is_empty()) {
             return SkillMechanic::Dot;
         }
 
-        if let Some(hits) = &self.data.damage.hits {
+        if let Some(hits) = &self.damage.hits {
             if !hits.is_empty() && hits.iter().any(|h| h.value > 0.0) {
                 return SkillMechanic::Instant;
             }
@@ -237,7 +179,7 @@ impl Skill {
 
     /// Get the skill duration (max DoT duration or channel time)
     pub fn duration(&self) -> f64 {
-        if let Some(dots) = &self.data.damage.dots {
+        if let Some(dots) = &self.damage.dots {
             if !dots.is_empty() {
                 return dots
                     .iter()
@@ -245,7 +187,7 @@ impl Skill {
                     .fold(0.0, f64::max);
             }
         }
-        self.data.channel_time.unwrap_or(0.0)
+        self.channel_time.unwrap_or(0.0)
     }
 
     /// Calculate the total damage per cast with optional bonuses
@@ -253,13 +195,13 @@ impl Skill {
         let mut total_damage = 0.0;
 
         // Map target type to bonus type
-        let target_bonus_type = match self.data.target_type {
+        let target_bonus_type = match self.target_type {
             TargetType::Aoe => BonusTarget::AoeDamage,
             TargetType::Single => BonusTarget::SingleDamage,
         };
 
         // Sum all direct hits
-        if let Some(hits) = &self.data.damage.hits {
+        if let Some(hits) = &self.damage.hits {
             let hit_affected_by = [BonusTarget::DirectDamage, target_bonus_type];
 
             let hit_modifiers: Vec<_> = bonuses
@@ -268,12 +210,12 @@ impl Skill {
                 .collect();
 
             for hit in hits {
-                total_damage += self.apply_damage_modifier(&hit_modifiers, hit.value);
+                total_damage += Self::apply_damage_modifier(&hit_modifiers, hit.value);
             }
         }
 
         // Add DoT damage over full duration
-        if let Some(dots) = &self.data.damage.dots {
+        if let Some(dots) = &self.damage.dots {
             let dot_affected_by = [BonusTarget::DotDamage, target_bonus_type];
 
             let dot_modifiers: Vec<_> = bonuses
@@ -297,7 +239,7 @@ impl Skill {
                     if dot.ignores_modifier.unwrap_or(false) {
                         total_damage += tick_damage;
                     } else {
-                        total_damage += self.apply_damage_modifier(&dot_modifiers, tick_damage);
+                        total_damage += Self::apply_damage_modifier(&dot_modifiers, tick_damage);
                     }
                 }
             }
@@ -306,7 +248,7 @@ impl Skill {
         total_damage
     }
 
-    fn apply_damage_modifier(&self, modifiers: &[&BonusData], value: f64) -> f64 {
+    fn apply_damage_modifier(modifiers: &[&BonusData], value: f64) -> f64 {
         let total_modifier: f64 = modifiers.iter().map(|m| m.value).sum();
         value * (1.0 + total_modifier)
     }
@@ -316,20 +258,20 @@ impl Skill {
         let mut lines = Vec::new();
 
         lines.push("=".repeat(60));
-        lines.push(format!("  {}", self.name()));
+        lines.push(format!("  {}", self.name));
         lines.push("=".repeat(60));
         lines.push(String::new());
         lines.push("  Basic Info".to_string());
         lines.push(format!("  {}", "-".repeat(56)));
-        lines.push(format!("  Base Skill:      {}", self.base_skill_name()));
-        lines.push(format!("  Source:          {}", self.class_name()));
-        lines.push(format!("  Skill Line:      {}", self.skill_line()));
-        lines.push(format!("  Resource:        {}", self.resource()));
-        lines.push(format!("  Damage Type:     {}", self.damage_type()));
-        lines.push(format!("  Target Type:     {}", self.target_type()));
+        lines.push(format!("  Base Skill:      {}", self.base_skill_name));
+        lines.push(format!("  Source:          {}", self.class_name));
+        lines.push(format!("  Skill Line:      {}", self.skill_line));
+        lines.push(format!("  Resource:        {}", self.resource));
+        lines.push(format!("  Damage Type:     {}", self.damage_type));
+        lines.push(format!("  Target Type:     {}", self.target_type));
         lines.push(format!("  Mechanic:        {}", self.mechanic()));
 
-        if let Some(channel_time) = self.channel_time() {
+        if let Some(channel_time) = self.channel_time {
             lines.push(format!("  Channel Time:    {}s", channel_time));
         }
 
@@ -337,7 +279,7 @@ impl Skill {
         lines.push("  Damage".to_string());
         lines.push(format!("  {}", "-".repeat(56)));
 
-        if let Some(hits) = &self.data.damage.hits {
+        if let Some(hits) = &self.damage.hits {
             if !hits.is_empty() {
                 lines.push("  Hits:".to_string());
                 for (j, hit) in hits.iter().enumerate() {
@@ -350,7 +292,7 @@ impl Skill {
             }
         }
 
-        if let Some(dots) = &self.data.damage.dots {
+        if let Some(dots) = &self.damage.dots {
             if !dots.is_empty() {
                 lines.push("  DoTs:".to_string());
                 for (j, dot) in dots.iter().enumerate() {
@@ -398,3 +340,4 @@ impl Skill {
         lines.join("\n")
     }
 }
+

@@ -1,7 +1,6 @@
-use crate::domain::{Skill, SkillData};
+use crate::domain::SkillData;
 use crate::infrastructure::logger;
 use std::collections::{HashMap, HashSet};
-use std::sync::Arc;
 
 #[derive(Debug, Clone, Default)]
 pub struct MorphSelectorOptions {
@@ -86,8 +85,7 @@ impl MorphSelector {
         let mut best_damage = f64::NEG_INFINITY;
 
         for morph_data in morphs {
-            let skill = Skill::from_data(Arc::new((*morph_data).clone()));
-            let damage = skill.calculate_damage_per_cast(&[]);
+            let damage = morph_data.calculate_damage_per_cast(&[]);
 
             if damage > best_damage {
                 best_damage = damage;
