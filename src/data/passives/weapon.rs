@@ -1,4 +1,4 @@
-use crate::data::{BonusClassName, BonusType, ClassName, SkillLineName};
+use crate::data::{BonusTarget, BonusType, ClassName, SkillLineName};
 use crate::domain::{BonusData, PassiveData};
 use once_cell::sync::Lazy;
 
@@ -11,8 +11,9 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::Bow,
             vec![BonusData::new(
-                BonusClassName::SkillLine,
-                BonusType::CriticalChance,
+                "Accuracy",
+                BonusType::SkillLine,
+                BonusTarget::CriticalChance,
                 0.08,
             )],
         ),
@@ -22,8 +23,9 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::Bow,
             vec![BonusData::new(
-                BonusClassName::AbilitySlottedCount,
-                BonusType::CriticalDamage,
+                "Hawk Eye",
+                BonusType::AbilitySlottedCount,
+                BonusTarget::CriticalDamage,
                 0.02,
             )],
         ),
@@ -51,8 +53,9 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::DualWield,
             vec![BonusData::new(
-                BonusClassName::SkillLine,
-                BonusType::CriticalDamage,
+                "Twin Blade and Blunt",
+                BonusType::SkillLine,
+                BonusTarget::CriticalDamage,
                 0.05,
             )],
         ),
@@ -68,8 +71,9 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::TwoHanded,
             vec![BonusData::new(
-                BonusClassName::SkillLine,
-                BonusType::CriticalDamage,
+                "Heavy Weapons",
+                BonusType::SkillLine,
+                BonusTarget::CriticalDamage,
                 0.12,
             )],
         ),
@@ -109,8 +113,9 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
             vec![BonusData::new(
-                BonusClassName::AbilitySlottedCount,
-                BonusType::CriticalChance,
+                "Ancient Knowledge",
+                BonusType::AbilitySlottedCount,
+                BonusTarget::CriticalChance,
                 0.04,
             )],
         ),

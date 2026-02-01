@@ -1,4 +1,5 @@
-use crate::data::{BonusClassName, BonusType, ClassName, SkillLineName};
+use crate::data::bonuses::MINOR_SAVAGERY;
+use crate::data::{BonusTarget, BonusType, ClassName, SkillLineName};
 use crate::domain::{BonusData, PassiveData};
 use once_cell::sync::Lazy;
 
@@ -10,8 +11,9 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Assassination,
             vec![BonusData::new(
-                BonusClassName::SkillLine,
-                BonusType::CriticalChance,
+                "Master Assassin",
+                BonusType::SkillLine,
+                BonusTarget::CriticalChance,
                 0.066,
             )],
         ),
@@ -26,8 +28,9 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Assassination,
             vec![BonusData::new(
-                BonusClassName::AbilitySlottedCount,
-                BonusType::CriticalChance,
+                "Pressure Point",
+                BonusType::AbilitySlottedCount,
+                BonusTarget::CriticalChance,
                 0.025,
             )],
         ),
@@ -37,16 +40,12 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::Assassination,
             vec![
                 BonusData::new(
-                    BonusClassName::AbilitySlotted,
-                    BonusType::CriticalDamage,
+                    "Hemorrhage",
+                    BonusType::AbilitySlotted,
+                    BonusTarget::CriticalDamage,
                     0.1,
                 ),
-                BonusData::new(
-                    BonusClassName::Duration,
-                    BonusType::WeaponCriticalChance,
-                    1314.0,
-                )
-                .with_id("Minor Savagery"),
+                MINOR_SAVAGERY.clone(),
             ],
         ),
         // === SHADOW ===
@@ -73,8 +72,9 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Shadow,
             vec![BonusData::new(
-                BonusClassName::SkillLine,
-                BonusType::Duration,
+                "Dark Veil",
+                BonusType::SkillLine,
+                BonusTarget::Duration,
                 2.0,
             )],
         ),
@@ -90,8 +90,9 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Siphoning,
             vec![BonusData::new(
-                BonusClassName::SkillLine,
-                BonusType::MaxStamina,
+                "Magicka Flood",
+                BonusType::SkillLine,
+                BonusTarget::MaxStamina,
                 0.06,
             )],
         ),

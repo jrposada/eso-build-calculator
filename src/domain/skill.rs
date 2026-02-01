@@ -1,5 +1,6 @@
 use crate::data::{
-    BonusType, ClassName, DamageType, Resource, SkillLineName, SkillMechanic, SkillType, TargetType,
+    BonusTarget, ClassName, DamageType, Resource, SkillLineName, SkillMechanic, SkillType,
+    TargetType,
 };
 use crate::domain::BonusData;
 use serde::{Deserialize, Serialize};
@@ -284,17 +285,17 @@ impl Skill {
 
         // Map target type to bonus type
         let target_bonus_type = match self.data.target_type {
-            TargetType::Aoe => BonusType::AoeDamage,
-            TargetType::Single => BonusType::SingleDamage,
+            TargetType::Aoe => BonusTarget::AoeDamage,
+            TargetType::Single => BonusTarget::SingleDamage,
         };
 
         // Sum all direct hits
         if let Some(hits) = &self.data.damage.hits {
-            let hit_affected_by = [BonusType::DirectDamage, target_bonus_type];
+            let hit_affected_by = [BonusTarget::DirectDamage, target_bonus_type];
 
             let hit_modifiers: Vec<_> = bonuses
                 .iter()
-                .filter(|b| hit_affected_by.contains(&b.bonus_type))
+                .filter(|b| hit_affected_by.contains(&b.target))
                 .collect();
 
             for hit in hits {
@@ -304,11 +305,11 @@ impl Skill {
 
         // Add DoT damage over full duration
         if let Some(dots) = &self.data.damage.dots {
-            let dot_affected_by = [BonusType::DotDamage, target_bonus_type];
+            let dot_affected_by = [BonusTarget::DotDamage, target_bonus_type];
 
             let dot_modifiers: Vec<_> = bonuses
                 .iter()
-                .filter(|b| dot_affected_by.contains(&b.bonus_type))
+                .filter(|b| dot_affected_by.contains(&b.target))
                 .collect();
 
             for dot in dots {

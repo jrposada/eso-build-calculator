@@ -147,7 +147,7 @@ pub enum SkillType {
 /// How a bonus is applied
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub enum BonusClassName {
+pub enum BonusType {
     /// Always applied
     Passive,
     /// Always applied for a duration
@@ -163,7 +163,7 @@ pub enum BonusClassName {
 /// What stat the bonus affects
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub enum BonusType {
+pub enum BonusTarget {
     AoeDamage,
     CriticalChance,
     CriticalDamage,

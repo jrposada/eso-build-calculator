@@ -1,4 +1,5 @@
-use crate::data::{BonusClassName, BonusType, ClassName, SkillLineName};
+use crate::data::bonuses::MINOR_PROPHECY;
+use crate::data::{BonusTarget, BonusType, ClassName, SkillLineName};
 use crate::domain::{BonusData, PassiveData};
 use once_cell::sync::Lazy;
 
@@ -27,12 +28,7 @@ pub static SORCERER_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Exploitation",
             ClassName::Sorcerer,
             SkillLineName::DarkMagic,
-            vec![BonusData::new(
-                BonusClassName::Duration,
-                BonusType::SpellCriticalChance,
-                1314.0,
-            )
-            .with_id("Minor Prophecy")],
+            vec![MINOR_PROPHECY.clone()],
         ),
         // === DAEDRIC SUMMONING ===
         PassiveData::new(
@@ -58,8 +54,9 @@ pub static SORCERER_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             ClassName::Sorcerer,
             SkillLineName::DaedricSummoning,
             vec![BonusData::new(
-                BonusClassName::SkillLine,
-                BonusType::MaxMagicka,
+                "Expert Summoner",
+                BonusType::SkillLine,
+                BonusTarget::MaxMagicka,
                 0.08,
             )],
         ),
@@ -87,8 +84,9 @@ pub static SORCERER_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             ClassName::Sorcerer,
             SkillLineName::StormCalling,
             vec![BonusData::new(
-                BonusClassName::AbilitySlottedCount,
-                BonusType::SpellDamage,
+                "Expert Mage",
+                BonusType::AbilitySlottedCount,
+                BonusTarget::SpellDamage,
                 0.05,
             )],
         ),

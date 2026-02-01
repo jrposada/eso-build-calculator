@@ -1,4 +1,4 @@
-use crate::data::{BonusClassName, BonusType, ClassName, SkillLineName};
+use crate::data::{BonusTarget, BonusType, ClassName, SkillLineName};
 use crate::domain::{BonusData, PassiveData};
 use once_cell::sync::Lazy;
 
@@ -28,8 +28,9 @@ pub static WARDEN_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
             vec![BonusData::new(
-                BonusClassName::AbilitySlottedCount,
-                BonusType::CriticalDamage,
+                "Advanced Species",
+                BonusType::AbilitySlottedCount,
+                BonusTarget::CriticalDamage,
                 0.03,
             )],
         ),

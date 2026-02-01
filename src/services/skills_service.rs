@@ -26,14 +26,16 @@ impl SkillsService {
             None => ALL_SKILLS.iter().copied().collect(),
         };
 
-        let skills_by_skill_line  = Self::group_skills_by_skill_line(skills);
+        let skills_by_skill_line = Self::group_skills_by_skill_line(skills);
 
         Self {
             skills_by_skill_line,
         }
     }
 
-    fn group_skills_by_skill_line(skills: Vec<&'static SkillData>) -> HashMap<SkillLineName, Vec<&'static SkillData>> {
+    fn group_skills_by_skill_line(
+        skills: Vec<&'static SkillData>,
+    ) -> HashMap<SkillLineName, Vec<&'static SkillData>> {
         let mut skills_by_skill_line: HashMap<SkillLineName, Vec<&'static SkillData>> =
             HashMap::new();
 

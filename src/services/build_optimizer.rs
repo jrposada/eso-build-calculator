@@ -1,7 +1,7 @@
 use crate::data::bonuses::CHAMPION_POINTS;
 use crate::data::skills::ALL_SKILLS;
 use crate::data::{ClassName, SkillLineName};
-use crate::domain::{BonusData, Build, ChampionPointBonus, Skill, SkillData, BUILD_CONSTRAINTS};
+use crate::domain::{BonusData, Build, Skill, SkillData, BUILD_CONSTRAINTS};
 use crate::infrastructure::{combinatorics, format, logger, table};
 use crate::services::passive_service::PassiveServiceOptions;
 use crate::services::skills_service::SkillsServiceOptions;
@@ -33,7 +33,7 @@ pub struct BuildOptimizer {
     skill_names: HashSet<String>,
     parallelism: u8,
 
-    champion_point_combinations: Vec<Vec<ChampionPointBonus>>,
+    champion_point_combinations: Vec<Vec<BonusData>>,
     skills_combinations: Vec<Vec<&'static SkillData>>,
     passive_bonuses_list: Vec<Vec<BonusData>>,
     total_possible_build_count: u64,
@@ -45,6 +45,7 @@ impl BuildOptimizer {
         let parallelism = options.parallelism;
         let required_class_names = options.required_class_names;
         let required_weapon_skill_lines = options.required_weapon_skill_lines;
+        let pure_class = options.pure_class;
 
         let skills = Self::prepare_skills(&options.forced_morphs, verbose);
         let skills_service = SkillsService::new(SkillsServiceOptions {
@@ -55,7 +56,7 @@ impl BuildOptimizer {
 
         let (class_names, class_skill_line_combinations) =
             Self::generate_class_skill_line_combinations(
-                options.pure_class,
+                pure_class,
                 &required_class_names,
                 verbose,
             );
@@ -127,7 +128,7 @@ impl BuildOptimizer {
         skills
     }
 
-    fn generate_champion_point_combinations(verbose: bool) -> Vec<Vec<ChampionPointBonus>> {
+    fn generate_champion_point_combinations(verbose: bool) -> Vec<Vec<BonusData>> {
         let cp_vec: Vec<_> = CHAMPION_POINTS.iter().cloned().collect();
         let combinations =
             combinatorics::generate_combinations(&cp_vec, BUILD_CONSTRAINTS.champion_point_count);
@@ -318,7 +319,7 @@ impl BuildOptimizer {
     }
 
     fn calculate_total_build_count(
-        champion_point_combinations: &[Vec<ChampionPointBonus>],
+        champion_point_combinations: &[Vec<BonusData>],
         skills_combinations: &[Vec<&'static SkillData>],
     ) -> u64 {
         let skill_combinations_count: u64 = skills_combinations
@@ -345,18 +346,11 @@ impl BuildOptimizer {
             .build()
             .expect("Failed to create thread pool");
 
-        // Pre-compute CP bonuses for each combination to avoid repeated conversion
-        let cp_bonuses_list: Vec<Vec<BonusData>> = self
-            .champion_point_combinations
-            .iter()
-            .map(|cp_combo| cp_combo.iter().map(|cp| cp.to_bonus_data()).collect())
-            .collect();
-
         // Use fine-grained parallelism: flatten all (cp_combo, skills,
         // passive_bonuses, skill_combo) combinations and parallelize at the
         // individual build level using par_bridge()
         let best_build: Option<Build> = pool.install(|| {
-            cp_bonuses_list
+            self.champion_point_combinations
                 .iter()
                 .flat_map(|cp_bonuses| {
                     self.skills_combinations

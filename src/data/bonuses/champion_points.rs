@@ -1,15 +1,50 @@
-use crate::data::BonusType;
-use crate::domain::ChampionPointBonus;
+use crate::data::{BonusTarget, BonusType};
+use crate::domain::BonusData;
 use once_cell::sync::Lazy;
 
-pub static CHAMPION_POINTS: Lazy<Vec<ChampionPointBonus>> = Lazy::new(|| {
+pub static CHAMPION_POINTS: Lazy<Vec<BonusData>> = Lazy::new(|| {
     vec![
-        ChampionPointBonus::new("Backstabber", BonusType::CriticalDamage, 0.02 * 5.0),
-        ChampionPointBonus::new("Biting Aura", BonusType::AoeDamage, 0.03 * 2.0),
-        ChampionPointBonus::new("Deadly Aim", BonusType::SingleDamage, 0.03 * 2.0),
-        ChampionPointBonus::new("Master-at-Arms", BonusType::DirectDamage, 0.03 * 2.0),
-        ChampionPointBonus::new("Exploiter", BonusType::OffBalanceDamage, 0.02 * 5.0),
-        ChampionPointBonus::new("Fighting Finesse", BonusType::CriticalDamage, 0.04 * 2.0),
-        ChampionPointBonus::new("Thaumaturge", BonusType::DotDamage, 0.03 * 2.0),
+        BonusData::new(
+            "Backstabber",
+            BonusType::Passive,
+            BonusTarget::CriticalDamage,
+            0.02 * 5.0,
+        ),
+        BonusData::new(
+            "Biting Aura",
+            BonusType::Passive,
+            BonusTarget::AoeDamage,
+            0.03 * 2.0,
+        ),
+        BonusData::new(
+            "Deadly Aim",
+            BonusType::Passive,
+            BonusTarget::SingleDamage,
+            0.03 * 2.0,
+        ),
+        BonusData::new(
+            "Master-at-Arms",
+            BonusType::Passive,
+            BonusTarget::DirectDamage,
+            0.03 * 2.0,
+        ),
+        BonusData::new(
+            "Exploiter",
+            BonusType::Passive,
+            BonusTarget::OffBalanceDamage,
+            0.02 * 5.0,
+        ),
+        BonusData::new(
+            "Fighting Finesse",
+            BonusType::Passive,
+            BonusTarget::CriticalDamage,
+            0.04 * 2.0,
+        ),
+        BonusData::new(
+            "Thaumaturge",
+            BonusType::Passive,
+            BonusTarget::DotDamage,
+            0.03 * 2.0,
+        ),
     ]
 });

@@ -110,8 +110,7 @@ impl std::fmt::Display for Build {
         let mut champion_point_names: Vec<_> = self
             .champion_bonuses
             .iter()
-            .filter_map(|m| m.name.as_ref())
-            .map(|s| s.as_str())
+            .map(|m| m.name.as_str())
             .collect();
         champion_point_names.sort();
         lines.push(format!(

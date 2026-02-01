@@ -1,4 +1,4 @@
-use crate::data::{BonusClassName, BonusType, ClassName, SkillLineName};
+use crate::data::{BonusTarget, BonusType, ClassName, SkillLineName};
 use crate::domain::{BonusData, PassiveData};
 use once_cell::sync::Lazy;
 
@@ -28,8 +28,9 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
             vec![BonusData::new(
-                BonusClassName::AbilitySlottedCount,
-                BonusType::CriticalChance,
+                "Tome-Bearer's Inspiration",
+                BonusType::AbilitySlottedCount,
+                BonusTarget::CriticalChance,
                 0.03,
             )],
         ),

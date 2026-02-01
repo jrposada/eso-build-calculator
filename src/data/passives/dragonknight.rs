@@ -1,4 +1,4 @@
-use crate::data::{BonusClassName, BonusType, ClassName, SkillLineName};
+use crate::data::{BonusTarget, BonusType, ClassName, SkillLineName};
 use crate::domain::{BonusData, PassiveData};
 use once_cell::sync::Lazy;
 
@@ -22,8 +22,9 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             ClassName::Dragonknight,
             SkillLineName::ArdentFlame,
             vec![BonusData::new(
-                BonusClassName::SkillLine,
-                BonusType::Duration,
+                "Searing Heat",
+                BonusType::SkillLine,
+                BonusTarget::Duration,
                 2.0,
             )],
         ),
