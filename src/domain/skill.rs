@@ -1,118 +1,8 @@
 use crate::data::{
     BonusTarget, ClassName, DamageType, Resource, SkillLineName, SkillMechanic, TargetType,
 };
-use crate::domain::BonusData;
+use crate::domain::{BonusData, SkillDamage};
 use serde::{Deserialize, Serialize};
-
-/// Hit damage data
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct HitDamage {
-    pub value: f64,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub delay: Option<f64>,
-}
-
-impl HitDamage {
-    pub fn new(value: f64) -> Self {
-        Self { value, delay: None }
-    }
-
-    pub fn with_delay(mut self, delay: f64) -> Self {
-        self.delay = Some(delay);
-        self
-    }
-}
-
-/// DoT (Damage over Time) damage data
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct DotDamage {
-    pub value: f64,
-    pub duration: f64,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub delay: Option<f64>,
-    /// Defaults to duration if not specified (total damage over duration)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub interval: Option<f64>,
-    /// Percentage increase per tick (e.g., 0.12 for 12%)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub increase_per_tick: Option<f64>,
-    /// Flat increase per tick
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub flat_increase_per_tick: Option<f64>,
-    /// If true, this damage ignores modifiers
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ignores_modifier: Option<bool>,
-}
-
-impl DotDamage {
-    pub fn new(value: f64, duration: f64) -> Self {
-        Self {
-            value,
-            duration,
-            delay: None,
-            interval: None,
-            increase_per_tick: None,
-            flat_increase_per_tick: None,
-            ignores_modifier: None,
-        }
-    }
-
-    pub fn with_interval(mut self, interval: f64) -> Self {
-        self.interval = Some(interval);
-        self
-    }
-
-    pub fn with_increase_per_tick(mut self, increase: f64) -> Self {
-        self.increase_per_tick = Some(increase);
-        self
-    }
-
-    pub fn with_flat_increase_per_tick(mut self, increase: f64) -> Self {
-        self.flat_increase_per_tick = Some(increase);
-        self
-    }
-
-    pub fn with_delay(mut self, delay: f64) -> Self {
-        self.delay = Some(delay);
-        self
-    }
-
-    pub fn ignores_modifier(mut self) -> Self {
-        self.ignores_modifier = Some(true);
-        self
-    }
-}
-
-/// Skill damage containing hits and dots
-#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
-pub struct SkillDamage {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub hits: Option<Vec<HitDamage>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub dots: Option<Vec<DotDamage>>,
-}
-
-impl SkillDamage {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn with_hits(mut self, hits: Vec<HitDamage>) -> Self {
-        self.hits = Some(hits);
-        self
-    }
-
-    pub fn with_dots(mut self, dots: Vec<DotDamage>) -> Self {
-        self.dots = Some(dots);
-        self
-    }
-
-    pub fn has_damage(&self) -> bool {
-        let has_hits = self.hits.as_ref().is_some_and(|h| !h.is_empty());
-        let has_dots = self.dots.as_ref().is_some_and(|d| !d.is_empty());
-        has_hits || has_dots
-    }
-}
 
 /// Raw skill data used to construct skills
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -340,4 +230,3 @@ impl SkillData {
         lines.join("\n")
     }
 }
-
