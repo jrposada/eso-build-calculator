@@ -1,5 +1,6 @@
+use crate::data::bonuses::{EMPOWER, MINOR_BERSERK};
 use crate::data::{ClassName, DamageType, Resource, SkillLineName, TargetType};
-use crate::domain::{DotDamage, HitDamage, SkillDamage, SkillData};
+use crate::domain::{DotDamage, ExecuteScaling, HitDamage, SkillDamage, SkillData};
 use once_cell::sync::Lazy;
 
 pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
@@ -87,7 +88,11 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Physical,
             TargetType::Single,
             Resource::Stamina,
-        ),
+        )
+        .with_bonuses(vec![
+            EMPOWER.clone().with_duration(10.0),
+            MINOR_BERSERK.clone().with_duration(10.0),
+        ]),
         SkillData::new(
             "Lotus Fan",
             "Teleport Strike",
@@ -110,7 +115,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_execute(3.0, 0.25, ExecuteScaling::Flat),
         SkillData::new(
             "Impale",
             "Assassin's Blade",
@@ -120,7 +126,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_execute(3.3, 0.25, ExecuteScaling::Flat),
         SkillData::new(
             "Killer's Blade",
             "Assassin's Blade",
@@ -130,7 +137,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Disease,
             TargetType::Single,
             Resource::Stamina,
-        ),
+        )
+        .with_execute(4.0, 0.50, ExecuteScaling::Linear),
         // Mark Target line (no damage)
         SkillData::new(
             "Mark Target",

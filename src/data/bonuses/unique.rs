@@ -51,3 +51,63 @@ pub static MINOR_SORCERY: Lazy<BonusData> = Lazy::new(|| {
     )
     .with_duration(20.0)
 });
+
+pub static MAJOR_BERSERK: Lazy<BonusData> = Lazy::new(|| {
+    BonusData::new(
+        "Major Berserk",
+        BonusTrigger::Cast,
+        BonusTarget::Damage,
+        0.10,
+    )
+    .with_duration(20.0)
+});
+
+pub static MAJOR_BRUTALITY: Lazy<BonusData> = Lazy::new(|| {
+    BonusData::new(
+        "Major Brutality",
+        BonusTrigger::Cast,
+        BonusTarget::WeaponDamage,
+        0.20,
+    )
+    .with_duration(20.0)
+});
+
+pub static MAJOR_SORCERY: Lazy<BonusData> = Lazy::new(|| {
+    BonusData::new(
+        "Major Sorcery",
+        BonusTrigger::Cast,
+        BonusTarget::SpellDamage,
+        0.20,
+    )
+    .with_duration(20.0)
+});
+
+pub static MAJOR_SAVAGERY: Lazy<BonusData> = Lazy::new(|| {
+    BonusData::new(
+        "Major Savagery",
+        BonusTrigger::Cast,
+        BonusTarget::WeaponCriticalChance,
+        2629.0,
+    )
+    .with_duration(20.0)
+});
+
+pub static MAJOR_PROPHECY: Lazy<BonusData> = Lazy::new(|| {
+    BonusData::new(
+        "Major Prophecy",
+        BonusTrigger::Cast,
+        BonusTarget::SpellCriticalChance,
+        2629.0,
+    )
+    .with_duration(20.0)
+});
+
+pub static EMPOWER: Lazy<BonusData> = Lazy::new(|| {
+    BonusData::new(
+        "Empower",
+        BonusTrigger::Cast,
+        BonusTarget::HeavyAttackDamage,
+        0.70,
+    )
+    .with_duration(10.0)
+});

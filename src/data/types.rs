@@ -189,6 +189,7 @@ pub enum BonusTarget {
     WeaponCriticalChance,
     WeaponDamage,
     SpellDamage,
+    HeavyAttackDamage,
 }
 
 /// Skill line names for all classes and weapons

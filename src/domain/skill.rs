@@ -1,7 +1,7 @@
 use crate::data::{
     BonusTarget, ClassName, DamageType, Resource, SkillLineName, SkillMechanic, TargetType,
 };
-use crate::domain::{BonusData, SkillDamage};
+use crate::domain::{BonusData, ExecuteData, ExecuteScaling, SkillDamage};
 use serde::{Deserialize, Serialize};
 
 /// Raw skill data used to construct skills
@@ -17,6 +17,10 @@ pub struct SkillData {
     pub resource: Resource,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub channel_time: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub execute: Option<ExecuteData>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub bonuses: Option<Vec<BonusData>>,
 }
 
 impl SkillData {
@@ -40,11 +44,23 @@ impl SkillData {
             target_type,
             resource,
             channel_time: None,
+            execute: None,
+            bonuses: None,
         }
     }
 
     pub fn with_channel_time(mut self, channel_time: f64) -> Self {
         self.channel_time = Some(channel_time);
+        self
+    }
+
+    pub fn with_execute(mut self, multiplier: f64, threshold: f64, scaling: ExecuteScaling) -> Self {
+        self.execute = Some(ExecuteData::new(multiplier, threshold, scaling));
+        self
+    }
+
+    pub fn with_bonuses(mut self, bonuses: Vec<BonusData>) -> Self {
+        self.bonuses = Some(bonuses);
         self
     }
 
@@ -143,6 +159,16 @@ impl SkillData {
         value * (1.0 + total_modifier)
     }
 
+    /// Calculate damage at a specific enemy health percentage, including execute bonuses
+    pub fn calculate_damage_at_health(&self, bonuses: &[BonusData], enemy_health_percent: f64) -> f64 {
+        let base = self.calculate_damage_per_cast(bonuses);
+        if let Some(execute) = &self.execute {
+            base * execute.calculate_multiplier(enemy_health_percent)
+        } else {
+            base
+        }
+    }
+
     /// Format skill details for display
     pub fn format_details(&self) -> String {
         let mut lines = Vec::new();
@@ -226,6 +252,44 @@ impl SkillData {
             "  Damage/Cast:     {:.0}",
             self.calculate_damage_per_cast(&[])
         ));
+
+        if let Some(execute) = &self.execute {
+            lines.push(String::new());
+            lines.push("  Execute".to_string());
+            lines.push(format!("  {}", "-".repeat(56)));
+            let scaling_str = match execute.scaling {
+                ExecuteScaling::Flat => "flat",
+                ExecuteScaling::Linear => "linear",
+            };
+            lines.push(format!(
+                "  Threshold:       {:.0}% HP",
+                execute.threshold * 100.0
+            ));
+            lines.push(format!(
+                "  Bonus:           +{:.0}% ({})",
+                execute.multiplier * 100.0,
+                scaling_str
+            ));
+            lines.push(format!(
+                "  Damage @0% HP:   {:.0}",
+                self.calculate_damage_at_health(&[], 0.0)
+            ));
+        }
+
+        if let Some(bonuses) = &self.bonuses {
+            if !bonuses.is_empty() {
+                lines.push(String::new());
+                lines.push("  Granted Bonuses".to_string());
+                lines.push(format!("  {}", "-".repeat(56)));
+                for bonus in bonuses {
+                    let duration_str = bonus
+                        .duration
+                        .map(|d| format!(" ({}s)", d))
+                        .unwrap_or_default();
+                    lines.push(format!("    - {}{}", bonus.name, duration_str));
+                }
+            }
+        }
 
         lines.join("\n")
     }

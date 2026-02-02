@@ -1,6 +1,7 @@
 pub mod bonus;
 pub mod build;
 pub mod dot_damage;
+pub mod execute;
 pub mod hit_damage;
 pub mod passive;
 pub mod skill;
@@ -9,6 +10,7 @@ pub mod skill_damage;
 pub use bonus::{BonusAlternative, BonusData, ResolveContext};
 pub use build::{Build, BUILD_CONSTRAINTS};
 pub use dot_damage::DotDamage;
+pub use execute::{ExecuteData, ExecuteScaling};
 pub use hit_damage::HitDamage;
 pub use passive::PassiveData;
 pub use skill::SkillData;
