@@ -14,9 +14,14 @@ Add missing skills and passives to skill line data files based on raw data from 
    - Path format: `<class>/<skill-line>`
 
 2. **Fetch skill data from eso-hub:**
-   - Navigate to the URL and extract raw skill data from the page
-   - The page contains sections: "Ultimate abilities", "Active abilities", "Passive abilities"
-   - Each skill shows: name, description (with damage values), and morphs
+   - **IMPORTANT:** The skill line overview page does NOT contain skill data. You MUST fetch individual skill pages.
+   - First, fetch the overview page to get the list of skill names
+   - Then fetch each individual skill page: `https://eso-hub.com/en/skills/<class>/<skill-line>/<skill-name>`
+   - Example URLs:
+     - `https://eso-hub.com/en/skills/nightblade/assassination/death-stroke`
+     - `https://eso-hub.com/en/skills/nightblade/assassination/ambush`
+     - `https://eso-hub.com/en/skills/nightblade/assassination/master-assassin` (for passives)
+   - Each skill page contains: name, description, damage values, buffs/debuffs, durations, and morph info
 
 3. **Map URL segments to Rust enums:**
 
@@ -114,7 +119,10 @@ SkillData::new(
     TargetType::X,          // target_type
     Resource::X,            // resource
 )
-// Optional: .with_channel_time(2.5)
+// Optional modifiers:
+// .with_channel_time(2.5)
+// .with_execute(multiplier, threshold, ExecuteScaling::Flat|Linear)
+// .with_bonuses(vec![...])
 ```
 
 ### Damage Patterns
@@ -219,27 +227,76 @@ SkillData::new(
 - "X Damage every Z seconds for Y seconds" → `DotDamage::new(X, Y).with_interval(Z)`
 - "increases by N% per tick" → `.with_increase_per_tick(N/100.0)`
 
-### Active Skill Bonuses (Buffs on Cast)
+### Active Skill Bonuses (Buffs/Debuffs on Cast)
 
-Note buffs granted by skills in comments. Common patterns:
+Skills can grant buffs to the player or apply debuffs to enemies. Use `.with_bonuses()` to attach these effects.
 
-| Text Pattern | Predefined Bonus |
-|--------------|------------------|
-| "grants you Minor Berserk" | `MINOR_BERSERK` |
-| "grants you Minor Brutality" | `MINOR_BRUTALITY` |
-| "grants you Minor Sorcery" | `MINOR_SORCERY` |
-| "grants you Minor Savagery" | `MINOR_SAVAGERY` |
-| "grants you Minor Prophecy" | `MINOR_PROPHECY` |
-| "grants you Empower" | Empower (70% Heavy Attack damage) |
-| "Major Berserk" | 10% damage done |
-| "Major Brutality" | 20% Weapon Damage |
-| "Major Sorcery" | 20% Spell Damage |
-| "Major Savagery" | 2629 Weapon Crit |
-| "Major Prophecy" | 2629 Spell Crit |
+#### Player Buffs (self-buffs on cast)
 
-Example:
+| Text Pattern | Predefined Constant | Effect |
+|--------------|---------------------|--------|
+| "Minor Berserk" | `MINOR_BERSERK` | +5% damage done |
+| "Minor Brutality" | `MINOR_BRUTALITY` | +10% Weapon Damage |
+| "Minor Sorcery" | `MINOR_SORCERY` | +10% Spell Damage |
+| "Minor Savagery" | `MINOR_SAVAGERY` | +1314 Weapon Crit |
+| "Minor Prophecy" | `MINOR_PROPHECY` | +1314 Spell Crit |
+| "Major Berserk" | `MAJOR_BERSERK` | +10% damage done |
+| "Major Brutality" | `MAJOR_BRUTALITY` | +20% Weapon Damage |
+| "Major Sorcery" | `MAJOR_SORCERY` | +20% Spell Damage |
+| "Major Savagery" | `MAJOR_SAVAGERY` | +2629 Weapon Crit |
+| "Major Prophecy" | `MAJOR_PROPHECY` | +2629 Spell Crit |
+| "Empower" | `EMPOWER` | +70% Heavy Attack damage |
+
+#### Enemy Debuffs (applied to target)
+
+| Text Pattern | Predefined Constant | Effect |
+|--------------|---------------------|--------|
+| "Minor Vulnerability" | `MINOR_VULNERABILITY` | +5% damage taken by enemy |
+| "Major Breach" / "Sundered" | `MAJOR_BREACH` | -5948 enemy resistance |
+
+#### Custom Debuffs (unique to skill)
+
+For unique debuffs like Death Stroke's +20% damage taken, create inline:
 ```rust
-// Ambush grants: Empower (10s), Minor Berserk (10s)
+BonusData::new(
+    "Death Stroke Debuff",
+    BonusTrigger::Cast,
+    BonusTarget::EnemyDamageTaken,
+    0.20,  // 20%
+)
+.with_duration(8.0)
+```
+
+#### Changing Bonus Triggers
+
+Use `.with_trigger()` to change when a bonus applies:
+
+```rust
+// Major Prophecy active while ability is slotted (not on cast)
+MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted)
+```
+
+#### Examples with Bonuses
+
+**Skill with enemy debuff:**
+```rust
+// Teleport Strike: Minor Vulnerability (10s)
+SkillData::new(
+    "Teleport Strike",
+    "Teleport Strike",
+    ClassName::Nightblade,
+    SkillLineName::Assassination,
+    SkillDamage::new().with_hits(vec![HitDamage::new(1602.0)]),
+    DamageType::Magic,
+    TargetType::Single,
+    Resource::Magicka,
+)
+.with_bonuses(vec![MINOR_VULNERABILITY.clone()])
+```
+
+**Skill with multiple buffs:**
+```rust
+// Ambush: Minor Vulnerability (10s), Empower (10s), Minor Berserk (10s)
 SkillData::new(
     "Ambush",
     "Teleport Strike",
@@ -250,23 +307,67 @@ SkillData::new(
     TargetType::Single,
     Resource::Stamina,
 )
+.with_bonuses(vec![
+    MINOR_VULNERABILITY.clone(),
+    EMPOWER.clone(),
+    MINOR_BERSERK.clone().with_duration(10.0),
+])
+```
+
+**Skill with "while slotted" buffs:**
+```rust
+// Grim Focus: Major Prophecy + Major Savagery while slotted
+SkillData::new(
+    "Grim Focus",
+    "Grim Focus",
+    ClassName::Nightblade,
+    SkillLineName::Assassination,
+    SkillDamage::new().with_hits(vec![HitDamage::new(4182.0)]),
+    DamageType::Magic,
+    TargetType::Single,
+    Resource::Magicka,
+)
+.with_bonuses(vec![
+    MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+    MAJOR_SAVAGERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+])
+```
+
+**Skill with custom unique debuff:**
+```rust
+// Death Stroke: +20% damage from player attacks for 8s
+SkillData::new(
+    "Death Stroke",
+    "Death Stroke",
+    ClassName::Nightblade,
+    SkillLineName::Assassination,
+    SkillDamage::new().with_hits(vec![HitDamage::new(3716.0)]),
+    DamageType::Magic,
+    TargetType::Single,
+    Resource::Ultimate,
+)
+.with_bonuses(vec![BonusData::new(
+    "Death Stroke Debuff",
+    BonusTrigger::Cast,
+    BonusTarget::EnemyDamageTaken,
+    0.20,
+)
+.with_duration(8.0)])
 ```
 
 ### Execute/Finisher Abilities
 
-Track execute mechanics in comments:
+Track execute mechanics with `.with_execute()`:
 
 | Pattern | Multiplier | Threshold | Scaling |
 |---------|------------|-----------|---------|
-| "Deals 300% more damage to enemies below 25% Health" | 300% | 25% | Flat |
-| "Deals up to 400% more damage to enemies below 50% Health" | 400% | 50% | Linear |
+| "Deals 300% more damage to enemies below 25% Health" | 3.0 | 0.25 | Flat |
+| "Deals up to 400% more damage to enemies below 50% Health" | 4.0 | 0.50 | Linear |
 
 - "Deals X% more" = Flat bonus when threshold met
 - "Deals up to X% more" = Linear scaling based on missing health
 
-Example:
 ```rust
-// Execute: 300% bonus damage to enemies below 25% Health (flat)
 SkillData::new(
     "Assassin's Blade",
     "Assassin's Blade",
@@ -277,6 +378,7 @@ SkillData::new(
     TargetType::Single,
     Resource::Magicka,
 )
+.with_execute(3.0, 0.25, ExecuteScaling::Flat)
 ```
 
 ### Important Notes for Active Skills
@@ -284,6 +386,7 @@ SkillData::new(
 - **IGNORE healing over time (HoT)** - Only record damage, not healing effects
 - Use `SkillDamage::new()` for utility/buff skills with no damage
 - Group skills by base skill (base + morphs together with comments)
+- Always add descriptive comments above skills explaining their bonuses
 
 ---
 
@@ -308,8 +411,11 @@ PassiveData::new(
 |--------------|-----------|
 | Always active (no condition) | `BonusTrigger::Passive` |
 | "While slotted" / "WITH ... SLOTTED" | `BonusTrigger::SkillLineSlotted` |
+| "while this ability is slotted" (specific ability) | `BonusTrigger::AbilitySlotted` |
 | "for each ... ability slotted" | `BonusTrigger::AbilitySlottedCount` |
 | "When you cast" / on ability use | `BonusTrigger::Cast` |
+| "When you deal Critical Damage" | `BonusTrigger::CriticalDamageDealt` |
+| "when flanking" / "from flank" | `BonusTrigger::Flanking` |
 | "When ... damage is dealt" (burning/poison) | `BonusTrigger::BurningOrPoisonDamageDealt` |
 | "When Magicka or Stamina restored" | `BonusTrigger::MagickaOrStaminaRestored` |
 | "While Bow equipped" | `BonusTrigger::BowEquipped` |
@@ -320,16 +426,25 @@ PassiveData::new(
 
 ### BonusTarget Mapping (description text → Rust enum)
 
+#### Player Stats
 | Text Pattern | Rust Enum |
 |--------------|-----------|
 | "Critical Chance rating" / "Weapon Critical" / "Spell Critical" | `BonusTarget::CriticalChance` |
+| "Weapon Critical" (specifically) | `BonusTarget::WeaponCriticalChance` |
+| "Spell Critical" (specifically) | `BonusTarget::SpellCriticalChance` |
 | "Critical Damage" | `BonusTarget::CriticalDamage` |
 | "damage done" / "damage by X%" | `BonusTarget::Damage` |
 | "Weapon Damage" | `BonusTarget::WeaponDamage` |
 | "Spell Damage" | `BonusTarget::SpellDamage` |
 | "Weapon and Spell Damage" | `BonusTarget::WeaponAndSpellDamage` |
-| "Physical and Spell Penetration" / "Resistance" | `BonusTarget::PhysicalAndSpellPenetration` |
-| "restore ... Magicka" or "restore ... Stamina" | `BonusTarget::RestoreMagickaOrStamina` |
+| "Physical and Spell Penetration" | `BonusTarget::PhysicalAndSpellPenetration` |
+| "Max Magicka" | `BonusTarget::MaxMagicka` |
+| "Max Stamina" | `BonusTarget::MaxStamina` |
+| "Heavy Attack damage" | `BonusTarget::HeavyAttackDamage` |
+
+#### Damage Type Bonuses
+| Text Pattern | Rust Enum |
+|--------------|-----------|
 | "direct damage" | `BonusTarget::DirectDamage` |
 | "damage over time" | `BonusTarget::DotDamage` |
 | "AoE damage" / "area damage" | `BonusTarget::AoeDamage` |
@@ -338,9 +453,19 @@ PassiveData::new(
 | "Shock damage" | `BonusTarget::ShockDamage` |
 | "Physical damage" | `BonusTarget::PhysicalDamage` |
 | "Off Balance" damage | `BonusTarget::OffBalanceDamage` |
-| "Max Magicka" | `BonusTarget::MaxMagicka` |
-| "Max Stamina" | `BonusTarget::MaxStamina` |
-| "duration" (skill line abilities) | `BonusTarget::DurationSkillLineMultiplier` |
+
+#### Enemy Debuffs
+| Text Pattern | Rust Enum |
+|--------------|-----------|
+| "damage taken" (by enemy) | `BonusTarget::EnemyDamageTaken` |
+| "reduce ... Resistance" | `BonusTarget::EnemyResistanceReduction` |
+
+#### Utility
+| Text Pattern | Rust Enum |
+|--------------|-----------|
+| "restore ... Magicka" or "restore ... Stamina" | `BonusTarget::RestoreMagickaOrStamina` |
+| "duration" (flat seconds) | `BonusTarget::DurationSkillLineFlat` |
+| "duration" (percentage) | `BonusTarget::DurationSkillLineMultiplier` |
 
 ### Bonus Value Parsing
 
@@ -354,19 +479,21 @@ PassiveData::new(
 
 - `.with_duration(seconds)` - for buffs with duration (e.g., "for 20 seconds")
 - `.with_cooldown(seconds)` - for effects with cooldown
+- `.with_trigger(BonusTrigger::X)` - to change the trigger type
 - `.with_alternative(target, value, breakpoint)` - for conditional bonuses
 
 ### Passive Examples
 
-**Simple passive (always active):**
+**Conditional passive (flanking):**
 ```rust
+// Master Assassin: +1448 Crit Chance (6.6%) when flanking enemies
 PassiveData::new(
     "Master Assassin",
     ClassName::Nightblade,
     SkillLineName::Assassination,
     vec![BonusData::new(
         "Master Assassin",
-        BonusTrigger::Passive,
+        BonusTrigger::Flanking,
         BonusTarget::CriticalChance,
         1448.0,
     )],
@@ -375,6 +502,7 @@ PassiveData::new(
 
 **Scaling passive (per ability slotted):**
 ```rust
+// Pressure Points: +548 Crit Chance (2.5%) per Assassination ability slotted
 PassiveData::new(
     "Pressure Points",
     ClassName::Nightblade,
@@ -388,26 +516,21 @@ PassiveData::new(
 )
 ```
 
-**Multi-bonus passive:**
+**Multi-bonus passive with different triggers:**
 ```rust
+// Hemorrhage: +10% Crit Damage always, Minor Savagery to group on dealing crit damage
 PassiveData::new(
     "Hemorrhage",
     ClassName::Nightblade,
     SkillLineName::Assassination,
     vec![
         BonusData::new(
-            "Hemorrhage 1",
-            BonusTrigger::SkillLineSlotted,
+            "Hemorrhage",
+            BonusTrigger::Passive,
             BonusTarget::CriticalDamage,
-            0.10,  // 10%
+            0.10,
         ),
-        BonusData::new(
-            "Hemorrhage 2",
-            BonusTrigger::Cast,  // On dealing crit damage
-            BonusTarget::WeaponCriticalChance,
-            1314.0,
-        )
-        .with_duration(20.0),
+        MINOR_SAVAGERY.clone().with_trigger(BonusTrigger::CriticalDamageDealt),
     ],
 )
 ```
@@ -438,22 +561,35 @@ PassiveData::new(
 
 **Passive with no implemented bonuses (placeholder):**
 ```rust
+// Executioner: Restore 1000 Magicka and Stamina when enemy dies within 2s
 PassiveData::new(
     "Executioner",
     ClassName::Nightblade,
     SkillLineName::Assassination,
-    vec![],  // TODO: Restore 1000 Magicka and Stamina when enemy dies within 2s
+    vec![],  // Resource restore on kill - not tracked in damage calculations
 )
 ```
 
 ### Predefined Bonuses
 
 Import from `src/data/bonuses/unique.rs`:
-- `MINOR_SAVAGERY` - 1314 Weapon Crit, Cast trigger, 20s duration
+
+#### Player Buffs
 - `MINOR_BERSERK` - 5% damage, Cast trigger, 20s duration
-- `MINOR_PROPHECY` - 1314 Spell Crit, Cast trigger, 20s duration
 - `MINOR_BRUTALITY` - 10% Weapon Damage, Cast trigger, 20s duration
 - `MINOR_SORCERY` - 10% Spell Damage, Cast trigger, 20s duration
+- `MINOR_SAVAGERY` - 1314 Weapon Crit, Cast trigger, 20s duration
+- `MINOR_PROPHECY` - 1314 Spell Crit, Cast trigger, 20s duration
+- `MAJOR_BERSERK` - 10% damage, Cast trigger, 20s duration
+- `MAJOR_BRUTALITY` - 20% Weapon Damage, Cast trigger, 20s duration
+- `MAJOR_SORCERY` - 20% Spell Damage, Cast trigger, 20s duration
+- `MAJOR_SAVAGERY` - 2629 Weapon Crit, Cast trigger, 20s duration
+- `MAJOR_PROPHECY` - 2629 Spell Crit, Cast trigger, 20s duration
+- `EMPOWER` - 70% Heavy Attack damage, Cast trigger, 10s duration
+
+#### Enemy Debuffs
+- `MINOR_VULNERABILITY` - 5% enemy damage taken, Cast trigger, 10s duration
+- `MAJOR_BREACH` - 5948 enemy resistance reduction, Cast trigger, 20s duration
 
 ---
 
@@ -465,7 +601,7 @@ Import from `src/data/bonuses/unique.rs`:
 - `src/domain/dot_damage.rs` - DotDamage struct
 - `src/domain/passive.rs` - PassiveData struct
 - `src/domain/bonus.rs` - BonusData struct
-- `src/data/types.rs` - All enums (ClassName, SkillLineName, DamageType, etc.)
+- `src/data/types.rs` - All enums (ClassName, SkillLineName, DamageType, BonusTrigger, BonusTarget, etc.)
 - `src/data/bonuses/unique.rs` - Predefined bonus constants
 
 ---
