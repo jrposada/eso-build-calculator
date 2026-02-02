@@ -1,5 +1,5 @@
-use crate::data::{ClassName, SkillLineName};
-use crate::domain::{BonusData, SkillData};
+use crate::data::{BonusTarget, ClassName, SkillLineName};
+use crate::domain::{BonusData, ResolveContext, SkillData};
 use crate::infrastructure::{format, table};
 use std::collections::{HashMap, HashSet};
 
@@ -26,6 +26,8 @@ pub struct Build {
     champion_bonuses: Vec<BonusData>,
     skill_line_counts: HashMap<SkillLineName, usize>,
     pub total_damage: f64,
+    crit_damage: f64,
+    conditional_bonuses: Vec<BonusData>,
 }
 
 impl Build {
@@ -33,6 +35,15 @@ impl Build {
         skills: Vec<&'static SkillData>,
         champion_bonuses: Vec<BonusData>,
         passive_bonuses: &[BonusData],
+    ) -> Self {
+        Self::with_base_crit_damage(skills, champion_bonuses, passive_bonuses, 0.0)
+    }
+
+    pub fn with_base_crit_damage(
+        skills: Vec<&'static SkillData>,
+        champion_bonuses: Vec<BonusData>,
+        passive_bonuses: &[BonusData],
+        base_crit_damage: f64,
     ) -> Self {
         let mut skill_line_counts: HashMap<SkillLineName, usize> = HashMap::new();
         for skill in &skills {
@@ -47,9 +58,24 @@ impl Build {
         let mut all_bonuses = champion_bonuses.clone();
         all_bonuses.extend(passive_bonuses.iter().cloned());
 
+        // Aggregate crit damage from non-conditional bonuses to build context
+        let crit_damage_bonus = Self::aggregate_crit_damage(&all_bonuses);
+        let crit_damage = base_crit_damage + crit_damage_bonus;
+        let ctx = ResolveContext::new(crit_damage);
+
+        // Store conditional bonuses for Display (minimal overhead - usually 0-2 items)
+        let conditional_bonuses: Vec<BonusData> = all_bonuses
+            .iter()
+            .filter(|b| b.is_conditional())
+            .cloned()
+            .collect();
+
+        // Resolve all bonuses
+        let resolved_bonuses = Self::resolve_bonuses(&all_bonuses, &ctx);
+
         let mut total_damage = 0.0;
         for skill in &skills {
-            let damage = skill.calculate_damage_per_cast(&all_bonuses);
+            let damage = skill.calculate_damage_per_cast(&resolved_bonuses);
             total_damage += damage;
         }
 
@@ -58,7 +84,31 @@ impl Build {
             champion_bonuses,
             skill_line_counts,
             total_damage,
+            crit_damage,
+            conditional_bonuses,
         }
+    }
+
+    /// Aggregate crit damage from non-conditional bonuses
+    fn aggregate_crit_damage(bonuses: &[BonusData]) -> f64 {
+        bonuses
+            .iter()
+            .filter(|b| !b.is_conditional() && b.target == BonusTarget::CriticalDamage)
+            .map(|b| b.value)
+            .sum()
+    }
+
+    /// Resolve all bonuses using the build context.
+    fn resolve_bonuses(bonuses: &[BonusData], ctx: &ResolveContext) -> Vec<BonusData> {
+        bonuses
+            .iter()
+            .map(|bonus| {
+                let (target, value) = bonus.resolve(ctx);
+                BonusData::new(&bonus.name, bonus.bonus_trigger, target, value)
+                    .with_duration(bonus.duration.unwrap_or(0.0))
+                    .with_cooldown(bonus.cooldown.unwrap_or(0.0))
+            })
+            .collect()
     }
 }
 
@@ -150,6 +200,26 @@ impl std::fmt::Display for Build {
                 footer: None,
             },
         ));
+
+        // Buff selections (computed lazily during Display only)
+        if !self.conditional_bonuses.is_empty() {
+            let ctx = ResolveContext::new(self.crit_damage);
+            lines.push(String::new());
+            lines.push("Conditional Buff Selections:".to_string());
+            lines.push("-".repeat(40));
+            for bonus in &self.conditional_bonuses {
+                if let Some((used_alt, breakpoint)) = bonus.selection_info(&ctx) {
+                    let option = if used_alt { "alternative" } else { "primary" };
+                    lines.push(format!(
+                        "  {}: {} (crit damage: {:.1}%, breakpoint: {:.1}%)",
+                        bonus.name,
+                        option,
+                        self.crit_damage * 100.0,
+                        breakpoint * 100.0
+                    ));
+                }
+            }
+        }
 
         write!(f, "{}", lines.join("\n"))
     }
