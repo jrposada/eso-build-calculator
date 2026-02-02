@@ -167,12 +167,12 @@ pub enum BonusTrigger {
 #[serde(rename_all = "kebab-case")]
 pub enum BonusTarget {
     AoeDamage,
+    Damage,
     BurningAndPoisonDamage,
     CriticalChance,
     CriticalDamage,
     DirectDamage,
     DotDamage,
-    Duration,
     DurationSkillLineFlat,
     DurationSkillLineMultiplier,
     MaxMagicka,
@@ -187,6 +187,7 @@ pub enum BonusTarget {
     WeaponAndSpellDamage,
     WeaponCriticalChance,
     WeaponDamage,
+    SpellDamage,
 }
 
 /// Skill line names for all classes and weapons

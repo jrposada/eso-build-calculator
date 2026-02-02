@@ -24,8 +24,13 @@ impl BonusData {
             target,
             value,
             duration: None,
-            cooldown: None
+            cooldown: None,
         }
+    }
+
+    pub fn with_trigger(mut self, trigger: BonusTrigger) -> Self {
+        self.bonus_trigger = trigger;
+        self
     }
 
     pub fn with_duration(mut self, duration: f64) -> Self {

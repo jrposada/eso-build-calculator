@@ -53,17 +53,20 @@ pub static SORCERER_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Expert Summoner",
             ClassName::Sorcerer,
             SkillLineName::DaedricSummoning,
-            vec![BonusData::new(
-                "Expert Summoner 1",
-                BonusTrigger::Passive,
-                BonusTarget::MaxMagicka,
-                0.05,
-            ), BonusData::new(
-                "Expert Summoner 2",
-                BonusTrigger::Passive,
-                BonusTarget::MaxStamina,
-                0.05,
-            )],
+            vec![
+                BonusData::new(
+                    "Expert Summoner 1",
+                    BonusTrigger::Passive,
+                    BonusTarget::MaxMagicka,
+                    0.05,
+                ),
+                BonusData::new(
+                    "Expert Summoner 2",
+                    BonusTrigger::Passive,
+                    BonusTarget::MaxStamina,
+                    0.05,
+                ),
+            ],
         ),
         // === STORM CALLING ===
         PassiveData::new(
@@ -81,14 +84,14 @@ pub static SORCERER_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                     "Energized 1",
                     BonusTrigger::Passive,
                     BonusTarget::PhysicalDamage,
-                    0.05
+                    0.05,
                 ),
                 BonusData::new(
                     "Energized 1",
                     BonusTrigger::Passive,
                     BonusTarget::ShockDamage,
-                    0.05
-                )
+                    0.05,
+                ),
             ],
         ),
         PassiveData::new(

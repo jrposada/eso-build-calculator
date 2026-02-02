@@ -9,27 +9,25 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Fated Fortune",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
-            vec![
-                BonusData::new(
-                    "Fated Fortune",
-                    BonusTrigger::ArcanistCrux,
-                    BonusTarget::CriticalDamage,
-                    0.12,
-                ).with_duration(7.0)
-            ],
+            vec![BonusData::new(
+                "Fated Fortune",
+                BonusTrigger::ArcanistCrux,
+                BonusTarget::CriticalDamage,
+                0.12,
+            )
+            .with_duration(7.0)],
         ),
         PassiveData::new(
             "Harnessed Quintessence",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
-            vec![
-                BonusData::new(
-                    "Harnessed Quintessence W",
-                    BonusTrigger::MagickaOrStaminaRestored,
-                    BonusTarget::WeaponAndSpellDamage,
-                    284.0,
-                ).with_duration(10.0),
-            ],
+            vec![BonusData::new(
+                "Harnessed Quintessence W",
+                BonusTrigger::MagickaOrStaminaRestored,
+                BonusTarget::WeaponAndSpellDamage,
+                284.0,
+            )
+            .with_duration(10.0)],
         ),
         PassiveData::new(
             "Psychic Lesion",
