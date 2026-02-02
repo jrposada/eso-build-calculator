@@ -154,8 +154,10 @@ pub enum BonusTrigger {
     BowEquipped,
     BurningOrPoisonDamageDealt,
     Cast,
+    CriticalDamageDealt,
     DestructionStuffEquipped,
     DualWieldEquipped,
+    Flanking,
     MagickaOrStaminaRestored,
     Passive,
     SkillLineSkillCast,
@@ -190,6 +192,9 @@ pub enum BonusTarget {
     WeaponDamage,
     SpellDamage,
     HeavyAttackDamage,
+    // Enemy debuffs
+    EnemyDamageTaken,
+    EnemyResistanceReduction,
 }
 
 /// Skill line names for all classes and weapons

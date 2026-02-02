@@ -1,12 +1,16 @@
-use crate::data::bonuses::{EMPOWER, MINOR_BERSERK};
-use crate::data::{ClassName, DamageType, Resource, SkillLineName, TargetType};
-use crate::domain::{DotDamage, ExecuteScaling, HitDamage, SkillDamage, SkillData};
+use crate::data::bonuses::{
+    EMPOWER, MAJOR_BERSERK, MAJOR_BREACH, MAJOR_PROPHECY, MAJOR_SAVAGERY, MINOR_BERSERK,
+    MINOR_VULNERABILITY,
+};
+use crate::data::{BonusTarget, BonusTrigger, ClassName, DamageType, Resource, SkillLineName, TargetType};
+use crate::domain::{BonusData, DotDamage, ExecuteScaling, HitDamage, SkillDamage, SkillData};
 use once_cell::sync::Lazy;
 
 pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
     vec![
         // === ASSASSINATION ===
         // Ultimate - Death Stroke line
+        // Death Stroke: +20% damage from player attacks for 8s
         SkillData::new(
             "Death Stroke",
             "Death Stroke",
@@ -16,7 +20,15 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Ultimate,
-        ),
+        )
+        .with_bonuses(vec![BonusData::new(
+            "Death Stroke Debuff",
+            BonusTrigger::Cast,
+            BonusTarget::EnemyDamageTaken,
+            0.20,
+        )
+        .with_duration(8.0)]),
+        // Incapacitating Strike: +20% damage for 8s (12s with 120+ ult), stun 3s with 120+ ult
         SkillData::new(
             "Incapacitating Strike",
             "Death Stroke",
@@ -26,7 +38,15 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Disease,
             TargetType::Single,
             Resource::Ultimate,
-        ),
+        )
+        .with_bonuses(vec![BonusData::new(
+            "Incapacitating Strike Debuff",
+            BonusTrigger::Cast,
+            BonusTarget::EnemyDamageTaken,
+            0.20,
+        )
+        .with_duration(8.0)]),
+        // Soul Harvest: +20% damage for 8s, Major Defile, +10 Ultimate on kill (while slotted)
         SkillData::new(
             "Soul Harvest",
             "Death Stroke",
@@ -36,8 +56,16 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Ultimate,
-        ),
+        )
+        .with_bonuses(vec![BonusData::new(
+            "Soul Harvest Debuff",
+            BonusTrigger::Cast,
+            BonusTarget::EnemyDamageTaken,
+            0.20,
+        )
+        .with_duration(8.0)]),
         // Veiled Strike line
+        // Veiled Strike: Off Balance on flank (conditional, not tracked)
         SkillData::new(
             "Veiled Strike",
             "Veiled Strike",
@@ -48,6 +76,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Magicka,
         ),
+        // Concealed Weapon: Off Balance on flank, Minor Expedition while slotted,
+        // +10% damage for 15s after leaving stealth (conditional bonuses not tracked)
         SkillData::new(
             "Concealed Weapon",
             "Veiled Strike",
@@ -58,6 +88,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Magicka,
         ),
+        // Surprise Attack: Sundered status (Major Breach equivalent)
         SkillData::new(
             "Surprise Attack",
             "Veiled Strike",
@@ -67,8 +98,10 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Physical,
             TargetType::Single,
             Resource::Stamina,
-        ),
+        )
+        .with_bonuses(vec![MAJOR_BREACH.clone()]),
         // Teleport Strike line
+        // Teleport Strike: Minor Vulnerability (10s)
         SkillData::new(
             "Teleport Strike",
             "Teleport Strike",
@@ -78,7 +111,9 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![MINOR_VULNERABILITY.clone()]),
+        // Ambush: Minor Vulnerability (10s), Empower (10s), Minor Berserk (10s)
         SkillData::new(
             "Ambush",
             "Teleport Strike",
@@ -90,9 +125,11 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Stamina,
         )
         .with_bonuses(vec![
-            EMPOWER.clone().with_duration(10.0),
+            MINOR_VULNERABILITY.clone(),
+            EMPOWER.clone(),
             MINOR_BERSERK.clone().with_duration(10.0),
         ]),
+        // Lotus Fan: Minor Vulnerability (10s) to all enemies hit
         SkillData::new(
             "Lotus Fan",
             "Teleport Strike",
@@ -104,7 +141,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Aoe,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![MINOR_VULNERABILITY.clone()]),
         // Assassin's Blade line
         SkillData::new(
             "Assassin's Blade",
@@ -140,6 +178,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         )
         .with_execute(4.0, 0.50, ExecuteScaling::Linear),
         // Mark Target line (no damage)
+        // Mark Target: Major Breach (20s), heal to full on target death
         SkillData::new(
             "Mark Target",
             "Mark Target",
@@ -149,7 +188,9 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![MAJOR_BREACH.clone()]),
+        // Piercing Mark: Major Breach (60s), reveals stealthed enemies
         SkillData::new(
             "Piercing Mark",
             "Mark Target",
@@ -159,7 +200,9 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![MAJOR_BREACH.clone().with_duration(60.0)]),
+        // Reaper's Mark: Major Breach (20s), Major Berserk (10s) on target death
         SkillData::new(
             "Reaper's Mark",
             "Mark Target",
@@ -169,8 +212,14 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_BREACH.clone(),
+            // Major Berserk granted on target death (conditional)
+            MAJOR_BERSERK.clone().with_duration(10.0),
+        ]),
         // Grim Focus line
+        // Grim Focus: Major Prophecy + Major Savagery while slotted (+2629 crit rating)
         SkillData::new(
             "Grim Focus",
             "Grim Focus",
@@ -180,7 +229,12 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SAVAGERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+        ]),
+        // Merciless Resolve: Major Prophecy + Major Savagery while slotted, 50% heal on proc
         SkillData::new(
             "Merciless Resolve",
             "Grim Focus",
@@ -190,7 +244,12 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SAVAGERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+        ]),
+        // Relentless Focus: Major Prophecy + Major Savagery while slotted, 4 stacks to proc
         SkillData::new(
             "Relentless Focus",
             "Grim Focus",
@@ -200,7 +259,11 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Disease,
             TargetType::Single,
             Resource::Stamina,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SAVAGERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+        ]),
         // === SHADOW ===
         // Ultimate - Consuming Darkness line
         SkillData::new(

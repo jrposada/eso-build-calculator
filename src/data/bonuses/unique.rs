@@ -111,3 +111,24 @@ pub static EMPOWER: Lazy<BonusData> = Lazy::new(|| {
     )
     .with_duration(10.0)
 });
+
+// Enemy Debuffs (increase damage taken by target)
+pub static MINOR_VULNERABILITY: Lazy<BonusData> = Lazy::new(|| {
+    BonusData::new(
+        "Minor Vulnerability",
+        BonusTrigger::Cast,
+        BonusTarget::EnemyDamageTaken,
+        0.05,
+    )
+    .with_duration(10.0)
+});
+
+pub static MAJOR_BREACH: Lazy<BonusData> = Lazy::new(|| {
+    BonusData::new(
+        "Major Breach",
+        BonusTrigger::Cast,
+        BonusTarget::EnemyResistanceReduction,
+        5948.0,
+    )
+    .with_duration(20.0)
+});

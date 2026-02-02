@@ -6,34 +6,38 @@ use once_cell::sync::Lazy;
 pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
     vec![
         // === ASSASSINATION ===
+        // Master Assassin: +1448 Crit Chance (6.6%) when flanking enemies
         PassiveData::new(
             "Master Assassin",
             ClassName::Nightblade,
             SkillLineName::Assassination,
             vec![BonusData::new(
                 "Master Assassin",
-                BonusTrigger::Passive,
+                BonusTrigger::Flanking,
                 BonusTarget::CriticalChance,
                 1448.0,
             )],
         ),
+        // Executioner: Restore 1000 Magicka and Stamina when enemy dies within 2s of being damaged
         PassiveData::new(
             "Executioner",
             ClassName::Nightblade,
             SkillLineName::Assassination,
-            vec![], // On dead effect, restore magicka and stamina
+            vec![], // Resource restore on kill effect - not tracked in damage calculations
         ),
+        // Pressure Points: +548 Crit Chance (2.5%) per Assassination ability slotted
         PassiveData::new(
-            "Pressure Point",
+            "Pressure Points",
             ClassName::Nightblade,
             SkillLineName::Assassination,
             vec![BonusData::new(
-                "Pressure Point",
+                "Pressure Points",
                 BonusTrigger::AbilitySlottedCount,
                 BonusTarget::CriticalChance,
                 548.0,
             )],
         ),
+        // Hemorrhage: +10% Crit Damage always, Minor Savagery to group on dealing crit damage
         PassiveData::new(
             "Hemorrhage",
             ClassName::Nightblade,
@@ -41,11 +45,11 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             vec![
                 BonusData::new(
                     "Hemorrhage",
-                    BonusTrigger::AbilitySlotted,
+                    BonusTrigger::Passive,
                     BonusTarget::CriticalDamage,
                     0.1,
                 ),
-                MINOR_SAVAGERY.clone(),
+                MINOR_SAVAGERY.clone().with_trigger(BonusTrigger::CriticalDamageDealt),
             ],
         ),
         // === SHADOW ===
