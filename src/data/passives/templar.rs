@@ -1,4 +1,4 @@
-use crate::data::{BonusTarget, BonusType, ClassName, SkillLineName};
+use crate::data::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use crate::domain::{BonusData, PassiveData};
 use once_cell::sync::Lazy;
 
@@ -11,7 +11,7 @@ pub static TEMPLAR_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::AedricSpear,
             vec![BonusData::new(
                 "Piercing Spear",
-                BonusType::SkillLine,
+                BonusTrigger::SkillLineSlotted,
                 BonusTarget::CriticalDamage,
                 0.1,
             )],
@@ -53,7 +53,7 @@ pub static TEMPLAR_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::DawnsWrath,
             vec![BonusData::new(
                 "Enduring Rays",
-                BonusType::SkillLine,
+                BonusTrigger::SkillLineSlotted,
                 BonusTarget::Duration,
                 3.0,
             )],

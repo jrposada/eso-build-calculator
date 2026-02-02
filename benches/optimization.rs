@@ -5,9 +5,7 @@ use std::time::Duration;
 
 fn benchmark_pure_nightblade_bow(c: &mut Criterion) {
     let mut group = c.benchmark_group("optimization");
-    // Set measurement time to get stable results
     group.measurement_time(Duration::from_secs(10));
-    // Baseline: ~1.6s per iteration
     group.sample_size(10);
 
     group.bench_function("pure_nightblade_bow", |b| {

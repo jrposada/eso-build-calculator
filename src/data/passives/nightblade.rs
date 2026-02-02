@@ -1,5 +1,5 @@
 use crate::data::bonuses::MINOR_SAVAGERY;
-use crate::data::{BonusTarget, BonusType, ClassName, SkillLineName};
+use crate::data::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use crate::domain::{BonusData, PassiveData};
 use once_cell::sync::Lazy;
 
@@ -12,16 +12,16 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::Assassination,
             vec![BonusData::new(
                 "Master Assassin",
-                BonusType::SkillLine,
+                BonusTrigger::Passive,
                 BonusTarget::CriticalChance,
-                0.066,
+                1448.0,
             )],
         ),
         PassiveData::new(
             "Executioner",
             ClassName::Nightblade,
             SkillLineName::Assassination,
-            vec![],
+            vec![], // On dead effect, restore magicka and stamina
         ),
         PassiveData::new(
             "Pressure Point",
@@ -29,9 +29,9 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::Assassination,
             vec![BonusData::new(
                 "Pressure Point",
-                BonusType::AbilitySlottedCount,
+                BonusTrigger::AbilitySlottedCount,
                 BonusTarget::CriticalChance,
-                0.025,
+                548.0,
             )],
         ),
         PassiveData::new(
@@ -41,7 +41,7 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             vec![
                 BonusData::new(
                     "Hemorrhage",
-                    BonusType::AbilitySlotted,
+                    BonusTrigger::AbilitySlotted,
                     BonusTarget::CriticalDamage,
                     0.1,
                 ),
@@ -53,19 +53,19 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Refreshing Shadows",
             ClassName::Nightblade,
             SkillLineName::Shadow,
-            vec![],
+            vec![], // Increase resource recovery 15%
         ),
         PassiveData::new(
             "Shadow Barrier",
             ClassName::Nightblade,
             SkillLineName::Shadow,
-            vec![],
+            vec![], // Mayor resolve 12 secs
         ),
         PassiveData::new(
             "Dark Vigor",
             ClassName::Nightblade,
             SkillLineName::Shadow,
-            vec![],
+            vec![], // Increase max health
         ),
         PassiveData::new(
             "Dark Veil",
@@ -73,8 +73,8 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::Shadow,
             vec![BonusData::new(
                 "Dark Veil",
-                BonusType::SkillLine,
-                BonusTarget::Duration,
+                BonusTrigger::Passive,
+                BonusTarget::DurationSkillLineFlat,
                 2.0,
             )],
         ),
@@ -83,7 +83,7 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Catalyst",
             ClassName::Nightblade,
             SkillLineName::Siphoning,
-            vec![],
+            vec![], // Ultimate gain
         ),
         PassiveData::new(
             "Magicka Flood",
@@ -91,22 +91,29 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::Siphoning,
             vec![BonusData::new(
                 "Magicka Flood",
-                BonusType::SkillLine,
+                BonusTrigger::SkillLineSlotted,
                 BonusTarget::MaxStamina,
                 0.06,
-            )],
+            ),
+            BonusData::new(
+                "Magicka Flood",
+                BonusTrigger::SkillLineSlotted,
+                BonusTarget::MaxMagicka,
+                0.06,
+            )
+            ],
         ),
         PassiveData::new(
             "Soul Siphoner",
             ClassName::Nightblade,
             SkillLineName::Siphoning,
-            vec![],
+            vec![], // Increase healing
         ),
         PassiveData::new(
             "Transfer",
             ClassName::Nightblade,
             SkillLineName::Siphoning,
-            vec![],
+            vec![], // Ultimate gen
         ),
     ]
 });

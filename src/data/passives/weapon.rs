@@ -1,4 +1,4 @@
-use crate::data::{BonusTarget, BonusType, ClassName, SkillLineName};
+use crate::data::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use crate::domain::{BonusData, PassiveData};
 use once_cell::sync::Lazy;
 
@@ -12,7 +12,7 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::Bow,
             vec![BonusData::new(
                 "Accuracy",
-                BonusType::SkillLine,
+                BonusTrigger::SkillLineSlotted,
                 BonusTarget::CriticalChance,
                 0.08,
             )],
@@ -24,7 +24,7 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::Bow,
             vec![BonusData::new(
                 "Hawk Eye",
-                BonusType::AbilitySlottedCount,
+                BonusTrigger::AbilitySlottedCount,
                 BonusTarget::CriticalDamage,
                 0.02,
             )],
@@ -54,7 +54,7 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::DualWield,
             vec![BonusData::new(
                 "Twin Blade and Blunt",
-                BonusType::SkillLine,
+                BonusTrigger::SkillLineSlotted,
                 BonusTarget::CriticalDamage,
                 0.05,
             )],
@@ -72,7 +72,7 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::TwoHanded,
             vec![BonusData::new(
                 "Heavy Weapons",
-                BonusType::SkillLine,
+                BonusTrigger::SkillLineSlotted,
                 BonusTarget::CriticalDamage,
                 0.12,
             )],
@@ -114,7 +114,7 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::DestructionStaff,
             vec![BonusData::new(
                 "Ancient Knowledge",
-                BonusType::AbilitySlottedCount,
+                BonusTrigger::AbilitySlottedCount,
                 BonusTarget::CriticalChance,
                 0.04,
             )],

@@ -1,4 +1,4 @@
-use crate::data::{BonusTarget, BonusType, ClassName, SkillLineName};
+use crate::data::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use crate::domain::{BonusData, PassiveData};
 use once_cell::sync::Lazy;
 
@@ -6,83 +6,98 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
     vec![
         // === HERALD OF THE TOME ===
         PassiveData::new(
-            "Scion of Apocrypha",
+            "Fated Fortune",
+            ClassName::Arcanist,
+            SkillLineName::HeraldOfTheTome,
+            vec![
+                BonusData::new(
+                    "Fated Fortune",
+                    BonusTrigger::ArcanistCrux,
+                    BonusTarget::CriticalDamage,
+                    0.12,
+                ).with_duration(7.0)
+            ],
+        ),
+        PassiveData::new(
+            "Harnessed Quintessence",
+            ClassName::Arcanist,
+            SkillLineName::HeraldOfTheTome,
+            vec![
+                BonusData::new(
+                    "Harnessed Quintessence W",
+                    BonusTrigger::MagickaOrStaminaRestored,
+                    BonusTarget::WeaponAndSpellDamage,
+                    284.0,
+                ).with_duration(10.0),
+            ],
+        ),
+        PassiveData::new(
+            "Psychic Lesion",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
             vec![],
         ),
         PassiveData::new(
-            "Meticulous Curation",
-            ClassName::Arcanist,
-            SkillLineName::HeraldOfTheTome,
-            vec![],
-        ),
-        PassiveData::new(
-            "Sage-Sight Aura",
-            ClassName::Arcanist,
-            SkillLineName::HeraldOfTheTome,
-            vec![],
-        ),
-        PassiveData::new(
-            "Tome-Bearer's Inspiration",
+            "Splintered Secrets",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
             vec![BonusData::new(
-                "Tome-Bearer's Inspiration",
-                BonusType::AbilitySlottedCount,
-                BonusTarget::CriticalChance,
-                0.03,
+                "Splintered Secrets",
+                BonusTrigger::AbilitySlottedCount,
+                BonusTarget::PhysicalAndSpellPenetration,
+                1240.0,
             )],
         ),
         // === SOLDIER OF APOCRYPHA ===
         PassiveData::new(
-            "Seeker's Will",
+            "Aegis of the Unseen",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
-            vec![],
+            vec![], // Increase Armor 3271
         ),
         PassiveData::new(
-            "Resonating Glyphs",
+            "Wellspring of the Abyss",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
-            vec![],
+            vec![], // Increase resource recovery 81
         ),
         PassiveData::new(
-            "Hidden Knowledge",
+            "Circumvented Fate",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
-            vec![],
+            vec![], // Minor Evasion
         ),
         PassiveData::new(
-            "Cruxweaver Armor",
+            "Implacable Outcome",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
-            vec![],
+            vec![], // Ultimate generation 4
         ),
         // === CURATIVE RUNEFORMS ===
-        PassiveData::new(
-            "Erudition",
-            ClassName::Arcanist,
-            SkillLineName::CurativeRuneforms,
-            vec![],
-        ),
-        PassiveData::new(
-            "Circumscribed Recovery",
-            ClassName::Arcanist,
-            SkillLineName::CurativeRuneforms,
-            vec![],
-        ),
         PassiveData::new(
             "Healing Tides",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
-            vec![],
+            vec![], // Increase healing 0.4 per crux
         ),
         PassiveData::new(
-            "Curator's Focus",
+            // TODO: See how we can track this
+            "Hideous Clarity",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
-            vec![],
+            vec![], // Restore magicka and stamina on crux generation 225
+        ),
+        PassiveData::new(
+            "Erudition",
+            ClassName::Arcanist,
+            SkillLineName::CurativeRuneforms,
+            vec![], // Increase Magicka and Stamina recovery 0.18
+        ),
+        PassiveData::new(
+            "Intricate Runeforms",
+            ClassName::Arcanist,
+            SkillLineName::CurativeRuneforms,
+            vec![], // Damage shield increase 10%
         ),
     ]
 });

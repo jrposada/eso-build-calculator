@@ -147,13 +147,15 @@ pub enum SkillType {
 /// How a bonus is applied
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub enum BonusType {
-    /// Always applied
+pub enum BonusTrigger {
     Passive,
-    /// Always applied for a duration
-    Duration,
+    Cast,
+    ArcanistCrux,
+    MagickaOrStaminaRestored,
+    SkillLineSkillCast,
+    BurningOrPoisonDamageDealt,
     /// Applied once if skill line is part of build
-    SkillLine,
+    SkillLineSlotted,
     /// Applied once if at least 1 skill from skill line is equipped on build
     AbilitySlotted,
     /// Applied once per skill of related skill line equipped on build
@@ -165,18 +167,26 @@ pub enum BonusType {
 #[serde(rename_all = "kebab-case")]
 pub enum BonusTarget {
     AoeDamage,
+    BurningAndPoisonDamage,
     CriticalChance,
     CriticalDamage,
     DirectDamage,
     DotDamage,
     Duration,
+    DurationSkillLineFlat,
+    DurationSkillLineMultiplier,
     MaxMagicka,
     MaxStamina,
     OffBalanceDamage,
+    PhysicalAndSpellPenetration,
+    PhysicalDamage,
+    RestoreMagickaOrStamina,
+    ShockDamage,
     SingleDamage,
     SpellCriticalChance,
-    SpellDamage,
+    WeaponAndSpellDamage,
     WeaponCriticalChance,
+    WeaponDamage,
 }
 
 /// Skill line names for all classes and weapons

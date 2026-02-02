@@ -1,4 +1,5 @@
-use crate::data::{BonusTarget, BonusType, ClassName, SkillLineName};
+use crate::data::bonuses::unique::MINOR_BRUTALITY;
+use crate::data::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use crate::domain::{BonusData, PassiveData};
 use once_cell::sync::Lazy;
 
@@ -9,80 +10,111 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Combustion",
             ClassName::Dragonknight,
             SkillLineName::ArdentFlame,
-            vec![],
+            vec![
+                BonusData::new(
+                    "Combustion 1",
+                    BonusTrigger::Passive,
+                    BonusTarget::BurningAndPoisonDamage,
+                    0.33,
+                ),
+                BonusData::new(
+                    "Combustion 2",
+                    BonusTrigger::BurningOrPoisonDamageDealt,
+                    BonusTarget::RestoreMagickaOrStamina,
+                    423.0
+                ).with_cooldown(3.0)
+            ],
         ),
         PassiveData::new(
             "Warmth",
             ClassName::Dragonknight,
             SkillLineName::ArdentFlame,
-            vec![],
+            vec![
+                BonusData::new(
+                    "Warmth",
+                    BonusTrigger::SkillLineSkillCast,
+                    BonusTarget::AoeDamage,
+                    0.06,
+                ).with_duration(3.0)
+            ],
         ),
         PassiveData::new(
             "Searing Heat",
             ClassName::Dragonknight,
             SkillLineName::ArdentFlame,
-            vec![BonusData::new(
-                "Searing Heat",
-                BonusType::SkillLine,
-                BonusTarget::Duration,
-                2.0,
-            )],
+            vec![], // Passive effect to specific skills.
         ),
         PassiveData::new(
             "World in Ruin",
             ClassName::Dragonknight,
             SkillLineName::ArdentFlame,
-            vec![],
+            vec![
+                BonusData::new(
+                    "World in Ruin",
+                    BonusTrigger::Passive,
+                    BonusTarget::BurningAndPoisonDamage,
+                    0.05,
+                )
+            ],
         ),
         // === DRACONIC POWER ===
         PassiveData::new(
             "Iron Skin",
             ClassName::Dragonknight,
             SkillLineName::DraconicPower,
-            vec![],
+            vec![], // Increase blocked damage 10%
         ),
         PassiveData::new(
             "Burning Heart",
             ClassName::Dragonknight,
             SkillLineName::DraconicPower,
-            vec![],
+            vec![], // Increase healing received 9%
         ),
         PassiveData::new(
             "Elder Dragon",
             ClassName::Dragonknight,
             SkillLineName::DraconicPower,
-            vec![],
+            vec![], // Increase health recovery
         ),
         PassiveData::new(
             "Scaled Armor",
             ClassName::Dragonknight,
             SkillLineName::DraconicPower,
-            vec![],
+            vec![], // Increase Physical and Spell Resistance 2974
         ),
         // === EARTHEN HEART ===
         PassiveData::new(
             "Eternal Mountain",
             ClassName::Dragonknight,
             SkillLineName::EarthenHeart,
-            vec![],
+            vec![
+                BonusData::new(
+                    "Eternal Mountain",
+                    BonusTrigger::Passive,
+                    BonusTarget::DurationSkillLineMultiplier,
+                    0.2
+                )
+            ],
         ),
         PassiveData::new(
             "Battle Roar",
             ClassName::Dragonknight,
             SkillLineName::EarthenHeart,
-            vec![],
+            vec![], // TODO: To complex, restore resources on ult cast
         ),
         PassiveData::new(
             "Mountain's Blessing",
             ClassName::Dragonknight,
             SkillLineName::EarthenHeart,
-            vec![],
+            vec![
+                MINOR_BRUTALITY.clone()
+            ],
         ),
         PassiveData::new(
             "Helping Hands",
             ClassName::Dragonknight,
             SkillLineName::EarthenHeart,
-            vec![],
+            vec![], // TODO: To complex, restore stamina on skill use
         ),
     ]
 });
