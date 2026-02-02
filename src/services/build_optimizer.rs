@@ -423,10 +423,8 @@ impl BuildOptimizer {
     }
 }
 
-impl std::fmt::Display for BuildOptimizer {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut lines = Vec::new();
-
+impl BuildOptimizer {
+    fn fmt_configuration_table(&self) -> String {
         let config_data = vec![
             vec![
                 "Skills".to_string(),
@@ -447,7 +445,7 @@ impl std::fmt::Display for BuildOptimizer {
             vec!["Workers".to_string(), self.parallelism.to_string()],
         ];
 
-        lines.push(table::table(
+        table::table(
             &config_data,
             table::TableOptions {
                 title: Some("Configuration".to_string()),
@@ -457,55 +455,24 @@ impl std::fmt::Display for BuildOptimizer {
                 ],
                 footer: None,
             },
-        ));
+        )
+    }
 
-        let used_classes: Vec<_> = self.class_names.iter().map(|c| c.to_string()).collect();
-        let used_classes_str = if used_classes.is_empty() {
+    fn fmt_sorted_list<T: ToString>(items: impl IntoIterator<Item = T>) -> String {
+        let mut sorted: Vec<_> = items.into_iter().map(|i| i.to_string()).collect();
+        if sorted.is_empty() {
             "None".to_string()
         } else {
-            let mut sorted = used_classes;
             sorted.sort();
             sorted.join(", ")
-        };
+        }
+    }
 
-        let required_classes: Vec<_> = self
-            .required_class_names
-            .iter()
-            .map(|c| c.to_string())
-            .collect();
-        let required_classes_str = if required_classes.is_empty() {
-            "None".to_string()
-        } else {
-            let mut sorted = required_classes;
-            sorted.sort();
-            sorted.join(", ")
-        };
-
-        let used_weapons: Vec<_> = self
-            .weapon_skill_line_names
-            .iter()
-            .map(|w| w.to_string())
-            .collect();
-        let used_weapons_str = if used_weapons.is_empty() {
-            "None".to_string()
-        } else {
-            let mut sorted = used_weapons;
-            sorted.sort();
-            sorted.join(", ")
-        };
-
-        let required_weapons: Vec<_> = self
-            .required_weapon_skill_lines
-            .iter()
-            .map(|w| w.to_string())
-            .collect();
-        let required_weapons_str = if required_weapons.is_empty() {
-            "None".to_string()
-        } else {
-            let mut sorted = required_weapons;
-            sorted.sort();
-            sorted.join(", ")
-        };
+    fn fmt_skill_line_configuration_table(&self) -> String {
+        let used_classes_str = Self::fmt_sorted_list(self.class_names.iter());
+        let required_classes_str = Self::fmt_sorted_list(self.required_class_names.iter());
+        let used_weapons_str = Self::fmt_sorted_list(self.weapon_skill_line_names.iter());
+        let required_weapons_str = Self::fmt_sorted_list(self.required_weapon_skill_lines.iter());
 
         let name_width = [
             &used_classes_str,
@@ -535,7 +502,7 @@ impl std::fmt::Display for BuildOptimizer {
             ],
         ];
 
-        lines.push(table::table(
+        table::table(
             &skill_config_data,
             table::TableOptions {
                 title: Some("Skill Line Configuration".to_string()),
@@ -545,13 +512,19 @@ impl std::fmt::Display for BuildOptimizer {
                 ],
                 footer: None,
             },
-        ));
+        )
+    }
+}
 
+impl std::fmt::Display for BuildOptimizer {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut lines = Vec::new();
+        lines.push(self.fmt_configuration_table());
+        lines.push(self.fmt_skill_line_configuration_table());
         lines.push(format!(
             "Total builds to be evaluated: {}",
             format::format_number(self.total_possible_build_count)
         ));
-
         write!(f, "{}", lines.join("\n"))
     }
 }

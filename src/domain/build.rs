@@ -112,20 +112,22 @@ impl Build {
     }
 }
 
-impl std::fmt::Display for Build {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut lines = Vec::new();
+impl Build {
+    fn fmt_header(&self) -> Vec<String> {
         let divider = "-".repeat(73);
+        vec![
+            String::new(),
+            "Optimal Build - Maximum Damage Per Cast".to_string(),
+            divider,
+            format!(
+                "Total Damage: {}",
+                format::format_number(self.total_damage as u64) // FIXME
+            ),
+            String::new(),
+        ]
+    }
 
-        lines.push(String::new());
-        lines.push("Optimal Build - Maximum Damage Per Cast".to_string());
-        lines.push(divider.clone());
-        lines.push(format!(
-            "Total Damage: {}",
-            format::format_number(self.total_damage as u64) // FIXME
-        ));
-        lines.push(String::new());
-
+    fn fmt_build_summary(&self) -> Vec<String> {
         let class_names: HashSet<_> = self
             .skill_line_counts
             .keys()
@@ -134,7 +136,6 @@ impl std::fmt::Display for Build {
             .collect();
         let mut class_names: Vec<_> = class_names.iter().map(|c| c.to_string()).collect();
         class_names.sort();
-        lines.push(format!("Classes: {}", class_names.join(", ")));
 
         let mut class_skill_lines: Vec<_> = self
             .skill_line_counts
@@ -143,10 +144,6 @@ impl std::fmt::Display for Build {
             .map(|sl| sl.to_string())
             .collect();
         class_skill_lines.sort();
-        lines.push(format!(
-            "Class Skill Lines: {}",
-            class_skill_lines.join(", ")
-        ));
 
         let mut weapon_skill_lines: Vec<_> = self
             .skill_line_counts
@@ -155,10 +152,6 @@ impl std::fmt::Display for Build {
             .map(|sl| sl.to_string())
             .collect();
         weapon_skill_lines.sort();
-        lines.push(format!(
-            "Weapon Skill Lines: {}",
-            weapon_skill_lines.join(", ")
-        ));
 
         let mut champion_point_names: Vec<_> = self
             .champion_bonuses
@@ -166,12 +159,16 @@ impl std::fmt::Display for Build {
             .map(|m| m.name.as_str())
             .collect();
         champion_point_names.sort();
-        lines.push(format!(
-            "Champion Points: {}",
-            champion_point_names.join(", ")
-        ));
 
-        // Skills table
+        vec![
+            format!("Classes: {}", class_names.join(", ")),
+            format!("Class Skill Lines: {}", class_skill_lines.join(", ")),
+            format!("Weapon Skill Lines: {}", weapon_skill_lines.join(", ")),
+            format!("Champion Points: {}", champion_point_names.join(", ")),
+        ]
+    }
+
+    fn fmt_skills_table(&self) -> String {
         let skills_data: Vec<Vec<String>> = self
             .skills
             .iter()
@@ -186,7 +183,7 @@ impl std::fmt::Display for Build {
             })
             .collect();
 
-        lines.push(table(
+        table(
             &skills_data,
             table::TableOptions {
                 title: Some("Skills".to_string()),
@@ -199,28 +196,45 @@ impl std::fmt::Display for Build {
                 ],
                 footer: None,
             },
-        ));
+        )
+    }
 
-        // Buff selections (computed lazily during Display only)
-        if !self.conditional_bonuses.is_empty() {
-            let ctx = ResolveContext::new(self.crit_damage);
-            lines.push(String::new());
-            lines.push("Conditional Buff Selections:".to_string());
-            lines.push("-".repeat(40));
-            for bonus in &self.conditional_bonuses {
-                if let Some((used_alt, breakpoint)) = bonus.selection_info(&ctx) {
-                    let option = if used_alt { "alternative" } else { "primary" };
-                    lines.push(format!(
-                        "  {}: {} (crit damage: {:.1}%, breakpoint: {:.1}%)",
-                        bonus.name,
-                        option,
-                        self.crit_damage * 100.0,
-                        breakpoint * 100.0
-                    ));
-                }
+    fn fmt_conditional_buffs(&self) -> Vec<String> {
+        if self.conditional_bonuses.is_empty() {
+            return Vec::new();
+        }
+
+        let ctx = ResolveContext::new(self.crit_damage);
+        let mut lines = vec![
+            String::new(),
+            "Conditional Buff Selections:".to_string(),
+            "-".repeat(40),
+        ];
+
+        for bonus in &self.conditional_bonuses {
+            if let Some((used_alt, breakpoint)) = bonus.selection_info(&ctx) {
+                let option = if used_alt { "alternative" } else { "primary" };
+                lines.push(format!(
+                    "  {}: {} (crit damage: {:.1}%, breakpoint: {:.1}%)",
+                    bonus.name,
+                    option,
+                    self.crit_damage * 100.0,
+                    breakpoint * 100.0
+                ));
             }
         }
 
+        lines
+    }
+}
+
+impl std::fmt::Display for Build {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut lines = Vec::new();
+        lines.extend(self.fmt_header());
+        lines.extend(self.fmt_build_summary());
+        lines.push(self.fmt_skills_table());
+        lines.extend(self.fmt_conditional_buffs());
         write!(f, "{}", lines.join("\n"))
     }
 }
