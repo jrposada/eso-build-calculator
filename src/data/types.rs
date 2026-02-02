@@ -148,18 +148,19 @@ pub enum SkillType {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum BonusTrigger {
-    Passive,
-    Cast,
-    ArcanistCrux,
-    MagickaOrStaminaRestored,
-    SkillLineSkillCast,
-    BurningOrPoisonDamageDealt,
-    /// Applied once if skill line is part of build
-    SkillLineSlotted,
-    /// Applied once if at least 1 skill from skill line is equipped on build
     AbilitySlotted,
-    /// Applied once per skill of related skill line equipped on build
     AbilitySlottedCount,
+    ArcanistCrux,
+    BowEquipped,
+    BurningOrPoisonDamageDealt,
+    Cast,
+    DestructionStuffEquipped,
+    DualWieldEquipped,
+    MagickaOrStaminaRestored,
+    Passive,
+    SkillLineSkillCast,
+    SkillLineSlotted,
+    TwoHandedEquipped,
 }
 
 /// What stat the bonus affects

@@ -22,7 +22,7 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::Bow,
             vec![BonusData::new(
                 "Long Shots",
-                BonusTrigger::SkillLineSlotted,
+                BonusTrigger::BowEquipped,
                 BonusTarget::Damage,
                 0.05,
             )
@@ -38,24 +38,61 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::Bow,
             vec![BonusData::new(
                 "Accuracy",
-                BonusTrigger::SkillLineSlotted,
+                BonusTrigger::BowEquipped,
                 BonusTarget::CriticalChance,
-                0.08,
+                1314.0,
             )],
         ),
-        PassiveData::new("Ranger", ClassName::Weapon, SkillLineName::Bow, vec![]),
+        PassiveData::new(
+            "Ranger",
+             ClassName::Weapon,
+              SkillLineName::Bow,
+               vec![], // Reduce stamina cost of bow abilities 15%
+            ),
         PassiveData::new(
             "Hawk Eye",
             ClassName::Weapon,
             SkillLineName::Bow,
-            vec![BonusData::new(
-                "Hawk Eye",
-                BonusTrigger::AbilitySlottedCount,
-                BonusTarget::CriticalDamage,
-                0.02,
-            )],
+            vec![], // TODO: To complex, Stacks per basic of increase damage
         ),
-        // === DUAL WIELD ===
+        PassiveData::new(
+            "Hasty Retreat",
+            ClassName::Weapon,
+            SkillLineName::Bow,
+            vec![], // Mayor expedition
+        ),
+        // === DESTRUCTION STAFF === // TODO
+        PassiveData::new(
+            "Tri Focus",
+            ClassName::Weapon,
+            SkillLineName::DestructionStaff,
+            vec![],
+        ),
+        PassiveData::new(
+            "Penetrating Magic",
+            ClassName::Weapon,
+            SkillLineName::DestructionStaff,
+            vec![],
+        ),
+        PassiveData::new(
+            "Elemental Force",
+            ClassName::Weapon,
+            SkillLineName::DestructionStaff,
+            vec![],
+        ),
+        PassiveData::new(
+            "Ancient Knowledge",
+            ClassName::Weapon,
+            SkillLineName::DestructionStaff,
+            vec![],
+        ),
+        PassiveData::new(
+            "Destruction Expert",
+            ClassName::Weapon,
+            SkillLineName::DestructionStaff,
+            vec![],
+        ),
+        // === DUAL WIELD === // TODO
         PassiveData::new(
             "Slaughter",
             ClassName::Weapon,
@@ -85,7 +122,7 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 0.05,
             )],
         ),
-        // === TWO HANDED ===
+        // === TWO HANDED === // TODO
         PassiveData::new(
             "Forceful",
             ClassName::Weapon,
@@ -96,12 +133,7 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Heavy Weapons",
             ClassName::Weapon,
             SkillLineName::TwoHanded,
-            vec![BonusData::new(
-                "Heavy Weapons",
-                BonusTrigger::SkillLineSlotted,
-                BonusTarget::CriticalDamage,
-                0.12,
-            )],
+            vec![],
         ),
         PassiveData::new(
             "Balanced Blade",
@@ -115,35 +147,11 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::TwoHanded,
             vec![],
         ),
-        // === DESTRUCTION STAFF ===
         PassiveData::new(
-            "Tri Focus",
+            "Battle Rush",
             ClassName::Weapon,
-            SkillLineName::DestructionStaff,
+            SkillLineName::TwoHanded,
             vec![],
-        ),
-        PassiveData::new(
-            "Penetrating Magic",
-            ClassName::Weapon,
-            SkillLineName::DestructionStaff,
-            vec![],
-        ),
-        PassiveData::new(
-            "Elemental Force",
-            ClassName::Weapon,
-            SkillLineName::DestructionStaff,
-            vec![],
-        ),
-        PassiveData::new(
-            "Ancient Knowledge",
-            ClassName::Weapon,
-            SkillLineName::DestructionStaff,
-            vec![BonusData::new(
-                "Ancient Knowledge",
-                BonusTrigger::AbilitySlottedCount,
-                BonusTarget::CriticalChance,
-                0.04,
-            )],
-        ),
+        )
     ]
 });
