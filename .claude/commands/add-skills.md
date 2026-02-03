@@ -13,7 +13,12 @@ Add missing skills and passives to skill line data files based on raw data from 
    - URL format: `https://eso-hub.com/en/skills/<class>/<skill-line>`
    - Path format: `<class>/<skill-line>`
 
-2. **Fetch skill data from eso-hub:**
+2. **Validate URL format:**
+   - **REJECT** class overview URLs like `https://eso-hub.com/en/classes/<class>` - these don't contain skill data
+   - **ACCEPT** only skill line URLs: `https://eso-hub.com/en/skills/<class>/<skill-line>`
+   - If invalid format detected, stop and inform user of correct format
+
+3. **Fetch skill data from eso-hub:**
    - **IMPORTANT:** The skill line overview page does NOT contain skill data. You MUST fetch individual skill pages.
    - First, fetch the overview page to get the list of skill names
    - Then fetch each individual skill page: `https://eso-hub.com/en/skills/<class>/<skill-line>/<skill-name>`
@@ -23,7 +28,7 @@ Add missing skills and passives to skill line data files based on raw data from 
      - `https://eso-hub.com/en/skills/nightblade/assassination/master-assassin` (for passives)
    - Each skill page contains: name, description, damage values, buffs/debuffs, durations, and morph info
 
-3. **Map URL segments to Rust enums:**
+4. **Map URL segments to Rust enums:**
 
    ### ClassName Mapping
    | URL segment | Rust Enum |
@@ -62,12 +67,12 @@ Add missing skills and passives to skill line data files based on raw data from 
    | `destruction-staff` | `SkillLineName::DestructionStaff` |
    | `dual-wield` | `SkillLineName::DualWield` |
 
-4. **Read existing files:**
+5. **Read existing files:**
    - Skills: `src/data/skills/<class>.rs`
    - Passives: `src/data/passives/<class>.rs`
    - Cross-reference to identify missing skills and passives
 
-5. **Parse damage values from descriptions:**
+6. **Parse damage values from descriptions:**
 
    ### Damage Type Patterns (description text → Rust enum)
    | Text Pattern | Rust Enum |
@@ -95,7 +100,7 @@ Add missing skills and passives to skill line data files based on raw data from 
    | "area", "around you", "enemies nearby", "cone" | `TargetType::Aoe` |
    | Single target (default) | `TargetType::Single` |
 
-6. **Understand skill structure:**
+7. **Understand skill structure:**
    - **Base skill** - The original unmodified ability
    - **Morph 1** - First morphed version (indicated by "arrow" before it in raw data)
    - **Morph 2** - Second morphed version (indicated by "arrow" before it in raw data)
@@ -226,6 +231,29 @@ SkillData::new(
 - "X Damage over Y seconds" → `DotDamage::new(X, Y)` (total damage, no interval)
 - "X Damage every Z seconds for Y seconds" → `DotDamage::new(X, Y).with_interval(Z)`
 - "increases by N% per tick" → `.with_increase_per_tick(N/100.0)`
+
+### Damage vs Healing Distinction
+
+**CRITICAL:** When a description mentions both damage AND healing with timing, determine which the timing applies to:
+
+| Description Pattern | Interpretation |
+|---------------------|----------------|
+| "dealing X Damage over Y seconds" | DoT: `DotDamage::new(X, Y)` |
+| "dealing X Damage and healing Y every Z seconds for W seconds" | **Instant damage**: `HitDamage::new(X)` - timing applies to healing only |
+| "dealing X Damage every Y seconds" | DoT with interval |
+
+**Example - Strife (CORRECT):**
+> "dealing 1548 Magic Damage and healing you... every 2 seconds for 10 seconds"
+
+The "every 2 seconds for 10 seconds" describes the healing, NOT the damage. Use:
+```rust
+SkillDamage::new().with_hits(vec![HitDamage::new(1548.0)])  // Instant damage
+```
+
+**NOT:**
+```rust
+SkillDamage::new().with_dots(vec![DotDamage::new(1548.0, 10.0).with_interval(2.0)])  // WRONG
+```
 
 ### Active Skill Bonuses (Buffs/Debuffs on Cast)
 
@@ -590,6 +618,17 @@ Import from `src/data/bonuses/unique.rs`:
 #### Enemy Debuffs
 - `MINOR_VULNERABILITY` - 5% enemy damage taken, Cast trigger, 10s duration
 - `MAJOR_BREACH` - 5948 enemy resistance reduction, Cast trigger, 20s duration
+
+---
+
+## Common Pitfalls
+
+### Pitfall 1: Confusing Healing Timing with Damage Timing
+Skills like Strife deal **instant damage** but heal over time. Don't mistake the healing interval for damage intervals.
+
+### Pitfall 2: Using Class URLs Instead of Skill Line URLs
+- **Wrong:** `https://eso-hub.com/en/classes/nightblade`
+- **Correct:** `https://eso-hub.com/en/skills/nightblade/assassination`
 
 ---
 
