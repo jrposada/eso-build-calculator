@@ -1,5 +1,8 @@
+use crate::data::bonuses::unique::{
+    EMPOWER, MAJOR_BERSERK, MAJOR_BREACH, MAJOR_BRUTALITY, MAJOR_SORCERY,
+};
 use crate::data::{ClassName, DamageType, Resource, SkillLineName, TargetType};
-use crate::domain::{DotDamage, HitDamage, SkillDamage, SkillData};
+use crate::domain::{DotDamage, ExecuteScaling, HitDamage, SkillDamage, SkillData};
 use once_cell::sync::Lazy;
 
 pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
@@ -27,12 +30,16 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Ultimate,
         ),
+        // Toxic Barrage: Channel damage + additional poison DoT (9990 over 8s after 1s delay)
         SkillData::new(
             "Toxic Barrage",
             "Rapid Fire",
             ClassName::Weapon,
             SkillLineName::Bow,
-            SkillDamage::new().with_dots(vec![DotDamage::new(17415.0, 4.0)]),
+            SkillDamage::new().with_dots(vec![
+                DotDamage::new(17415.0, 4.0),
+                DotDamage::new(9990.0, 8.0).with_delay(1.0),
+            ]),
             DamageType::Poison,
             TargetType::Single,
             Resource::Ultimate,
@@ -49,6 +56,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Stamina,
         ),
+        // Focused Aim: Applies Sundered status (Major Breach)
         SkillData::new(
             "Focused Aim",
             "Snipe",
@@ -58,7 +66,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Physical,
             TargetType::Single,
             Resource::Stamina,
-        ),
+        )
+        .with_bonuses(vec![MAJOR_BREACH.clone()]),
         SkillData::new(
             "Lethal Arrow",
             "Snipe",
@@ -202,6 +211,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Stamina,
         ),
+        // Poison Injection: Deals up to 120% more damage to enemies under 50% Health
         SkillData::new(
             "Poison Injection",
             "Poison Arrow",
@@ -213,7 +223,9 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Poison,
             TargetType::Single,
             Resource::Stamina,
-        ),
+        )
+        .with_execute(1.2, 0.50, ExecuteScaling::Linear),
+        // Venom Arrow: Grants Major Brutality and Major Sorcery for 20s
         SkillData::new(
             "Venom Arrow",
             "Poison Arrow",
@@ -225,7 +237,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Poison,
             TargetType::Single,
             Resource::Stamina,
-        ),
+        )
+        .with_bonuses(vec![MAJOR_BRUTALITY.clone(), MAJOR_SORCERY.clone()]),
         // === TWO HANDED ===
         // Ultimate - Berserker Strike line
         SkillData::new(
@@ -279,6 +292,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Stamina,
         ),
+        // Wrecking Blow: Grants Empower and Major Berserk for 3s
         SkillData::new(
             "Wrecking Blow",
             "Uppercut",
@@ -288,7 +302,11 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Physical,
             TargetType::Single,
             Resource::Stamina,
-        ),
+        )
+        .with_bonuses(vec![
+            EMPOWER.clone().with_duration(3.0),
+            MAJOR_BERSERK.clone().with_duration(3.0),
+        ]),
         // Critical Charge line
         SkillData::new(
             "Critical Charge",
@@ -355,7 +373,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Aoe,
             Resource::Stamina,
         ),
-        // Reverse Slash line
+        // Reverse Slash line - Execute abilities
+        // Reverse Slash: Deals up to 300% more damage to enemies below 50% Health
         SkillData::new(
             "Reverse Slash",
             "Reverse Slash",
@@ -365,7 +384,9 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Physical,
             TargetType::Single,
             Resource::Stamina,
-        ),
+        )
+        .with_execute(3.0, 0.50, ExecuteScaling::Linear),
+        // Executioner: Deals up to 400% more damage to enemies below 50% Health
         SkillData::new(
             "Executioner",
             "Reverse Slash",
@@ -375,7 +396,9 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Bleed,
             TargetType::Single,
             Resource::Stamina,
-        ),
+        )
+        .with_execute(4.0, 0.50, ExecuteScaling::Linear),
+        // Reverse Slice: Deals up to 300% more damage to enemies below 50% Health
         SkillData::new(
             "Reverse Slice",
             "Reverse Slash",
@@ -385,8 +408,10 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Physical,
             TargetType::Aoe,
             Resource::Stamina,
-        ),
-        // Momentum line (no damage)
+        )
+        .with_execute(3.0, 0.50, ExecuteScaling::Linear),
+        // Momentum line - Buff skills (Major Brutality + Major Sorcery)
+        // Momentum: Major Brutality + Major Sorcery for 20s
         SkillData::new(
             "Momentum",
             "Momentum",
@@ -396,7 +421,9 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Physical,
             TargetType::Single,
             Resource::Stamina,
-        ),
+        )
+        .with_bonuses(vec![MAJOR_BRUTALITY.clone(), MAJOR_SORCERY.clone()]),
+        // Forward Momentum: Major Brutality + Major Sorcery for 40s
         SkillData::new(
             "Forward Momentum",
             "Momentum",
@@ -406,7 +433,12 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Physical,
             TargetType::Single,
             Resource::Stamina,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_BRUTALITY.clone().with_duration(40.0),
+            MAJOR_SORCERY.clone().with_duration(40.0),
+        ]),
+        // Rally: Major Brutality + Major Sorcery for 20s
         SkillData::new(
             "Rally",
             "Momentum",
@@ -416,7 +448,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Physical,
             TargetType::Single,
             Resource::Stamina,
-        ),
+        )
+        .with_bonuses(vec![MAJOR_BRUTALITY.clone(), MAJOR_SORCERY.clone()]),
         // === DESTRUCTION STAFF ===
         // Ultimate - Elemental Storm line
         SkillData::new(
@@ -501,12 +534,15 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Aoe,
             Resource::Magicka,
         ),
+        // Unstable Wall of Elements: Explodes when it expires for additional damage
         SkillData::new(
             "Unstable Wall of Elements",
             "Wall of Elements",
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
-            SkillDamage::new().with_dots(vec![DotDamage::new(281.0, 8.0).with_interval(1.0)]),
+            SkillDamage::new()
+                .with_dots(vec![DotDamage::new(281.0, 8.0).with_interval(1.0)])
+                .with_hits(vec![HitDamage::new(1199.0).with_delay(8.0)]),
             DamageType::Magic,
             TargetType::Aoe,
             Resource::Magicka,
@@ -546,7 +582,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Magicka,
         ),
-        // Weakness to Elements line (no damage)
+        // Weakness to Elements line - Debuff skills (Major Breach)
+        // Weakness to Elements: Major Breach for 30s
         SkillData::new(
             "Weakness to Elements",
             "Weakness to Elements",
@@ -556,7 +593,9 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![MAJOR_BREACH.clone().with_duration(30.0)]),
+        // Elemental Drain: Major Breach for 60s + Minor Magickasteal
         SkillData::new(
             "Elemental Drain",
             "Weakness to Elements",
@@ -566,7 +605,9 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![MAJOR_BREACH.clone().with_duration(60.0)]),
+        // Elemental Susceptibility: Major Breach for 30s + periodic status effects
         SkillData::new(
             "Elemental Susceptibility",
             "Weakness to Elements",
@@ -576,7 +617,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![MAJOR_BREACH.clone().with_duration(30.0)]),
         // Impulse line
         SkillData::new(
             "Impulse",
@@ -723,7 +765,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Stamina,
         ),
-        // Whirlwind line
+        // Whirlwind line - Execute abilities
+        // Whirlwind: Deals up to 33% more damage to enemies below 50% Health
         SkillData::new(
             "Whirlwind",
             "Whirlwind",
@@ -733,7 +776,9 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Physical,
             TargetType::Aoe,
             Resource::Stamina,
-        ),
+        )
+        .with_execute(0.33, 0.50, ExecuteScaling::Linear),
+        // Steel Tornado: Deals up to 33% more damage to enemies below 50% Health
         SkillData::new(
             "Steel Tornado",
             "Whirlwind",
@@ -743,7 +788,9 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Physical,
             TargetType::Aoe,
             Resource::Stamina,
-        ),
+        )
+        .with_execute(0.33, 0.50, ExecuteScaling::Linear),
+        // Whirling Blades: Deals up to 100% more damage to enemies below 50% Health
         SkillData::new(
             "Whirling Blades",
             "Whirlwind",
@@ -753,7 +800,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Physical,
             TargetType::Aoe,
             Resource::Stamina,
-        ),
+        )
+        .with_execute(1.0, 0.50, ExecuteScaling::Linear),
         // Blade Cloak line
         SkillData::new(
             "Blade Cloak",
@@ -785,7 +833,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Aoe,
             Resource::Stamina,
         ),
-        // Hidden Blade line
+        // Hidden Blade line - Buff skills (Major Brutality + Major Sorcery)
+        // Hidden Blade: Major Brutality + Major Sorcery for 20s
         SkillData::new(
             "Hidden Blade",
             "Hidden Blade",
@@ -795,7 +844,9 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Physical,
             TargetType::Single,
             Resource::Stamina,
-        ),
+        )
+        .with_bonuses(vec![MAJOR_BRUTALITY.clone(), MAJOR_SORCERY.clone()]),
+        // Flying Blade: Major Brutality + Major Sorcery for 40s
         SkillData::new(
             "Flying Blade",
             "Hidden Blade",
@@ -805,7 +856,12 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Physical,
             TargetType::Single,
             Resource::Stamina,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_BRUTALITY.clone().with_duration(40.0),
+            MAJOR_SORCERY.clone().with_duration(40.0),
+        ]),
+        // Shrouded Daggers: Major Brutality + Major Sorcery for 20s, bounces to 3 enemies
         SkillData::new(
             "Shrouded Daggers",
             "Hidden Blade",
@@ -819,6 +875,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Physical,
             TargetType::Aoe,
             Resource::Stamina,
-        ),
+        )
+        .with_bonuses(vec![MAJOR_BRUTALITY.clone(), MAJOR_SORCERY.clone()]),
     ]
 });
