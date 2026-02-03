@@ -1,3 +1,4 @@
+use crate::data::bonuses::{EMPOWER, MAJOR_BREACH, MAJOR_BRUTALITY, MAJOR_SORCERY};
 use crate::data::{ClassName, DamageType, Resource, SkillLineName, TargetType};
 use crate::domain::{DotDamage, HitDamage, SkillDamage, SkillData};
 use once_cell::sync::Lazy;
@@ -54,6 +55,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_channel_time(0.8),
+        // Biting Jabs: Major Brutality + Major Sorcery (10s)
         SkillData::new(
             "Biting Jabs",
             "Puncturing Strikes",
@@ -64,7 +66,11 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Aoe,
             Resource::Stamina,
         )
-        .with_channel_time(0.8),
+        .with_channel_time(0.8)
+        .with_bonuses(vec![
+            MAJOR_BRUTALITY.clone().with_duration(10.0),
+            MAJOR_SORCERY.clone().with_duration(10.0),
+        ]),
         SkillData::new(
             "Puncturing Sweep",
             "Puncturing Strikes",
@@ -276,6 +282,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         ),
         // Solar Flare line
+        // Solar Flare: Empower (10s) + 5% class ability damage (not tracked)
         SkillData::new(
             "Solar Flare",
             "Solar Flare",
@@ -285,7 +292,9 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![EMPOWER.clone()]),
+        // Dark Flare: Empower (10s) + 5% class ability damage (not tracked) + Major Defile (heal reduction, not tracked)
         SkillData::new(
             "Dark Flare",
             "Solar Flare",
@@ -295,7 +304,9 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![EMPOWER.clone()]),
+        // Solar Barrage: Empower (20s) + 5% class ability damage (not tracked)
         SkillData::new(
             "Solar Barrage",
             "Solar Flare",
@@ -305,7 +316,8 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Aoe,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![EMPOWER.clone().with_duration(20.0)]),
         // Backlash line
         SkillData::new(
             "Backlash",
@@ -320,6 +332,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Magicka,
         ),
+        // Power of the Light: Major Breach (Sundered status on each hit)
         SkillData::new(
             "Power of the Light",
             "Backlash",
@@ -332,7 +345,8 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Physical,
             TargetType::Single,
             Resource::Stamina,
-        ),
+        )
+        .with_bonuses(vec![MAJOR_BREACH.clone()]),
         SkillData::new(
             "Purifying Light",
             "Backlash",
