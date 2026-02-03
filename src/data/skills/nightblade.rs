@@ -1,6 +1,6 @@
 use crate::data::bonuses::{
-    EMPOWER, MAJOR_BERSERK, MAJOR_BREACH, MAJOR_PROPHECY, MAJOR_SAVAGERY, MINOR_BERSERK,
-    MINOR_VULNERABILITY,
+    EMPOWER, MAJOR_BERSERK, MAJOR_BREACH, MAJOR_BRUTALITY, MAJOR_PROPHECY, MAJOR_SAVAGERY,
+    MAJOR_SORCERY, MINOR_BERSERK, MINOR_VULNERABILITY,
 };
 use crate::data::{BonusTarget, BonusTrigger, ClassName, DamageType, Resource, SkillLineName, TargetType};
 use crate::domain::{BonusData, DotDamage, ExecuteScaling, HitDamage, SkillDamage, SkillData};
@@ -485,7 +485,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Aoe,
             Resource::Ultimate,
         ),
-        // Strife line
+        // Strife line (instant damage, healing over time is out of scope)
         SkillData::new(
             "Strife",
             "Strife",
@@ -611,7 +611,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Magicka,
         ),
-        // Drain Power line
+        // Drain Power line (grants Major Brutality + Major Sorcery for 30s on hit)
         SkillData::new(
             "Drain Power",
             "Drain Power",
@@ -621,7 +621,12 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Aoe,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_BRUTALITY.clone().with_duration(30.0),
+            MAJOR_SORCERY.clone().with_duration(30.0),
+        ]),
+        // Power Extraction: Major Brutality + Major Sorcery (30s), Minor Courage (30s), applies Minor Cowardice (10s) to enemies
         SkillData::new(
             "Power Extraction",
             "Drain Power",
@@ -631,7 +636,12 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Disease,
             TargetType::Aoe,
             Resource::Stamina,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_BRUTALITY.clone().with_duration(30.0),
+            MAJOR_SORCERY.clone().with_duration(30.0),
+        ]),
+        // Sap Essence: Major Brutality + Major Sorcery (30s), heals allies
         SkillData::new(
             "Sap Essence",
             "Drain Power",
@@ -641,6 +651,10 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Aoe,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_BRUTALITY.clone().with_duration(30.0),
+            MAJOR_SORCERY.clone().with_duration(30.0),
+        ]),
     ]
 });
