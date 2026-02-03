@@ -97,7 +97,17 @@ impl SkillData {
     }
 
     /// Calculate the total damage per cast with optional bonuses
+    /// This excludes conditional execute hits (hits with execute_threshold)
     pub fn calculate_damage_per_cast(&self, bonuses: &[BonusData]) -> f64 {
+        self.calculate_damage_at_health_internal(bonuses, None)
+    }
+
+    /// Internal method to calculate damage with optional enemy health filtering
+    fn calculate_damage_at_health_internal(
+        &self,
+        bonuses: &[BonusData],
+        enemy_health: Option<f64>,
+    ) -> f64 {
         let mut total_damage = 0.0;
 
         // Map target type to bonus type
@@ -116,7 +126,16 @@ impl SkillData {
                 .collect();
 
             for hit in hits {
-                total_damage += Self::apply_damage_modifier(&hit_modifiers, hit.value);
+                // Check if this hit has an execute threshold
+                if let Some(threshold) = hit.execute_threshold {
+                    // Only include if enemy_health is known and below threshold
+                    if enemy_health.map_or(false, |h| h < threshold) {
+                        total_damage += Self::apply_damage_modifier(&hit_modifiers, hit.value);
+                    }
+                } else {
+                    // Normal hit, always include
+                    total_damage += Self::apply_damage_modifier(&hit_modifiers, hit.value);
+                }
             }
         }
 
@@ -160,8 +179,9 @@ impl SkillData {
     }
 
     /// Calculate damage at a specific enemy health percentage, including execute bonuses
+    /// This includes conditional execute hits and applies multiplier-based execute bonuses
     pub fn calculate_damage_at_health(&self, bonuses: &[BonusData], enemy_health_percent: f64) -> f64 {
-        let base = self.calculate_damage_per_cast(bonuses);
+        let base = self.calculate_damage_at_health_internal(bonuses, Some(enemy_health_percent));
         if let Some(execute) = &self.execute {
             base * execute.calculate_multiplier(enemy_health_percent)
         } else {
@@ -203,7 +223,11 @@ impl SkillData {
                         .delay
                         .map(|d| format!(" (delay: {}s)", d))
                         .unwrap_or_default();
-                    lines.push(format!("    {}. {}{}", j + 1, hit.value, delay));
+                    let execute = hit
+                        .execute_threshold
+                        .map(|t| format!(" (execute: <{:.0}% HP)", t * 100.0))
+                        .unwrap_or_default();
+                    lines.push(format!("    {}. {}{}{}", j + 1, hit.value, delay, execute));
                 }
             }
         }
@@ -253,6 +277,13 @@ impl SkillData {
             self.calculate_damage_per_cast(&[])
         ));
 
+        // Check if skill has conditional execute hits
+        let has_execute_hits = self
+            .damage
+            .hits
+            .as_ref()
+            .map_or(false, |hits| hits.iter().any(|h| h.execute_threshold.is_some()));
+
         if let Some(execute) = &self.execute {
             lines.push(String::new());
             lines.push("  Execute".to_string());
@@ -270,6 +301,12 @@ impl SkillData {
                 execute.multiplier * 100.0,
                 scaling_str
             ));
+            lines.push(format!(
+                "  Damage @0% HP:   {:.0}",
+                self.calculate_damage_at_health(&[], 0.0)
+            ));
+        } else if has_execute_hits {
+            // Show execute damage for skills with conditional execute hits
             lines.push(format!(
                 "  Damage @0% HP:   {:.0}",
                 self.calculate_damage_at_health(&[], 0.0)

@@ -443,12 +443,16 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Ultimate,
         ),
         // Mages' Fury line
+        // Base 870 damage + additional 3195 when enemy drops to ≤20% HP
         SkillData::new(
             "Mages' Fury",
             "Mages' Fury",
             ClassName::Sorcerer,
             SkillLineName::StormCalling,
-            SkillDamage::new().with_hits(vec![HitDamage::new(870.0)]),
+            SkillDamage::new().with_hits(vec![
+                HitDamage::new(870.0),
+                HitDamage::new(3195.0).with_execute_threshold(0.20),
+            ]),
             DamageType::Shock,
             TargetType::Single,
             Resource::Magicka,
@@ -458,7 +462,10 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Mages' Fury",
             ClassName::Sorcerer,
             SkillLineName::StormCalling,
-            SkillDamage::new().with_hits(vec![HitDamage::new(871.0)]),
+            SkillDamage::new().with_hits(vec![
+                HitDamage::new(871.0),
+                HitDamage::new(3195.0).with_execute_threshold(0.20),
+            ]),
             DamageType::Shock,
             TargetType::Single,
             Resource::Magicka,
@@ -468,7 +475,10 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Mages' Fury",
             ClassName::Sorcerer,
             SkillLineName::StormCalling,
-            SkillDamage::new().with_hits(vec![HitDamage::new(871.0)]),
+            SkillDamage::new().with_hits(vec![
+                HitDamage::new(871.0),
+                HitDamage::new(3195.0).with_execute_threshold(0.20),
+            ]),
             DamageType::Shock,
             TargetType::Single,
             Resource::Magicka,
