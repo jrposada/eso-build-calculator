@@ -1,5 +1,6 @@
-use crate::data::{ClassName, DamageType, Resource, SkillLineName, TargetType};
-use crate::domain::{DotDamage, HitDamage, SkillDamage, SkillData};
+use crate::data::bonuses::{MAJOR_BRUTALITY, MAJOR_PROPHECY, MAJOR_SAVAGERY, MAJOR_SORCERY};
+use crate::data::{BonusTarget, BonusTrigger, ClassName, DamageType, Resource, SkillLineName, TargetType};
+use crate::domain::{BonusData, DotDamage, HitDamage, SkillDamage, SkillData};
 use once_cell::sync::Lazy;
 
 pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
@@ -57,6 +58,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Magicka,
         ),
+        // Crystal Weapon: Reduces enemy armor by 1000 for 5 seconds
         SkillData::new(
             "Crystal Weapon",
             "Crystal Shard",
@@ -66,7 +68,14 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Physical,
             TargetType::Single,
             Resource::Stamina,
-        ),
+        )
+        .with_bonuses(vec![BonusData::new(
+            "Crystal Weapon Armor Reduction",
+            BonusTrigger::Cast,
+            BonusTarget::EnemyResistanceReduction,
+            1000.0,
+        )
+        .with_duration(5.0)]),
         // Encase line
         SkillData::new(
             "Encase",
@@ -377,6 +386,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Magicka,
         ),
+        // Bound Armaments: While slotted grants Major Prophecy + Major Savagery
         SkillData::new(
             "Bound Armaments",
             "Bound Armor",
@@ -395,7 +405,11 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Physical,
             TargetType::Single,
             Resource::Stamina,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SAVAGERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+        ]),
         // === STORM CALLING ===
         // Ultimate - Overload line
         SkillData::new(
@@ -523,7 +537,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Aoe,
             Resource::Magicka,
         ),
-        // Surge line (no damage)
+        // Surge line (no damage, grants Major Brutality + Major Sorcery for 33s)
         SkillData::new(
             "Surge",
             "Surge",
@@ -533,7 +547,11 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Shock,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_BRUTALITY.clone().with_duration(33.0),
+            MAJOR_SORCERY.clone().with_duration(33.0),
+        ]),
         SkillData::new(
             "Critical Surge",
             "Surge",
@@ -543,7 +561,11 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Shock,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_BRUTALITY.clone().with_duration(33.0),
+            MAJOR_SORCERY.clone().with_duration(33.0),
+        ]),
         SkillData::new(
             "Power Surge",
             "Surge",
@@ -553,7 +575,11 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Shock,
             TargetType::Aoe,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_BRUTALITY.clone().with_duration(33.0),
+            MAJOR_SORCERY.clone().with_duration(33.0),
+        ]),
         // Bolt Escape line
         SkillData::new(
             "Bolt Escape",

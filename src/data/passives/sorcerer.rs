@@ -24,11 +24,12 @@ pub static SORCERER_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::DarkMagic,
             vec![], // Cost reduction
         ),
+        // Exploitation: Casting a Dark Magic ability grants Minor Prophecy for 20s
         PassiveData::new(
             "Exploitation",
             ClassName::Sorcerer,
             SkillLineName::DarkMagic,
-            vec![MINOR_PROPHECY.clone()],
+            vec![MINOR_PROPHECY.clone().with_trigger(BonusTrigger::SkillLineSkillCast)],
         ),
         // === DAEDRIC SUMMONING ===
         PassiveData::new(
