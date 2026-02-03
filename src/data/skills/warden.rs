@@ -1,4 +1,8 @@
-use crate::data::{ClassName, DamageType, Resource, SkillLineName, TargetType};
+use crate::data::bonuses::{
+    MAJOR_BREACH, MAJOR_BRUTALITY, MAJOR_PROPHECY, MAJOR_SAVAGERY, MAJOR_SORCERY, MINOR_BERSERK,
+    MINOR_BREACH, MINOR_VULNERABILITY,
+};
+use crate::data::{BonusTrigger, ClassName, DamageType, Resource, SkillLineName, TargetType};
 use crate::domain::{DotDamage, HitDamage, SkillDamage, SkillData};
 use once_cell::sync::Lazy;
 
@@ -6,6 +10,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
     vec![
         // === ANIMAL COMPANIONS ===
         // Ultimate - Feral Guardian line
+        // Feral Guardian: Guardian's Wrath deals +100% damage below 25% Health
         SkillData::new(
             "Feral Guardian",
             "Feral Guardian",
@@ -16,6 +21,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Ultimate,
         ),
+        // Eternal Guardian: Guardian's Wrath deals +150% damage below 25% Health
         SkillData::new(
             "Eternal Guardian",
             "Feral Guardian",
@@ -26,6 +32,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Ultimate,
         ),
+        // Wild Guardian: Guardian's Savagery deals +100% damage below 25% Health
         SkillData::new(
             "Wild Guardian",
             "Feral Guardian",
@@ -37,6 +44,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Ultimate,
         ),
         // Dive line
+        // Dive: Sets Off Balance for 7s when cast from >7m (conditional, not tracked)
         SkillData::new(
             "Dive",
             "Dive",
@@ -47,6 +55,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Magicka,
         ),
+        // Cutting Dive: Sets Off Balance for 7s when cast from >7m, adds bleed DoT
         SkillData::new(
             "Cutting Dive",
             "Dive",
@@ -59,6 +68,8 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Stamina,
         ),
+        // Screaming Cliff Racer: Sets Off Balance for 7s when cast from >7m,
+        // +100 Weapon/Spell Damage for 10s (+400 when hitting Off Balance enemies)
         SkillData::new(
             "Screaming Cliff Racer",
             "Dive",
@@ -83,6 +94,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Aoe,
             Resource::Magicka,
         ),
+        // Deep Fissure: Major Breach + Minor Breach for 10s
         SkillData::new(
             "Deep Fissure",
             "Scorch",
@@ -95,7 +107,11 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Aoe,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_BREACH.clone().with_duration(10.0),
+            MINOR_BREACH.clone().with_duration(10.0),
+        ]),
         SkillData::new(
             "Subterranean Assault",
             "Scorch",
@@ -110,6 +126,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Stamina,
         ),
         // Swarm line
+        // Swarm: Minor Vulnerability for 20s
         SkillData::new(
             "Swarm",
             "Swarm",
@@ -119,7 +136,9 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![MINOR_VULNERABILITY.clone().with_duration(20.0)]),
+        // Fetcher Infection: Minor Vulnerability for 20s, every second cast deals +60% damage
         SkillData::new(
             "Fetcher Infection",
             "Swarm",
@@ -129,7 +148,9 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![MINOR_VULNERABILITY.clone().with_duration(20.0)]),
+        // Growing Swarm: Minor Vulnerability for 20s, spreads to nearby enemies
         SkillData::new(
             "Growing Swarm",
             "Swarm",
@@ -139,8 +160,10 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Bleed,
             TargetType::Single,
             Resource::Stamina,
-        ),
-        // Betty Netch line (no damage)
+        )
+        .with_bonuses(vec![MINOR_VULNERABILITY.clone().with_duration(20.0)]),
+        // Betty Netch line
+        // Betty Netch: Major Brutality + Major Sorcery for 22s
         SkillData::new(
             "Betty Netch",
             "Betty Netch",
@@ -150,7 +173,13 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_BRUTALITY.clone().with_duration(22.0),
+            MAJOR_SORCERY.clone().with_duration(22.0),
+        ]),
+        // Blue Betty: Major Brutality + Major Sorcery for 25s, cleanses 1 debuff every 5s
+        // (or +5% damage for 5s if no debuff to cleanse)
         SkillData::new(
             "Blue Betty",
             "Betty Netch",
@@ -160,7 +189,13 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_BRUTALITY.clone().with_duration(25.0),
+            MAJOR_SORCERY.clone().with_duration(25.0),
+        ]),
+        // Bull Netch: Major Brutality + Major Sorcery for 25s, cleanses 1 debuff every 5s
+        // (or +5% damage for 5s if no debuff to cleanse)
         SkillData::new(
             "Bull Netch",
             "Betty Netch",
@@ -170,8 +205,13 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Stamina,
-        ),
-        // Falcon's Swiftness line (no damage)
+        )
+        .with_bonuses(vec![
+            MAJOR_BRUTALITY.clone().with_duration(25.0),
+            MAJOR_SORCERY.clone().with_duration(25.0),
+        ]),
+        // Falcon's Swiftness line
+        // Falcon's Swiftness: Major Expedition for 6s, immunity to snares/immobilizations for 4s
         SkillData::new(
             "Falcon's Swiftness",
             "Falcon's Swiftness",
@@ -182,6 +222,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Stamina,
         ),
+        // Bird of Prey: Major Expedition for 6s, Minor Berserk while slotted
         SkillData::new(
             "Bird of Prey",
             "Falcon's Swiftness",
@@ -191,7 +232,11 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Stamina,
-        ),
+        )
+        .with_bonuses(vec![
+            MINOR_BERSERK.clone().with_trigger(BonusTrigger::AbilitySlotted)
+        ]),
+        // Deceptive Predator: Major Expedition for 6s, Minor Evasion while slotted (defensive)
         SkillData::new(
             "Deceptive Predator",
             "Falcon's Swiftness",
@@ -286,6 +331,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Aoe,
             Resource::Magicka,
         ),
+        // Corrupting Pollen: Major Defile, Minor Cowardice to enemies (defensive/healing reduction)
         SkillData::new(
             "Corrupting Pollen",
             "Healing Seed",
@@ -327,7 +373,8 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Magicka,
         ),
-        // Lotus Flower line (no damage)
+        // Lotus Flower line
+        // Lotus Flower: Major Prophecy + Major Savagery for 20s
         SkillData::new(
             "Lotus Flower",
             "Lotus Flower",
@@ -337,7 +384,12 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_PROPHECY.clone().with_duration(20.0),
+            MAJOR_SAVAGERY.clone().with_duration(20.0),
+        ]),
+        // Green Lotus: Major Prophecy + Major Savagery for 20s, heals 2 additional targets
         SkillData::new(
             "Green Lotus",
             "Lotus Flower",
@@ -347,7 +399,12 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Aoe,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_PROPHECY.clone().with_duration(20.0),
+            MAJOR_SAVAGERY.clone().with_duration(20.0),
+        ]),
+        // Lotus Blossom: Major Prophecy + Major Savagery for 60s (1 minute)
         SkillData::new(
             "Lotus Blossom",
             "Lotus Flower",
@@ -357,7 +414,11 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_PROPHECY.clone().with_duration(60.0),
+            MAJOR_SAVAGERY.clone().with_duration(60.0),
+        ]),
         // Nature's Grasp line (no damage)
         SkillData::new(
             "Nature's Grasp",
@@ -391,6 +452,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         ),
         // === WINTER'S EMBRACE ===
         // Ultimate - Sleet Storm line
+        // Sleet Storm: Major Protection to allies (defensive)
         SkillData::new(
             "Sleet Storm",
             "Sleet Storm",
@@ -401,6 +463,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Aoe,
             Resource::Ultimate,
         ),
+        // Northern Storm: Major Protection, +2% damage per second up to 9 stacks (complex)
         SkillData::new(
             "Northern Storm",
             "Sleet Storm",
@@ -411,6 +474,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Aoe,
             Resource::Ultimate,
         ),
+        // Permafrost: Major Protection, Chilled status, 70% snare
         SkillData::new(
             "Permafrost",
             "Sleet Storm",
@@ -421,7 +485,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Aoe,
             Resource::Ultimate,
         ),
-        // Frost Cloak line (no damage)
+        // Frost Cloak line (no damage, defensive buffs)
         SkillData::new(
             "Frost Cloak",
             "Frost Cloak",
@@ -453,6 +517,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         ),
         // Impaling Shards line
+        // Impaling Shards: Chilled status, movement slow
         SkillData::new(
             "Impaling Shards",
             "Impaling Shards",
@@ -463,6 +528,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Aoe,
             Resource::Magicka,
         ),
+        // Gripping Shards: Immobilize for 3s, Chilled status
         SkillData::new(
             "Gripping Shards",
             "Impaling Shards",
@@ -473,6 +539,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Aoe,
             Resource::Magicka,
         ),
+        // Winter's Revenge: Chilled status, +30% damage with Destruction Staff equipped
         SkillData::new(
             "Winter's Revenge",
             "Impaling Shards",
@@ -484,6 +551,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         ),
         // Arctic Wind line
+        // Arctic Wind: Self heal
         SkillData::new(
             "Arctic Wind",
             "Arctic Wind",
@@ -494,6 +562,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Magicka,
         ),
+        // Arctic Blast: Instant damage + DoT, stuns after 2s delay
         SkillData::new(
             "Arctic Blast",
             "Arctic Wind",
@@ -506,6 +575,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Aoe,
             Resource::Magicka,
         ),
+        // Polar Wind: Self heal + ally heal
         SkillData::new(
             "Polar Wind",
             "Arctic Wind",
@@ -516,7 +586,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Aoe,
             Resource::Magicka,
         ),
-        // Crystallized Shield line (no damage)
+        // Crystallized Shield line (no damage, defensive)
         SkillData::new(
             "Crystallized Shield",
             "Crystallized Shield",
@@ -537,6 +607,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Magicka,
         ),
+        // Shimmering Shield: Major Heroism for 6s on projectile absorb
         SkillData::new(
             "Shimmering Shield",
             "Crystallized Shield",
@@ -548,6 +619,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         ),
         // Frozen Gate line
+        // Frozen Gate: Teleports and damages enemy after 1.5s delay
         SkillData::new(
             "Frozen Gate",
             "Frozen Gate",
