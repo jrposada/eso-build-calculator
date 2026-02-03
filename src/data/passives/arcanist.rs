@@ -29,6 +29,8 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             )
             .with_duration(10.0)],
         ),
+        // +15% Status Effect Damage, +55% Status Effect Chance
+        // Status effects include Burning, Poisoned, Chilled, etc. - complex to model directly
         PassiveData::new(
             "Psychic Lesion",
             ClassName::Arcanist,
@@ -47,55 +49,62 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             )],
         ),
         // === SOLDIER OF APOCRYPHA ===
+        // +3271 Armor - defensive, not tracked in damage calculations
         PassiveData::new(
             "Aegis of the Unseen",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
-            vec![], // Increase Armor 3271
+            vec![],
         ),
+        // +81 Magicka, Stamina, and Health Recovery - not tracked in damage calculations
         PassiveData::new(
             "Wellspring of the Abyss",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
-            vec![], // Increase resource recovery 81
+            vec![],
         ),
+        // Minor Evasion (5% AoE damage reduction) - defensive, not tracked
         PassiveData::new(
             "Circumvented Fate",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
-            vec![], // Minor Evasion
+            vec![],
         ),
+        // +4 Ultimate when generating Crux - resource generation, not tracked
         PassiveData::new(
             "Implacable Outcome",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
-            vec![], // Ultimate generation 4
+            vec![],
         ),
         // === CURATIVE RUNEFORMS ===
+        // +4% Healing done per Crux - healing, not tracked in damage calculations
         PassiveData::new(
             "Healing Tides",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
-            vec![], // Increase healing 0.4 per crux
+            vec![],
         ),
+        // Restore 225 Magicka and Stamina when generating Crux - resource restore, not tracked
         PassiveData::new(
-            // TODO: See how we can track this
             "Hideous Clarity",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
-            vec![], // Restore magicka and stamina on crux generation 225
+            vec![],
         ),
+        // +18% Magicka and Stamina Recovery - recovery, not tracked
         PassiveData::new(
             "Erudition",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
-            vec![], // Increase Magicka and Stamina recovery 0.18
+            vec![],
         ),
+        // +10% Damage Shield strength - defensive, not tracked
         PassiveData::new(
             "Intricate Runeforms",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
-            vec![], // Damage shield increase 10%
+            vec![],
         ),
     ]
 });

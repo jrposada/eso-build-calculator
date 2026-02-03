@@ -1,5 +1,6 @@
-use crate::data::{ClassName, DamageType, Resource, SkillLineName, TargetType};
-use crate::domain::{DotDamage, HitDamage, SkillDamage, SkillData};
+use crate::data::bonuses::{MAJOR_BRUTALITY, MAJOR_SORCERY, MINOR_BREACH};
+use crate::data::{BonusTarget, BonusTrigger, ClassName, DamageType, Resource, SkillLineName, TargetType};
+use crate::domain::{BonusData, DotDamage, HitDamage, SkillDamage, SkillData};
 use once_cell::sync::Lazy;
 
 pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
@@ -104,6 +105,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         )
         .with_channel_time(4.0),
         // Abyssal Impact line
+        // Immobilizes for 3s, applies Abyssal Ink for 20s (5% increased damage to marked enemies)
         SkillData::new(
             "Abyssal Impact",
             "Abyssal Impact",
@@ -113,7 +115,15 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Physical,
             TargetType::Aoe,
             Resource::Stamina,
-        ),
+        )
+        .with_bonuses(vec![BonusData::new(
+            "Abyssal Ink",
+            BonusTrigger::Cast,
+            BonusTarget::EnemyDamageTaken,
+            0.05,
+        )
+        .with_duration(20.0)]),
+        // Heals for 1000 Health on hit
         SkillData::new(
             "Cephaliarch's Flail",
             "Abyssal Impact",
@@ -123,7 +133,15 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Physical,
             TargetType::Aoe,
             Resource::Stamina,
-        ),
+        )
+        .with_bonuses(vec![BonusData::new(
+            "Abyssal Ink",
+            BonusTrigger::Cast,
+            BonusTarget::EnemyDamageTaken,
+            0.05,
+        )
+        .with_duration(20.0)]),
+        // Converts to Frost/Magicka, damage to Ink targets increases 2% per Crux
         SkillData::new(
             "Tentacular Dread",
             "Abyssal Impact",
@@ -133,8 +151,16 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Frost,
             TargetType::Aoe,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![BonusData::new(
+            "Abyssal Ink",
+            BonusTrigger::Cast,
+            BonusTarget::EnemyDamageTaken,
+            0.05,
+        )
+        .with_duration(20.0)]),
         // Tome-Bearer's Inspiration line
+        // While slotted: Major Brutality (+20% Weapon Damage) and Major Sorcery (+20% Spell Damage)
         SkillData::new(
             "Tome-Bearer's Inspiration",
             "Tome-Bearer's Inspiration",
@@ -144,7 +170,13 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_BRUTALITY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SORCERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+        ]),
+        // While slotted: Major Brutality (+20% Weapon Damage) and Major Sorcery (+20% Spell Damage)
+        // Pulses every 3 seconds instead of 5
         SkillData::new(
             "Inspired Scholarship",
             "Tome-Bearer's Inspiration",
@@ -154,7 +186,13 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_BRUTALITY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SORCERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+        ]),
+        // While slotted: Major Brutality (+20% Weapon Damage) and Major Sorcery (+20% Spell Damage)
+        // Restores 600 Magicka and Stamina on hit
         SkillData::new(
             "Recuperative Treatise",
             "Tome-Bearer's Inspiration",
@@ -164,7 +202,11 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_BRUTALITY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SORCERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+        ]),
         // The Imperfect Ring line
         SkillData::new(
             "The Imperfect Ring",
@@ -251,6 +293,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Magicka,
         ),
+        // Converts to Physical/Stamina, steals 2200 Armor from enemy
         SkillData::new(
             "Runic Sunder",
             "Runic Jolt",
@@ -260,7 +303,14 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Physical,
             TargetType::Single,
             Resource::Stamina,
-        ),
+        )
+        .with_bonuses(vec![BonusData::new(
+            "Runic Sunder Armor Steal",
+            BonusTrigger::Cast,
+            BonusTarget::EnemyResistanceReduction,
+            2200.0,
+        )
+        .with_duration(15.0)]),
         // Runespite Ward line (no damage modeled)
         SkillData::new(
             "Runespite Ward",
@@ -293,6 +343,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         ),
         // Fatewoven Armor line (no damage)
+        // Major Resolve 20s, applies Minor Breach 6s when taking damage
         SkillData::new(
             "Fatewoven Armor",
             "Fatewoven Armor",
@@ -302,7 +353,9 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![MINOR_BREACH.clone().with_duration(6.0)]),
+        // Major Resolve 30s, Minor Breach 6s when damaged, generates Crux when hit (5s cooldown)
         SkillData::new(
             "Cruxweaver Armor",
             "Fatewoven Armor",
@@ -312,7 +365,9 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![MINOR_BREACH.clone().with_duration(6.0)]),
+        // 5% Block Mitigation + Major Resolve 20s, Minor Breach 6s when damaged
         SkillData::new(
             "Unbreakable Fate",
             "Fatewoven Armor",
@@ -322,7 +377,8 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Magic,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![MINOR_BREACH.clone().with_duration(6.0)]),
         // Runic Defense line (no damage)
         SkillData::new(
             "Runic Defense",
