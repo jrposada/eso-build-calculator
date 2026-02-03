@@ -1,4 +1,7 @@
-use crate::data::{ClassName, DamageType, Resource, SkillLineName, TargetType};
+use crate::data::bonuses::{
+    EMPOWER, MAJOR_BREACH, MAJOR_BRUTALITY, MAJOR_PROPHECY, MAJOR_SAVAGERY, MAJOR_SORCERY,
+};
+use crate::data::{BonusTrigger, ClassName, DamageType, Resource, SkillLineName, TargetType};
 use crate::domain::{DotDamage, HitDamage, SkillDamage, SkillData};
 use once_cell::sync::Lazy;
 
@@ -57,6 +60,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Magicka,
         ),
+        // Molten Whip: Too complex - Seething Fury stacks (+20% damage per stack, +100 Weapon/Spell Damage per stack)
         SkillData::new(
             "Molten Whip",
             "Lava Whip",
@@ -119,6 +123,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Aoe,
             Resource::Magicka,
         ),
+        // Engulfing Flames: Too complex - enemies take up to 6% more Flame Damage
         SkillData::new(
             "Engulfing Flames",
             "Fiery Breath",
@@ -131,6 +136,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Aoe,
             Resource::Magicka,
         ),
+        // Noxious Breath: Major Breach (20s), Poisoned status
         SkillData::new(
             "Noxious Breath",
             "Fiery Breath",
@@ -142,7 +148,8 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Poison,
             TargetType::Aoe,
             Resource::Stamina,
-        ),
+        )
+        .with_bonuses(vec![MAJOR_BREACH.clone()]),
         // Fiery Grip line
         SkillData::new(
             "Fiery Grip",
@@ -175,6 +182,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         ),
         // Inferno line
+        // Inferno: Major Prophecy + Major Savagery while slotted, fireball every 5s
         SkillData::new(
             "Inferno",
             "Inferno",
@@ -184,7 +192,12 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Flame,
             TargetType::Single,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SAVAGERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+        ]),
+        // Cauterize: Major Prophecy + Major Savagery while slotted, heals instead of damages
         SkillData::new(
             "Cauterize",
             "Inferno",
@@ -194,7 +207,12 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Flame,
             TargetType::Aoe,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SAVAGERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+        ]),
+        // Flames of Oblivion: Major Prophecy + Major Savagery while slotted, launches 3 fireballs
         SkillData::new(
             "Flames of Oblivion",
             "Inferno",
@@ -204,7 +222,11 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Flame,
             TargetType::Aoe,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SAVAGERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+        ]),
         // === DRACONIC POWER ===
         // Ultimate - Dragon Leap line
         SkillData::new(
@@ -459,6 +481,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Magicka,
         ),
+        // Stone Giant: Too complex - Stagger stacks (+65 damage taken per stack for 5s)
         SkillData::new(
             "Stone Giant",
             "Stonefist",
@@ -470,6 +493,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Stamina,
         ),
         // Molten Weapons line (no damage)
+        // Molten Weapons: Major Brutality + Major Sorcery (30s)
         SkillData::new(
             "Molten Weapons",
             "Molten Weapons",
@@ -479,7 +503,12 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Flame,
             TargetType::Aoe,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_BRUTALITY.clone().with_duration(30.0),
+            MAJOR_SORCERY.clone().with_duration(30.0),
+        ]),
+        // Igneous Weapons: Major Brutality + Major Sorcery (60s)
         SkillData::new(
             "Igneous Weapons",
             "Molten Weapons",
@@ -489,7 +518,12 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Flame,
             TargetType::Aoe,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_BRUTALITY.clone().with_duration(60.0),
+            MAJOR_SORCERY.clone().with_duration(60.0),
+        ]),
+        // Molten Armaments: Major Brutality + Major Sorcery (30s), Empower (30s)
         SkillData::new(
             "Molten Armaments",
             "Molten Weapons",
@@ -499,7 +533,12 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             DamageType::Flame,
             TargetType::Aoe,
             Resource::Magicka,
-        ),
+        )
+        .with_bonuses(vec![
+            MAJOR_BRUTALITY.clone().with_duration(30.0),
+            MAJOR_SORCERY.clone().with_duration(30.0),
+            EMPOWER.clone().with_duration(30.0),
+        ]),
         // Obsidian Shield line (no damage)
         SkillData::new(
             "Obsidian Shield",
