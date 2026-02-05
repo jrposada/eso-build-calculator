@@ -154,10 +154,8 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Controlled Fury",
             ClassName::Weapon,
             SkillLineName::DualWield,
-            vec![],        // Not tracked - cost reduction
-
-        ), 
-
+            vec![], // Not tracked - cost reduction
+        ),
         PassiveData::new(
             "Twin Blade and Blunt (Axe)",
             ClassName::Weapon,
