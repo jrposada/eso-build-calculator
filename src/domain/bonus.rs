@@ -1,14 +1,102 @@
-use crate::data::{BonusTarget, BonusTrigger};
+use crate::data::{BonusTarget, BonusTrigger, SkillLineName, WeaponType};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Default)]
 pub struct ResolveContext {
     pub crit_damage: f64,
+    pub main_hand_weapon: Option<WeaponType>,
+    pub off_hand_weapon: Option<WeaponType>,
 }
 
 impl ResolveContext {
     pub fn new(crit_damage: f64) -> Self {
-        Self { crit_damage }
+        Self {
+            crit_damage,
+            main_hand_weapon: None,
+            off_hand_weapon: None,
+        }
+    }
+
+    pub fn with_weapons(
+        mut self,
+        main_hand: Option<WeaponType>,
+        off_hand: Option<WeaponType>,
+    ) -> Self {
+        self.main_hand_weapon = main_hand;
+        self.off_hand_weapon = off_hand;
+        self
+    }
+
+    /// Check if a trigger is active based on the current context
+    pub fn is_trigger_active(&self, trigger: BonusTrigger) -> bool {
+        match trigger {
+            // General weapon triggers
+            BonusTrigger::TwoHandedEquipped => self
+                .main_hand_weapon
+                .map_or(false, |w| w.is_two_handed()),
+            BonusTrigger::DualWieldEquipped => self
+                .main_hand_weapon
+                .map_or(false, |w| w.is_dual_wield()),
+            BonusTrigger::BowEquipped => self.main_hand_weapon.map_or(false, |w| w.is_bow()),
+            BonusTrigger::DestructionStuffEquipped => self
+                .main_hand_weapon
+                .map_or(false, |w| w.is_destruction_staff()),
+
+            // Specific two-handed weapon triggers
+            BonusTrigger::TwoHandedSwordEquipped => self
+                .main_hand_weapon
+                .map_or(false, |w| w == WeaponType::TwoHandedSword),
+            BonusTrigger::TwoHandedAxeEquipped => self
+                .main_hand_weapon
+                .map_or(false, |w| w == WeaponType::TwoHandedAxe),
+            BonusTrigger::TwoHandedMaceEquipped => self
+                .main_hand_weapon
+                .map_or(false, |w| w == WeaponType::TwoHandedMace),
+
+            // Specific dual wield weapon triggers (check both hands)
+            BonusTrigger::DualWieldSwordEquipped => {
+                self.main_hand_weapon
+                    .map_or(false, |w| w == WeaponType::DualWieldSword)
+                    || self
+                        .off_hand_weapon
+                        .map_or(false, |w| w == WeaponType::DualWieldSword)
+            }
+            BonusTrigger::DualWieldAxeEquipped => {
+                self.main_hand_weapon
+                    .map_or(false, |w| w == WeaponType::DualWieldAxe)
+                    || self
+                        .off_hand_weapon
+                        .map_or(false, |w| w == WeaponType::DualWieldAxe)
+            }
+            BonusTrigger::DualWieldMaceEquipped => {
+                self.main_hand_weapon
+                    .map_or(false, |w| w == WeaponType::DualWieldMace)
+                    || self
+                        .off_hand_weapon
+                        .map_or(false, |w| w == WeaponType::DualWieldMace)
+            }
+            BonusTrigger::DualWieldDaggerEquipped => {
+                self.main_hand_weapon
+                    .map_or(false, |w| w == WeaponType::DualWieldDagger)
+                    || self
+                        .off_hand_weapon
+                        .map_or(false, |w| w == WeaponType::DualWieldDagger)
+            }
+
+            // Specific destruction staff triggers
+            BonusTrigger::InfernoStaffEquipped => self
+                .main_hand_weapon
+                .map_or(false, |w| w == WeaponType::InfernoStaff),
+            BonusTrigger::LightningStaffEquipped => self
+                .main_hand_weapon
+                .map_or(false, |w| w == WeaponType::LightningStaff),
+            BonusTrigger::IceStaffEquipped => self
+                .main_hand_weapon
+                .map_or(false, |w| w == WeaponType::IceStaff),
+
+            // Other triggers are always considered active (they depend on other conditions)
+            _ => true,
+        }
     }
 }
 
@@ -29,6 +117,12 @@ pub struct BonusData {
     pub cooldown: Option<f64>,
     #[serde(default)]
     alternative: Option<BonusAlternative>,
+    /// Health threshold below which this bonus applies (e.g., 0.25 for 25% HP)
+    #[serde(default)]
+    pub execute_threshold: Option<f64>,
+    /// Skill line filter - bonus only applies to skills from this skill line
+    #[serde(default)]
+    pub skill_line_filter: Option<SkillLineName>,
 }
 
 impl BonusData {
@@ -46,6 +140,8 @@ impl BonusData {
             duration: None,
             cooldown: None,
             alternative: None,
+            execute_threshold: None,
+            skill_line_filter: None,
         }
     }
 
@@ -62,6 +158,39 @@ impl BonusData {
     pub fn with_cooldown(mut self, cooldown: f64) -> Self {
         self.cooldown = Some(cooldown);
         self
+    }
+
+    /// Set execute threshold - bonus only applies when enemy health is below this percentage
+    pub fn with_execute_threshold(mut self, threshold: f64) -> Self {
+        self.execute_threshold = Some(threshold);
+        self
+    }
+
+    /// Set skill line filter - bonus only applies to skills from this skill line
+    pub fn with_skill_line_filter(mut self, skill_line: SkillLineName) -> Self {
+        self.skill_line_filter = Some(skill_line);
+        self
+    }
+
+    /// Check if this is an execute bonus (has an execute threshold)
+    pub fn is_execute_bonus(&self) -> bool {
+        self.execute_threshold.is_some()
+    }
+
+    /// Check if this bonus applies to a given enemy health percentage
+    pub fn applies_at_health(&self, enemy_health: f64) -> bool {
+        match self.execute_threshold {
+            Some(threshold) => enemy_health < threshold,
+            None => true,
+        }
+    }
+
+    /// Check if this bonus applies to a given skill line
+    pub fn applies_to_skill_line(&self, skill_line: SkillLineName) -> bool {
+        match self.skill_line_filter {
+            Some(filter) => filter == skill_line,
+            None => true,
+        }
     }
 
     /// Add an alternative bonus option with a pre-calculated crit damage breakpoint.

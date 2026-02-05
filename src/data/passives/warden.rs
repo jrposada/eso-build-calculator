@@ -82,7 +82,14 @@ pub static WARDEN_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Piercing Cold",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            vec![], // Increase blocked damage
+            // Increases the amount of damage you block by 8% (not tracked - defensive)
+            // Increases your Frost Damage by 15%
+            vec![BonusData::new(
+                "Piercing Cold",
+                BonusTrigger::SkillLineSlotted,
+                BonusTarget::FrostDamage,
+                0.15,
+            )],
         ),
     ]
 });

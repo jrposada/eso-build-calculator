@@ -48,7 +48,70 @@ impl ClassName {
     ];
 }
 
-/// Resource types for skills
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum WeaponType {
+    TwoHandedSword,
+    TwoHandedAxe,
+    TwoHandedMace,
+    DualWieldSword,
+    DualWieldAxe,
+    DualWieldMace,
+    DualWieldDagger,
+    InfernoStaff,
+    LightningStaff,
+    IceStaff,
+    Bow,
+}
+
+impl WeaponType {
+    pub fn is_two_handed(&self) -> bool {
+        matches!(
+            self,
+            WeaponType::TwoHandedSword | WeaponType::TwoHandedAxe | WeaponType::TwoHandedMace
+        )
+    }
+
+    pub fn is_dual_wield(&self) -> bool {
+        matches!(
+            self,
+            WeaponType::DualWieldSword
+                | WeaponType::DualWieldAxe
+                | WeaponType::DualWieldMace
+                | WeaponType::DualWieldDagger
+        )
+    }
+
+    pub fn is_destruction_staff(&self) -> bool {
+        matches!(
+            self,
+            WeaponType::InfernoStaff | WeaponType::LightningStaff | WeaponType::IceStaff
+        )
+    }
+
+    pub fn is_bow(&self) -> bool {
+        matches!(self, WeaponType::Bow)
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum StatusEffect {
+    OffBalance,
+    Chilled,
+    Burning,
+    Poisoned,
+    Concussed,
+}
+
+// TODO: needed?
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum StatusEffectCondition {
+    Flanking,
+    FromDistance,
+    Always,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Resource {
@@ -69,7 +132,6 @@ impl fmt::Display for Resource {
     }
 }
 
-/// Damage types in ESO
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum DamageType {
@@ -136,14 +198,6 @@ impl fmt::Display for SkillMechanic {
     }
 }
 
-/// Skill type - class or weapon
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum SkillType {
-    Class,
-    Weapon,
-}
-
 /// How a bonus is applied
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -163,6 +217,23 @@ pub enum BonusTrigger {
     SkillLineSkillCast,
     SkillLineSlotted,
     TwoHandedEquipped,
+    // Weapon type specific triggers
+    TwoHandedSwordEquipped,
+    TwoHandedAxeEquipped,
+    TwoHandedMaceEquipped,
+    DualWieldSwordEquipped,
+    DualWieldAxeEquipped,
+    DualWieldMaceEquipped,
+    DualWieldDaggerEquipped,
+    InfernoStaffEquipped,
+    LightningStaffEquipped,
+    IceStaffEquipped,
+    // Status effect triggers
+    EnemyOffBalance,
+    EnemyChilled,
+    EnemyBurning,
+    EnemyPoisoned,
+    EnemyHasStatusEffect,
 }
 
 /// What stat the bonus affects
@@ -185,6 +256,8 @@ pub enum BonusTarget {
     PhysicalDamage,
     RestoreMagickaOrStamina,
     ShockDamage,
+    FrostDamage,
+    FlameDamage,
     SingleDamage,
     SpellCriticalChance,
     WeaponAndSpellDamage,

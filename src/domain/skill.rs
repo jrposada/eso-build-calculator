@@ -1,7 +1,7 @@
 use crate::data::{
     BonusTarget, ClassName, DamageType, Resource, SkillLineName, SkillMechanic, TargetType,
 };
-use crate::domain::{BonusData, ExecuteData, ExecuteScaling, SkillDamage};
+use crate::domain::{BonusData, ExecuteData, ExecuteScaling, SkillDamage, StatusEffectApplication};
 use serde::{Deserialize, Serialize};
 
 /// Raw skill data used to construct skills
@@ -21,6 +21,8 @@ pub struct SkillData {
     pub execute: Option<ExecuteData>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bonuses: Option<Vec<BonusData>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub status_effects: Option<Vec<StatusEffectApplication>>,
 }
 
 impl SkillData {
@@ -46,6 +48,7 @@ impl SkillData {
             channel_time: None,
             execute: None,
             bonuses: None,
+            status_effects: None,
         }
     }
 
@@ -61,6 +64,11 @@ impl SkillData {
 
     pub fn with_bonuses(mut self, bonuses: Vec<BonusData>) -> Self {
         self.bonuses = Some(bonuses);
+        self
+    }
+
+    pub fn with_status_effects(mut self, status_effects: Vec<StatusEffectApplication>) -> Self {
+        self.status_effects = Some(status_effects);
         self
     }
 
@@ -116,13 +124,25 @@ impl SkillData {
             TargetType::Single => BonusTarget::SingleDamage,
         };
 
+        // Filter bonuses by enemy health (for execute bonuses) and skill line
+        let applicable_bonuses: Vec<_> = bonuses
+            .iter()
+            .filter(|b| {
+                // Check skill line filter
+                b.applies_to_skill_line(self.skill_line)
+                    // Check execute threshold - only apply if we know health and it's below threshold
+                    && enemy_health.map_or(!b.is_execute_bonus(), |h| b.applies_at_health(h))
+            })
+            .collect();
+
         // Sum all direct hits
         if let Some(hits) = &self.damage.hits {
             let hit_affected_by = [BonusTarget::DirectDamage, target_bonus_type];
 
-            let hit_modifiers: Vec<_> = bonuses
+            let hit_modifiers: Vec<_> = applicable_bonuses
                 .iter()
                 .filter(|b| hit_affected_by.contains(&b.target))
+                .copied()
                 .collect();
 
             for hit in hits {
@@ -143,9 +163,10 @@ impl SkillData {
         if let Some(dots) = &self.damage.dots {
             let dot_affected_by = [BonusTarget::DotDamage, target_bonus_type];
 
-            let dot_modifiers: Vec<_> = bonuses
+            let dot_modifiers: Vec<_> = applicable_bonuses
                 .iter()
                 .filter(|b| dot_affected_by.contains(&b.target))
+                .copied()
                 .collect();
 
             for dot in dots {

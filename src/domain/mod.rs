@@ -6,6 +6,7 @@ pub mod hit_damage;
 pub mod passive;
 pub mod skill;
 pub mod skill_damage;
+pub mod status_effect;
 
 pub use bonus::{BonusAlternative, BonusData, ResolveContext};
 pub use build::{Build, BUILD_CONSTRAINTS};
@@ -15,3 +16,4 @@ pub use hit_damage::HitDamage;
 pub use passive::PassiveData;
 pub use skill::SkillData;
 pub use skill_damage::SkillDamage;
+pub use status_effect::StatusEffectApplication;
