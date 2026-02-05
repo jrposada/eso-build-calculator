@@ -1,5 +1,7 @@
 use crate::data::bonuses::{MAJOR_BRUTALITY, MAJOR_SORCERY, MINOR_BREACH};
-use crate::data::{BonusTarget, BonusTrigger, ClassName, DamageType, Resource, SkillLineName, TargetType};
+use crate::data::{
+    BonusTarget, BonusTrigger, ClassName, DamageType, Resource, SkillLineName, TargetType,
+};
 use crate::domain::{BonusData, DotDamage, HitDamage, SkillDamage, SkillData};
 use once_cell::sync::Lazy;
 
@@ -172,8 +174,12 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_bonuses(vec![
-            MAJOR_BRUTALITY.clone().with_trigger(BonusTrigger::AbilitySlotted),
-            MAJOR_SORCERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_BRUTALITY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SORCERY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
         ]),
         // While slotted: Major Brutality (+20% Weapon Damage) and Major Sorcery (+20% Spell Damage)
         // Pulses every 3 seconds instead of 5
@@ -188,8 +194,12 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_bonuses(vec![
-            MAJOR_BRUTALITY.clone().with_trigger(BonusTrigger::AbilitySlotted),
-            MAJOR_SORCERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_BRUTALITY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SORCERY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
         ]),
         // While slotted: Major Brutality (+20% Weapon Damage) and Major Sorcery (+20% Spell Damage)
         // Restores 600 Magicka and Stamina on hit
@@ -204,8 +214,12 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_bonuses(vec![
-            MAJOR_BRUTALITY.clone().with_trigger(BonusTrigger::AbilitySlotted),
-            MAJOR_SORCERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_BRUTALITY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SORCERY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
         ]),
         // The Imperfect Ring line
         SkillData::new(

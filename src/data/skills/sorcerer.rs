@@ -1,5 +1,7 @@
 use crate::data::bonuses::{MAJOR_BRUTALITY, MAJOR_PROPHECY, MAJOR_SAVAGERY, MAJOR_SORCERY};
-use crate::data::{BonusTarget, BonusTrigger, ClassName, DamageType, Resource, SkillLineName, TargetType};
+use crate::data::{
+    BonusTarget, BonusTrigger, ClassName, DamageType, Resource, SkillLineName, TargetType,
+};
 use crate::domain::{BonusData, DotDamage, HitDamage, SkillDamage, SkillData};
 use once_cell::sync::Lazy;
 
@@ -407,8 +409,12 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Stamina,
         )
         .with_bonuses(vec![
-            MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted),
-            MAJOR_SAVAGERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_PROPHECY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SAVAGERY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
         ]),
         // === STORM CALLING ===
         // Ultimate - Overload line

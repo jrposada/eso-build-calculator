@@ -194,8 +194,12 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_bonuses(vec![
-            MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted),
-            MAJOR_SAVAGERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_PROPHECY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SAVAGERY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
         ]),
         // Cauterize: Major Prophecy + Major Savagery while slotted, heals instead of damages
         SkillData::new(
@@ -209,8 +213,12 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_bonuses(vec![
-            MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted),
-            MAJOR_SAVAGERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_PROPHECY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SAVAGERY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
         ]),
         // Flames of Oblivion: Major Prophecy + Major Savagery while slotted, launches 3 fireballs
         SkillData::new(
@@ -224,8 +232,12 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_bonuses(vec![
-            MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted),
-            MAJOR_SAVAGERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_PROPHECY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SAVAGERY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
         ]),
         // === DRACONIC POWER ===
         // Ultimate - Dragon Leap line

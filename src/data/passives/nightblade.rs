@@ -49,7 +49,9 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                     BonusTarget::CriticalDamage,
                     0.1,
                 ),
-                MINOR_SAVAGERY.clone().with_trigger(BonusTrigger::CriticalDamageDealt),
+                MINOR_SAVAGERY
+                    .clone()
+                    .with_trigger(BonusTrigger::CriticalDamageDealt),
             ],
         ),
         // === SHADOW ===

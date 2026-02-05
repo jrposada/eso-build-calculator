@@ -31,12 +31,12 @@ impl ResolveContext {
     pub fn is_trigger_active(&self, trigger: BonusTrigger) -> bool {
         match trigger {
             // General weapon triggers
-            BonusTrigger::TwoHandedEquipped => self
-                .main_hand_weapon
-                .map_or(false, |w| w.is_two_handed()),
-            BonusTrigger::DualWieldEquipped => self
-                .main_hand_weapon
-                .map_or(false, |w| w.is_dual_wield()),
+            BonusTrigger::TwoHandedEquipped => {
+                self.main_hand_weapon.map_or(false, |w| w.is_two_handed())
+            }
+            BonusTrigger::DualWieldEquipped => {
+                self.main_hand_weapon.map_or(false, |w| w.is_dual_wield())
+            }
             BonusTrigger::BowEquipped => self.main_hand_weapon.map_or(false, |w| w.is_bow()),
             BonusTrigger::DestructionStuffEquipped => self
                 .main_hand_weapon

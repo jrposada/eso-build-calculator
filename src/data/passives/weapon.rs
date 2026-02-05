@@ -45,10 +45,10 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
         ),
         PassiveData::new(
             "Ranger",
-             ClassName::Weapon,
-              SkillLineName::Bow,
-               vec![], // Reduce stamina cost of bow abilities 15%
-            ),
+            ClassName::Weapon,
+            SkillLineName::Bow,
+            vec![], // Reduce stamina cost of bow abilities 15%
+        ),
         PassiveData::new(
             "Hawk Eye",
             ClassName::Weapon,
@@ -282,6 +282,6 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::TwoHanded,
             vec![],
-        )
+        ),
     ]
 });

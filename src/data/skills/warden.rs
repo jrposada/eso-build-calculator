@@ -233,9 +233,9 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             TargetType::Single,
             Resource::Stamina,
         )
-        .with_bonuses(vec![
-            MINOR_BERSERK.clone().with_trigger(BonusTrigger::AbilitySlotted)
-        ]),
+        .with_bonuses(vec![MINOR_BERSERK
+            .clone()
+            .with_trigger(BonusTrigger::AbilitySlotted)]),
         // Deceptive Predator: Major Expedition for 6s, Minor Evasion while slotted (defensive)
         SkillData::new(
             "Deceptive Predator",

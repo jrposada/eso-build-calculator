@@ -57,7 +57,12 @@ impl SkillData {
         self
     }
 
-    pub fn with_execute(mut self, multiplier: f64, threshold: f64, scaling: ExecuteScaling) -> Self {
+    pub fn with_execute(
+        mut self,
+        multiplier: f64,
+        threshold: f64,
+        scaling: ExecuteScaling,
+    ) -> Self {
         self.execute = Some(ExecuteData::new(multiplier, threshold, scaling));
         self
     }
@@ -201,7 +206,11 @@ impl SkillData {
 
     /// Calculate damage at a specific enemy health percentage, including execute bonuses
     /// This includes conditional execute hits and applies multiplier-based execute bonuses
-    pub fn calculate_damage_at_health(&self, bonuses: &[BonusData], enemy_health_percent: f64) -> f64 {
+    pub fn calculate_damage_at_health(
+        &self,
+        bonuses: &[BonusData],
+        enemy_health_percent: f64,
+    ) -> f64 {
         let base = self.calculate_damage_at_health_internal(bonuses, Some(enemy_health_percent));
         if let Some(execute) = &self.execute {
             base * execute.calculate_multiplier(enemy_health_percent)
@@ -299,11 +308,9 @@ impl SkillData {
         ));
 
         // Check if skill has conditional execute hits
-        let has_execute_hits = self
-            .damage
-            .hits
-            .as_ref()
-            .map_or(false, |hits| hits.iter().any(|h| h.execute_threshold.is_some()));
+        let has_execute_hits = self.damage.hits.as_ref().map_or(false, |hits| {
+            hits.iter().any(|h| h.execute_threshold.is_some())
+        });
 
         if let Some(execute) = &self.execute {
             lines.push(String::new());

@@ -29,7 +29,9 @@ pub static SORCERER_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Exploitation",
             ClassName::Sorcerer,
             SkillLineName::DarkMagic,
-            vec![MINOR_PROPHECY.clone().with_trigger(BonusTrigger::SkillLineSkillCast)],
+            vec![MINOR_PROPHECY
+                .clone()
+                .with_trigger(BonusTrigger::SkillLineSkillCast)],
         ),
         // === DAEDRIC SUMMONING ===
         PassiveData::new(

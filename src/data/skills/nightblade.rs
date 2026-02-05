@@ -2,7 +2,9 @@ use crate::data::bonuses::{
     EMPOWER, MAJOR_BERSERK, MAJOR_BREACH, MAJOR_BRUTALITY, MAJOR_PROPHECY, MAJOR_SAVAGERY,
     MAJOR_SORCERY, MINOR_BERSERK, MINOR_VULNERABILITY,
 };
-use crate::data::{BonusTarget, BonusTrigger, ClassName, DamageType, Resource, SkillLineName, TargetType};
+use crate::data::{
+    BonusTarget, BonusTrigger, ClassName, DamageType, Resource, SkillLineName, TargetType,
+};
 use crate::domain::{BonusData, DotDamage, ExecuteScaling, HitDamage, SkillDamage, SkillData};
 use once_cell::sync::Lazy;
 
@@ -231,8 +233,12 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_bonuses(vec![
-            MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted),
-            MAJOR_SAVAGERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_PROPHECY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SAVAGERY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
         ]),
         // Merciless Resolve: Major Prophecy + Major Savagery while slotted, 50% heal on proc
         SkillData::new(
@@ -246,8 +252,12 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_bonuses(vec![
-            MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted),
-            MAJOR_SAVAGERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_PROPHECY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SAVAGERY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
         ]),
         // Relentless Focus: Major Prophecy + Major Savagery while slotted, 4 stacks to proc
         SkillData::new(
@@ -261,8 +271,12 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Stamina,
         )
         .with_bonuses(vec![
-            MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted),
-            MAJOR_SAVAGERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_PROPHECY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SAVAGERY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
         ]),
         // === SHADOW ===
         // Ultimate - Consuming Darkness line
