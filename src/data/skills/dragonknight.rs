@@ -1,7 +1,7 @@
 use crate::data::bonuses::{
     EMPOWER, MAJOR_BREACH, MAJOR_BRUTALITY, MAJOR_PROPHECY, MAJOR_SAVAGERY, MAJOR_SORCERY,
 };
-use crate::data::{BonusTrigger, ClassName, DamageType, Resource, SkillLineName, TargetType};
+use crate::domain::{BonusTrigger, ClassName, DamageType, Resource, SkillLineName, TargetType};
 use crate::domain::{DotDamage, HitDamage, SkillDamage, SkillData};
 use once_cell::sync::Lazy;
 

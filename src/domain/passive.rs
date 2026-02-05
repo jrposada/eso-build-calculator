@@ -1,5 +1,4 @@
-use crate::data::{ClassName, SkillLineName};
-use crate::domain::BonusData;
+use super::{BonusData, ClassName, SkillLineName};
 use serde::{Deserialize, Serialize};
 
 /// Passive data for skill line passives

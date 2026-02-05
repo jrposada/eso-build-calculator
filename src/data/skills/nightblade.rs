@@ -2,7 +2,7 @@ use crate::data::bonuses::{
     EMPOWER, MAJOR_BERSERK, MAJOR_BREACH, MAJOR_BRUTALITY, MAJOR_PROPHECY, MAJOR_SAVAGERY,
     MAJOR_SORCERY, MINOR_BERSERK, MINOR_VULNERABILITY,
 };
-use crate::data::{
+use crate::domain::{
     BonusTarget, BonusTrigger, ClassName, DamageType, Resource, SkillLineName, TargetType,
 };
 use crate::domain::{BonusData, DotDamage, ExecuteScaling, HitDamage, SkillDamage, SkillData};

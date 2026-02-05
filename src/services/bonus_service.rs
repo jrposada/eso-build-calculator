@@ -1,4 +1,4 @@
-use crate::data::BonusTarget;
+use crate::domain::BonusTarget;
 
 /// Crit rating to crit chance conversion constant in ESO
 /// Formula: crit_rating / CRIT_RATING_DIVISOR = crit_chance_percent

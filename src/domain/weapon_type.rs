@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum WeaponType {
@@ -42,5 +43,23 @@ impl WeaponType {
 
     pub fn is_bow(&self) -> bool {
         matches!(self, WeaponType::Bow)
+    }
+}
+
+impl fmt::Display for WeaponType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            WeaponType::TwoHandedSword => write!(f, "Two-Handed Sword"),
+            WeaponType::TwoHandedAxe => write!(f, "Two-Handed Axe"),
+            WeaponType::TwoHandedMace => write!(f, "Two-Handed Mace"),
+            WeaponType::DualWieldSword => write!(f, "Dual Wield Sword"),
+            WeaponType::DualWieldAxe => write!(f, "Dual WieldAxe"),
+            WeaponType::DualWieldMace => write!(f, "Dual WieldMace"),
+            WeaponType::DualWieldDagger => write!(f, "Dual Wield Dagger"),
+            WeaponType::InfernoStaff => write!(f, "Inferno Staff"),
+            WeaponType::LightningStaff => write!(f, "Lightning Staff"),
+            WeaponType::IceStaff => write!(f, "Ice Staff"),
+            WeaponType::Bow => write!(f, "Bow"),
+        }
     }
 }

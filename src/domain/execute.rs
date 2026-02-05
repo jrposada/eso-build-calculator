@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 /// How execute damage scales with enemy health
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "kebab-case")]
 pub enum ExecuteScaling {
     /// Full bonus when below threshold
     Flat,

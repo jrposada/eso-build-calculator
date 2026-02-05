@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-/// How a bonus is applied
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum BonusTrigger {
@@ -12,28 +11,26 @@ pub enum BonusTrigger {
     Cast,
     CriticalDamageDealt,
     DestructionStuffEquipped,
+    DualWieldAxeEquipped,
+    DualWieldDaggerEquipped,
     DualWieldEquipped,
+    DualWieldMaceEquipped,
+    DualWieldSwordEquipped,
+    EnemyBurning,
+    EnemyChilled,
+    EnemyHasStatusEffect,
+    EnemyOffBalance,
+    EnemyPoisoned,
     Flanking,
+    IceStaffEquipped,
+    InfernoStaffEquipped,
+    LightningStaffEquipped,
     MagickaOrStaminaRestored,
     Passive,
     SkillLineSkillCast,
     SkillLineSlotted,
-    TwoHandedEquipped,
-    // Weapon type specific triggers
-    TwoHandedSwordEquipped,
     TwoHandedAxeEquipped,
+    TwoHandedEquipped,
     TwoHandedMaceEquipped,
-    DualWieldSwordEquipped,
-    DualWieldAxeEquipped,
-    DualWieldMaceEquipped,
-    DualWieldDaggerEquipped,
-    InfernoStaffEquipped,
-    LightningStaffEquipped,
-    IceStaffEquipped,
-    // Status effect triggers
-    EnemyOffBalance,
-    EnemyChilled,
-    EnemyBurning,
-    EnemyPoisoned,
-    EnemyHasStatusEffect,
+    TwoHandedSwordEquipped,
 }

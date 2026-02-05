@@ -1,7 +1,7 @@
-use crate::data::{
-    BonusTarget, ClassName, DamageType, Resource, SkillLineName, SkillMechanic, TargetType,
+use super::{
+    BonusData, BonusTarget, ClassName, DamageType, ExecuteData, ExecuteScaling, Resource,
+    SkillDamage, SkillLineName, SkillMechanic, StatusEffectApplication, TargetType,
 };
-use crate::domain::{BonusData, ExecuteData, ExecuteScaling, SkillDamage, StatusEffectApplication};
 use serde::{Deserialize, Serialize};
 
 /// Raw skill data used to construct skills

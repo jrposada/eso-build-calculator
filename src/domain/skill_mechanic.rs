@@ -1,14 +1,12 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// Skill mechanic types
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "kebab-case")]
 pub enum SkillMechanic {
     Dot,
     Instant,
     Channeled,
-    Unknown,
 }
 
 impl fmt::Display for SkillMechanic {
@@ -17,7 +15,6 @@ impl fmt::Display for SkillMechanic {
             SkillMechanic::Dot => write!(f, "dot"),
             SkillMechanic::Instant => write!(f, "instant"),
             SkillMechanic::Channeled => write!(f, "channeled"),
-            SkillMechanic::Unknown => write!(f, "unknown"),
         }
     }
 }

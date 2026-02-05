@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use crate::data::{ClassName, SkillLineName};
+use crate::domain::{ClassName, SkillLineName};
 use crate::domain::BUILD_CONSTRAINTS;
 use crate::infrastructure::logger;
 use crate::services::{BuildOptimizer, BuildOptimizerOptions};

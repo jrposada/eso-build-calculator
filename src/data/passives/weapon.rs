@@ -1,4 +1,4 @@
-use crate::data::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
+use crate::domain::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use crate::domain::{BonusData, PassiveData};
 use crate::services::BonusService;
 use once_cell::sync::Lazy;

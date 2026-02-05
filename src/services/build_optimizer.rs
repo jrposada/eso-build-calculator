@@ -1,6 +1,6 @@
 use crate::data::bonuses::CHAMPION_POINTS;
 use crate::data::skills::ALL_SKILLS;
-use crate::data::{ClassName, SkillLineName};
+use crate::domain::{ClassName, SkillLineName};
 use crate::domain::{BonusData, Build, SkillData, BUILD_CONSTRAINTS};
 use crate::infrastructure::{combinatorics, format, logger, table};
 use crate::services::passive_service::PassiveServiceOptions;

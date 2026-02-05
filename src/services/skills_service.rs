@@ -1,5 +1,5 @@
 use crate::data::skills::ALL_SKILLS;
-use crate::data::{Resource, SkillLineName};
+use crate::domain::{Resource, SkillLineName};
 use crate::domain::SkillData;
 use std::collections::HashMap;
 

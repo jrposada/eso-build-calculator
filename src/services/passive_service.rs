@@ -1,5 +1,5 @@
 use crate::data::passives::{ALL_CLASS_PASSIVES, ALL_WEAPON_PASSIVES};
-use crate::data::SkillLineName;
+use crate::domain::SkillLineName;
 use crate::domain::PassiveData;
 use std::collections::{HashMap, HashSet};
 

@@ -1,5 +1,5 @@
 use crate::data::bonuses::MINOR_BRUTALITY;
-use crate::data::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
+use crate::domain::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use crate::domain::{BonusData, PassiveData};
 use once_cell::sync::Lazy;
 

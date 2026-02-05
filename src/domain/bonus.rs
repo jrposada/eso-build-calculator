@@ -1,4 +1,4 @@
-use crate::data::{BonusTarget, BonusTrigger, SkillLineName, WeaponType};
+use super::{BonusTarget, BonusTrigger, SkillLineName, WeaponType};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Default)]

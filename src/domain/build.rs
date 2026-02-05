@@ -1,5 +1,4 @@
-use crate::data::{BonusTarget, ClassName, SkillLineName};
-use crate::domain::{BonusData, ResolveContext, SkillData};
+use super::{BonusData, BonusTarget, ClassName, ResolveContext, SkillData, SkillLineName};
 use crate::infrastructure::{format, table};
 use std::collections::{HashMap, HashSet};
 

@@ -1,18 +1,24 @@
 use serde::{Deserialize, Serialize};
 
-/// What stat the bonus affects
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum BonusTarget {
     AoeDamage,
-    Damage,
     BurningAndPoisonDamage,
+    ChilledStatusEffectChance,
+    ChilledStatusEffectDamage,
     CriticalChance,
     CriticalDamage,
+    Damage,
     DirectDamage,
     DotDamage,
     DurationSkillLineFlat,
     DurationSkillLineMultiplier,
+    EnemyDamageTaken,
+    EnemyResistanceReduction,
+    FlameDamage,
+    FrostDamage,
+    HeavyAttackDamage,
     MaxMagicka,
     MaxStamina,
     OffBalanceDamage,
@@ -20,21 +26,13 @@ pub enum BonusTarget {
     PhysicalDamage,
     RestoreMagickaOrStamina,
     ShockDamage,
-    FrostDamage,
-    FlameDamage,
     SingleDamage,
     SpellCriticalChance,
+    SpellDamage,
+    StatusEffectChance,
+    StatusEffectDamage,
     WeaponAndSpellDamageFlat,
     WeaponAndSpellDamageMultiplier,
     WeaponCriticalChance,
     WeaponDamage,
-    SpellDamage,
-    HeavyAttackDamage,
-    StatusEffectDamage,
-    StatusEffectChance,
-    ChilledStatusEffectChance,
-    ChilledStatusEffectDamage,
-    // Enemy debuffs
-    EnemyDamageTaken,
-    EnemyResistanceReduction,
 }

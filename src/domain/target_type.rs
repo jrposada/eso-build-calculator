@@ -1,9 +1,8 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// Target types for skills
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "kebab-case")]
 pub enum TargetType {
     Single,
     Aoe,
