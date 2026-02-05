@@ -15,7 +15,7 @@ pub static WARDEN_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Savage Beast",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
-            vec![], // Ult generation
+            vec![], // TODO: 4 ultimate generation
         ),
         PassiveData::new(
             "Flourish",
@@ -64,7 +64,20 @@ pub static WARDEN_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Glacial Presence",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            vec![], // TODO: TO complex, chilled status effect and damage
+            vec![
+                BonusData::new(
+                    "Glacial Presence 1",
+                    BonusTrigger::Passive,
+                    BonusTarget::ChilledStatusEffectChance,
+                    2.5,
+                ),
+                BonusData::new(
+                    "Glacial Presence 2",
+                    BonusTrigger::Passive,
+                    BonusTarget::ChilledStatusEffectDamage,
+                    105.0, // TODO: scales of WeaponOrSpellDamage
+                ),
+            ],
         ),
         PassiveData::new(
             "Frozen Armor",
@@ -82,14 +95,15 @@ pub static WARDEN_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Piercing Cold",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            // Increases the amount of damage you block by 8% (not tracked - defensive)
-            // Increases your Frost Damage by 15%
-            vec![BonusData::new(
-                "Piercing Cold",
-                BonusTrigger::SkillLineSlotted,
-                BonusTarget::FrostDamage,
-                0.15,
-            )],
+            vec![
+                BonusData::new(
+                    "Piercing Cold",
+                    BonusTrigger::SkillLineSlotted,
+                    BonusTarget::FrostDamage,
+                    0.15,
+                ),
+                // Increases the amount of damage you block by 8% (not tracked - defensive)
+            ],
         ),
     ]
 });

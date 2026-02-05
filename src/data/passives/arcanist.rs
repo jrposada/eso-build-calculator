@@ -24,7 +24,7 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             vec![BonusData::new(
                 "Harnessed Quintessence W",
                 BonusTrigger::MagickaOrStaminaRestored,
-                BonusTarget::WeaponAndSpellDamage,
+                BonusTarget::WeaponAndSpellDamageFlat,
                 284.0,
             )
             .with_duration(10.0)],
@@ -35,7 +35,22 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Psychic Lesion",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
-            vec![],
+            vec![
+                BonusData::new(
+                    "Psychic Lesion 1",
+                    BonusTrigger::AbilitySlotted,
+                    BonusTarget::StatusEffectDamage,
+                    0.15,
+                )
+                .with_duration(10.0),
+                BonusData::new(
+                    "Psychic Lesion 2",
+                    BonusTrigger::AbilitySlotted,
+                    BonusTarget::StatusEffectChance,
+                    0.55,
+                )
+                .with_duration(10.0),
+            ],
         ),
         PassiveData::new(
             "Splintered Secrets",
@@ -85,12 +100,16 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::CurativeRuneforms,
             vec![],
         ),
-        // Restore 225 Magicka and Stamina when generating Crux - resource restore, not tracked
         PassiveData::new(
             "Hideous Clarity",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
-            vec![],
+            vec![BonusData::new(
+                "Hideous Clarity",
+                BonusTrigger::ArcanistCrux, // TODO should be only on generate
+                BonusTarget::RestoreMagickaOrStamina,
+                225.0,
+            )],
         ),
         // +18% Magicka and Stamina Recovery - recovery, not tracked
         PassiveData::new(

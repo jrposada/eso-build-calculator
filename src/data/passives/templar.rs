@@ -43,7 +43,7 @@ pub static TEMPLAR_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 BonusData::new(
                     "Balanced Warrior",
                     BonusTrigger::SkillLineSlotted,
-                    BonusTarget::WeaponAndSpellDamage,
+                    BonusTarget::WeaponAndSpellDamageMultiplier,
                     0.06,
                 ), // Armor increase
             ],
@@ -53,18 +53,13 @@ pub static TEMPLAR_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Enduring Rays",
             ClassName::Templar,
             SkillLineName::DawnsWrath,
-            vec![BonusData::new(
-                "Enduring Rays",
-                BonusTrigger::SkillLineSlotted,
-                BonusTarget::DurationSkillLineFlat,
-                2.0,
-            )],
+            vec![], // TODO: duration increase to specific skills
         ),
         PassiveData::new(
             "Prism",
             ClassName::Templar,
             SkillLineName::DawnsWrath,
-            vec![], // Ult generation
+            vec![], // TODO: generates 3 ultimate
         ),
         PassiveData::new(
             "Illuminate",
@@ -97,7 +92,7 @@ pub static TEMPLAR_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Light Weaver",
             ClassName::Templar,
             SkillLineName::RestoringLight,
-            vec![], // Ult generation and other
+            vec![], // TODO: Ult generation and other
         ),
         PassiveData::new(
             "Master Ritualist",

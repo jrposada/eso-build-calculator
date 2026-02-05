@@ -4,8 +4,6 @@ use crate::services::BonusService;
 use once_cell::sync::Lazy;
 
 pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
-    // Long Shots: 5% damage when close (≤15m), 1314 crit rating when far (>15m)
-    // Calculate breakpoint once during initialization
     let long_shots_breakpoint = BonusService::calculate_breakpoint(
         BonusTarget::Damage,
         0.05,
@@ -66,14 +64,13 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
         // - Inferno: +4480 Flame Damage over 20s on fully-charged HA
         // - Lightning: Fully-charged HA damages nearby enemies for 100%
         // - Ice: Fully-charged HA grants 5280 damage shield
-        // TODO: Requires staff type tracking
+        // TODO: Requires HA mechanic
         PassiveData::new(
             "Tri Focus",
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
             vec![],
         ),
-        // Penetrating Magic: Destro Staff abilities ignore 2974 Spell Resistance
         PassiveData::new(
             "Penetrating Magic",
             ClassName::Weapon,
@@ -83,20 +80,20 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 BonusTrigger::DestructionStuffEquipped,
                 BonusTarget::PhysicalAndSpellPenetration,
                 2974.0,
-            )],
+            )
+            .with_skill_line_filter(SkillLineName::Bow)],
         ),
-        // Elemental Force: +100% status effect application chance
-        // Not tracked - status effect chance
         PassiveData::new(
             "Elemental Force",
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
-            vec![],
+            vec![BonusData::new(
+                "Elemental Force",
+                BonusTrigger::DestructionStuffEquipped,
+                BonusTarget::StatusEffectChance,
+                1.0,
+            )],
         ),
-        // Ancient Knowledge: Staff-specific damage bonuses
-        // - Inferno: +12% DoT and Status Effect damage
-        // - Lightning: +12% Direct and Channeled damage
-        // - Ice: Block cost -36%, block damage +20% (defensive, not tracked)
         PassiveData::new(
             "Ancient Knowledge (Inferno)",
             ClassName::Weapon,
@@ -125,16 +122,13 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::DestructionStaff,
             vec![], // Block cost -36%, block damage +20% - defensive, not tracked
         ),
-        // Destruction Expert: Restore 3600 Magicka on kill, 1800 on shield absorb
-        // Not tracked - resource recovery
         PassiveData::new(
             "Destruction Expert",
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
-            vec![],
+            vec![], //Not tracked - resource recovery on kill
         ),
         // === DUAL WIELD ===
-        // Slaughter: +20% Dual Wield damage against enemies below 25% Health
         PassiveData::new(
             "Slaughter",
             ClassName::Weapon,
@@ -156,19 +150,14 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::DualWield,
             vec![],
         ),
-        // Controlled Fury: Reduces Stamina cost of Dual Wield abilities by 15%
-        // Not tracked - cost reduction
         PassiveData::new(
             "Controlled Fury",
             ClassName::Weapon,
             SkillLineName::DualWield,
-            vec![],
-        ),
-        // Twin Blade and Blunt: Weapon-type dependent bonuses (per weapon):
-        // - Axe: +6% Critical Damage
-        // - Mace: +1487 Offensive Penetration
-        // - Sword: +129 Weapon and Spell Damage
-        // - Dagger: +657 Critical Chance
+            vec![],        // Not tracked - cost reduction
+
+        ), 
+
         PassiveData::new(
             "Twin Blade and Blunt (Axe)",
             ClassName::Weapon,
@@ -198,7 +187,7 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             vec![BonusData::new(
                 "Twin Blade and Blunt (Sword)",
                 BonusTrigger::DualWieldSwordEquipped,
-                BonusTarget::WeaponAndSpellDamage,
+                BonusTarget::WeaponAndSpellDamageFlat,
                 129.0,
             )],
         ),
@@ -214,18 +203,12 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             )],
         ),
         // === TWO HANDED ===
-        // Forceful: Light/Heavy attacks damage up to 3 nearby enemies for 100% damage
-        // Not tracked - cleave mechanic
         PassiveData::new(
             "Forceful",
             ClassName::Weapon,
             SkillLineName::TwoHanded,
-            vec![],
+            vec![], // Not tracked - cleave mechanic
         ),
-        // Heavy Weapons: Bonus depends on weapon type:
-        // - Swords: +258 Weapon and Spell Damage
-        // - Axes: +12% Critical Damage
-        // - Maces: +2974 Offensive Penetration
         PassiveData::new(
             "Heavy Weapons (Sword)",
             ClassName::Weapon,
@@ -233,7 +216,7 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             vec![BonusData::new(
                 "Heavy Weapons (Sword)",
                 BonusTrigger::TwoHandedSwordEquipped,
-                BonusTarget::WeaponAndSpellDamage,
+                BonusTarget::WeaponAndSpellDamageFlat,
                 258.0,
             )],
         ),
@@ -259,13 +242,11 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 2974.0,
             )],
         ),
-        // Balanced Blade: Reduces Stamina cost of Two-Handed abilities by 15%
-        // Not tracked - cost reduction
         PassiveData::new(
             "Balanced Blade",
             ClassName::Weapon,
             SkillLineName::TwoHanded,
-            vec![],
+            vec![], // Not tracked - cost reduction
         ),
         // Follow Up: +10% Two Handed damage for 4s after fully-charged Heavy Attack
         // TODO: Requires Heavy Attack tracking to implement
@@ -275,13 +256,11 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::TwoHanded,
             vec![],
         ),
-        // Battle Rush: +30% Stamina Recovery for 10s after killing target
-        // Not tracked - resource recovery
         PassiveData::new(
             "Battle Rush",
             ClassName::Weapon,
             SkillLineName::TwoHanded,
-            vec![],
+            vec![], // Not tracked - resource recovery
         ),
     ]
 });

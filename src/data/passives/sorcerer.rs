@@ -16,7 +16,7 @@ pub static SORCERER_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Blood Magic",
             ClassName::Sorcerer,
             SkillLineName::DarkMagic,
-            vec![], // TODO: To complex, increase max resources
+            vec![], // TODO: To complex, increase max resources with conditions
         ),
         PassiveData::new(
             "Persistence",
@@ -24,7 +24,6 @@ pub static SORCERER_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::DarkMagic,
             vec![], // Cost reduction
         ),
-        // Exploitation: Casting a Dark Magic ability grants Minor Prophecy for 20s
         PassiveData::new(
             "Exploitation",
             ClassName::Sorcerer,
@@ -38,7 +37,7 @@ pub static SORCERER_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Rebate",
             ClassName::Sorcerer,
             SkillLineName::DaedricSummoning,
-            vec![], // TODO: to complex, restore resources on ultimate end
+            vec![], // TODO: to complex, restore resources on non ultimate end
         ),
         PassiveData::new(
             "Power Stone",
@@ -110,7 +109,7 @@ pub static SORCERER_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             vec![BonusData::new(
                 "Expert Mage",
                 BonusTrigger::AbilitySlottedCount,
-                BonusTarget::WeaponAndSpellDamage,
+                BonusTarget::WeaponAndSpellDamageFlat,
                 108.0,
             )],
         ),

@@ -42,7 +42,7 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Searing Heat",
             ClassName::Dragonknight,
             SkillLineName::ArdentFlame,
-            vec![], // Passive effect to specific skills.
+            vec![], // TODO: Passive effect to specific skills.
         ),
         PassiveData::new(
             "World in Ruin",
@@ -102,13 +102,19 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Mountain's Blessing",
             ClassName::Dragonknight,
             SkillLineName::EarthenHeart,
-            vec![MINOR_BRUTALITY.clone()],
+            vec![
+                MINOR_BRUTALITY
+                    .clone()
+                    .with_trigger(BonusTrigger::SkillLineSkillCast)
+                    .with_cooldown(6.0),
+                // TODO: Generates 3 ultimate
+            ],
         ),
         PassiveData::new(
             "Helping Hands",
             ClassName::Dragonknight,
             SkillLineName::EarthenHeart,
-            vec![], // TODO: To complex, restore stamina on skill use
+            vec![], // TODO: To complex, restore stamina on skill use with multiple conditions
         ),
     ]
 });
