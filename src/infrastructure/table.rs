@@ -1,4 +1,3 @@
-/// Column alignment
 #[derive(Debug, Clone, Copy, Default)]
 pub enum Align {
     #[default]
@@ -6,7 +5,6 @@ pub enum Align {
     Right,
 }
 
-/// Column definition for table formatting
 #[derive(Debug, Clone)]
 pub struct ColumnDefinition {
     pub header: String,
@@ -34,7 +32,6 @@ impl ColumnDefinition {
     }
 }
 
-/// Options for table formatting
 #[derive(Debug, Clone, Default)]
 pub struct TableOptions {
     pub title: Option<String>,
@@ -55,7 +52,6 @@ fn format_cell(value: &str, width: usize, align: Align) -> String {
     }
 }
 
-/// Format data as an ASCII table
 pub fn table(data: &[Vec<String>], options: TableOptions) -> String {
     let TableOptions {
         title,
@@ -63,20 +59,17 @@ pub fn table(data: &[Vec<String>], options: TableOptions) -> String {
         footer,
     } = options;
 
-    // Calculate total width: sum of column widths + spacing between columns
     let total_width: usize = columns.iter().map(|col| col.width).sum::<usize>() + columns.len() - 1;
     let divider = "-".repeat(total_width);
 
     let mut lines: Vec<String> = vec![String::new()];
 
-    // Add title if provided
     if let Some(title) = title {
         lines.push(title);
     }
 
     lines.push(divider.clone());
 
-    // Add header row
     let header_cells: Vec<String> = columns
         .iter()
         .map(|col| format_cell(&col.header, col.width, col.align))
@@ -85,7 +78,6 @@ pub fn table(data: &[Vec<String>], options: TableOptions) -> String {
 
     lines.push(divider.clone());
 
-    // Add data rows
     for row in data {
         let cells: Vec<String> = columns
             .iter()
@@ -100,7 +92,6 @@ pub fn table(data: &[Vec<String>], options: TableOptions) -> String {
 
     lines.push(divider);
 
-    // Add footer if provided
     if let Some(footer) = footer {
         lines.push(footer);
     }

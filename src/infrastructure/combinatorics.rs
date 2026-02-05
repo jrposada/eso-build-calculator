@@ -110,11 +110,6 @@ impl<'a, T: Clone> Iterator for CombinationIterator<'a, T> {
     }
 }
 
-/// Generate combinations lazily using an iterator
-pub fn generate_combinations_iter<T>(items: &[T], k: usize) -> CombinationIterator<'_, T> {
-    CombinationIterator::new(items, k)
-}
-
 /// Compute the Cartesian product of two arrays of arrays.
 /// Each result is the concatenation of one element from the first array with one from the second.
 pub fn cartesian_product<T: Clone>(first: &[Vec<T>], second: &[Vec<T>]) -> Vec<Vec<T>> {
@@ -156,23 +151,6 @@ mod tests {
         assert!(combos.contains(&vec![2, 3]));
         assert!(combos.contains(&vec![2, 4]));
         assert!(combos.contains(&vec![3, 4]));
-    }
-
-    #[test]
-    fn test_combination_iterator() {
-        let items = vec![1, 2, 3, 4];
-        let combos: Vec<_> = generate_combinations_iter(&items, 2).collect();
-        assert_eq!(combos.len(), 6);
-    }
-
-    #[test]
-    fn test_combination_iterator_matches_generate() {
-        let items = vec![1, 2, 3, 4, 5];
-        for k in 0..=5 {
-            let generated = generate_combinations(&items, k);
-            let iterated: Vec<_> = generate_combinations_iter(&items, k).collect();
-            assert_eq!(generated, iterated, "Mismatch for k={}", k);
-        }
     }
 
     #[test]
