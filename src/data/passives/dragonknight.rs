@@ -1,6 +1,6 @@
 use crate::data::bonuses::MINOR_BRUTALITY;
-use crate::domain::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use crate::domain::{BonusData, PassiveData};
+use crate::domain::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use once_cell::sync::Lazy;
 
 pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {

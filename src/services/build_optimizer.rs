@@ -1,13 +1,11 @@
 use crate::data::bonuses::CHAMPION_POINTS;
 use crate::data::skills::ALL_SKILLS;
-use crate::domain::{ClassName, SkillLineName};
 use crate::domain::{BonusData, Build, SkillData, BUILD_CONSTRAINTS};
+use crate::domain::{ClassName, SkillLineName};
 use crate::infrastructure::{combinatorics, format, logger, table};
-use crate::services::passive_service::PassiveServiceOptions;
-use crate::services::skills_service::SkillsServiceOptions;
-use crate::services::{
-    FilterSkillsOptions, MorphSelector, MorphSelectorOptions, PassiveService, SkillsService,
-};
+use crate::services::passives_service::{PassivesFilter, PassivesServiceOptions};
+use crate::services::skills_service::{MorphSelectionOptions, SkillsFilter, SkillsServiceOptions};
+use crate::services::{PassivesService, SkillsService};
 use rayon::iter::ParallelBridge;
 use rayon::prelude::*;
 use rayon::ThreadPoolBuilder;
@@ -47,10 +45,32 @@ impl BuildOptimizer {
         let required_weapon_skill_lines = options.required_weapon_skill_lines;
         let pure_class = options.pure_class;
 
-        let skills = Self::prepare_skills(&options.forced_morphs, verbose);
-        let skills_service = SkillsService::new(SkillsServiceOptions {
-            skills: Some(skills),
-        });
+        if verbose {
+            logger::dim(&format!(
+                "Total skills before morph selection: {}",
+                ALL_SKILLS.len()
+            ));
+        }
+
+        let skills_service = SkillsService::new(SkillsServiceOptions::default())
+            .with_morph_selection(MorphSelectionOptions {
+                forced_morphs: options.forced_morphs.clone(),
+            })
+            .with_filter(SkillsFilter {
+                exclude_ultimates: true,
+                exclude_non_damaging: true,
+            });
+
+        if verbose {
+            let total_after_morph: usize = SkillLineName::ALL
+                .iter()
+                .map(|sl| skills_service.get_skills_by_skill_line(*sl).len())
+                .sum();
+            logger::dim(&format!(
+                "Total skills after morph selection: {}",
+                total_after_morph
+            ));
+        }
 
         let champion_point_combinations = Self::generate_champion_point_combinations(verbose);
 
@@ -101,31 +121,6 @@ impl BuildOptimizer {
         logger::log(&optimizer.to_string());
 
         optimizer
-    }
-
-    fn prepare_skills(forced_morphs: &[String], verbose: bool) -> Vec<&'static SkillData> {
-        let morph_selector = MorphSelector::new(MorphSelectorOptions {
-            forced_morphs: forced_morphs.to_vec(),
-        });
-
-        if verbose {
-            logger::dim(&format!(
-                "Total skills before greedy morph selection: {}",
-                ALL_SKILLS.len()
-            ));
-        }
-
-        let all_skills: Vec<&SkillData> = ALL_SKILLS.iter().copied().collect();
-        let skills = morph_selector.select_morphs(&all_skills);
-
-        if verbose {
-            logger::dim(&format!(
-                "Total skills after greedy morph selection: {}",
-                skills.len()
-            ));
-        }
-
-        skills
     }
 
     fn generate_champion_point_combinations(verbose: bool) -> Vec<Vec<BonusData>> {
@@ -260,11 +255,6 @@ impl BuildOptimizer {
         skills_service: &SkillsService,
     ) -> (HashSet<String>, Vec<Vec<&'static SkillData>>) {
         let mut skill_names: HashSet<String> = HashSet::new();
-        let filter_options = FilterSkillsOptions {
-            exclude_base_skills: true,
-            exclude_ultimates: true,
-            exclude_non_damaging: true,
-        };
 
         let combinations: Vec<Vec<&'static SkillData>> = skill_line_combinations
             .iter()
@@ -272,8 +262,7 @@ impl BuildOptimizer {
                 skill_line_combination
                     .iter()
                     .flat_map(|skill_line| {
-                        let skills =
-                            skills_service.get_skills_by_skill_line(*skill_line, &filter_options);
+                        let skills = skills_service.get_skills_by_skill_line(*skill_line);
                         for skill in &skills {
                             skill_names.insert(skill.name.clone());
                         }
@@ -293,16 +282,17 @@ impl BuildOptimizer {
         let all_used_skill_lines: HashSet<SkillLineName> =
             skill_line_combinations.iter().flatten().copied().collect();
 
-        let passive_service = PassiveService::new(PassiveServiceOptions {
-            skill_lines: Some(all_used_skill_lines),
-        });
+        let passives_service =
+            PassivesService::new(PassivesServiceOptions::default()).with_filter(PassivesFilter {
+                skill_lines: Some(all_used_skill_lines),
+            });
 
         let bonuses: Vec<Vec<BonusData>> = skill_line_combinations
             .iter()
             .map(|skill_lines| {
                 skill_lines
                     .iter()
-                    .flat_map(|sl| passive_service.get_passives_by_skill_line(*sl))
+                    .flat_map(|sl| passives_service.get_passives_by_skill_line(*sl))
                     .flat_map(|passive| passive.bonuses.iter().cloned())
                     .collect()
             })

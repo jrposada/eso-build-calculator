@@ -2,10 +2,10 @@ use crate::data::bonuses::{
     EMPOWER, MAJOR_BERSERK, MAJOR_BREACH, MAJOR_BRUTALITY, MAJOR_PROPHECY, MAJOR_SAVAGERY,
     MAJOR_SORCERY, MINOR_BERSERK, MINOR_VULNERABILITY,
 };
+use crate::domain::{BonusData, DotDamage, ExecuteScaling, HitDamage, SkillDamage, SkillData};
 use crate::domain::{
     BonusTarget, BonusTrigger, ClassName, DamageType, Resource, SkillLineName, TargetType,
 };
-use crate::domain::{BonusData, DotDamage, ExecuteScaling, HitDamage, SkillDamage, SkillData};
 use once_cell::sync::Lazy;
 
 pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {

@@ -4,8 +4,7 @@ pub mod logger;
 pub mod table;
 
 pub use combinatorics::{
-    cartesian_product, count_combinations, generate_combinations,
-    CombinationIterator,
+    cartesian_product, count_combinations, generate_combinations, CombinationIterator,
 };
 pub use format::{format_duration, format_number};
 pub use logger::{dim, error, info, log, progress, progress_multiline, success, warn};

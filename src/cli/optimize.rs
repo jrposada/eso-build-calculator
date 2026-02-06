@@ -1,7 +1,7 @@
 use std::time::Instant;
 
-use crate::domain::{ClassName, SkillLineName};
 use crate::domain::BUILD_CONSTRAINTS;
+use crate::domain::{ClassName, SkillLineName};
 use crate::infrastructure::logger;
 use crate::services::{BuildOptimizer, BuildOptimizerOptions};
 use clap::Args;

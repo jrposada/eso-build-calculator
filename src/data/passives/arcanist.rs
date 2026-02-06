@@ -1,5 +1,5 @@
-use crate::domain::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use crate::domain::{BonusData, PassiveData};
+use crate::domain::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use once_cell::sync::Lazy;
 
 pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {

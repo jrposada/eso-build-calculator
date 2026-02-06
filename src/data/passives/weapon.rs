@@ -1,10 +1,10 @@
-use crate::domain::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use crate::domain::{BonusData, PassiveData};
-use crate::services::BonusService;
+use crate::domain::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
+use crate::services::BreakpointsService;
 use once_cell::sync::Lazy;
 
 pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
-    let long_shots_breakpoint = BonusService::calculate_breakpoint(
+    let long_shots_breakpoint = BreakpointsService::calculate_breakpoint(
         BonusTarget::Damage,
         0.05,
         BonusTarget::CriticalChance,

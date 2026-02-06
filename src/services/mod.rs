@@ -1,11 +1,14 @@
-pub mod bonus_service;
+pub mod breakpoints_service;
 pub mod build_optimizer;
-pub mod morph_selector;
-pub mod passive_service;
+pub mod passives_service;
 pub mod skills_service;
 
-pub use bonus_service::{BonusService, CRIT_RATING_DIVISOR};
+pub use breakpoints_service::{
+    crit_rating_to_bonus_chance, crit_rating_to_total_chance, BreakpointsService,
+    BASE_CRIT_CHANCE, MAX_CRIT_VALUE_CP160,
+};
 pub use build_optimizer::{BuildOptimizer, BuildOptimizerOptions};
-pub use morph_selector::{MorphSelector, MorphSelectorOptions};
-pub use passive_service::{PassiveService, PassiveServiceOptions};
-pub use skills_service::{FilterSkillsOptions, SkillsService};
+pub use passives_service::{PassivesService, PassivesServiceOptions};
+pub use skills_service::{
+    MorphSelectionOptions, SkillsFilter, SkillsService, SkillsServiceOptions,
+};

@@ -1,5 +1,5 @@
-use crate::domain::{BonusTarget, BonusTrigger};
 use crate::domain::BonusData;
+use crate::domain::{BonusTarget, BonusTrigger};
 use once_cell::sync::Lazy;
 
 pub static MINOR_SAVAGERY: Lazy<BonusData> = Lazy::new(|| {

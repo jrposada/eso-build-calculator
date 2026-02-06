@@ -1,5 +1,5 @@
-use crate::domain::{BonusTarget, BonusTrigger};
 use crate::domain::BonusData;
+use crate::domain::{BonusTarget, BonusTrigger};
 use once_cell::sync::Lazy;
 
 pub static CHAMPION_POINTS: Lazy<Vec<BonusData>> = Lazy::new(|| {

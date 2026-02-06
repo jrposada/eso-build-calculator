@@ -1,6 +1,6 @@
 use super::{
     BonusData, BonusTarget, ClassName, DamageType, ExecuteData, ExecuteScaling, Resource,
-    SkillDamage, SkillLineName, SkillMechanic, StatusEffectApplication, TargetType,
+    SkillDamage, SkillLineName, SkillMechanic, TargetType,
 };
 use serde::{Deserialize, Serialize};
 
@@ -21,8 +21,6 @@ pub struct SkillData {
     pub execute: Option<ExecuteData>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bonuses: Option<Vec<BonusData>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub status_effects: Option<Vec<StatusEffectApplication>>,
 }
 
 impl SkillData {
@@ -48,7 +46,6 @@ impl SkillData {
             channel_time: None,
             execute: None,
             bonuses: None,
-            status_effects: None,
         }
     }
 
@@ -72,11 +69,6 @@ impl SkillData {
         self
     }
 
-    pub fn with_status_effects(mut self, status_effects: Vec<StatusEffectApplication>) -> Self {
-        self.status_effects = Some(status_effects);
-        self
-    }
-
     /// Get the skill mechanic
     pub fn mechanic(&self) -> SkillMechanic {
         if self.channel_time.is_some() {
@@ -93,7 +85,8 @@ impl SkillData {
             }
         }
 
-        SkillMechanic::Unknown
+        // Default to Instant for skills with no damage
+        SkillMechanic::Instant
     }
 
     /// Get the skill duration (max DoT duration or channel time)

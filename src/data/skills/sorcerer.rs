@@ -1,8 +1,8 @@
 use crate::data::bonuses::{MAJOR_BRUTALITY, MAJOR_PROPHECY, MAJOR_SAVAGERY, MAJOR_SORCERY};
+use crate::domain::{BonusData, DotDamage, HitDamage, SkillDamage, SkillData};
 use crate::domain::{
     BonusTarget, BonusTrigger, ClassName, DamageType, Resource, SkillLineName, TargetType,
 };
-use crate::domain::{BonusData, DotDamage, HitDamage, SkillDamage, SkillData};
 use once_cell::sync::Lazy;
 
 pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
