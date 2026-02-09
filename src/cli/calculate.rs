@@ -16,7 +16,7 @@ pub struct CalculateArgs {
     pub skills: Option<Vec<&'static SkillData>>,
 
     /// 4 champion points (comma-separated)
-    #[arg(short = 'p', long, value_delimiter = ',', value_parser = parse_champion_point, conflicts_with = "file")]
+    #[arg(long = "cp", value_delimiter = ',', value_parser = parse_champion_point, conflicts_with = "file")]
     pub champion_points: Option<Vec<BonusData>>,
 
     /// Path to build configuration file (exported from optimize)

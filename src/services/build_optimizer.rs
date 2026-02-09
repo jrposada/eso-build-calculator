@@ -19,6 +19,7 @@ pub struct BuildOptimizerOptions {
     pub pure_class: Option<ClassName>,
     pub required_class_names: Vec<ClassName>,
     pub required_weapon_skill_lines: Vec<SkillLineName>,
+    pub required_champion_points: Vec<BonusData>,
     pub forced_morphs: Vec<String>,
     pub parallelism: u8,
 }
@@ -28,6 +29,8 @@ pub struct BuildOptimizer {
     class_names: HashSet<ClassName>,
     required_weapon_skill_lines: Vec<SkillLineName>,
     weapon_skill_line_names: HashSet<SkillLineName>,
+    required_champion_points: Vec<String>,
+    champion_point_names: HashSet<String>,
     skill_names: HashSet<String>,
     parallelism: u8,
 
@@ -44,6 +47,11 @@ impl BuildOptimizer {
         let parallelism = options.parallelism;
         let required_class_names = options.required_class_names;
         let required_weapon_skill_lines = options.required_weapon_skill_lines;
+        let required_champion_points: Vec<String> = options
+            .required_champion_points
+            .iter()
+            .map(|cp| cp.name.clone())
+            .collect();
         let pure_class = options.pure_class;
 
         if verbose {
@@ -90,7 +98,8 @@ impl BuildOptimizer {
         let passive_bonuses_list =
             Self::generate_passive_bonuses(&skill_line_combinations, verbose);
 
-        let champion_point_combinations = Self::generate_champion_point_combinations(verbose);
+        let (champion_point_names, champion_point_combinations) =
+            Self::generate_champion_point_combinations(&required_champion_points, verbose);
 
         let total_possible_build_count =
             Self::calculate_total_build_count(&champion_point_combinations, &skills_combinations);
@@ -100,6 +109,8 @@ impl BuildOptimizer {
             class_names,
             required_weapon_skill_lines,
             weapon_skill_line_names,
+            required_champion_points,
+            champion_point_names,
             skill_names,
             parallelism,
             champion_point_combinations,
@@ -113,19 +124,47 @@ impl BuildOptimizer {
         optimizer
     }
 
-    fn generate_champion_point_combinations(verbose: bool) -> Vec<Vec<BonusData>> {
+    fn generate_champion_point_combinations(
+        required_champion_points: &[String],
+        verbose: bool,
+    ) -> (HashSet<String>, Vec<Vec<BonusData>>) {
+        let mut champion_point_names: HashSet<String> = HashSet::new();
         let cp_vec: Vec<_> = CHAMPION_POINTS.iter().cloned().collect();
-        let combinations =
-            combinatorics::generate_combinations(&cp_vec, BUILD_CONSTRAINTS.champion_point_count);
+
+        let combinations: Vec<Vec<BonusData>> =
+            combinatorics::generate_combinations(&cp_vec, BUILD_CONSTRAINTS.champion_point_count)
+                .into_iter()
+                .filter(|combination| {
+                    let has_required = required_champion_points.is_empty()
+                        || required_champion_points
+                            .iter()
+                            .all(|required| combination.iter().any(|cp| &cp.name == required));
+
+                    if has_required {
+                        for cp in combination {
+                            champion_point_names.insert(cp.name.clone());
+                        }
+                    }
+
+                    has_required
+                })
+                .collect();
 
         if verbose {
+            let required_str = if required_champion_points.is_empty() {
+                "none".to_string()
+            } else {
+                required_champion_points.join(", ")
+            };
             logger::dim(&format!(
-                "Generated {} champion point combinations",
-                combinations.len()
+                "Generated {} champion point combinations using {} CPs (required: {})",
+                combinations.len(),
+                champion_point_names.len(),
+                required_str
             ));
         }
 
-        combinations
+        (champion_point_names, combinations)
     }
 
     fn generate_class_skill_line_combinations(
@@ -460,12 +499,16 @@ impl BuildOptimizer {
         let required_classes_str = Self::fmt_sorted_list(self.required_class_names.iter());
         let used_weapons_str = Self::fmt_sorted_list(self.weapon_skill_line_names.iter());
         let required_weapons_str = Self::fmt_sorted_list(self.required_weapon_skill_lines.iter());
+        let used_cp_str = Self::fmt_sorted_list(self.champion_point_names.iter());
+        let required_cp_str = Self::fmt_sorted_list(self.required_champion_points.iter());
 
         let name_width = [
             &used_classes_str,
             &required_classes_str,
             &used_weapons_str,
             &required_weapons_str,
+            &used_cp_str,
+            &required_cp_str,
         ]
         .iter()
         .map(|s| s.len())
@@ -478,11 +521,8 @@ impl BuildOptimizer {
             vec!["Required Classes".to_string(), required_classes_str],
             vec!["Used Weapons".to_string(), used_weapons_str],
             vec!["Required Weapons".to_string(), required_weapons_str],
-            vec![
-                "Used Champion Points".to_string(),
-                CHAMPION_POINTS.len().to_string(),
-            ],
-            vec!["Required Champion Points".to_string(), "N/A".to_string()],
+            vec!["Used Champion Points".to_string(), used_cp_str],
+            vec!["Required Champion Points".to_string(), required_cp_str],
             vec![
                 "Used Skills".to_string(),
                 self.skill_names.len().to_string(),

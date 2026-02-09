@@ -15,6 +15,7 @@ fn benchmark_pure_nightblade_bow(c: &mut Criterion) {
                 pure_class: Some(ClassName::Nightblade),
                 required_class_names: vec![],
                 required_weapon_skill_lines: vec![SkillLineName::Bow],
+                required_champion_points: vec![],
                 forced_morphs: vec![],
                 parallelism: 4,
             });

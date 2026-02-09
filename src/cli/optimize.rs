@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use std::time::Instant;
 
 use super::build_config::BuildConfig;
-use super::parsers::{parse_class_name, parse_weapon_skill_line};
+use super::parsers::{parse_champion_point, parse_class_name, parse_weapon_skill_line};
 use crate::domain::BUILD_CONSTRAINTS;
 use crate::domain::{ClassName, SkillLineName};
 use crate::infrastructure::logger;
@@ -25,6 +25,10 @@ pub struct OptimizeArgs {
     /// Require at least 1 skill line from these weapons (comma-separated)
     #[arg(short = 'w', long, value_delimiter = ',', value_parser = parse_weapon_skill_line)]
     pub weapons: Option<Vec<SkillLineName>>,
+
+    /// Require these champion points (comma-separated)
+    #[arg(long = "cp", value_delimiter = ',', value_parser = parse_champion_point)]
+    pub champion_points: Option<Vec<crate::domain::BonusData>>,
 
     /// Force specific morph selections (comma-separated morph names)
     #[arg(short = 'm', long, value_delimiter = ',')]
@@ -63,6 +67,17 @@ impl OptimizeArgs {
             }
         }
 
+        // Validate champion point count
+        if let Some(cp) = &self.champion_points {
+            if cp.len() > BUILD_CONSTRAINTS.champion_point_count {
+                logger::error(&format!(
+                    "Maximum {} champion points allowed",
+                    BUILD_CONSTRAINTS.champion_point_count
+                ));
+                std::process::exit(1);
+            }
+        }
+
         logger::info("Finding optimal build...");
 
         let optimizer = BuildOptimizer::new(BuildOptimizerOptions {
@@ -70,6 +85,7 @@ impl OptimizeArgs {
             pure_class: self.pure,
             required_class_names: self.classes.clone().unwrap_or_default(),
             required_weapon_skill_lines: self.weapons.clone().unwrap_or_default(),
+            required_champion_points: self.champion_points.clone().unwrap_or_default(),
             forced_morphs: self.morphs.clone().unwrap_or_default(),
             parallelism: self
                 .parallelism
