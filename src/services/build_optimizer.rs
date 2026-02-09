@@ -37,6 +37,7 @@ pub struct BuildOptimizer {
     total_possible_build_count: u64,
 }
 
+// Constructor
 impl BuildOptimizer {
     pub fn new(options: BuildOptimizerOptions) -> Self {
         let verbose = options.verbose;
@@ -60,19 +61,6 @@ impl BuildOptimizer {
                 exclude_ultimates: true,
                 exclude_non_damaging: true,
             });
-
-        if verbose {
-            let total_after_morph: usize = SkillLineName::ALL
-                .iter()
-                .map(|sl| skills_service.get_skills_by_skill_line(*sl).len())
-                .sum();
-            logger::dim(&format!(
-                "Total skills after morph selection: {}",
-                total_after_morph
-            ));
-        }
-
-        let champion_point_combinations = Self::generate_champion_point_combinations(verbose);
 
         let (class_names, class_skill_line_combinations) =
             Self::generate_class_skill_line_combinations(
@@ -101,6 +89,8 @@ impl BuildOptimizer {
 
         let passive_bonuses_list =
             Self::generate_passive_bonuses(&skill_line_combinations, verbose);
+
+        let champion_point_combinations = Self::generate_champion_point_combinations(verbose);
 
         let total_possible_build_count =
             Self::calculate_total_build_count(&champion_point_combinations, &skills_combinations);
@@ -321,7 +311,10 @@ impl BuildOptimizer {
 
         champion_point_combinations.len() as u64 * skill_combinations_count
     }
+}
 
+// Optimize
+impl BuildOptimizer {
     pub fn find_optimal_build(&self) -> Option<Build> {
         let start_time = Instant::now();
 
@@ -336,24 +329,8 @@ impl BuildOptimizer {
             .build()
             .expect("Failed to create thread pool");
 
-        // Use fine-grained parallelism: flatten all (cp_combo, skills,
-        // passive_bonuses, skill_combo) combinations and parallelize at the
-        // individual build level using par_bridge()
         let best_build: Option<Build> = pool.install(|| {
-            self.champion_point_combinations
-                .iter()
-                .flat_map(|cp_bonuses| {
-                    self.skills_combinations
-                        .iter()
-                        .zip(self.passive_bonuses_list.iter())
-                        .flat_map(move |(skills, passive_bonuses)| {
-                            combinatorics::CombinationIterator::new(
-                                skills,
-                                BUILD_CONSTRAINTS.skill_count,
-                            )
-                            .map(move |skill_combo| (cp_bonuses, passive_bonuses, skill_combo))
-                        })
-                })
+            self.build_combinations()
                 .par_bridge()
                 .map(|(cp_bonuses, passive_bonuses, skill_combo)| {
                     let count = evaluated_count.fetch_add(1, Ordering::Relaxed) + 1;
@@ -411,8 +388,28 @@ impl BuildOptimizer {
 
         best_build
     }
+
+    fn build_combinations(
+        &self,
+    ) -> impl Iterator<Item = (&Vec<BonusData>, &Vec<BonusData>, Vec<&'static SkillData>)> {
+        self.champion_point_combinations
+            .iter()
+            .flat_map(|cp_bonuses| {
+                self.skills_combinations
+                    .iter()
+                    .zip(self.passive_bonuses_list.iter())
+                    .flat_map(move |(skills, passive_bonuses)| {
+                        combinatorics::CombinationIterator::new(
+                            skills,
+                            BUILD_CONSTRAINTS.skill_count,
+                        )
+                        .map(move |skill_combo| (cp_bonuses, passive_bonuses, skill_combo))
+                    })
+            })
+    }
 }
 
+// Format
 impl BuildOptimizer {
     fn fmt_configuration_table(&self) -> String {
         let config_data = vec![

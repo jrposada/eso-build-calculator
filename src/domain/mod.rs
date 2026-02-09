@@ -6,6 +6,7 @@ pub mod class_name;
 pub mod damage_type;
 pub mod dot_damage;
 pub mod execute;
+pub mod formulas;
 pub mod hit_damage;
 pub mod passive;
 pub mod resource;
