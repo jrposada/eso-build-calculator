@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use eso_build_calculator::cli::{OptimizeArgs, ViewArgs};
+use eso_build_calculator::cli::{CalculateArgs, OptimizeArgs, ViewArgs};
 
 #[derive(Parser)]
 #[command(name = "eso-build-calculator")]
@@ -13,6 +13,8 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Calculate total damage for a specific build configuration
+    Calculate(CalculateArgs),
     /// Find the optimal build to maximize total damage per cast
     Optimize(OptimizeArgs),
     /// View skill data
@@ -23,6 +25,7 @@ fn main() {
     let cli = Cli::parse();
 
     match cli.command {
+        Commands::Calculate(args) => args.run(),
         Commands::Optimize(args) => args.run(),
         Commands::View(args) => args.run(),
     }
