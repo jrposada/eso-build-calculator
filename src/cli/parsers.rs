@@ -75,7 +75,7 @@ pub fn parse_champion_point(s: &str) -> Result<BonusData, String> {
 
     CHAMPION_POINTS
         .iter()
-        .find(|cp| cp.name.to_lowercase() == normalized)
+        .find(|cp| cp.name.to_lowercase().replace('-', " ") == normalized)
         .cloned()
         .ok_or_else(|| {
             format!(
