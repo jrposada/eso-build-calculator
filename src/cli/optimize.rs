@@ -1,5 +1,6 @@
 use std::time::Instant;
 
+use super::parsers::{parse_class_name, parse_weapon_skill_line};
 use crate::domain::BUILD_CONSTRAINTS;
 use crate::domain::{ClassName, SkillLineName};
 use crate::infrastructure::logger;
@@ -18,7 +19,7 @@ pub struct OptimizeArgs {
     pub pure: Option<ClassName>,
 
     /// Require at least 1 skill line from these weapons (comma-separated)
-    #[arg(short = 'w', long, value_delimiter = ',', value_parser = parse_weapon)]
+    #[arg(short = 'w', long, value_delimiter = ',', value_parser = parse_weapon_skill_line)]
     pub weapons: Option<Vec<SkillLineName>>,
 
     /// Force specific morph selections (comma-separated morph names)
@@ -32,36 +33,6 @@ pub struct OptimizeArgs {
     /// Number of parallel threads to use (default: half of available CPUs)
     #[arg(short = 'p', long)]
     pub parallelism: Option<u8>,
-}
-
-fn parse_class_name(s: &str) -> Result<ClassName, String> {
-    let s = s.trim();
-    match s.to_lowercase().as_str() {
-        "dragonknight" => Ok(ClassName::Dragonknight),
-        "sorcerer" => Ok(ClassName::Sorcerer),
-        "nightblade" => Ok(ClassName::Nightblade),
-        "warden" => Ok(ClassName::Warden),
-        "templar" => Ok(ClassName::Templar),
-        "arcanist" => Ok(ClassName::Arcanist),
-        _ => Err(format!(
-            "Invalid class '{}'. Valid options: Dragonknight, Sorcerer, Nightblade, Warden, Templar, Arcanist",
-            s
-        )),
-    }
-}
-
-fn parse_weapon(s: &str) -> Result<SkillLineName, String> {
-    let s = s.trim();
-    match s.to_lowercase().as_str() {
-        "bow" => Ok(SkillLineName::Bow),
-        "twohanded" | "two-handed" => Ok(SkillLineName::TwoHanded),
-        "destructionstaff" | "destruction-staff" => Ok(SkillLineName::DestructionStaff),
-        "dualwield" | "dual-wield" => Ok(SkillLineName::DualWield),
-        _ => Err(format!(
-            "Invalid weapon '{}'. Valid options: Bow, TwoHanded, DestructionStaff, DualWield",
-            s
-        )),
-    }
 }
 
 impl OptimizeArgs {

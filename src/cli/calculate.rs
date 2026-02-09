@@ -1,4 +1,4 @@
-use crate::data::bonuses::CHAMPION_POINTS;
+use super::parsers::{parse_champion_point, parse_class_skill_line, parse_weapon_skill_line};
 use crate::domain::{BonusData, Build, SkillLineName, BUILD_CONSTRAINTS};
 use crate::infrastructure::logger;
 use crate::services::{
@@ -25,75 +25,6 @@ pub struct CalculateArgs {
     /// Force specific morph selections (comma-separated morph names)
     #[arg(short = 'm', long, value_delimiter = ',')]
     pub morphs: Option<Vec<String>>,
-}
-
-fn parse_class_skill_line(s: &str) -> Result<SkillLineName, String> {
-    let s = s.trim();
-    match s.to_lowercase().as_str() {
-        // Arcanist
-        "curative-runeforms" | "curativeruneforms" => Ok(SkillLineName::CurativeRuneforms),
-        "soldier-of-apocrypha" | "soldierofapocrypha" => Ok(SkillLineName::SoldierOfApocrypha),
-        "herald-of-the-tome" | "heraldofthetome" => Ok(SkillLineName::HeraldOfTheTome),
-        // Dragonknight
-        "ardent-flame" | "ardentflame" => Ok(SkillLineName::ArdentFlame),
-        "draconic-power" | "draconicpower" => Ok(SkillLineName::DraconicPower),
-        "earthen-heart" | "earthenheart" => Ok(SkillLineName::EarthenHeart),
-        // Nightblade
-        "assassination" => Ok(SkillLineName::Assassination),
-        "shadow" => Ok(SkillLineName::Shadow),
-        "siphoning" => Ok(SkillLineName::Siphoning),
-        // Sorcerer
-        "dark-magic" | "darkmagic" => Ok(SkillLineName::DarkMagic),
-        "daedric-summoning" | "daedricsummoning" => Ok(SkillLineName::DaedricSummoning),
-        "storm-calling" | "stormcalling" => Ok(SkillLineName::StormCalling),
-        // Templar
-        "aedric-spear" | "aedricspear" => Ok(SkillLineName::AedricSpear),
-        "dawns-wrath" | "dawnswrath" => Ok(SkillLineName::DawnsWrath),
-        "restoring-light" | "restoringlight" => Ok(SkillLineName::RestoringLight),
-        // Warden
-        "animal-companions" | "animalcompanions" => Ok(SkillLineName::AnimalCompanions),
-        "green-balance" | "greenbalance" => Ok(SkillLineName::GreenBalance),
-        "winters-embrace" | "wintersembrace" => Ok(SkillLineName::WintersEmbrace),
-        _ => Err(format!(
-            "Invalid class skill line '{}'. Valid options: curative-runeforms, soldier-of-apocrypha, herald-of-the-tome, \
-            ardent-flame, draconic-power, earthen-heart, assassination, shadow, siphoning, \
-            dark-magic, daedric-summoning, storm-calling, aedric-spear, dawns-wrath, restoring-light, \
-            animal-companions, green-balance, winters-embrace",
-            s
-        )),
-    }
-}
-
-fn parse_weapon_skill_line(s: &str) -> Result<SkillLineName, String> {
-    let s = s.trim();
-    match s.to_lowercase().as_str() {
-        "bow" => Ok(SkillLineName::Bow),
-        "two-handed" | "twohanded" => Ok(SkillLineName::TwoHanded),
-        "destruction-staff" | "destructionstaff" => Ok(SkillLineName::DestructionStaff),
-        "dual-wield" | "dualwield" => Ok(SkillLineName::DualWield),
-        _ => Err(format!(
-            "Invalid weapon skill line '{}'. Valid options: bow, two-handed, destruction-staff, dual-wield",
-            s
-        )),
-    }
-}
-
-fn parse_champion_point(s: &str) -> Result<BonusData, String> {
-    let s = s.trim();
-    // Normalize input: replace hyphens with spaces for matching
-    let normalized = s.to_lowercase().replace('-', " ");
-
-    CHAMPION_POINTS
-        .iter()
-        .find(|cp| cp.name.to_lowercase() == normalized)
-        .cloned()
-        .ok_or_else(|| {
-            format!(
-                "Invalid champion point '{}'. Valid options: backstabber, biting-aura, deadly-aim, \
-                master-at-arms, exploiter, fighting-finesse, thaumaturge",
-                s
-            )
-        })
 }
 
 impl CalculateArgs {
