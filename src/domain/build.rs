@@ -29,6 +29,7 @@ pub struct Build {
     conditional_bonuses: Vec<BonusData>,
 }
 
+// Constructor
 impl Build {
     pub fn new(
         skills: Vec<&'static SkillData>,
@@ -109,7 +110,10 @@ impl Build {
             })
             .collect()
     }
+}
 
+// Public getters
+impl Build {
     /// Get skill names for export
     pub fn skill_names(&self) -> Vec<String> {
         self.skills.iter().map(|s| s.name.clone()).collect()
@@ -124,6 +128,7 @@ impl Build {
     }
 }
 
+// Format
 impl Build {
     fn fmt_header(&self) -> Vec<String> {
         let divider = "-".repeat(73);

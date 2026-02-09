@@ -43,7 +43,9 @@ fn clear_progress() {
 
 /// Log a plain message
 pub fn log(message: &str) {
-    if is_quiet() { return; }
+    if is_quiet() {
+        return;
+    }
     let _lock = STDOUT_LOCK.lock().unwrap();
     clear_progress();
     println!("{}", message);
@@ -51,7 +53,9 @@ pub fn log(message: &str) {
 
 /// Log an info message (blue)
 pub fn info(message: &str) {
-    if is_quiet() { return; }
+    if is_quiet() {
+        return;
+    }
     let _lock = STDOUT_LOCK.lock().unwrap();
     clear_progress();
     println!("{}", message.blue());
@@ -59,7 +63,9 @@ pub fn info(message: &str) {
 
 /// Log a warning message (yellow)
 pub fn warn(message: &str) {
-    if is_quiet() { return; }
+    if is_quiet() {
+        return;
+    }
     let _lock = STDOUT_LOCK.lock().unwrap();
     clear_progress();
     eprintln!("{}", message.yellow());
@@ -67,7 +73,9 @@ pub fn warn(message: &str) {
 
 /// Log an error message (red)
 pub fn error(message: &str) {
-    if is_quiet() { return; }
+    if is_quiet() {
+        return;
+    }
     let _lock = STDOUT_LOCK.lock().unwrap();
     clear_progress();
     eprintln!("{}", message.red());
@@ -75,7 +83,9 @@ pub fn error(message: &str) {
 
 /// Log a success message (green)
 pub fn success(message: &str) {
-    if is_quiet() { return; }
+    if is_quiet() {
+        return;
+    }
     let _lock = STDOUT_LOCK.lock().unwrap();
     clear_progress();
     println!("{}", message.green());
@@ -83,7 +93,9 @@ pub fn success(message: &str) {
 
 /// Log a dim message (gray)
 pub fn dim(message: &str) {
-    if is_quiet() { return; }
+    if is_quiet() {
+        return;
+    }
     let _lock = STDOUT_LOCK.lock().unwrap();
     clear_progress();
     println!("{}", message.dimmed());
@@ -91,7 +103,9 @@ pub fn dim(message: &str) {
 
 /// Log a progress message (overwrites current line)
 pub fn progress(message: &str) {
-    if is_quiet() { return; }
+    if is_quiet() {
+        return;
+    }
     let _lock = STDOUT_LOCK.lock().unwrap();
     clear_multiline_progress();
     if LAST_WAS_PROGRESS.load(Ordering::SeqCst) {
@@ -104,7 +118,9 @@ pub fn progress(message: &str) {
 
 /// Log a multiline progress message (can be cleared)
 pub fn progress_multiline(message: &str) {
-    if is_quiet() { return; }
+    if is_quiet() {
+        return;
+    }
     let _lock = STDOUT_LOCK.lock().unwrap();
     clear_progress();
     let line_count = message.lines().count();
