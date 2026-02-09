@@ -1,6 +1,7 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use eso_build_calculator::data::bonuses::CHAMPION_POINTS;
 use eso_build_calculator::domain::{ClassName, SkillLineName};
+use eso_build_calculator::infrastructure::logger;
 use eso_build_calculator::services::{BuildOptimizer, BuildOptimizerOptions};
 use std::time::Duration;
 
@@ -13,6 +14,7 @@ fn get_champion_point(name: &str) -> eso_build_calculator::domain::BonusData {
 }
 
 fn benchmark_nightblade_bow_2h_with_cp(c: &mut Criterion) {
+    logger::set_quiet(true);
     let mut group = c.benchmark_group("optimization");
     group.measurement_time(Duration::from_secs(10));
     group.sample_size(10);
@@ -41,6 +43,7 @@ fn benchmark_nightblade_bow_2h_with_cp(c: &mut Criterion) {
 }
 
 fn benchmark_nightblade_pure(c: &mut Criterion) {
+    logger::set_quiet(true);
     let mut group = c.benchmark_group("optimization");
     group.measurement_time(Duration::from_secs(10));
     group.sample_size(10);
