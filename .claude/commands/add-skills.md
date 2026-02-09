@@ -1,38 +1,38 @@
 # Add Missing Skills
 
-Add missing skills and passives to skill line data files based on raw data from eso-hub.
+Add missing skills and passives to skill line data files based on coefficient data from UESP.
+
+## Data Source
+
+**UESP Skill Coefficients**: https://esoitem.uesp.net/viewSkillCoef.php
+
+The UESP provides accurate damage coefficients derived from in-game data through regression analysis. This is the authoritative source for skill damage formulas.
+
+**Local Data File**: `datamine/UESP_ESO Skill Coefficients.html`
+
+Download the page and save it locally for reference. The file contains a table with columns:
+- Skill Name, ID, Mechanic, Class, Skill Line, #, Description, Equations
 
 ## Arguments
 
-- `$ARGUMENTS` - ESO-Hub URL (e.g., `https://eso-hub.com/en/skills/nightblade/assassination`) or path format `<class>/<skill-line>` (e.g., `nightblade/shadow`)
+- `$ARGUMENTS` - Class and skill line in format `<class>/<skill-line>` (e.g., `nightblade/assassination`, `dragonknight/ardent-flame`)
 
 ## Instructions
 
 1. **Parse the input:**
-   - If `$ARGUMENTS` is an eso-hub URL, extract the class and skill-line from the path
-   - URL format: `https://eso-hub.com/en/skills/<class>/<skill-line>`
-   - Path format: `<class>/<skill-line>`
+   - Format: `<class>/<skill-line>`
+   - Example: `nightblade/assassination`, `dragonknight/ardent-flame`
 
-2. **Validate URL format:**
-   - **REJECT** class overview URLs like `https://eso-hub.com/en/classes/<class>` - these don't contain skill data
-   - **ACCEPT** only skill line URLs: `https://eso-hub.com/en/skills/<class>/<skill-line>`
-   - If invalid format detected, stop and inform user of correct format
+2. **Read the UESP data file:**
+   - Open `datamine/UESP_ESO Skill Coefficients.html`
+   - Search for skills matching the specified class and skill line
+   - Skills have numbered versions (e.g., "Burning Embers 1", "Burning Embers 2", etc.) - use version 4 (max rank)
 
-3. **Fetch skill data from eso-hub:**
-   - **IMPORTANT:** The skill line overview page does NOT contain skill data. You MUST fetch individual skill pages.
-   - First, fetch the overview page to get the list of skill names
-   - Then fetch each individual skill page: `https://eso-hub.com/en/skills/<class>/<skill-line>/<skill-name>`
-   - Example URLs:
-     - `https://eso-hub.com/en/skills/nightblade/assassination/death-stroke`
-     - `https://eso-hub.com/en/skills/nightblade/assassination/ambush`
-     - `https://eso-hub.com/en/skills/nightblade/assassination/master-assassin` (for passives)
-   - Each skill page contains: name, description, damage values, buffs/debuffs, durations, and morph info
-
-4. **Map URL segments to Rust enums:**
+3. **Map class/skill-line to Rust enums:**
 
    ### ClassName Mapping
-   | URL segment | Rust Enum |
-   |-------------|-----------|
+   | Input | Rust Enum |
+   |-------|-----------|
    | `nightblade` | `ClassName::Nightblade` |
    | `dragonknight` | `ClassName::Dragonknight` |
    | `sorcerer` | `ClassName::Sorcerer` |
@@ -42,8 +42,8 @@ Add missing skills and passives to skill line data files based on raw data from 
    | `weapon` | `ClassName::Weapon` |
 
    ### SkillLineName Mapping
-   | URL segment | Rust Enum |
-   |-------------|-----------|
+   | Input | Rust Enum |
+   |-------|-----------|
    | `assassination` | `SkillLineName::Assassination` |
    | `shadow` | `SkillLineName::Shadow` |
    | `siphoning` | `SkillLineName::Siphoning` |
@@ -67,51 +67,50 @@ Add missing skills and passives to skill line data files based on raw data from 
    | `destruction-staff` | `SkillLineName::DestructionStaff` |
    | `dual-wield` | `SkillLineName::DualWield` |
 
-5. **Read existing files:**
+4. **Read existing files:**
    - Skills: `src/data/skills/<class>.rs`
    - Passives: `src/data/passives/<class>.rs`
    - Cross-reference to identify missing skills and passives
 
-6. **Parse damage values from descriptions:**
+---
 
-   ### Damage Type Patterns (description text → Rust enum)
-   | Text Pattern | Rust Enum |
-   |--------------|-----------|
-   | "Magic Damage" | `DamageType::Magic` |
-   | "Physical Damage" | `DamageType::Physical` |
-   | "Disease Damage" | `DamageType::Disease` |
-   | "Flame Damage" | `DamageType::Flame` |
-   | "Frost Damage" | `DamageType::Frost` |
-   | "Poison Damage" | `DamageType::Poison` |
-   | "Shock Damage" | `DamageType::Shock` |
-   | "Bleed Damage" | `DamageType::Bleed` |
+## UESP Coefficient Format
 
-   ### Resource Type Rules
-   | Condition | Rust Enum |
-   |-----------|-----------|
-   | Under "Ultimate abilities" section | `Resource::Ultimate` |
-   | Magic/Flame/Frost/Shock damage (default) | `Resource::Magicka` |
-   | Physical/Disease/Bleed/Poison damage | `Resource::Stamina` |
-   | "Converts to Stamina" in morph desc | `Resource::Stamina` |
+The UESP equations column contains damage formulas in this format:
 
-   ### Target Type Rules
-   | Pattern | Rust Enum |
-   |---------|-----------|
-   | "area", "around you", "enemies nearby", "cone" | `TargetType::Aoe` |
-   | Single target (default) | `TargetType::Single` |
+```
+<<1>> = 0.05165 MaxStat + 0.542325 MaxPower  (Ultimate, ratio = 10.50, Dmg, Flame, SingleTarget, Direct, Melee, -0.001s duration, -0.001s tick, -0.001s cooldown, R2 = 1)
+<<2>> = 0.015495 MaxStat + 0.162697 MaxPower  (Ultimate, ratio = 10.50, Dmg, Flame, SingleTarget, DOT, 18s duration, 2s tick, -0.001s cooldown, R2 = 1)
+<<3>> = 20 seconds (Constant)
+```
 
-7. **Understand skill structure:**
-   - **Base skill** - The original unmodified ability
-   - **Morph 1** - First morphed version (indicated by "arrow" before it in raw data)
-   - **Morph 2** - Second morphed version (indicated by "arrow" before it in raw data)
+### Parsing Rules
+
+| Pattern | Meaning |
+|---------|---------|
+| `X MaxStat + Y MaxPower` | Damage coefficients: coef_a = X, coef_b = Y |
+| `(Constant)` | Fixed value, no coefficients |
+| `Direct` in metadata | Instant hit damage |
+| `DOT` in metadata | Damage over time |
+| `Xs duration, Ys tick` | DoT duration and tick interval |
+| `Dmg, Flame` | Flame damage type |
+| `Dmg, Magic` | Magic damage type |
+| `SingleTarget` | Single target |
+| `AOE` | Area of effect |
+
+### Coefficient Extraction
+
+From `0.05165 MaxStat + 0.542325 MaxPower`:
+- `coef_a` = 0.05165 (MaxStat coefficient)
+- `coef_b` = 0.542325 (MaxPower coefficient)
 
 ---
 
 ## Part 1: Active Skills
 
-Generate active skills in `src/data/skills/<class>.rs` using the `SkillData` struct.
+Generate active skills in `src/data/skills/<class>.rs` using the `SkillData` struct with coefficients.
 
-### Skill Data Structure
+### Skill Data Structure with Coefficients
 
 ```rust
 SkillData::new(
@@ -119,7 +118,7 @@ SkillData::new(
     "Base Skill Name",      // base_skill_name (same as name for base skills)
     ClassName::X,           // class_name
     SkillLineName::Y,       // skill_line
-    SkillDamage::new()...,  // damage
+    SkillDamage::new()...,  // damage with coefficients
     DamageType::X,          // damage_type
     TargetType::X,          // target_type
     Resource::X,            // resource
@@ -130,32 +129,61 @@ SkillData::new(
 // .with_bonuses(vec![...])
 ```
 
-### Damage Patterns
+### Damage Patterns with Coefficients
 
-**Instant damage:**
+**Instant damage with coefficients:**
 ```rust
+// UESP: <<1>> = 0.09797 MaxStat + 1.02992 MaxPower (Direct)
 SkillData::new(
     "Lava Whip",
     "Lava Whip",
     ClassName::Dragonknight,
     SkillLineName::ArdentFlame,
-    SkillDamage::new().with_hits(vec![HitDamage::new(2323.0)]),
+    SkillDamage::new().with_hits(vec![
+        HitDamage::new(2323.0).with_coefficients(0.09797, 1.02992)
+    ]),
     DamageType::Flame,
     TargetType::Single,
     Resource::Magicka,
 )
 ```
 
-**Delayed damage (like Scorch):**
+**DoT with coefficients and interval:**
 ```rust
+// UESP: <<1>> = 0.05165 MaxStat + 0.542325 MaxPower (Direct)
+//       <<2>> = 0.015495 MaxStat + 0.162697 MaxPower (DOT, 18s duration, 2s tick)
+SkillData::new(
+    "Burning Embers",
+    "Searing Strike",
+    ClassName::Dragonknight,
+    SkillLineName::ArdentFlame,
+    SkillDamage::new()
+        .with_hits(vec![
+            HitDamage::new(1161.0).with_coefficients(0.05165, 0.542325)
+        ])
+        .with_dots(vec![
+            DotDamage::new(3470.0, 18.0)
+                .with_interval(2.0)
+                .with_coefficients(0.015495, 0.162697)
+        ]),
+    DamageType::Flame,
+    TargetType::Single,
+    Resource::Magicka,
+)
+```
+
+**Delayed damage with coefficients:**
+```rust
+// UESP: <<1>> = 0.077475 MaxStat + 0.813488 MaxPower (Direct, 3s delay)
+//       <<2>> = 0.107663 MaxStat + 1.130456 MaxPower (Direct, 9s delay)
 SkillData::new(
     "Scorch",
     "Scorch",
     ClassName::Warden,
     SkillLineName::AnimalCompanions,
     SkillDamage::new().with_hits(vec![
-        HitDamage::new(2509.0).with_delay(3.0),
-        HitDamage::new(3486.0).with_delay(9.0),
+        HitDamage::new(2509.0).with_delay(3.0).with_coefficients(0.077475, 0.813488),
+        HitDamage::new(3486.0).with_delay(9.0).with_coefficients(0.107663, 1.130456),
     ]),
     DamageType::Magic,
     TargetType::Aoe,
@@ -163,39 +191,7 @@ SkillData::new(
 )
 ```
 
-**DoT with interval:**
-```rust
-SkillData::new(
-    "Dragonknight Standard",
-    "Dragonknight Standard",
-    ClassName::Dragonknight,
-    SkillLineName::ArdentFlame,
-    SkillDamage::new().with_dots(vec![
-        DotDamage::new(870.0, 16.0).with_interval(1.0)
-    ]),
-    DamageType::Flame,
-    TargetType::Aoe,
-    Resource::Ultimate,
-)
-```
-
-**Direct + DoT:**
-```rust
-SkillData::new(
-    "Searing Strike",
-    "Searing Strike",
-    ClassName::Dragonknight,
-    SkillLineName::ArdentFlame,
-    SkillDamage::new()
-        .with_hits(vec![HitDamage::new(1161.0)])
-        .with_dots(vec![DotDamage::new(3470.0, 20.0)]),
-    DamageType::Flame,
-    TargetType::Single,
-    Resource::Magicka,
-)
-```
-
-**Channeled skill:**
+**Channeled skill with coefficients:**
 ```rust
 SkillData::new(
     "Inhale",
@@ -203,8 +199,8 @@ SkillData::new(
     ClassName::Dragonknight,
     SkillLineName::DraconicPower,
     SkillDamage::new().with_hits(vec![
-        HitDamage::new(870.0),
-        HitDamage::new(1742.0).with_delay(2.5),
+        HitDamage::new(870.0).with_coefficients(0.038738, 0.406744),
+        HitDamage::new(1742.0).with_delay(2.5).with_coefficients(0.077475, 0.813488),
     ]),
     DamageType::Flame,
     TargetType::Aoe,
@@ -212,47 +208,61 @@ SkillData::new(
 ).with_channel_time(2.5)
 ```
 
-**Utility skill (no damage):**
+**Utility skill (no damage, no coefficients):**
 ```rust
 SkillData::new(
     "Frost Cloak",
     "Frost Cloak",
     ClassName::Warden,
     SkillLineName::WintersEmbrace,
-    SkillDamage::new(),
+    SkillDamage::new(),  // No coefficients needed for utility skills
     DamageType::Frost,
     TargetType::Aoe,
     Resource::Magicka,
 )
 ```
 
-### DoT Parsing Rules
+### Damage Type Mapping (from UESP metadata)
 
-- "X Damage over Y seconds" → `DotDamage::new(X, Y)` (total damage, no interval)
-- "X Damage every Z seconds for Y seconds" → `DotDamage::new(X, Y).with_interval(Z)`
-- "increases by N% per tick" → `.with_increase_per_tick(N/100.0)`
+| UESP Metadata | Rust Enum |
+|---------------|-----------|
+| `Dmg, Magic` | `DamageType::Magic` |
+| `Dmg, Physical` | `DamageType::Physical` |
+| `Dmg, Flame` | `DamageType::Flame` |
+| `Dmg, Frost` | `DamageType::Frost` |
+| `Dmg, Shock` | `DamageType::Shock` |
+| `Dmg, Poison` | `DamageType::Poison` |
+| `Dmg, Bleed` | `DamageType::Bleed` |
+| `Dmg, Disease` | `DamageType::Disease` |
 
-### Damage vs Healing Distinction
+### Resource Type Rules
 
-**CRITICAL:** When a description mentions both damage AND healing with timing, determine which the timing applies to:
+| Condition | Rust Enum |
+|-----------|-----------|
+| Ultimate abilities (high cost, powerful) | `Resource::Ultimate` |
+| Magic/Flame/Frost/Shock damage (default) | `Resource::Magicka` |
+| Physical/Disease/Bleed/Poison damage | `Resource::Stamina` |
+| Morph converts to Stamina | `Resource::Stamina` |
 
-| Description Pattern | Interpretation |
-|---------------------|----------------|
-| "dealing X Damage over Y seconds" | DoT: `DotDamage::new(X, Y)` |
-| "dealing X Damage and healing Y every Z seconds for W seconds" | **Instant damage**: `HitDamage::new(X)` - timing applies to healing only |
-| "dealing X Damage every Y seconds" | DoT with interval |
+### Target Type (from UESP metadata)
 
-**Example - Strife (CORRECT):**
-> "dealing 1548 Magic Damage and healing you... every 2 seconds for 10 seconds"
+| UESP Metadata | Rust Enum |
+|---------------|-----------|
+| `SingleTarget` | `TargetType::Single` |
+| `AOE` | `TargetType::Aoe` |
 
-The "every 2 seconds for 10 seconds" describes the healing, NOT the damage. Use:
-```rust
-SkillDamage::new().with_hits(vec![HitDamage::new(1548.0)])  // Instant damage
+### DoT Parsing from UESP
+
+From `(DOT, 18s duration, 2s tick)`:
+- Duration: 18 seconds → `DotDamage::new(value, 18.0)`
+- Tick interval: 2 seconds → `.with_interval(2.0)`
+
+### Tooltip Values
+
+The tooltip `value` parameter in `HitDamage::new(value)` and `DotDamage::new(value, duration)` should be calculated from the coefficients at standard stats (40k max stat, 5.5k max power) or taken from in-game tooltips. This value is used as a fallback when coefficients aren't available.
+
 ```
-
-**NOT:**
-```rust
-SkillDamage::new().with_dots(vec![DotDamage::new(1548.0, 10.0).with_interval(2.0)])  // WRONG
+tooltip_value = coef_a * 40000 + coef_b * 5500
 ```
 
 ### Active Skill Bonuses (Buffs/Debuffs on Cast)
@@ -304,17 +314,20 @@ Use `.with_trigger()` to change when a bonus applies:
 MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted)
 ```
 
-#### Examples with Bonuses
+#### Examples with Bonuses and Coefficients
 
 **Skill with enemy debuff:**
 ```rust
 // Teleport Strike: Minor Vulnerability (10s)
+// UESP: <<1>> = 0.071294 MaxStat + 0.748588 MaxPower
 SkillData::new(
     "Teleport Strike",
     "Teleport Strike",
     ClassName::Nightblade,
     SkillLineName::Assassination,
-    SkillDamage::new().with_hits(vec![HitDamage::new(1602.0)]),
+    SkillDamage::new().with_hits(vec![
+        HitDamage::new(1602.0).with_coefficients(0.071294, 0.748588)
+    ]),
     DamageType::Magic,
     TargetType::Single,
     Resource::Magicka,
@@ -322,54 +335,18 @@ SkillData::new(
 .with_bonuses(vec![MINOR_VULNERABILITY.clone()])
 ```
 
-**Skill with multiple buffs:**
-```rust
-// Ambush: Minor Vulnerability (10s), Empower (10s), Minor Berserk (10s)
-SkillData::new(
-    "Ambush",
-    "Teleport Strike",
-    ClassName::Nightblade,
-    SkillLineName::Assassination,
-    SkillDamage::new().with_hits(vec![HitDamage::new(1655.0)]),
-    DamageType::Physical,
-    TargetType::Single,
-    Resource::Stamina,
-)
-.with_bonuses(vec![
-    MINOR_VULNERABILITY.clone(),
-    EMPOWER.clone(),
-    MINOR_BERSERK.clone().with_duration(10.0),
-])
-```
-
-**Skill with "while slotted" buffs:**
-```rust
-// Grim Focus: Major Prophecy + Major Savagery while slotted
-SkillData::new(
-    "Grim Focus",
-    "Grim Focus",
-    ClassName::Nightblade,
-    SkillLineName::Assassination,
-    SkillDamage::new().with_hits(vec![HitDamage::new(4182.0)]),
-    DamageType::Magic,
-    TargetType::Single,
-    Resource::Magicka,
-)
-.with_bonuses(vec![
-    MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted),
-    MAJOR_SAVAGERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
-])
-```
-
 **Skill with custom unique debuff:**
 ```rust
 // Death Stroke: +20% damage from player attacks for 8s
+// UESP: <<1>> = 0.165 MaxStat + 1.7325 MaxPower
 SkillData::new(
     "Death Stroke",
     "Death Stroke",
     ClassName::Nightblade,
     SkillLineName::Assassination,
-    SkillDamage::new().with_hits(vec![HitDamage::new(3716.0)]),
+    SkillDamage::new().with_hits(vec![
+        HitDamage::new(3716.0).with_coefficients(0.165, 1.7325)
+    ]),
     DamageType::Magic,
     TargetType::Single,
     Resource::Ultimate,
@@ -392,16 +369,15 @@ Track execute mechanics with `.with_execute()`:
 | "Deals 300% more damage to enemies below 25% Health" | 3.0 | 0.25 | Flat |
 | "Deals up to 400% more damage to enemies below 50% Health" | 4.0 | 0.50 | Linear |
 
-- "Deals X% more" = Flat bonus when threshold met
-- "Deals up to X% more" = Linear scaling based on missing health
-
 ```rust
 SkillData::new(
     "Assassin's Blade",
     "Assassin's Blade",
     ClassName::Nightblade,
     SkillLineName::Assassination,
-    SkillDamage::new().with_hits(vec![HitDamage::new(1161.0)]),
+    SkillDamage::new().with_hits(vec![
+        HitDamage::new(1161.0).with_coefficients(0.05165, 0.542325)
+    ]),
     DamageType::Magic,
     TargetType::Single,
     Resource::Magicka,
@@ -411,10 +387,11 @@ SkillData::new(
 
 ### Important Notes for Active Skills
 
-- **IGNORE healing over time (HoT)** - Only record damage, not healing effects
+- **IGNORE healing** - Only record damage, not healing effects
 - Use `SkillDamage::new()` for utility/buff skills with no damage
 - Group skills by base skill (base + morphs together with comments)
 - Always add descriptive comments above skills explaining their bonuses
+- Use skill version 4 (max rank) from UESP data
 
 ---
 
@@ -621,27 +598,19 @@ Import from `src/data/bonuses/unique.rs`:
 
 ---
 
-## Common Pitfalls
-
-### Pitfall 1: Confusing Healing Timing with Damage Timing
-Skills like Strife deal **instant damage** but heal over time. Don't mistake the healing interval for damage intervals.
-
-### Pitfall 2: Using Class URLs Instead of Skill Line URLs
-- **Wrong:** `https://eso-hub.com/en/classes/nightblade`
-- **Correct:** `https://eso-hub.com/en/skills/nightblade/assassination`
-
----
-
 ## Reference Files
 
 - `src/domain/skill.rs` - SkillData struct
 - `src/domain/skill_damage.rs` - SkillDamage struct
-- `src/domain/hit_damage.rs` - HitDamage struct
-- `src/domain/dot_damage.rs` - DotDamage struct
+- `src/domain/hit_damage.rs` - HitDamage struct with `with_coefficients()`
+- `src/domain/dot_damage.rs` - DotDamage struct with `with_coefficients()`
+- `src/domain/character_stats.rs` - CharacterStats struct
+- `src/domain/damage_coefficients.rs` - DamageCoefficients struct
 - `src/domain/passive.rs` - PassiveData struct
 - `src/domain/bonus.rs` - BonusData struct
 - `src/data/types.rs` - All enums (ClassName, SkillLineName, DamageType, BonusTrigger, BonusTarget, etc.)
 - `src/data/bonuses/unique.rs` - Predefined bonus constants
+- `datamine/UESP_ESO Skill Coefficients.html` - UESP coefficient data
 
 ---
 
@@ -651,6 +620,7 @@ After adding skills and passives, run:
 
 ```bash
 cargo check
+cargo test
 ```
 
 Compare output against existing skills in `src/data/skills/<class>.rs` and passives in `src/data/passives/<class>.rs` to ensure consistent formatting and structure.
