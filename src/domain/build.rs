@@ -1,4 +1,6 @@
-use super::{BonusData, BonusTarget, ClassName, ResolveContext, SkillData, SkillLineName};
+use super::{
+    BonusData, BonusTarget, CharacterStats, ClassName, ResolveContext, SkillData, SkillLineName,
+};
 use crate::infrastructure::{format, table};
 use std::collections::{HashMap, HashSet};
 
@@ -27,6 +29,7 @@ pub struct Build {
     pub total_damage: f64,
     crit_damage: f64,
     conditional_bonuses: Vec<BonusData>,
+    character_stats: CharacterStats,
 }
 
 // Constructor
@@ -36,7 +39,12 @@ impl Build {
         champion_bonuses: Vec<BonusData>,
         passive_bonuses: &[BonusData],
     ) -> Self {
-        Self::with_base_crit_damage(skills, champion_bonuses, passive_bonuses, 0.0)
+        Self::with_stats(
+            skills,
+            champion_bonuses,
+            passive_bonuses,
+            CharacterStats::default(),
+        )
     }
 
     pub fn with_base_crit_damage(
@@ -44,6 +52,21 @@ impl Build {
         champion_bonuses: Vec<BonusData>,
         passive_bonuses: &[BonusData],
         base_crit_damage: f64,
+    ) -> Self {
+        Self::with_stats(
+            skills,
+            champion_bonuses,
+            passive_bonuses,
+            CharacterStats::default().with_critical_damage(1.0 + base_crit_damage),
+        )
+    }
+
+    /// Create a build with custom character stats
+    pub fn with_stats(
+        skills: Vec<&'static SkillData>,
+        champion_bonuses: Vec<BonusData>,
+        passive_bonuses: &[BonusData],
+        character_stats: CharacterStats,
     ) -> Self {
         let mut skill_line_counts: HashMap<SkillLineName, usize> = HashMap::new();
         for skill in &skills {
@@ -60,6 +83,8 @@ impl Build {
 
         // Aggregate crit damage from non-conditional bonuses to build context
         let crit_damage_bonus = Self::aggregate_crit_damage(&all_bonuses);
+        // Use character stats crit damage as base, add bonus from passives
+        let base_crit_damage = character_stats.critical_damage - 1.0; // Convert from multiplier to bonus
         let crit_damage = base_crit_damage + crit_damage_bonus;
         let ctx = ResolveContext::new(crit_damage);
 
@@ -86,6 +111,7 @@ impl Build {
             total_damage,
             crit_damage,
             conditional_bonuses,
+            character_stats,
         }
     }
 
@@ -125,6 +151,11 @@ impl Build {
             .iter()
             .map(|b| b.name.clone())
             .collect()
+    }
+
+    /// Get character stats
+    pub fn character_stats(&self) -> &CharacterStats {
+        &self.character_stats
     }
 }
 

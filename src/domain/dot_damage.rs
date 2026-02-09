@@ -1,3 +1,4 @@
+use super::DamageCoefficients;
 use serde::{Deserialize, Serialize};
 
 /// DoT (Damage over Time) damage data
@@ -19,6 +20,9 @@ pub struct DotDamage {
     /// If true, this damage ignores modifiers
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ignores_modifier: Option<bool>,
+    /// Optional coefficients for stat-based damage calculation
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub coefficients: Option<DamageCoefficients>,
 }
 
 impl DotDamage {
@@ -31,6 +35,7 @@ impl DotDamage {
             increase_per_tick: None,
             flat_increase_per_tick: None,
             ignores_modifier: None,
+            coefficients: None,
         }
     }
 
@@ -57,5 +62,23 @@ impl DotDamage {
     pub fn ignores_modifier(mut self) -> Self {
         self.ignores_modifier = Some(true);
         self
+    }
+
+    /// Add damage coefficients for stat-based calculation
+    pub fn with_coefficients(mut self, coef_a: f64, coef_b: f64) -> Self {
+        self.coefficients = Some(DamageCoefficients::new(coef_a, coef_b));
+        self
+    }
+
+    /// Get effective damage value, using coefficients if available, otherwise tooltip value
+    ///
+    /// # Arguments
+    /// * `max_stat` - The higher of max_magicka and max_stamina
+    /// * `max_power` - The higher of weapon_damage and spell_damage
+    pub fn effective_value(&self, max_stat: f64, max_power: f64) -> f64 {
+        match &self.coefficients {
+            Some(coef) => coef.calculate_base_damage(max_stat, max_power),
+            None => self.value,
+        }
     }
 }

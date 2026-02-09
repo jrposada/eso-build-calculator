@@ -1,6 +1,6 @@
 use super::{
-    BonusData, BonusTarget, ClassName, DamageType, ExecuteData, ExecuteScaling, Resource,
-    SkillDamage, SkillLineName, SkillMechanic, TargetType,
+    formulas, BonusData, BonusTarget, CharacterStats, ClassName, DamageType, ExecuteData,
+    ExecuteScaling, Resource, SkillDamage, SkillLineName, SkillMechanic, TargetType,
 };
 use serde::{Deserialize, Serialize};
 
@@ -105,13 +105,19 @@ impl SkillData {
     /// Calculate the total damage per cast with optional bonuses
     /// This excludes conditional execute hits (hits with execute_threshold)
     pub fn calculate_damage_per_cast(&self, bonuses: &[BonusData]) -> f64 {
-        self.calculate_damage_at_health_internal(bonuses, None)
+        self.calculate_damage_at_health_internal(bonuses, None, None)
     }
 
     /// Internal method to calculate damage with optional enemy health filtering
+    ///
+    /// # Arguments
+    /// * `bonuses` - Active damage bonuses
+    /// * `stats` - Optional (max_stat, max_power) tuple for coefficient-based calculation
+    /// * `enemy_health` - Optional enemy health percentage for execute calculations
     fn calculate_damage_at_health_internal(
         &self,
         bonuses: &[BonusData],
+        stats: Option<(f64, f64)>,
         enemy_health: Option<f64>,
     ) -> f64 {
         let mut total_damage = 0.0;
@@ -144,15 +150,21 @@ impl SkillData {
                 .collect();
 
             for hit in hits {
+                // Get effective damage value (uses coefficients if available)
+                let hit_value = match stats {
+                    Some((max_stat, max_power)) => hit.effective_value(max_stat, max_power),
+                    None => hit.value,
+                };
+
                 // Check if this hit has an execute threshold
                 if let Some(threshold) = hit.execute_threshold {
                     // Only include if enemy_health is known and below threshold
                     if enemy_health.map_or(false, |h| h < threshold) {
-                        total_damage += Self::apply_damage_modifier(&hit_modifiers, hit.value);
+                        total_damage += Self::apply_damage_modifier(&hit_modifiers, hit_value);
                     }
                 } else {
                     // Normal hit, always include
-                    total_damage += Self::apply_damage_modifier(&hit_modifiers, hit.value);
+                    total_damage += Self::apply_damage_modifier(&hit_modifiers, hit_value);
                 }
             }
         }
@@ -168,6 +180,12 @@ impl SkillData {
                 .collect();
 
             for dot in dots {
+                // Get effective damage value (uses coefficients if available)
+                let dot_value = match stats {
+                    Some((max_stat, max_power)) => dot.effective_value(max_stat, max_power),
+                    None => dot.value,
+                };
+
                 // If interval is not defined then we only know the total damage done over
                 // the duration which is equivalent to interval = duration
                 let interval = dot.interval.unwrap_or(dot.duration);
@@ -178,7 +196,7 @@ impl SkillData {
                 for i in 0..ticks {
                     let percentage_multiplier = 1.0 + (i as f64) * increase_per_tick;
                     let flat_increase = (i as f64) * flat_increase_per_tick;
-                    let tick_damage = dot.value * percentage_multiplier + flat_increase;
+                    let tick_damage = dot_value * percentage_multiplier + flat_increase;
 
                     if dot.ignores_modifier.unwrap_or(false) {
                         total_damage += tick_damage;
@@ -204,12 +222,65 @@ impl SkillData {
         bonuses: &[BonusData],
         enemy_health_percent: f64,
     ) -> f64 {
-        let base = self.calculate_damage_at_health_internal(bonuses, Some(enemy_health_percent));
+        let base = self.calculate_damage_at_health_internal(bonuses, None, Some(enemy_health_percent));
         if let Some(execute) = &self.execute {
             base * execute.calculate_multiplier(enemy_health_percent)
         } else {
             base
         }
+    }
+
+    /// Calculate damage using character stats for coefficient-based calculation.
+    ///
+    /// This method uses the full damage formula including:
+    /// - Coefficient-based base damage (when coefficients are available)
+    /// - Damage modifiers from bonuses
+    /// - Armor penetration
+    /// - Critical strike damage averaging
+    ///
+    /// # Arguments
+    /// * `bonuses` - Active damage bonuses
+    /// * `stats` - Character stats for damage calculation
+    pub fn calculate_damage_with_stats(&self, bonuses: &[BonusData], stats: &CharacterStats) -> f64 {
+        self.calculate_damage_with_stats_internal(bonuses, stats, None)
+    }
+
+    /// Calculate damage at specific health with character stats
+    pub fn calculate_damage_with_stats_at_health(
+        &self,
+        bonuses: &[BonusData],
+        stats: &CharacterStats,
+        enemy_health_percent: f64,
+    ) -> f64 {
+        let base = self.calculate_damage_with_stats_internal(bonuses, stats, Some(enemy_health_percent));
+        if let Some(execute) = &self.execute {
+            base * execute.calculate_multiplier(enemy_health_percent)
+        } else {
+            base
+        }
+    }
+
+    /// Internal method to calculate damage with character stats
+    fn calculate_damage_with_stats_internal(
+        &self,
+        bonuses: &[BonusData],
+        stats: &CharacterStats,
+        enemy_health: Option<f64>,
+    ) -> f64 {
+        let max_stat = stats.max_stat();
+        let max_power = stats.max_power();
+
+        // Get pre-mitigation damage using coefficients if available
+        let pre_mitigation =
+            self.calculate_damage_at_health_internal(bonuses, Some((max_stat, max_power)), enemy_health);
+
+        // Apply armor and crit
+        let armor_factor =
+            formulas::armor_damage_factor(stats.target_armor, stats.penetration);
+        let crit_mult =
+            formulas::critical_multiplier(stats.critical_chance, stats.critical_damage);
+
+        pre_mitigation * armor_factor * crit_mult
     }
 
     /// Format skill details for display

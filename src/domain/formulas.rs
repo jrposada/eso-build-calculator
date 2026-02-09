@@ -59,6 +59,63 @@ pub fn resource_to_damage_bonus(resource: f64) -> f64 {
     resource / 10.5
 }
 
+// ==================== CRITICAL DAMAGE ====================
+
+/// Calculate average critical multiplier for damage calculations.
+/// This represents the expected damage multiplier accounting for crit chance.
+///
+/// Formula: 1 + (crit_chance * (crit_damage - 1))
+///
+/// Example: With 60% crit chance and 1.75 crit damage (75% bonus):
+/// 1 + (0.60 * (1.75 - 1)) = 1 + (0.60 * 0.75) = 1.45 (45% average damage increase)
+pub fn critical_multiplier(crit_chance: f64, crit_damage: f64) -> f64 {
+    1.0 + (crit_chance * (crit_damage - 1.0))
+}
+
+// ==================== ARMOR DAMAGE FACTOR ====================
+
+/// Calculate damage factor after armor mitigation.
+/// Returns the fraction of damage that passes through armor.
+///
+/// Formula: 1 - mitigation = 1 - (effective_armor / (effective_armor + 3300))
+///
+/// Where effective_armor = max(0, target_armor - penetration)
+pub fn armor_damage_factor(target_armor: f64, penetration: f64) -> f64 {
+    let eff_armor = effective_armor(target_armor, penetration);
+    1.0 - armor_to_mitigation(eff_armor)
+}
+
+// ==================== FINAL DAMAGE CALCULATION ====================
+
+/// Calculate final damage combining all factors.
+///
+/// Formula:
+/// modified_damage = base_damage * (1 + modifier_sum)
+/// armor_factor = 1 - (effective_armor / (effective_armor + 3300))
+/// crit_multiplier = 1 + (crit_chance * (crit_damage - 1))
+/// final_damage = modified_damage * armor_factor * crit_multiplier
+///
+/// # Arguments
+/// * `base_damage` - Raw damage from skill (tooltip or coefficient-calculated)
+/// * `modifier_sum` - Sum of all applicable damage modifiers (e.g., 0.15 for +15%)
+/// * `target_armor` - Target's armor value
+/// * `penetration` - Character's armor penetration
+/// * `crit_chance` - Critical strike chance (0.0 - 1.0)
+/// * `crit_damage` - Critical damage multiplier (e.g., 1.75 for 75% bonus)
+pub fn calculate_final_damage(
+    base_damage: f64,
+    modifier_sum: f64,
+    target_armor: f64,
+    penetration: f64,
+    crit_chance: f64,
+    crit_damage: f64,
+) -> f64 {
+    let modified_damage = base_damage * (1.0 + modifier_sum);
+    let armor_factor = armor_damage_factor(target_armor, penetration);
+    let crit_mult = critical_multiplier(crit_chance, crit_damage);
+    modified_damage * armor_factor * crit_mult
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -237,6 +294,124 @@ mod tests {
         assert!(
             (damage - expected).abs() < 0.01,
             "Expected ~2857 damage bonus from 30000 resource, got {}",
+            damage
+        );
+    }
+
+    // ==================== CRITICAL MULTIPLIER TESTS ====================
+
+    #[test]
+    fn test_critical_multiplier_typical_values() {
+        // 60% crit chance, 1.75 crit damage (75% bonus)
+        // Expected: 1 + (0.60 * 0.75) = 1.45
+        let mult = critical_multiplier(0.60, 1.75);
+        assert!(
+            (mult - 1.45).abs() < 0.0001,
+            "Expected 1.45 crit multiplier, got {}",
+            mult
+        );
+    }
+
+    #[test]
+    fn test_critical_multiplier_no_crit() {
+        // 0% crit chance should give 1.0 multiplier
+        let mult = critical_multiplier(0.0, 2.0);
+        assert!(
+            (mult - 1.0).abs() < 0.0001,
+            "Expected 1.0 multiplier with 0% crit, got {}",
+            mult
+        );
+    }
+
+    #[test]
+    fn test_critical_multiplier_100_percent_crit() {
+        // 100% crit chance, 2.0 crit damage
+        // Expected: 1 + (1.0 * 1.0) = 2.0
+        let mult = critical_multiplier(1.0, 2.0);
+        assert!(
+            (mult - 2.0).abs() < 0.0001,
+            "Expected 2.0 multiplier with 100% crit, got {}",
+            mult
+        );
+    }
+
+    // ==================== ARMOR DAMAGE FACTOR TESTS ====================
+
+    #[test]
+    fn test_armor_damage_factor_equal_pen_armor() {
+        // When penetration equals armor, all damage passes through
+        let factor = armor_damage_factor(18200.0, 18200.0);
+        assert!(
+            (factor - 1.0).abs() < 0.0001,
+            "Expected 1.0 damage factor when pen = armor, got {}",
+            factor
+        );
+    }
+
+    #[test]
+    fn test_armor_damage_factor_no_pen() {
+        // 18200 armor, 0 penetration
+        // mitigation = 18200 / (18200 + 3300) = 18200 / 21500 ≈ 0.847
+        // factor = 1 - 0.847 ≈ 0.153
+        let factor = armor_damage_factor(18200.0, 0.0);
+        let expected = 1.0 - (18200.0 / 21500.0);
+        assert!(
+            (factor - expected).abs() < 0.0001,
+            "Expected {} damage factor, got {}",
+            expected,
+            factor
+        );
+    }
+
+    #[test]
+    fn test_armor_damage_factor_over_pen() {
+        // Penetration exceeds armor
+        let factor = armor_damage_factor(10000.0, 15000.0);
+        assert!(
+            (factor - 1.0).abs() < 0.0001,
+            "Expected 1.0 damage factor when pen > armor, got {}",
+            factor
+        );
+    }
+
+    // ==================== FINAL DAMAGE CALCULATION TESTS ====================
+
+    #[test]
+    fn test_calculate_final_damage_basic() {
+        // Simple case: 1000 base, no modifiers, no armor, no crit
+        let damage = calculate_final_damage(1000.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+        assert!(
+            (damage - 1000.0).abs() < 0.01,
+            "Expected 1000 damage, got {}",
+            damage
+        );
+    }
+
+    #[test]
+    fn test_calculate_final_damage_with_modifiers() {
+        // 1000 base, 15% modifier, no armor, no crit
+        let damage = calculate_final_damage(1000.0, 0.15, 0.0, 0.0, 0.0, 1.0);
+        assert!(
+            (damage - 1150.0).abs() < 0.01,
+            "Expected 1150 damage with 15% modifier, got {}",
+            damage
+        );
+    }
+
+    #[test]
+    fn test_calculate_final_damage_full_calculation() {
+        // Realistic scenario:
+        // 10000 base, 20% modifier, 18200 armor, 18200 pen (full pen), 60% crit, 1.75 crit damage
+        // modified = 10000 * 1.2 = 12000
+        // armor_factor = 1.0 (full penetration)
+        // crit_mult = 1 + (0.6 * 0.75) = 1.45
+        // final = 12000 * 1.0 * 1.45 = 17400
+        let damage = calculate_final_damage(10000.0, 0.20, 18200.0, 18200.0, 0.60, 1.75);
+        let expected = 10000.0 * 1.2 * 1.45;
+        assert!(
+            (damage - expected).abs() < 0.01,
+            "Expected {} damage, got {}",
+            expected,
             damage
         );
     }
