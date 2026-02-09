@@ -1,5 +1,9 @@
+use std::fs;
+use std::io::{self, Write};
+use std::path::PathBuf;
 use std::time::Instant;
 
+use super::build_config::BuildConfig;
 use super::parsers::{parse_class_name, parse_weapon_skill_line};
 use crate::domain::BUILD_CONSTRAINTS;
 use crate::domain::{ClassName, SkillLineName};
@@ -79,13 +83,42 @@ impl OptimizeArgs {
         match build {
             Some(b) => {
                 logger::info(&b.to_string());
+                logger::info(&format!("Optimization completed in {:.2?}", elapsed));
+                Self::prompt_export(&b);
             }
             None => {
                 logger::error("No valid build found with the given constraints.");
                 std::process::exit(1);
             }
         }
+    }
 
-        logger::info(&format!("Optimization completed in {:.2?}", elapsed));
+    fn prompt_export(build: &crate::domain::Build) {
+        print!("\nExport build to file? [path/no]: ");
+        io::stdout().flush().unwrap();
+
+        let mut input = String::new();
+        if io::stdin().read_line(&mut input).is_err() {
+            return;
+        }
+
+        let input = input.trim();
+        if input.is_empty() || input.eq_ignore_ascii_case("no") || input.eq_ignore_ascii_case("n") {
+            return;
+        }
+
+        let path = PathBuf::from(input);
+        let config = BuildConfig {
+            skills: build.skill_names(),
+            champion_points: build.champion_point_names(),
+        };
+
+        match serde_json::to_string_pretty(&config) {
+            Ok(json) => match fs::write(&path, json) {
+                Ok(_) => logger::info(&format!("Build exported to {}", path.display())),
+                Err(e) => logger::error(&format!("Failed to write file: {}", e)),
+            },
+            Err(e) => logger::error(&format!("Failed to serialize build: {}", e)),
+        }
     }
 }

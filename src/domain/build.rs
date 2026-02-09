@@ -109,6 +109,16 @@ impl Build {
             })
             .collect()
     }
+
+    /// Get skill names for export
+    pub fn skill_names(&self) -> Vec<String> {
+        self.skills.iter().map(|s| s.name.clone()).collect()
+    }
+
+    /// Get champion point names for export
+    pub fn champion_point_names(&self) -> Vec<String> {
+        self.champion_bonuses.iter().map(|b| b.name.clone()).collect()
+    }
 }
 
 impl Build {
