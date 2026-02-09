@@ -1,5 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use eso_build_calculator::data::{ClassName, SkillLineName};
+use eso_build_calculator::domain::{ClassName, SkillLineName};
 use eso_build_calculator::services::{BuildOptimizer, BuildOptimizerOptions};
 use std::time::Duration;
 
