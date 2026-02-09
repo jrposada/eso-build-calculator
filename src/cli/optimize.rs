@@ -110,7 +110,10 @@ impl OptimizeArgs {
     }
 
     fn prompt_export(build: &crate::domain::Build) {
-        print!("\nExport build to file? [path/no]: ");
+        // Show prompt with greyed-out default value "no"
+        print!("\nExport build to file? [path/no]: \x1b[90mn\x1b[0m");
+        // Move cursor back over the default value so user input overwrites it
+        print!("\x1b[1D");
         io::stdout().flush().unwrap();
 
         let mut input = String::new();
