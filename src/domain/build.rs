@@ -117,7 +117,10 @@ impl Build {
 
     /// Get champion point names for export
     pub fn champion_point_names(&self) -> Vec<String> {
-        self.champion_bonuses.iter().map(|b| b.name.clone()).collect()
+        self.champion_bonuses
+            .iter()
+            .map(|b| b.name.clone())
+            .collect()
     }
 }
 
