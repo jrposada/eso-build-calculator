@@ -34,6 +34,7 @@ fn benchmark_nightblade_bow_2h_with_cp(c: &mut Criterion) {
                 ],
                 forced_morphs: vec![],
                 parallelism: 4,
+                require_spammable: true
             });
             black_box(optimizer.find_optimal_build())
         })
