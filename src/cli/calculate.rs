@@ -72,6 +72,17 @@ impl CalculateArgs {
             logger::warn("This build has no spammable skill. Every rotation needs at least one instant-cast filler.");
         }
 
+        let pure_spammable_count = skills
+            .iter()
+            .filter(|s| s.spammable && s.bonuses.is_none())
+            .count();
+        if pure_spammable_count > 1 {
+            logger::warn(&format!(
+                "This build has {} pure spammable skills (spammable without bonuses). Only the highest-damage one would be used as filler; the rest waste a slot.",
+                pure_spammable_count
+            ));
+        }
+
         logger::info(&build.to_string());
     }
 

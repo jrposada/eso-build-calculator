@@ -26,7 +26,7 @@ An optimal build consists of:
 
 - Maximum **3 class skill lines** (can be from different ESO classes)
 - Maximum **2 weapon skill lines** (Bow, TwoHanded, DestructionStaff, DualWield)
-- At least **1 spammable skill** must be included in the build. A spammable is a skill that deals direct or channeled damage (not DOT)
+- At least **1 spammable skill** must be included in the build, and at most **1 pure spammable** (spammable without bonuses). A spammable is a skill that deals direct or channeled damage (not DOT). Pure spammables are only used as fillers, so having more than one wastes a slot. Spammable skills that also grant bonuses are not limited since they contribute buff value beyond filler damage.
 - When `--class` is specified, at least 1 skill line must be from that class; the remaining 2 class skill line slots can be from any class (or left unused if weapon skills are better alternatives)
 
 ## Algorithm

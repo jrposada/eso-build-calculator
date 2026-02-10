@@ -42,7 +42,7 @@ pub struct OptimizeArgs {
     #[arg(short = 'p', long)]
     pub parallelism: Option<u8>,
 
-    /// Disable the requirement for at least one spammable skill
+    /// Disable the spammable constraint (at most 1 pure spammable per build)
     #[arg(long)]
     pub no_spammable: bool,
 }
