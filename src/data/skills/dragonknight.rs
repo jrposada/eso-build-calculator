@@ -63,7 +63,8 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 1.05,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         SkillData::new(
             "Flame Lash",
             "Lava Whip",
@@ -75,7 +76,8 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 1.08465,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         // Molten Whip: Too complex - Seething Fury stacks (+20% damage per stack, +100 Weapon/Spell Damage per stack)
         SkillData::new(
             "Molten Whip",
@@ -88,7 +90,8 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 1.08465,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         // Searing Strike line
         SkillData::new(
             "Searing Strike",
@@ -565,7 +568,8 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 1.05,
             )]),
             Resource::Stamina,
-        ),
+        )
+        .with_spammable(),
         SkillData::new(
             "Obsidian Shard",
             "Stonefist",
@@ -590,7 +594,8 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 1.08465,
             )]),
             Resource::Stamina,
-        ),
+        )
+        .with_spammable(),
         // Molten Weapons line (no damage)
         // Molten Weapons: Major Brutality + Major Sorcery (30s)
         SkillData::new(

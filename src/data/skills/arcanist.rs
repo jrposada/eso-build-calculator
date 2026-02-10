@@ -62,7 +62,8 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 0.315,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         SkillData::new(
             "Escalating Runeblades",
             "Runeblades",
@@ -74,7 +75,8 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 0.325395,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         SkillData::new(
             "Writhing Runeblades",
             "Runeblades",
@@ -86,7 +88,8 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 0.325395,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         // Fatecarver line
         SkillData::new(
             "Fatecarver",
@@ -147,6 +150,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             )]),
             Resource::Stamina,
         )
+        .with_spammable()
         .with_bonuses(vec![BonusData::new(
             "Abyssal Ink",
             BonusTrigger::Cast,
@@ -167,6 +171,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             )]),
             Resource::Stamina,
         )
+        .with_spammable()
         .with_bonuses(vec![BonusData::new(
             "Abyssal Ink",
             BonusTrigger::Cast,
@@ -187,6 +192,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             )]),
             Resource::Magicka,
         )
+        .with_spammable()
         .with_bonuses(vec![BonusData::new(
             "Abyssal Ink",
             BonusTrigger::Cast,
@@ -354,7 +360,8 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 0.525,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         SkillData::new(
             "Runic Embrace",
             "Runic Jolt",
@@ -366,7 +373,8 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 0.542325,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         // Converts to Physical/Stamina, steals 2200 Armor from enemy
         SkillData::new(
             "Runic Sunder",
@@ -380,6 +388,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             )]),
             Resource::Stamina,
         )
+        .with_spammable()
         .with_bonuses(vec![BonusData::new(
             "Runic Sunder Armor Steal",
             BonusTrigger::Cast,

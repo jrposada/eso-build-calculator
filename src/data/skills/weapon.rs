@@ -371,7 +371,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 1.2075,
             )]),
             Resource::Stamina,
-        ),
+        )
+        .with_spammable(),
         // Dizzying Swing 4: <<1>> = 0.118795 MaxStat + 1.24735 MaxPower (Dmg, Physical, SingleTarget, Direct)
         SkillData::new(
             "Dizzying Swing",
@@ -384,7 +385,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 1.24735,
             )]),
             Resource::Stamina,
-        ),
+        )
+        .with_spammable(),
         // Wrecking Blow 4: <<1>> = 0.118795 MaxStat + 1.24735 MaxPower (Dmg, Physical, SingleTarget, Direct)
         // Grants Empower and Major Berserk for 3s
         SkillData::new(
@@ -399,6 +401,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             )]),
             Resource::Stamina,
         )
+        .with_spammable()
         .with_bonuses(vec![
             EMPOWER.clone().with_duration(3.0),
             MAJOR_BERSERK.clone().with_duration(3.0),
@@ -515,6 +518,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             )]),
             Resource::Stamina,
         )
+        .with_spammable()
         .with_execute(3.0, 0.50, ExecuteScaling::Linear),
         // Executioner 4: <<1>> = 0.05165 MaxStat + 0.54233 MaxPower (Dmg, Bleed, SingleTarget, Direct)
         // Deals up to 400% more damage to enemies below 50% Health
@@ -530,6 +534,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             )]),
             Resource::Stamina,
         )
+        .with_spammable()
         .with_execute(4.0, 0.50, ExecuteScaling::Linear),
         // Reverse Slice 4: <<1>> = 0.05165 MaxStat + 0.54233 MaxPower (Dmg, Physical, AOE, Direct)
         // Deals up to 300% more damage to enemies below 50% Health
@@ -545,6 +550,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             )]),
             Resource::Stamina,
         )
+        .with_spammable()
         .with_execute(3.0, 0.50, ExecuteScaling::Linear),
         // Momentum line - Buff skills (Major Brutality + Major Sorcery)
         // Momentum: Major Brutality + Major Sorcery for 20s
@@ -641,7 +647,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 0.945,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         // Crushing Shock 4: 3 hits (Flame + Frost + Shock), each = 0.03099 MaxStat + 0.325395 MaxPower
         // Total: 0.09297 MaxStat + 0.976185 MaxPower (Dmg, Magic, SingleTarget, Direct)
         SkillData::new(
@@ -655,7 +662,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 0.976185,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         // Force Pulse 4: 3 hits (Flame + Frost + Shock), each = 0.03099 MaxStat + 0.325395 MaxPower
         // Total: 0.09297 MaxStat + 0.976185 MaxPower (Dmg, Magic, SingleTarget, Direct)
         SkillData::new(
@@ -669,7 +677,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 0.976185,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         // Wall of Elements line
         // Wall of Elements 4: <<1>> = 0.012121 MaxStat + 0.127273 MaxPower (Dmg, Magic, AOE, DOT)
         SkillData::new(
@@ -824,7 +833,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 0.7875,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         // Elemental Ring 4: <<1>> = 0.077475 MaxStat + 0.813488 MaxPower (Dmg, Magic, AOE, Direct)
         SkillData::new(
             "Elemental Ring",
@@ -837,7 +847,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 0.813488,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         // Pulsar 4: <<1>> = 0.077475 MaxStat + 0.813488 MaxPower (Dmg, Magic, AOE, Direct)
         SkillData::new(
             "Pulsar",
@@ -850,7 +861,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 0.813488,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         // === DUAL WIELD ===
         // Ultimate - Lacerate line
         // Lacerate 4: <<1>> = 0.06 MaxStat + 0.63 MaxPower (Dmg, Bleed, SingleTarget, DOT)
@@ -909,7 +921,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 HitDamage::new(DamageFlags::physical_single(), 0.02875, 0.301875),
             ]),
             Resource::Stamina,
-        ),
+        )
+        .with_spammable(),
         // Bloodthirst 4: <<1>> = 0.0297 MaxStat + 0.31184 MaxPower (Dmg, Bleed, SingleTarget, Direct)
         SkillData::new(
             "Bloodthirst",
@@ -923,7 +936,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 HitDamage::new(DamageFlags::bleed_single(), 0.0297, 0.31184),
             ]),
             Resource::Stamina,
-        ),
+        )
+        .with_spammable(),
         // Rapid Strikes 4: <<1>> = 0.0297 MaxStat + 0.31184 MaxPower (Dmg, Physical, SingleTarget, Direct)
         SkillData::new(
             "Rapid Strikes",
@@ -937,7 +951,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 HitDamage::new(DamageFlags::physical_single(), 0.0297, 0.31184),
             ]),
             Resource::Stamina,
-        ),
+        )
+        .with_spammable(),
         // Twin Slashes line
         // Twin Slashes 4: <<1>> = 0.025 MaxStat + 0.2625 MaxPower (Dmg, Bleed, SingleTarget, Direct)
         //                 <<2>> = 0.015 MaxStat + 0.1575 MaxPower (Dmg, Bleed, SingleTarget, DOT)
@@ -1014,6 +1029,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             )]),
             Resource::Stamina,
         )
+        .with_spammable()
         .with_execute(0.33, 0.50, ExecuteScaling::Linear),
         // Steel Tornado 4: <<1>> = 0.077476 MaxStat + 0.81349 MaxPower (Dmg, Physical, AOE, Direct)
         // Deals up to 33% more damage to enemies below 50% Health
@@ -1029,6 +1045,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             )]),
             Resource::Stamina,
         )
+        .with_spammable()
         .with_execute(0.33, 0.50, ExecuteScaling::Linear),
         // Whirling Blades 4: <<1>> = 0.077476 MaxStat + 0.81349 MaxPower (Dmg, Physical, AOE, Direct)
         // Deals up to 100% more damage to enemies below 50% Health
@@ -1044,6 +1061,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             )]),
             Resource::Stamina,
         )
+        .with_spammable()
         .with_execute(1.0, 0.50, ExecuteScaling::Linear),
         // Blade Cloak line
         // Blade Cloak 4: <<4>> = 0.018182 MaxStat + 0.19091 MaxPower (Dmg, Physical, AOE, DOT)

@@ -83,7 +83,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 1.05,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         // Concealed Weapon: Off Balance on flank, Minor Expedition while slotted,
         // +10% damage for 15s after leaving stealth (conditional bonuses not tracked)
         SkillData::new(
@@ -97,7 +98,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 1.19311,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         // Surprise Attack: Sundered status (Major Breach equivalent)
         SkillData::new(
             "Surprise Attack",
@@ -111,6 +113,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             )]),
             Resource::Stamina,
         )
+        .with_spammable()
         .with_bonuses(vec![MAJOR_BREACH.clone()]),
         // Teleport Strike line
         // Teleport Strike: Minor Vulnerability (10s)
@@ -180,6 +183,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             )]),
             Resource::Magicka,
         )
+        .with_spammable()
         .with_execute(3.0, 0.25, ExecuteScaling::Flat),
         SkillData::new(
             "Impale",
@@ -193,6 +197,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             )]),
             Resource::Magicka,
         )
+        .with_spammable()
         .with_execute(3.3, 0.25, ExecuteScaling::Flat),
         SkillData::new(
             "Killer's Blade",
@@ -206,6 +211,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             )]),
             Resource::Stamina,
         )
+        .with_spammable()
         .with_execute(4.0, 0.50, ExecuteScaling::Linear),
         // Mark Target line (no damage)
         // Mark Target: Major Breach (20s), heal to full on target death
@@ -541,7 +547,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 0.7,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         SkillData::new(
             "Funnel Health",
             "Strife",
@@ -553,7 +560,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 0.7231,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         SkillData::new(
             "Swallow Soul",
             "Strife",
@@ -565,7 +573,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 0.976185,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         // Malevolent Offering line (no damage)
         SkillData::new(
             "Malevolent Offering",

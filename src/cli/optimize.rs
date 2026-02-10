@@ -41,6 +41,10 @@ pub struct OptimizeArgs {
     /// Number of parallel threads to use (default: half of available CPUs)
     #[arg(short = 'p', long)]
     pub parallelism: Option<u8>,
+
+    /// Disable the requirement for at least one spammable skill
+    #[arg(long)]
+    pub no_spammable: bool,
 }
 
 impl OptimizeArgs {
@@ -90,6 +94,7 @@ impl OptimizeArgs {
             parallelism: self
                 .parallelism
                 .unwrap_or_else(|| (num_cpus::get() / 2).max(1) as u8),
+            require_spammable: !self.no_spammable,
         });
 
         let start = Instant::now();

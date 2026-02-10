@@ -19,6 +19,8 @@ pub struct SkillData {
     pub execute: Option<ExecuteData>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bonuses: Option<Vec<BonusData>>,
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub spammable: bool,
 }
 
 impl SkillData {
@@ -40,6 +42,7 @@ impl SkillData {
             channel_time: None,
             execute: None,
             bonuses: None,
+            spammable: false,
         }
     }
 
@@ -60,6 +63,11 @@ impl SkillData {
 
     pub fn with_bonuses(mut self, bonuses: Vec<BonusData>) -> Self {
         self.bonuses = Some(bonuses);
+        self
+    }
+
+    pub fn with_spammable(mut self) -> Self {
+        self.spammable = true;
         self
     }
 
@@ -297,6 +305,10 @@ impl SkillData {
         }
 
         lines.push(format!("  Mechanic:        {}", self.mechanic()));
+
+        if self.spammable {
+            lines.push("  Spammable:       Yes".to_string());
+        }
 
         if let Some(channel_time) = self.channel_time {
             lines.push(format!("  Channel Time:    {}s", channel_time));

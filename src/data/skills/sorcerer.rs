@@ -49,7 +49,8 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 1.08675,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         SkillData::new(
             "Crystal Fragments",
             "Crystal Shard",
@@ -61,7 +62,8 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 1.12261,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         // Crystal Weapon: Reduces enemy armor by 1000 for 5 seconds
         SkillData::new(
             "Crystal Weapon",
@@ -74,6 +76,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ]),
             Resource::Stamina,
         )
+        .with_spammable()
         .with_bonuses(vec![BonusData::new(
             "Crystal Weapon Armor Reduction",
             BonusTrigger::Cast,
@@ -469,7 +472,8 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                     .with_execute_threshold(0.20),
             ]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         SkillData::new(
             "Endless Fury",
             "Mages' Fury",
@@ -481,7 +485,8 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                     .with_execute_threshold(0.20),
             ]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         SkillData::new(
             "Mages' Wrath",
             "Mages' Fury",
@@ -493,7 +498,8 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                     .with_execute_threshold(0.20),
             ]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         // Lightning Form line
         SkillData::new(
             "Lightning Form",

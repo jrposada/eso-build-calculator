@@ -392,6 +392,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             )]),
             Resource::Magicka,
         )
+        .with_spammable()
         .with_bonuses(vec![EMPOWER.clone()]),
         // Dark Flare: Empower (10s) + 5% class ability damage (not tracked) + Major Defile (heal reduction, not tracked)
         SkillData::new(
@@ -406,6 +407,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             )]),
             Resource::Magicka,
         )
+        .with_spammable()
         .with_bonuses(vec![EMPOWER.clone()]),
         // Solar Barrage: Empower (20s) + 5% class ability damage (not tracked)
         SkillData::new(

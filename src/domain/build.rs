@@ -222,17 +222,24 @@ impl Build {
             .iter()
             .enumerate()
             .map(|(i, skill)| {
+                let type_str = if skill.spammable {
+                    format!("{} *", skill.mechanic())
+                } else {
+                    skill.mechanic().to_string()
+                };
                 vec![
                     (i + 1).to_string(),
                     skill.name.to_string(),
                     skill.class_name.to_string(),
                     skill.skill_line.to_string(),
-                    skill.mechanic().to_string(),
+                    type_str,
                 ]
             })
             .collect();
 
-        table(
+        let has_spammable = self.skills.iter().any(|s| s.spammable);
+
+        let mut result = table(
             &skills_data,
             table::TableOptions {
                 title: Some("Skills".to_string()),
@@ -246,7 +253,13 @@ impl Build {
                 ],
                 footer: None,
             },
-        )
+        );
+
+        if has_spammable {
+            result.push_str("\n* Spammable skill");
+        }
+
+        result
     }
 
     fn fmt_conditional_buffs(&self) -> Vec<String> {

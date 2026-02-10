@@ -62,7 +62,8 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 0.945,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         // Cutting Dive: Sets Off Balance for 7s when cast from >7m, adds bleed DoT
         SkillData::new(
             "Cutting Dive",
@@ -96,7 +97,8 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 0.976185,
             )]),
             Resource::Magicka,
-        ),
+        )
+        .with_spammable(),
         // Scorch line
         SkillData::new(
             "Scorch",
