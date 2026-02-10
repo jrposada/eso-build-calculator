@@ -107,6 +107,16 @@ pub struct BonusAlternative {
     pub crit_damage_breakpoint: f64,
 }
 
+#[derive(Debug, Clone)]
+pub struct ConditionalSelectionInfo {
+    pub used_alternative: bool,
+    pub crit_damage_breakpoint: f64,
+    pub primary_target: BonusTarget,
+    pub primary_value: f64,
+    pub alternative_target: BonusTarget,
+    pub alternative_value: f64,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BonusData {
     pub name: String,
@@ -226,11 +236,17 @@ impl BonusData {
     }
 
     /// Returns selection info for conditional bonuses, None for non-conditional.
-    /// Returns (used_alternative, crit_damage_breakpoint).
-    pub fn selection_info(&self, ctx: &ResolveContext) -> Option<(bool, f64)> {
+    pub fn selection_info(&self, ctx: &ResolveContext) -> Option<ConditionalSelectionInfo> {
         self.alternative.as_ref().map(|alt| {
             let used_alternative = ctx.crit_damage > alt.crit_damage_breakpoint;
-            (used_alternative, alt.crit_damage_breakpoint)
+            ConditionalSelectionInfo {
+                used_alternative,
+                crit_damage_breakpoint: alt.crit_damage_breakpoint,
+                primary_target: self.target,
+                primary_value: self.value,
+                alternative_target: alt.target,
+                alternative_value: alt.value,
+            }
         })
     }
 }
@@ -248,7 +264,7 @@ mod tests {
             BonusTarget::Damage,
             0.05,
         )
-        .with_alternative(BonusTarget::CriticalChance, 1314.0, LONG_SHOTS_BREAKPOINT)
+        .with_alternative(BonusTarget::CriticalRating, 1314.0, LONG_SHOTS_BREAKPOINT)
     }
 
     #[test]
@@ -279,7 +295,7 @@ mod tests {
 
         // Above breakpoint (90% crit damage), use alternative (crit rating)
         let (target, value) = bonus.resolve(&ctx);
-        assert_eq!(target, BonusTarget::CriticalChance);
+        assert_eq!(target, BonusTarget::CriticalRating);
         assert!((value - 1314.0).abs() < 0.0001);
     }
 
@@ -327,9 +343,9 @@ mod tests {
         let bonus = create_long_shots_bonus();
         let ctx = ResolveContext::new(0.80);
 
-        let (used_alt, breakpoint) = bonus.selection_info(&ctx).unwrap();
-        assert!(!used_alt);
-        assert!((breakpoint - LONG_SHOTS_BREAKPOINT).abs() < 0.0001);
+        let info = bonus.selection_info(&ctx).unwrap();
+        assert!(!info.used_alternative);
+        assert!((info.crit_damage_breakpoint - LONG_SHOTS_BREAKPOINT).abs() < 0.0001);
     }
 
     #[test]
@@ -337,8 +353,8 @@ mod tests {
         let bonus = create_long_shots_bonus();
         let ctx = ResolveContext::new(0.90);
 
-        let (used_alt, breakpoint) = bonus.selection_info(&ctx).unwrap();
-        assert!(used_alt);
-        assert!((breakpoint - LONG_SHOTS_BREAKPOINT).abs() < 0.0001);
+        let info = bonus.selection_info(&ctx).unwrap();
+        assert!(info.used_alternative);
+        assert!((info.crit_damage_breakpoint - LONG_SHOTS_BREAKPOINT).abs() < 0.0001);
     }
 }

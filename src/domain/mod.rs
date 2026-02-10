@@ -19,7 +19,7 @@ pub mod skill_mechanic;
 pub mod status_effect;
 pub mod weapon_type;
 
-pub use bonus::{BonusAlternative, BonusData, ResolveContext};
+pub use bonus::{BonusAlternative, BonusData, ConditionalSelectionInfo, ResolveContext};
 pub use bonus_target::BonusTarget;
 pub use bonus_trigger::BonusTrigger;
 pub use build::{Build, BUILD_CONSTRAINTS};

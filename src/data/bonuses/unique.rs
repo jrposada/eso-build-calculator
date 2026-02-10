@@ -6,7 +6,7 @@ pub static MINOR_SAVAGERY: Lazy<BonusData> = Lazy::new(|| {
     BonusData::new(
         "Minor Savagery",
         BonusTrigger::Cast,
-        BonusTarget::WeaponCriticalChance,
+        BonusTarget::WeaponCriticalRating,
         1314.0,
     )
     .with_duration(20.0)
@@ -26,7 +26,7 @@ pub static MINOR_PROPHECY: Lazy<BonusData> = Lazy::new(|| {
     BonusData::new(
         "Minor Prophecy",
         BonusTrigger::Cast,
-        BonusTarget::SpellCriticalChance,
+        BonusTarget::SpellCriticalRating,
         1314.0,
     )
     .with_duration(20.0)
@@ -86,7 +86,7 @@ pub static MAJOR_SAVAGERY: Lazy<BonusData> = Lazy::new(|| {
     BonusData::new(
         "Major Savagery",
         BonusTrigger::Cast,
-        BonusTarget::WeaponCriticalChance,
+        BonusTarget::WeaponCriticalRating,
         2629.0,
     )
     .with_duration(20.0)
@@ -96,7 +96,7 @@ pub static MAJOR_PROPHECY: Lazy<BonusData> = Lazy::new(|| {
     BonusData::new(
         "Major Prophecy",
         BonusTrigger::Cast,
-        BonusTarget::SpellCriticalChance,
+        BonusTarget::SpellCriticalRating,
         2629.0,
     )
     .with_duration(20.0)

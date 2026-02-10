@@ -4,7 +4,7 @@
     "source.fixAll.ts": "always"
   },
   "editor.formatOnSave": true,
-  "editor.formatOnSaveMode": "modificationsIfAvailable",
+  "editor.formatOnSaveMode": "file",
   "files.insertFinalNewline": true,
   "editor.rulers": [80],
   "[javascript]": {

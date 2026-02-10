@@ -4,6 +4,14 @@ use super::{
 use crate::infrastructure::{format, table};
 use std::collections::{HashMap, HashSet};
 
+fn fmt_bonus_value(value: f64) -> String {
+    if value.fract() == 0.0 && value.abs() >= 1.0 {
+        (value as i64).to_string()
+    } else {
+        format!("{:.2}%", value * 100.0)
+    }
+}
+
 /// Build constraints
 pub const BUILD_CONSTRAINTS: BuildConstraints = BuildConstraints {
     skill_count: 10,
@@ -36,34 +44,6 @@ pub struct Build {
 // Constructor
 impl Build {
     pub fn new(
-        skills: Vec<&'static SkillData>,
-        champion_bonuses: Vec<BonusData>,
-        passive_bonuses: &[BonusData],
-    ) -> Self {
-        Self::with_stats(
-            skills,
-            champion_bonuses,
-            passive_bonuses,
-            CharacterStats::default(),
-        )
-    }
-
-    pub fn with_base_crit_damage(
-        skills: Vec<&'static SkillData>,
-        champion_bonuses: Vec<BonusData>,
-        passive_bonuses: &[BonusData],
-        base_crit_damage: f64,
-    ) -> Self {
-        Self::with_stats(
-            skills,
-            champion_bonuses,
-            passive_bonuses,
-            CharacterStats::default().with_critical_damage(1.0 + base_crit_damage),
-        )
-    }
-
-    /// Create a build with custom character stats
-    pub fn with_stats(
         skills: Vec<&'static SkillData>,
         champion_bonuses: Vec<BonusData>,
         passive_bonuses: &[BonusData],
@@ -249,9 +229,7 @@ impl Build {
             })
             .collect();
 
-        let has_spammable = self.skills.iter().any(|s| s.spammable);
-
-        let mut result = table(
+        let result = table(
             &skills_data,
             table::TableOptions {
                 title: Some("Skills".to_string()),
@@ -263,15 +241,44 @@ impl Build {
                     table::ColumnDefinition::new("Type", 10),
                     table::ColumnDefinition::new("Damage", 10).align_right(),
                 ],
-                footer: None,
+                footer: Some("*Spammable skill".to_string()),
             },
         );
 
-        if has_spammable {
-            result.push_str("\n* Spammable skill");
-        }
-
         result
+    }
+
+    fn fmt_bonuses(&self) -> String {
+        let mut bonuses = self.resolved_bonuses.clone();
+        bonuses.sort_by(|a, b| a.name.cmp(&b.name));
+
+        let bonuses_data: Vec<Vec<String>> = bonuses
+            .iter()
+            .enumerate()
+            .map(|(i, bonus)| {
+                let value_str = fmt_bonus_value(bonus.value);
+                vec![
+                    (i + 1).to_string(),
+                    bonus.name.clone(),
+                    bonus.target.to_string(),
+                    value_str,
+                ]
+            })
+            .collect();
+
+        table(
+            &bonuses_data,
+            table::TableOptions {
+                title: Some("Applied Bonuses".to_string()),
+                columns: vec![
+                    table::ColumnDefinition::new("#", 4).align_right(),
+                    table::ColumnDefinition::new("Name", 30),
+                    table::ColumnDefinition::new("Target", 27),
+                    table::ColumnDefinition::new("Value", 10).align_right(),
+                ],
+                footer: None,
+            },
+        )
     }
 
     fn fmt_conditional_buffs(&self) -> Vec<String> {
@@ -283,18 +290,31 @@ impl Build {
         let mut lines = vec![
             String::new(),
             "Conditional Buff Selections:".to_string(),
-            "-".repeat(40),
+            "-".repeat(73),
         ];
 
         for bonus in &self.conditional_bonuses {
-            if let Some((used_alt, breakpoint)) = bonus.selection_info(&ctx) {
-                let option = if used_alt { "alternative" } else { "primary" };
+            if let Some(info) = bonus.selection_info(&ctx) {
+                let selected = if info.used_alternative { ">>>" } else { "   " };
+                let not_selected = if info.used_alternative { "   " } else { ">>>" };
+
                 lines.push(format!(
-                    "  {}: {} (crit damage: {:.1}%, breakpoint: {:.1}%)",
+                    "  {} (crit damage: {:.1}%, breakpoint: {:.1}%)",
                     bonus.name,
-                    option,
                     self.crit_damage * 100.0,
-                    breakpoint * 100.0
+                    info.crit_damage_breakpoint * 100.0,
+                ));
+                lines.push(format!(
+                    "    {} Primary:     {} {}",
+                    not_selected,
+                    info.primary_target,
+                    fmt_bonus_value(info.primary_value),
+                ));
+                lines.push(format!(
+                    "    {} Alternative: {} {}",
+                    selected,
+                    info.alternative_target,
+                    fmt_bonus_value(info.alternative_value),
                 ));
             }
         }
@@ -309,6 +329,7 @@ impl std::fmt::Display for Build {
         lines.extend(self.fmt_header());
         lines.extend(self.fmt_build_summary());
         lines.push(self.fmt_skills_table());
+        lines.push(self.fmt_bonuses());
         lines.extend(self.fmt_conditional_buffs());
         write!(f, "{}", lines.join("\n"))
     }

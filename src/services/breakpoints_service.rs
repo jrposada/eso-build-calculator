@@ -11,7 +11,7 @@ impl BreakpointsService {
         alt_value: f64,
     ) -> Option<f64> {
         match (primary_target, alt_target) {
-            (BonusTarget::Damage, BonusTarget::CriticalChance) => {
+            (BonusTarget::Damage, BonusTarget::CriticalRating) => {
                 let crit_increase = formulas::crit_rating_to_bonus_chance(alt_value);
                 if crit_increase > 0.0 {
                     Some(primary_value / crit_increase)
@@ -19,7 +19,7 @@ impl BreakpointsService {
                     None
                 }
             }
-            (BonusTarget::CriticalChance, BonusTarget::Damage) => {
+            (BonusTarget::CriticalRating, BonusTarget::Damage) => {
                 let crit_increase = formulas::crit_rating_to_bonus_chance(primary_value);
                 if crit_increase > 0.0 {
                     Some(alt_value / crit_increase)
@@ -41,7 +41,7 @@ mod tests {
         let breakpoint = BreakpointsService::calculate_breakpoint(
             BonusTarget::Damage,
             0.05,
-            BonusTarget::CriticalChance,
+            BonusTarget::CriticalRating,
             1314.0,
         );
 
@@ -59,7 +59,7 @@ mod tests {
     #[test]
     fn test_breakpoint_crit_rating_vs_flat() {
         let breakpoint = BreakpointsService::calculate_breakpoint(
-            BonusTarget::CriticalChance,
+            BonusTarget::CriticalRating,
             1314.0,
             BonusTarget::Damage,
             0.05,

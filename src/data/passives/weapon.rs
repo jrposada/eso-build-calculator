@@ -7,7 +7,7 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
     let long_shots_breakpoint = BreakpointsService::calculate_breakpoint(
         BonusTarget::Damage,
         0.05,
-        BonusTarget::CriticalChance,
+        BonusTarget::CriticalRating,
         1314.0,
     )
     .expect("Long Shots breakpoint calculation should succeed");
@@ -25,7 +25,7 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 0.05,
             )
             .with_alternative(
-                BonusTarget::CriticalChance,
+                BonusTarget::CriticalRating,
                 1314.0,
                 long_shots_breakpoint,
             )],
@@ -37,7 +37,7 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             vec![BonusData::new(
                 "Accuracy",
                 BonusTrigger::BowEquipped,
-                BonusTarget::CriticalChance,
+                BonusTarget::CriticalRating,
                 1314.0,
             )],
         ),
@@ -196,7 +196,7 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             vec![BonusData::new(
                 "Twin Blade and Blunt (Dagger)",
                 BonusTrigger::DualWieldDaggerEquipped,
-                BonusTarget::CriticalChance,
+                BonusTarget::CriticalRating,
                 657.0,
             )],
         ),

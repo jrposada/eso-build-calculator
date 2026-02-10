@@ -1,6 +1,8 @@
 use super::build_config::BuildConfig;
 use super::parsers::{parse_champion_point, parse_skill};
-use crate::domain::{BonusData, Build, SkillData, SkillLineName, BUILD_CONSTRAINTS};
+use crate::domain::{
+    BonusData, Build, CharacterStats, SkillData, SkillLineName, BUILD_CONSTRAINTS,
+};
 use crate::infrastructure::logger;
 use crate::services::{PassivesService, PassivesServiceOptions};
 use clap::Args;
@@ -66,7 +68,12 @@ impl CalculateArgs {
             .collect();
 
         // Create the build
-        let build = Build::new(skills.clone(), champion_points, &passive_bonuses);
+        let build = Build::new(
+            skills.clone(),
+            champion_points,
+            &passive_bonuses,
+            CharacterStats::default(),
+        );
 
         if !skills.iter().any(|s| s.spammable) {
             logger::warn("This build has no spammable skill. Every rotation needs at least one instant-cast filler.");

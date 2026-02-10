@@ -454,9 +454,9 @@ PassiveData::new(
 #### Player Stats
 | Text Pattern | Rust Enum |
 |--------------|-----------|
-| "Critical Chance rating" / "Weapon Critical" / "Spell Critical" | `BonusTarget::CriticalChance` |
-| "Weapon Critical" (specifically) | `BonusTarget::WeaponCriticalChance` |
-| "Spell Critical" (specifically) | `BonusTarget::SpellCriticalChance` |
+| "Critical Chance rating" / "Weapon Critical" / "Spell Critical" | `BonusTarget::CriticalRating` |
+| "Weapon Critical" (specifically) | `BonusTarget::WeaponCriticalRating` |
+| "Spell Critical" (specifically) | `BonusTarget::SpellCriticalRating` |
 | "Critical Damage" | `BonusTarget::CriticalDamage` |
 | "damage done" / "damage by X%" | `BonusTarget::Damage` |
 | "Weapon Damage" | `BonusTarget::WeaponDamage` |

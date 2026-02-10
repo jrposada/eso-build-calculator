@@ -13,7 +13,7 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             vec![BonusData::new(
                 "Master Assassin",
                 BonusTrigger::Flanking,
-                BonusTarget::CriticalChance,
+                BonusTarget::CriticalRating,
                 1448.0,
             )],
         ),
@@ -30,7 +30,7 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             vec![BonusData::new(
                 "Pressure Points",
                 BonusTrigger::AbilitySlottedCount,
-                BonusTarget::CriticalChance,
+                BonusTarget::CriticalRating,
                 548.0,
             )],
         ),
