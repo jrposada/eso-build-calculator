@@ -19,10 +19,13 @@ pub mod skill_mechanic;
 pub mod status_effect;
 pub mod weapon_type;
 
-pub use bonus::{BonusAlternative, BonusData, ConditionalSelectionInfo, ResolveContext};
+pub use bonus::{
+    alternatives_group_name, BonusAlternative, BonusData, ConditionalSelectionInfo, ResolveContext,
+    ALT_GROUP_ANCIENT_KNOWLEDGE, ALT_GROUP_HEAVY_WEAPONS, ALT_GROUP_TWIN_BLADE_AND_BLUNT,
+};
 pub use bonus_target::BonusTarget;
 pub use bonus_trigger::BonusTrigger;
-pub use build::{Build, BUILD_CONSTRAINTS};
+pub use build::{AlternativeSelection, Build, BUILD_CONSTRAINTS};
 pub use character_stats::CharacterStats;
 pub use class_name::ClassName;
 pub use damage_coefficients::DamageCoefficients;

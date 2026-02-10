@@ -1,6 +1,22 @@
 use super::{BonusTarget, BonusTrigger, SkillLineName, WeaponType};
 use serde::{Deserialize, Serialize};
 
+// Alternative group constants for weapon-type-dependent passives.
+// Bonuses in the same group are mutually exclusive (only one can be active).
+pub const ALT_GROUP_HEAVY_WEAPONS: u16 = 1;
+pub const ALT_GROUP_TWIN_BLADE_AND_BLUNT: u16 = 2;
+pub const ALT_GROUP_ANCIENT_KNOWLEDGE: u16 = 3;
+
+/// Get a display name for an alternatives group
+pub fn alternatives_group_name(group: u16) -> &'static str {
+    match group {
+        ALT_GROUP_HEAVY_WEAPONS => "Heavy Weapons",
+        ALT_GROUP_TWIN_BLADE_AND_BLUNT => "Twin Blade and Blunt",
+        ALT_GROUP_ANCIENT_KNOWLEDGE => "Ancient Knowledge",
+        _ => "Unknown",
+    }
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct ResolveContext {
     pub crit_damage: f64,
@@ -133,6 +149,9 @@ pub struct BonusData {
     /// Skill line filter - bonus only applies to skills from this skill line
     #[serde(default)]
     pub skill_line_filter: Option<SkillLineName>,
+    /// Alternatives group - bonuses in the same group are mutually exclusive
+    #[serde(default)]
+    pub alternatives_group: Option<u16>,
 }
 
 impl BonusData {
@@ -152,6 +171,7 @@ impl BonusData {
             alternative: None,
             execute_threshold: None,
             skill_line_filter: None,
+            alternatives_group: None,
         }
     }
 
@@ -179,6 +199,12 @@ impl BonusData {
     /// Set skill line filter - bonus only applies to skills from this skill line
     pub fn with_skill_line_filter(mut self, skill_line: SkillLineName) -> Self {
         self.skill_line_filter = Some(skill_line);
+        self
+    }
+
+    /// Set alternatives group - bonuses in the same group are mutually exclusive
+    pub fn with_alternatives_group(mut self, group: u16) -> Self {
+        self.alternatives_group = Some(group);
         self
     }
 

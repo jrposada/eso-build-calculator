@@ -1,5 +1,6 @@
 use super::{
-    BonusData, BonusTarget, CharacterStats, ClassName, ResolveContext, SkillData, SkillLineName,
+    alternatives_group_name, formulas, BonusData, BonusTarget, CharacterStats, ClassName,
+    ResolveContext, SkillData, SkillLineName,
 };
 use crate::infrastructure::{format, table};
 use std::collections::{HashMap, HashSet};
@@ -28,6 +29,14 @@ pub struct BuildConstraints {
     pub weapon_skill_line_count: usize,
 }
 
+/// Tracks which alternative was selected from a mutually exclusive group
+#[derive(Debug, Clone)]
+pub struct AlternativeSelection {
+    pub group: u16,
+    pub selected: BonusData,
+    pub options: Vec<BonusData>,
+}
+
 /// A complete build with skills, champion points, and calculated damages
 #[derive(Debug, Clone)]
 pub struct Build {
@@ -39,6 +48,7 @@ pub struct Build {
     crit_damage: f64,
     conditional_bonuses: Vec<BonusData>,
     character_stats: CharacterStats,
+    alternatives_selections: Vec<AlternativeSelection>,
 }
 
 // Constructor
@@ -62,6 +72,31 @@ impl Build {
         let mut all_bonuses = champion_bonuses.clone();
         all_bonuses.extend(passive_bonuses.iter().cloned());
 
+        // --- Partition bonuses into regular vs alternatives ---
+        let mut regular_bonuses: Vec<BonusData> = Vec::new();
+        let mut alt_groups: HashMap<u16, Vec<BonusData>> = HashMap::new();
+        for bonus in all_bonuses {
+            if let Some(group) = bonus.alternatives_group {
+                alt_groups.entry(group).or_default().push(bonus);
+            } else {
+                regular_bonuses.push(bonus);
+            }
+        }
+
+        // --- Resolve alternatives: pick one from each group to maximize damage ---
+        let alternatives_selections = if !alt_groups.is_empty() {
+            Self::resolve_alternatives(&skills, &regular_bonuses, &alt_groups, &character_stats)
+        } else {
+            Vec::new()
+        };
+
+        // --- Recombine: merge selected alternatives back into bonuses ---
+        for selection in &alternatives_selections {
+            regular_bonuses.push(selection.selected.clone());
+        }
+        let all_bonuses = regular_bonuses;
+
+        // --- Existing flow ---
         // Aggregate crit damage from non-conditional bonuses to build context
         let crit_damage_bonus = Self::aggregate_crit_damage(&all_bonuses);
         // Use character stats crit damage as base, add bonus from passives
@@ -94,6 +129,7 @@ impl Build {
             crit_damage,
             conditional_bonuses,
             character_stats,
+            alternatives_selections,
         }
     }
 
@@ -115,6 +151,95 @@ impl Build {
                 BonusData::new(&bonus.name, bonus.bonus_trigger, target, value)
                     .with_duration(bonus.duration.unwrap_or(0.0))
                     .with_cooldown(bonus.cooldown.unwrap_or(0.0))
+            })
+            .collect()
+    }
+
+    /// Resolve mutually exclusive alternative groups by exhaustively evaluating
+    /// all combinations and picking the one that maximizes total damage.
+    fn resolve_alternatives(
+        skills: &[SkillData],
+        regular_bonuses: &[BonusData],
+        alt_groups: &HashMap<u16, Vec<BonusData>>,
+        character_stats: &CharacterStats,
+    ) -> Vec<AlternativeSelection> {
+        // Resolve regular bonuses for comparison
+        let crit_damage_bonus = Self::aggregate_crit_damage(regular_bonuses);
+        let base_crit_damage = character_stats.critical_damage - 1.0;
+        let crit_damage = base_crit_damage + crit_damage_bonus;
+        let ctx = ResolveContext::new(crit_damage);
+        let resolved_regular = Self::resolve_bonuses(regular_bonuses, &ctx);
+
+        // Build ordered group list for cartesian product
+        let group_ids: Vec<u16> = alt_groups.keys().copied().collect();
+        let group_options: Vec<&Vec<BonusData>> =
+            group_ids.iter().map(|id| &alt_groups[id]).collect();
+
+        // Generate cartesian product: one pick per group
+        let mut combinations: Vec<Vec<usize>> = vec![vec![]];
+        for options in &group_options {
+            let mut new_combinations = Vec::new();
+            for combo in &combinations {
+                for idx in 0..options.len() {
+                    let mut new_combo = combo.clone();
+                    new_combo.push(idx);
+                    new_combinations.push(new_combo);
+                }
+            }
+            combinations = new_combinations;
+        }
+
+        // Evaluate each combination to find the one with maximum damage
+        let mut best_combo: Vec<usize> = vec![0; group_ids.len()];
+        let mut best_damage = f64::NEG_INFINITY;
+
+        for combo in &combinations {
+            let mut stats = character_stats.clone();
+            let mut percentage_bonuses = resolved_regular.clone();
+
+            for (group_idx, &option_idx) in combo.iter().enumerate() {
+                let bonus = &group_options[group_idx][option_idx];
+                match bonus.target {
+                    BonusTarget::WeaponAndSpellDamageFlat => {
+                        stats.weapon_damage += bonus.value;
+                        stats.spell_damage += bonus.value;
+                    }
+                    BonusTarget::CriticalDamage => {
+                        stats.critical_damage += bonus.value;
+                    }
+                    BonusTarget::CriticalRating => {
+                        stats.critical_chance +=
+                            formulas::crit_rating_to_bonus_chance(bonus.value);
+                    }
+                    BonusTarget::PhysicalAndSpellPenetration => {
+                        stats.penetration += bonus.value;
+                    }
+                    _ => {
+                        // Percentage types go into the bonus list
+                        percentage_bonuses.push(bonus.clone());
+                    }
+                }
+            }
+
+            let total: f64 = skills
+                .iter()
+                .map(|skill| skill.calculate_damage_with_stats(&percentage_bonuses, &stats))
+                .sum();
+
+            if total > best_damage {
+                best_damage = total;
+                best_combo = combo.clone();
+            }
+        }
+
+        // Build selections from best combination
+        group_ids
+            .iter()
+            .enumerate()
+            .map(|(group_idx, &group_id)| AlternativeSelection {
+                group: group_id,
+                selected: group_options[group_idx][best_combo[group_idx]].clone(),
+                options: alt_groups[&group_id].clone(),
             })
             .collect()
     }
@@ -281,6 +406,41 @@ impl Build {
         )
     }
 
+    fn fmt_alternatives_selections(&self) -> Vec<String> {
+        if self.alternatives_selections.is_empty() {
+            return Vec::new();
+        }
+
+        let mut lines = vec![
+            String::new(),
+            "Weapon Type Selections:".to_string(),
+            "-".repeat(73),
+        ];
+
+        for selection in &self.alternatives_selections {
+            lines.push(format!(
+                "  {}:",
+                alternatives_group_name(selection.group)
+            ));
+            for option in &selection.options {
+                let marker = if option.name == selection.selected.name {
+                    ">>>"
+                } else {
+                    "   "
+                };
+                lines.push(format!(
+                    "    {} {:<30} {:<25} {}",
+                    marker,
+                    option.name,
+                    option.target.to_string(),
+                    fmt_bonus_value(option.value),
+                ));
+            }
+        }
+
+        lines
+    }
+
     fn fmt_conditional_buffs(&self) -> Vec<String> {
         if self.conditional_bonuses.is_empty() {
             return Vec::new();
@@ -330,6 +490,7 @@ impl std::fmt::Display for Build {
         lines.extend(self.fmt_build_summary());
         lines.push(self.fmt_skills_table());
         lines.push(self.fmt_bonuses());
+        lines.extend(self.fmt_alternatives_selections());
         lines.extend(self.fmt_conditional_buffs());
         write!(f, "{}", lines.join("\n"))
     }
