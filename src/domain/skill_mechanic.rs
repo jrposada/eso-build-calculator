@@ -12,9 +12,9 @@ pub enum SkillMechanic {
 impl fmt::Display for SkillMechanic {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            SkillMechanic::Dot => write!(f, "dot"),
-            SkillMechanic::Instant => write!(f, "instant"),
-            SkillMechanic::Channeled => write!(f, "channeled"),
+            SkillMechanic::Dot => write!(f, "DoT"),
+            SkillMechanic::Instant => write!(f, "Instant"),
+            SkillMechanic::Channeled => write!(f, "Channeled"),
         }
     }
 }

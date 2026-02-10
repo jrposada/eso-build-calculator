@@ -227,6 +227,7 @@ impl Build {
                     skill.name.to_string(),
                     skill.class_name.to_string(),
                     skill.skill_line.to_string(),
+                    skill.mechanic().to_string(),
                 ]
             })
             .collect();
@@ -240,6 +241,7 @@ impl Build {
                     table::ColumnDefinition::new("Name", 25),
                     table::ColumnDefinition::new("Source", 12),
                     table::ColumnDefinition::new("Skill Line", 18),
+                    table::ColumnDefinition::new("Type", 10),
                     table::ColumnDefinition::new("Damage", 10).align_right(),
                 ],
                 footer: None,
