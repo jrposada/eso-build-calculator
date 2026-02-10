@@ -411,7 +411,7 @@ impl BuildOptimizer {
 impl BuildOptimizer {
     pub fn find_optimal_build(&self) -> Option<Build> {
         logger::log(&format!("Using {} threads...", self.parallelism));
-        
+
         let start_time = Instant::now();
 
         let evaluated_count = AtomicU64::new(0);
@@ -462,7 +462,13 @@ impl BuildOptimizer {
 
                     build
                 })
-                .reduce_with(|a, b| if a.total_damage > b.total_damage { a } else { b })
+                .reduce_with(|a, b| {
+                    if a.total_damage > b.total_damage {
+                        a
+                    } else {
+                        b
+                    }
+                })
         });
 
         let total_evaluated = evaluated_count.load(Ordering::Relaxed);
@@ -481,28 +487,26 @@ impl BuildOptimizer {
         &self,
     ) -> impl Iterator<Item = (&Vec<BonusData>, &Vec<BonusData>, Vec<&'static SkillData>)> + Send + '_
     {
-        self.champion_point_combinations.iter().flat_map(
-            move |cp_bonuses| {
+        self.champion_point_combinations
+            .iter()
+            .flat_map(move |cp_bonuses| {
                 self.spammable_skills
                     .iter()
                     .zip(self.non_spammable_skills.iter())
                     .zip(self.passive_bonuses_list.iter())
-                    .flat_map(
-                        move |((spammable, non_spammable), passive_bonuses)| {
-                            spammable.iter().flat_map(move |&spammable_skill| {
-                                combinatorics::CombinationIterator::new(
-                                    non_spammable,
-                                    BUILD_CONSTRAINTS.skill_count - 1,
-                                )
-                                .map(move |mut combo| {
-                                    combo.push(spammable_skill);
-                                    (cp_bonuses, passive_bonuses, combo)
-                                })
+                    .flat_map(move |((spammable, non_spammable), passive_bonuses)| {
+                        spammable.iter().flat_map(move |&spammable_skill| {
+                            combinatorics::CombinationIterator::new(
+                                non_spammable,
+                                BUILD_CONSTRAINTS.skill_count - 1,
+                            )
+                            .map(move |mut combo| {
+                                combo.push(spammable_skill);
+                                (cp_bonuses, passive_bonuses, combo)
                             })
-                        },
-                    )
-            },
-        )
+                        })
+                    })
+            })
     }
 }
 
