@@ -1,4 +1,5 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
+use std::hint::black_box;
 use eso_build_calculator::data::bonuses::CHAMPION_POINTS;
 use eso_build_calculator::domain::{ClassName, SkillLineName};
 use eso_build_calculator::infrastructure::logger;
