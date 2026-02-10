@@ -1,6 +1,6 @@
 use super::{
-    formulas, BonusData, CharacterStats, ClassName, DamageFlags, ExecuteData,
-    ExecuteScaling, Resource, SkillDamage, SkillLineName, SkillMechanic,
+    formulas, BonusData, CharacterStats, ClassName, DamageFlags, ExecuteData, ExecuteScaling,
+    Resource, SkillDamage, SkillLineName, SkillMechanic,
 };
 use serde::{Deserialize, Serialize};
 
@@ -89,7 +89,7 @@ impl SkillData {
         }
 
         if let Some(hits) = &self.damage.hits {
-            if !hits.is_empty() && hits.iter().any(|h| h.value > 0.0) {
+            if !hits.is_empty() {
                 return SkillMechanic::Instant;
             }
         }
@@ -111,22 +111,33 @@ impl SkillData {
         self.channel_time.unwrap_or(0.0)
     }
 
-    /// Calculate the total damage per cast with optional bonuses
-    /// This excludes conditional execute hits (hits with execute_threshold)
+    /// Default stats used when no character stats are provided (40k max stat, 5.5k max power)
+    const DEFAULT_MAX_STAT: f64 = 40000.0;
+    const DEFAULT_MAX_POWER: f64 = 5500.0;
+
+    /// Calculate the total damage per cast with optional bonuses using default stats.
+    /// This excludes conditional execute hits (hits with execute_threshold).
     pub fn calculate_damage_per_cast(&self, bonuses: &[BonusData]) -> f64 {
-        self.calculate_damage_at_health_internal(bonuses, None, None)
+        self.calculate_damage_at_health_internal(
+            bonuses,
+            Self::DEFAULT_MAX_STAT,
+            Self::DEFAULT_MAX_POWER,
+            None,
+        )
     }
 
-    /// Internal method to calculate damage with optional enemy health filtering
+    /// Internal method to calculate damage with enemy health filtering
     ///
     /// # Arguments
     /// * `bonuses` - Active damage bonuses
-    /// * `stats` - Optional (max_stat, max_power) tuple for coefficient-based calculation
+    /// * `max_stat` - The higher of max_magicka and max_stamina
+    /// * `max_power` - The higher of weapon_damage and spell_damage
     /// * `enemy_health` - Optional enemy health percentage for execute calculations
     fn calculate_damage_at_health_internal(
         &self,
         bonuses: &[BonusData],
-        stats: Option<(f64, f64)>,
+        max_stat: f64,
+        max_power: f64,
         enemy_health: Option<f64>,
     ) -> f64 {
         let mut total_damage = 0.0;
@@ -150,10 +161,7 @@ impl SkillData {
                     .copied()
                     .collect();
 
-                let hit_value = match stats {
-                    Some((max_stat, max_power)) => hit.effective_value(max_stat, max_power),
-                    None => hit.value,
-                };
+                let hit_value = hit.effective_value(max_stat, max_power);
 
                 if let Some(threshold) = hit.execute_threshold {
                     if enemy_health.map_or(false, |h| h < threshold) {
@@ -175,10 +183,7 @@ impl SkillData {
                     .copied()
                     .collect();
 
-                let dot_value = match stats {
-                    Some((max_stat, max_power)) => dot.effective_value(max_stat, max_power),
-                    None => dot.value,
-                };
+                let dot_value = dot.effective_value(max_stat, max_power);
 
                 let interval = dot.interval.unwrap_or(dot.duration);
                 let ticks = (dot.duration / interval).floor() as i32;
@@ -207,14 +212,19 @@ impl SkillData {
         value * (1.0 + total_modifier)
     }
 
-    /// Calculate damage at a specific enemy health percentage, including execute bonuses
-    /// This includes conditional execute hits and applies multiplier-based execute bonuses
+    /// Calculate damage at a specific enemy health percentage using default stats,
+    /// including execute bonuses.
     pub fn calculate_damage_at_health(
         &self,
         bonuses: &[BonusData],
         enemy_health_percent: f64,
     ) -> f64 {
-        let base = self.calculate_damage_at_health_internal(bonuses, None, Some(enemy_health_percent));
+        let base = self.calculate_damage_at_health_internal(
+            bonuses,
+            Self::DEFAULT_MAX_STAT,
+            Self::DEFAULT_MAX_POWER,
+            Some(enemy_health_percent),
+        );
         if let Some(execute) = &self.execute {
             base * execute.calculate_multiplier(enemy_health_percent)
         } else {
@@ -223,7 +233,11 @@ impl SkillData {
     }
 
     /// Calculate damage using character stats for coefficient-based calculation.
-    pub fn calculate_damage_with_stats(&self, bonuses: &[BonusData], stats: &CharacterStats) -> f64 {
+    pub fn calculate_damage_with_stats(
+        &self,
+        bonuses: &[BonusData],
+        stats: &CharacterStats,
+    ) -> f64 {
         self.calculate_damage_with_stats_internal(bonuses, stats, None)
     }
 
@@ -234,7 +248,8 @@ impl SkillData {
         stats: &CharacterStats,
         enemy_health_percent: f64,
     ) -> f64 {
-        let base = self.calculate_damage_with_stats_internal(bonuses, stats, Some(enemy_health_percent));
+        let base =
+            self.calculate_damage_with_stats_internal(bonuses, stats, Some(enemy_health_percent));
         if let Some(execute) = &self.execute {
             base * execute.calculate_multiplier(enemy_health_percent)
         } else {
@@ -253,12 +268,10 @@ impl SkillData {
         let max_power = stats.max_power();
 
         let pre_mitigation =
-            self.calculate_damage_at_health_internal(bonuses, Some((max_stat, max_power)), enemy_health);
+            self.calculate_damage_at_health_internal(bonuses, max_stat, max_power, enemy_health);
 
-        let armor_factor =
-            formulas::armor_damage_factor(stats.target_armor, stats.penetration);
-        let crit_mult =
-            formulas::critical_multiplier(stats.critical_chance, stats.critical_damage);
+        let armor_factor = formulas::armor_damage_factor(stats.target_armor, stats.penetration);
+        let crit_mult = formulas::critical_multiplier(stats.critical_chance, stats.critical_damage);
 
         pre_mitigation * armor_factor * crit_mult
     }
@@ -306,7 +319,16 @@ impl SkillData {
                         .map(|t| format!(" (execute: <{:.0}% HP)", t * 100.0))
                         .unwrap_or_default();
                     let flags_str = format!(" [{}]", hit.flags);
-                    lines.push(format!("    {}. {}{}{}{}", j + 1, hit.value, delay, execute, flags_str));
+                    let value =
+                        hit.effective_value(Self::DEFAULT_MAX_STAT, Self::DEFAULT_MAX_POWER);
+                    lines.push(format!(
+                        "    {}. {:.0}{}{}{}",
+                        j + 1,
+                        value,
+                        delay,
+                        execute,
+                        flags_str
+                    ));
                 }
             }
         }
@@ -328,10 +350,12 @@ impl SkillData {
                         .map(|f| format!(" (+{}/tick)", f))
                         .unwrap_or_default();
                     let flags_str = format!(" [{}]", dot.flags);
+                    let value =
+                        dot.effective_value(Self::DEFAULT_MAX_STAT, Self::DEFAULT_MAX_POWER);
                     lines.push(format!(
-                        "    {}. {}{} for {}s{}{}{}",
+                        "    {}. {:.0}{} for {}s{}{}{}",
                         j + 1,
-                        dot.value,
+                        value,
                         interval,
                         dot.duration,
                         increase,

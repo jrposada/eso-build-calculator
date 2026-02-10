@@ -143,7 +143,7 @@ Each `HitDamage` and `DotDamage` carries its own `DamageFlags` bitflag describin
 
 ### Damage Patterns with Coefficients
 
-**Instant damage with coefficients:**
+**Instant damage:**
 ```rust
 // UESP: <<1>> = 0.09797 MaxStat + 1.02992 MaxPower (Dmg, Flame, SingleTarget, Direct)
 SkillData::new(
@@ -152,14 +152,13 @@ SkillData::new(
     ClassName::Dragonknight,
     SkillLineName::ArdentFlame,
     SkillDamage::new().with_hits(vec![
-        HitDamage::new(2323.0, DamageFlags::flame_single())
-            .with_coefficients(0.09797, 1.02992)
+        HitDamage::new(DamageFlags::flame_single(), 0.09797, 1.02992)
     ]),
     Resource::Magicka,
 )
 ```
 
-**DoT with coefficients and interval:**
+**DoT with interval:**
 ```rust
 // UESP: <<1>> = 0.05165 MaxStat + 0.542325 MaxPower (Dmg, Flame, SingleTarget, Direct)
 //       <<2>> = 0.015495 MaxStat + 0.162697 MaxPower (Dmg, Flame, SingleTarget, DOT, 18s duration, 2s tick)
@@ -170,13 +169,11 @@ SkillData::new(
     SkillLineName::ArdentFlame,
     SkillDamage::new()
         .with_hits(vec![
-            HitDamage::new(1161.0, DamageFlags::flame_single())
-                .with_coefficients(0.05165, 0.542325)
+            HitDamage::new(DamageFlags::flame_single(), 0.05165, 0.542325)
         ])
         .with_dots(vec![
-            DotDamage::new(3470.0, 18.0, DamageFlags::flame_single())
+            DotDamage::new(18.0, DamageFlags::flame_single(), 0.015495, 0.162697)
                 .with_interval(2.0)
-                .with_coefficients(0.015495, 0.162697)
         ]),
     Resource::Magicka,
 )
@@ -193,19 +190,17 @@ SkillData::new(
     SkillLineName::Assassination,
     SkillDamage::new()
         .with_hits(vec![
-            HitDamage::new(1603.0, DamageFlags::magic_aoe())
-                .with_coefficients(0.071294, 0.748588)
+            HitDamage::new(DamageFlags::magic_aoe(), 0.071294, 0.748588)
         ])
         .with_dots(vec![
-            DotDamage::new(2050.0, 5.0, DamageFlags::magic_single())
+            DotDamage::new(5.0, DamageFlags::magic_single(), 0.012866, 0.135137)
                 .with_interval(1.0)
-                .with_coefficients(0.012866, 0.135137)
         ]),
     Resource::Magicka,
 )
 ```
 
-**Delayed damage with coefficients:**
+**Delayed damage:**
 ```rust
 // UESP: <<1>> = 0.077475 MaxStat + 0.813488 MaxPower (Dmg, Magic, AOE, Direct)
 //       <<2>> = 0.107663 MaxStat + 1.130456 MaxPower (Dmg, Magic, AOE, Direct)
@@ -215,18 +210,16 @@ SkillData::new(
     ClassName::Warden,
     SkillLineName::AnimalCompanions,
     SkillDamage::new().with_hits(vec![
-        HitDamage::new(2509.0, DamageFlags::magic_aoe())
-            .with_delay(3.0)
-            .with_coefficients(0.077475, 0.813488),
-        HitDamage::new(3486.0, DamageFlags::magic_aoe())
-            .with_delay(9.0)
-            .with_coefficients(0.107663, 1.130456),
+        HitDamage::new(DamageFlags::magic_aoe(), 0.077475, 0.813488)
+            .with_delay(3.0),
+        HitDamage::new(DamageFlags::magic_aoe(), 0.107663, 1.130456)
+            .with_delay(9.0),
     ]),
     Resource::Magicka,
 )
 ```
 
-**Channeled skill with coefficients:**
+**Channeled skill:**
 ```rust
 // UESP: <<1>> = 0.038738 MaxStat + 0.406744 MaxPower (Dmg, Flame, AOE, Direct)
 //       <<2>> = 0.077475 MaxStat + 0.813488 MaxPower (Dmg, Flame, AOE, Direct)
@@ -236,11 +229,9 @@ SkillData::new(
     ClassName::Dragonknight,
     SkillLineName::DraconicPower,
     SkillDamage::new().with_hits(vec![
-        HitDamage::new(870.0, DamageFlags::flame_aoe())
-            .with_coefficients(0.038738, 0.406744),
-        HitDamage::new(1742.0, DamageFlags::flame_aoe())
-            .with_delay(2.5)
-            .with_coefficients(0.077475, 0.813488),
+        HitDamage::new(DamageFlags::flame_aoe(), 0.038738, 0.406744),
+        HitDamage::new(DamageFlags::flame_aoe(), 0.077475, 0.813488)
+            .with_delay(2.5),
     ]),
     Resource::Magicka,
 ).with_channel_time(2.5)
@@ -297,16 +288,8 @@ Note: `DIRECT` flag is auto-added by `HitDamage::new()` and `DOT` flag is auto-a
 ### DoT Parsing from UESP
 
 From `(DOT, 18s duration, 2s tick)`:
-- Duration: 18 seconds → `DotDamage::new(value, 18.0)`
+- Duration: 18 seconds → `DotDamage::new(18.0, flags, coef_a, coef_b)`
 - Tick interval: 2 seconds → `.with_interval(2.0)`
-
-### Tooltip Values
-
-The tooltip `value` parameter in `HitDamage::new(value, flags)` and `DotDamage::new(value, duration, flags)` should be calculated from the coefficients at standard stats (40k max stat, 5.5k max power) or taken from in-game tooltips. This value is used as a fallback when coefficients aren't available.
-
-```
-tooltip_value = coef_a * 40000 + coef_b * 5500
-```
 
 ### Active Skill Bonuses (Buffs/Debuffs on Cast)
 
@@ -369,8 +352,7 @@ SkillData::new(
     ClassName::Nightblade,
     SkillLineName::Assassination,
     SkillDamage::new().with_hits(vec![
-        HitDamage::new(1602.0, DamageFlags::magic_single())
-            .with_coefficients(0.071294, 0.748588)
+        HitDamage::new(DamageFlags::magic_single(), 0.071294, 0.748588)
     ]),
     Resource::Magicka,
 )
@@ -387,8 +369,7 @@ SkillData::new(
     ClassName::Nightblade,
     SkillLineName::Assassination,
     SkillDamage::new().with_hits(vec![
-        HitDamage::new(3716.0, DamageFlags::magic_single())
-            .with_coefficients(0.165, 1.7325)
+        HitDamage::new(DamageFlags::magic_single(), 0.165, 1.7325)
     ]),
     Resource::Ultimate,
 )
@@ -417,8 +398,7 @@ SkillData::new(
     ClassName::Nightblade,
     SkillLineName::Assassination,
     SkillDamage::new().with_hits(vec![
-        HitDamage::new(1161.0, DamageFlags::magic_single())
-            .with_coefficients(0.05165, 0.542325)
+        HitDamage::new(DamageFlags::magic_single(), 0.05165, 0.542325)
     ]),
     Resource::Magicka,
 )
@@ -642,8 +622,8 @@ Import from `src/data/bonuses/unique.rs`:
 
 - `src/domain/skill.rs` - SkillData struct
 - `src/domain/skill_damage.rs` - SkillDamage struct
-- `src/domain/hit_damage.rs` - HitDamage struct with `with_coefficients()`
-- `src/domain/dot_damage.rs` - DotDamage struct with `with_coefficients()`
+- `src/domain/hit_damage.rs` - HitDamage struct: `HitDamage::new(flags, coef_a, coef_b)`
+- `src/domain/dot_damage.rs` - DotDamage struct: `DotDamage::new(duration, flags, coef_a, coef_b)`
 - `src/domain/character_stats.rs` - CharacterStats struct
 - `src/domain/damage_coefficients.rs` - DamageCoefficients struct
 - `src/domain/passive.rs` - PassiveData struct

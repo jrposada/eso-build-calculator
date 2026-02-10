@@ -4,26 +4,22 @@ use serde::{Deserialize, Serialize};
 /// Hit damage data
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct HitDamage {
-    pub value: f64,
     pub flags: DamageFlags,
+    pub coefficients: DamageCoefficients,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub delay: Option<f64>,
     /// Only applies when enemy HP is below this threshold (0.0-1.0)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub execute_threshold: Option<f64>,
-    /// Optional coefficients for stat-based damage calculation
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub coefficients: Option<DamageCoefficients>,
 }
 
 impl HitDamage {
-    pub fn new(value: f64, flags: DamageFlags) -> Self {
+    pub fn new(flags: DamageFlags, coef_a: f64, coef_b: f64) -> Self {
         Self {
-            value,
             flags: flags | DamageFlags::DIRECT,
+            coefficients: DamageCoefficients::new(coef_a, coef_b),
             delay: None,
             execute_threshold: None,
-            coefficients: None,
         }
     }
 
@@ -37,21 +33,12 @@ impl HitDamage {
         self
     }
 
-    /// Add damage coefficients for stat-based calculation
-    pub fn with_coefficients(mut self, coef_a: f64, coef_b: f64) -> Self {
-        self.coefficients = Some(DamageCoefficients::new(coef_a, coef_b));
-        self
-    }
-
-    /// Get effective damage value, using coefficients if available, otherwise tooltip value
+    /// Calculate damage value from character stats
     ///
     /// # Arguments
     /// * `max_stat` - The higher of max_magicka and max_stamina
     /// * `max_power` - The higher of weapon_damage and spell_damage
     pub fn effective_value(&self, max_stat: f64, max_power: f64) -> f64 {
-        match &self.coefficients {
-            Some(coef) => coef.calculate_base_damage(max_stat, max_power),
-            None => self.value,
-        }
+        self.coefficients.calculate_base_damage(max_stat, max_power)
     }
 }

@@ -4,9 +4,9 @@ use serde::{Deserialize, Serialize};
 /// DoT (Damage over Time) damage data
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DotDamage {
-    pub value: f64,
     pub duration: f64,
     pub flags: DamageFlags,
+    pub coefficients: DamageCoefficients,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub delay: Option<f64>,
     /// Defaults to duration if not specified (total damage over duration)
@@ -21,23 +21,19 @@ pub struct DotDamage {
     /// If true, this damage ignores modifiers
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ignores_modifier: Option<bool>,
-    /// Optional coefficients for stat-based damage calculation
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub coefficients: Option<DamageCoefficients>,
 }
 
 impl DotDamage {
-    pub fn new(value: f64, duration: f64, flags: DamageFlags) -> Self {
+    pub fn new(duration: f64, flags: DamageFlags, coef_a: f64, coef_b: f64) -> Self {
         Self {
-            value,
             duration,
             flags: flags | DamageFlags::DOT,
+            coefficients: DamageCoefficients::new(coef_a, coef_b),
             delay: None,
             interval: None,
             increase_per_tick: None,
             flat_increase_per_tick: None,
             ignores_modifier: None,
-            coefficients: None,
         }
     }
 
@@ -66,21 +62,12 @@ impl DotDamage {
         self
     }
 
-    /// Add damage coefficients for stat-based calculation
-    pub fn with_coefficients(mut self, coef_a: f64, coef_b: f64) -> Self {
-        self.coefficients = Some(DamageCoefficients::new(coef_a, coef_b));
-        self
-    }
-
-    /// Get effective damage value, using coefficients if available, otherwise tooltip value
+    /// Calculate damage value from character stats
     ///
     /// # Arguments
     /// * `max_stat` - The higher of max_magicka and max_stamina
     /// * `max_power` - The higher of weapon_damage and spell_damage
     pub fn effective_value(&self, max_stat: f64, max_power: f64) -> f64 {
-        match &self.coefficients {
-            Some(coef) => coef.calculate_base_damage(max_stat, max_power),
-            None => self.value,
-        }
+        self.coefficients.calculate_base_damage(max_stat, max_power)
     }
 }

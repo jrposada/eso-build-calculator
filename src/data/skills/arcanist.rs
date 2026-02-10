@@ -1,8 +1,6 @@
 use crate::data::bonuses::{MAJOR_BRUTALITY, MAJOR_SORCERY, MINOR_BREACH};
 use crate::domain::{BonusData, DamageFlags, DotDamage, HitDamage, SkillDamage, SkillData};
-use crate::domain::{
-    BonusTarget, BonusTrigger, ClassName, Resource, SkillLineName,
-};
+use crate::domain::{BonusTarget, BonusTrigger, ClassName, Resource, SkillLineName};
 use once_cell::sync::Lazy;
 
 pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
@@ -14,7 +12,13 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "The Unblinking Eye",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
-            SkillDamage::new().with_dots(vec![DotDamage::new(1115.0, 6.0, DamageFlags::magic_aoe()).with_interval(0.5)]),
+            SkillDamage::new().with_dots(vec![DotDamage::new(
+                6.0,
+                DamageFlags::magic_aoe(),
+                0.048,
+                0.504,
+            )
+            .with_interval(0.5)]),
             Resource::Ultimate,
         ),
         SkillData::new(
@@ -22,9 +26,14 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "The Unblinking Eye",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
-            SkillDamage::new().with_dots(vec![DotDamage::new(1115.0, 6.0, DamageFlags::magic_aoe())
-                .with_interval(0.5)
-                .with_increase_per_tick(0.07)]),
+            SkillDamage::new().with_dots(vec![DotDamage::new(
+                6.0,
+                DamageFlags::magic_aoe(),
+                0.049584,
+                0.520632,
+            )
+            .with_interval(0.5)
+            .with_increase_per_tick(0.07)]),
             Resource::Ultimate,
         ),
         SkillData::new(
@@ -32,7 +41,13 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "The Unblinking Eye",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
-            SkillDamage::new().with_dots(vec![DotDamage::new(1151.0, 8.0, DamageFlags::magic_aoe()).with_interval(0.5)]),
+            SkillDamage::new().with_dots(vec![DotDamage::new(
+                8.0,
+                DamageFlags::magic_single(),
+                0.049584,
+                0.520632,
+            )
+            .with_interval(0.5)]),
             Resource::Ultimate,
         ),
         // Runeblades line
@@ -41,7 +56,11 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Runeblades",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
-            SkillDamage::new().with_hits(vec![HitDamage::new(695.0 * 3.0, DamageFlags::magic_single())]),
+            SkillDamage::new().with_hits(vec![HitDamage::new(
+                DamageFlags::magic_single(),
+                0.03,
+                0.315,
+            )]),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -49,7 +68,11 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Runeblades",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
-            SkillDamage::new().with_hits(vec![HitDamage::new(696.0 + 766.0 + 917.0, DamageFlags::magic_aoe())]),
+            SkillDamage::new().with_hits(vec![HitDamage::new(
+                DamageFlags::magic_aoe(),
+                0.03099,
+                0.325395,
+            )]),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -57,7 +80,11 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Runeblades",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
-            SkillDamage::new().with_hits(vec![HitDamage::new(718.0 * 3.0, DamageFlags::magic_single())]),
+            SkillDamage::new().with_hits(vec![HitDamage::new(
+                DamageFlags::magic_single(),
+                0.03099,
+                0.325395,
+            )]),
             Resource::Magicka,
         ),
         // Fatecarver line
@@ -66,7 +93,13 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Fatecarver",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
-            SkillDamage::new().with_dots(vec![DotDamage::new(879.0, 4.0, DamageFlags::magic_aoe()).with_interval(0.3)]),
+            SkillDamage::new().with_dots(vec![DotDamage::new(
+                4.0,
+                DamageFlags::magic_aoe(),
+                0.03785,
+                0.397425,
+            )
+            .with_interval(0.3)]),
             Resource::Magicka,
         )
         .with_channel_time(4.0),
@@ -75,7 +108,13 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Fatecarver",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
-            SkillDamage::new().with_dots(vec![DotDamage::new(879.0, 4.0, DamageFlags::magic_aoe()).with_interval(0.3)]),
+            SkillDamage::new().with_dots(vec![DotDamage::new(
+                4.0,
+                DamageFlags::magic_aoe(),
+                0.039099,
+                0.41054,
+            )
+            .with_interval(0.3)]),
             Resource::Magicka,
         )
         .with_channel_time(4.0),
@@ -84,7 +123,13 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Fatecarver",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
-            SkillDamage::new().with_dots(vec![DotDamage::new(879.0, 4.0, DamageFlags::magic_aoe()).with_interval(0.3)]),
+            SkillDamage::new().with_dots(vec![DotDamage::new(
+                4.0,
+                DamageFlags::magic_aoe(),
+                0.039099,
+                0.41054,
+            )
+            .with_interval(0.3)]),
             Resource::Magicka,
         )
         .with_channel_time(4.0),
@@ -95,7 +140,11 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Abyssal Impact",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1939.0, DamageFlags::physical_aoe())]),
+            SkillDamage::new().with_hits(vec![HitDamage::new(
+                DamageFlags::physical_aoe(),
+                0.08625,
+                0.905625,
+            )]),
             Resource::Stamina,
         )
         .with_bonuses(vec![BonusData::new(
@@ -111,7 +160,11 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Abyssal Impact",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1939.0, DamageFlags::physical_aoe())]),
+            SkillDamage::new().with_hits(vec![HitDamage::new(
+                DamageFlags::physical_aoe(),
+                0.08625,
+                0.905625,
+            )]),
             Resource::Stamina,
         )
         .with_bonuses(vec![BonusData::new(
@@ -127,7 +180,11 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Abyssal Impact",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
-            SkillDamage::new().with_hits(vec![HitDamage::new(2002.0, DamageFlags::frost_aoe())]),
+            SkillDamage::new().with_hits(vec![HitDamage::new(
+                DamageFlags::frost_aoe(),
+                0.08625,
+                0.905625,
+            )]),
             Resource::Magicka,
         )
         .with_bonuses(vec![BonusData::new(
@@ -144,7 +201,13 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Tome-Bearer's Inspiration",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
-            SkillDamage::new().with_dots(vec![DotDamage::new(1161.0, 20.0, DamageFlags::magic_single()).with_interval(5.0)]),
+            SkillDamage::new().with_dots(vec![DotDamage::new(
+                20.0,
+                DamageFlags::magic_single(),
+                0.05,
+                0.525,
+            )
+            .with_interval(5.0)]),
             Resource::Magicka,
         )
         .with_bonuses(vec![
@@ -162,7 +225,13 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Tome-Bearer's Inspiration",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
-            SkillDamage::new().with_dots(vec![DotDamage::new(935.0, 20.0, DamageFlags::magic_single()).with_interval(3.0)]),
+            SkillDamage::new().with_dots(vec![DotDamage::new(
+                20.0,
+                DamageFlags::magic_single(),
+                0.040287,
+                0.423013,
+            )
+            .with_interval(3.0)]),
             Resource::Magicka,
         )
         .with_bonuses(vec![
@@ -180,7 +249,13 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Tome-Bearer's Inspiration",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
-            SkillDamage::new().with_dots(vec![DotDamage::new(1161.0, 20.0, DamageFlags::magic_single()).with_interval(5.0)]),
+            SkillDamage::new().with_dots(vec![DotDamage::new(
+                20.0,
+                DamageFlags::magic_single(),
+                0.05165,
+                0.54235,
+            )
+            .with_interval(5.0)]),
             Resource::Magicka,
         )
         .with_bonuses(vec![
@@ -197,7 +272,13 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "The Imperfect Ring",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
-            SkillDamage::new().with_dots(vec![DotDamage::new(4631.0, 20.0, DamageFlags::magic_aoe())]),
+            SkillDamage::new().with_dots(vec![DotDamage::new(
+                20.0,
+                DamageFlags::magic_single(),
+                0.018182,
+                0.19091,
+            )
+            .with_interval(2.0)]),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -206,8 +287,19 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
             SkillDamage::new()
-                .with_hits(vec![HitDamage::new(1438.0, DamageFlags::magic_aoe()).with_delay(6.0)])
-                .with_dots(vec![DotDamage::new(4642.0, 20.0, DamageFlags::magic_aoe())]),
+                .with_hits(vec![HitDamage::new(
+                    DamageFlags::frost_aoe(),
+                    0.06198,
+                    0.65079,
+                )
+                .with_delay(6.0)])
+                .with_dots(vec![DotDamage::new(
+                    20.0,
+                    DamageFlags::magic_single(),
+                    0.018782,
+                    0.19721,
+                )
+                .with_interval(2.0)]),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -215,7 +307,13 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "The Imperfect Ring",
             ClassName::Arcanist,
             SkillLineName::HeraldOfTheTome,
-            SkillDamage::new().with_dots(vec![DotDamage::new(4780.0, 18.0, DamageFlags::magic_aoe())]),
+            SkillDamage::new().with_dots(vec![DotDamage::new(
+                18.0,
+                DamageFlags::magic_single(),
+                0.02066,
+                0.21693,
+            )
+            .with_interval(2.0)]),
             Resource::Magicka,
         ),
         // === SOLDIER OF APOCRYPHA ===
@@ -250,7 +348,11 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Runic Jolt",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1161.0, DamageFlags::magic_single())]),
+            SkillDamage::new().with_hits(vec![HitDamage::new(
+                DamageFlags::magic_single(),
+                0.05,
+                0.525,
+            )]),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -258,7 +360,11 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Runic Jolt",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1161.0, DamageFlags::magic_single())]),
+            SkillDamage::new().with_hits(vec![HitDamage::new(
+                DamageFlags::magic_single(),
+                0.05165,
+                0.542325,
+            )]),
             Resource::Magicka,
         ),
         // Converts to Physical/Stamina, steals 2200 Armor from enemy
@@ -267,7 +373,11 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Runic Jolt",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1161.0, DamageFlags::physical_single())]),
+            SkillDamage::new().with_hits(vec![HitDamage::new(
+                DamageFlags::physical_single(),
+                0.05165,
+                0.542325,
+            )]),
             Resource::Stamina,
         )
         .with_bonuses(vec![BonusData::new(
