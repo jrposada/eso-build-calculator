@@ -93,13 +93,13 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::Siphoning,
             vec![
                 BonusData::new(
-                    "Magicka Flood",
+                    "Magicka Flood (Stamina)",
                     BonusTrigger::SkillLineSlotted,
                     BonusTarget::MaxStamina,
                     0.06,
                 ),
                 BonusData::new(
-                    "Magicka Flood",
+                    "Magicka Flood (Magicka)",
                     BonusTrigger::SkillLineSlotted,
                     BonusTarget::MaxMagicka,
                     0.06,

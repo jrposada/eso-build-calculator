@@ -83,13 +83,13 @@ pub static SORCERER_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::StormCalling,
             vec![
                 BonusData::new(
-                    "Energized 1",
+                    "Energized (Physical)",
                     BonusTrigger::Passive,
                     BonusTarget::PhysicalDamage,
                     0.05,
                 ),
                 BonusData::new(
-                    "Energized 1",
+                    "Energized (Shock)",
                     BonusTrigger::Passive,
                     BonusTarget::ShockDamage,
                     0.05,
