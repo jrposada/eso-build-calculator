@@ -1,4 +1,4 @@
-use super::DamageCoefficients;
+use super::{DamageCoefficients, DamageFlags};
 use serde::{Deserialize, Serialize};
 
 /// DoT (Damage over Time) damage data
@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct DotDamage {
     pub value: f64,
     pub duration: f64,
+    pub flags: DamageFlags,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub delay: Option<f64>,
     /// Defaults to duration if not specified (total damage over duration)
@@ -26,10 +27,11 @@ pub struct DotDamage {
 }
 
 impl DotDamage {
-    pub fn new(value: f64, duration: f64) -> Self {
+    pub fn new(value: f64, duration: f64, flags: DamageFlags) -> Self {
         Self {
             value,
             duration,
+            flags: flags | DamageFlags::DOT,
             delay: None,
             interval: None,
             increase_per_tick: None,

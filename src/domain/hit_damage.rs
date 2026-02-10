@@ -1,10 +1,11 @@
-use super::DamageCoefficients;
+use super::{DamageCoefficients, DamageFlags};
 use serde::{Deserialize, Serialize};
 
 /// Hit damage data
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct HitDamage {
     pub value: f64,
+    pub flags: DamageFlags,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub delay: Option<f64>,
     /// Only applies when enemy HP is below this threshold (0.0-1.0)
@@ -16,9 +17,10 @@ pub struct HitDamage {
 }
 
 impl HitDamage {
-    pub fn new(value: f64) -> Self {
+    pub fn new(value: f64, flags: DamageFlags) -> Self {
         Self {
             value,
+            flags: flags | DamageFlags::DIRECT,
             delay: None,
             execute_threshold: None,
             coefficients: None,

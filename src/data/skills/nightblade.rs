@@ -4,7 +4,7 @@ use crate::data::bonuses::{
 };
 use crate::domain::{BonusData, DotDamage, ExecuteScaling, HitDamage, SkillDamage, SkillData};
 use crate::domain::{
-    BonusTarget, BonusTrigger, ClassName, DamageType, Resource, SkillLineName, TargetType,
+    BonusTarget, BonusTrigger, ClassName, DamageFlags, Resource, SkillLineName,
 };
 use once_cell::sync::Lazy;
 
@@ -19,10 +19,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Assassination,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(3716.0).with_coefficients(0.16, 1.68)
+                HitDamage::new(3716.0, DamageFlags::magic_single()).with_coefficients(0.16, 1.68)
             ]),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Ultimate,
         )
         .with_bonuses(vec![BonusData::new(
@@ -39,10 +37,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Assassination,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(3840.0).with_coefficients(0.16528, 1.73544)
+                HitDamage::new(3840.0, DamageFlags::disease_single()).with_coefficients(0.16528, 1.73544)
             ]),
-            DamageType::Disease,
-            TargetType::Single,
             Resource::Ultimate,
         )
         .with_bonuses(vec![BonusData::new(
@@ -59,10 +55,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Assassination,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(3718.0).with_coefficients(0.16528, 1.73544)
+                HitDamage::new(3718.0, DamageFlags::magic_single()).with_coefficients(0.16528, 1.73544)
             ]),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Ultimate,
         )
         .with_bonuses(vec![BonusData::new(
@@ -80,10 +74,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Assassination,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(2323.0).with_coefficients(0.1, 1.05)
+                HitDamage::new(2323.0, DamageFlags::magic_single()).with_coefficients(0.1, 1.05)
             ]),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         // Concealed Weapon: Off Balance on flank, Minor Expedition while slotted,
@@ -94,10 +86,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Assassination,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(2556.0).with_coefficients(0.11363, 1.19311)
+                HitDamage::new(2556.0, DamageFlags::magic_single()).with_coefficients(0.11363, 1.19311)
             ]),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         // Surprise Attack: Sundered status (Major Breach equivalent)
@@ -107,10 +97,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Assassination,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(2399.0).with_coefficients(0.1033, 1.08465)
+                HitDamage::new(2399.0, DamageFlags::physical_single()).with_coefficients(0.1033, 1.08465)
             ]),
-            DamageType::Physical,
-            TargetType::Single,
             Resource::Stamina,
         )
         .with_bonuses(vec![MAJOR_BREACH.clone()]),
@@ -122,10 +110,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Assassination,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(1602.0).with_coefficients(0.069, 0.7245)
+                HitDamage::new(1602.0, DamageFlags::magic_single()).with_coefficients(0.069, 0.7245)
             ]),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         )
         .with_bonuses(vec![MINOR_VULNERABILITY.clone()]),
@@ -136,10 +122,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Assassination,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(1655.0).with_coefficients(0.071277, 0.748408)
+                HitDamage::new(1655.0, DamageFlags::physical_single()).with_coefficients(0.071277, 0.748408)
             ]),
-            DamageType::Physical,
-            TargetType::Single,
             Resource::Stamina,
         )
         .with_bonuses(vec![
@@ -155,15 +139,13 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::Assassination,
             SkillDamage::new()
                 .with_hits(vec![
-                    HitDamage::new(1603.0).with_coefficients(0.071277, 0.748408)
+                    HitDamage::new(1603.0, DamageFlags::magic_aoe()).with_coefficients(0.071277, 0.748408)
                 ])
                 .with_dots(vec![
-                    DotDamage::new(2050.0, 5.0)
+                    DotDamage::new(2050.0, 5.0, DamageFlags::magic_single())
                         .with_interval(1.0)
                         .with_coefficients(0.017683, 0.185666)
                 ]),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Magicka,
         )
         .with_bonuses(vec![MINOR_VULNERABILITY.clone()]),
@@ -174,10 +156,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Assassination,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(1161.0).with_coefficients(0.05, 0.525)
+                HitDamage::new(1161.0, DamageFlags::magic_single()).with_coefficients(0.05, 0.525)
             ]),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         )
         .with_execute(3.0, 0.25, ExecuteScaling::Flat),
@@ -187,10 +167,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Assassination,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(1161.0).with_coefficients(0.05165, 0.542325)
+                HitDamage::new(1161.0, DamageFlags::magic_single()).with_coefficients(0.05165, 0.542325)
             ]),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         )
         .with_execute(3.3, 0.25, ExecuteScaling::Flat),
@@ -200,10 +178,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Assassination,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(1161.0).with_coefficients(0.05165, 0.54233)
+                HitDamage::new(1161.0, DamageFlags::disease_single()).with_coefficients(0.05165, 0.54233)
             ]),
-            DamageType::Disease,
-            TargetType::Single,
             Resource::Stamina,
         )
         .with_execute(4.0, 0.50, ExecuteScaling::Linear),
@@ -215,8 +191,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Assassination,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         )
         .with_bonuses(vec![MAJOR_BREACH.clone()]),
@@ -227,8 +201,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Assassination,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         )
         .with_bonuses(vec![MAJOR_BREACH.clone().with_duration(60.0)]),
@@ -239,8 +211,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Assassination,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         )
         .with_bonuses(vec![
@@ -256,10 +226,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Assassination,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(4182.0).with_coefficients(0.18, 1.89)
+                HitDamage::new(4182.0, DamageFlags::magic_single()).with_coefficients(0.18, 1.89)
             ]),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         )
         .with_bonuses(vec![
@@ -277,10 +245,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Assassination,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(4752.0).with_coefficients(0.204534, 2.14761)
+                HitDamage::new(4752.0, DamageFlags::magic_single()).with_coefficients(0.204534, 2.14761)
             ]),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         )
         .with_bonuses(vec![
@@ -298,10 +264,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Assassination,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(4183.0).with_coefficients(0.18594, 1.95237)
+                HitDamage::new(4183.0, DamageFlags::disease_single()).with_coefficients(0.18594, 1.95237)
             ]),
-            DamageType::Disease,
-            TargetType::Single,
             Resource::Stamina,
         )
         .with_bonuses(vec![
@@ -320,8 +284,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Shadow,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Ultimate,
         ),
         SkillData::new(
@@ -330,8 +292,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Shadow,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Ultimate,
         ),
         SkillData::new(
@@ -340,12 +300,10 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Shadow,
             SkillDamage::new().with_dots(vec![
-                DotDamage::new(1438.0, 10.0)
+                DotDamage::new(1438.0, 10.0, DamageFlags::magic_aoe())
                     .with_interval(1.0)
                     .with_coefficients(0.06198, 0.65079)
             ]),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Ultimate,
         ),
         // Shadow Cloak line (no damage)
@@ -355,8 +313,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Shadow,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -365,8 +321,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Shadow,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -375,8 +329,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Shadow,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         // Blur line (no damage)
@@ -386,8 +338,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Shadow,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -396,8 +346,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Shadow,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -406,8 +354,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Shadow,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         // Path of Darkness line
@@ -417,8 +363,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Shadow,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -427,8 +371,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Shadow,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -437,12 +379,10 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Shadow,
             SkillDamage::new().with_dots(vec![
-                DotDamage::new(377.0, 10.0)
+                DotDamage::new(377.0, 10.0, DamageFlags::magic_aoe())
                     .with_interval(1.0)
                     .with_coefficients(0.016278, 0.170915)
             ]),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Magicka,
         ),
         // Aspect of Terror line (no damage)
@@ -452,8 +392,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Shadow,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -462,8 +400,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Shadow,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -472,8 +408,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Shadow,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Magicka,
         ),
         // Summon Shade line
@@ -483,12 +417,10 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Shadow,
             SkillDamage::new().with_dots(vec![
-                DotDamage::new(462.0, 20.0)
+                DotDamage::new(462.0, 20.0, DamageFlags::magic_single())
                     .with_interval(2.0)
                     .with_coefficients(0.02, 0.21)
             ]),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -497,12 +429,10 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Shadow,
             SkillDamage::new().with_dots(vec![
-                DotDamage::new(623.0, 20.0)
+                DotDamage::new(623.0, 20.0, DamageFlags::magic_aoe())
                     .with_interval(2.0)
                     .with_coefficients(0.026858, 0.28201)
             ]),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -511,12 +441,10 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Shadow,
             SkillDamage::new().with_dots(vec![
-                DotDamage::new(478.0, 20.0)
+                DotDamage::new(478.0, 20.0, DamageFlags::magic_single())
                     .with_interval(2.0)
                     .with_coefficients(0.02066, 0.21693)
             ]),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         // === SIPHONING ===
@@ -527,10 +455,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Siphoning,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(3486.0).with_coefficients(0.15, 1.575)
+                HitDamage::new(3486.0, DamageFlags::magic_aoe()).with_coefficients(0.15, 1.575)
             ]),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Ultimate,
         ),
         SkillData::new(
@@ -539,8 +465,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Siphoning,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Ultimate,
         ),
         SkillData::new(
@@ -550,15 +474,13 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::Siphoning,
             SkillDamage::new()
                 .with_hits(vec![
-                    HitDamage::new(3600.0).with_coefficients(0.15495, 1.62698)
+                    HitDamage::new(3600.0, DamageFlags::magic_aoe()).with_coefficients(0.15495, 1.62698)
                 ])
                 .with_dots(vec![
-                    DotDamage::new(627.0, 8.0)
+                    DotDamage::new(627.0, 8.0, DamageFlags::magic_aoe())
                         .with_interval(1.0)
                         .with_coefficients(0.027, 0.2835)
                 ]),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Ultimate,
         ),
         // Strife line (instant damage, healing over time is out of scope)
@@ -568,10 +490,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Siphoning,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(1548.0).with_coefficients(0.066667, 0.7)
+                HitDamage::new(1548.0, DamageFlags::magic_single()).with_coefficients(0.066667, 0.7)
             ]),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -580,10 +500,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Siphoning,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(1600.0).with_coefficients(0.068867, 0.7231)
+                HitDamage::new(1600.0, DamageFlags::magic_single()).with_coefficients(0.068867, 0.7231)
             ]),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -592,10 +510,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Siphoning,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(2160.0).with_coefficients(0.09297, 0.976185)
+                HitDamage::new(2160.0, DamageFlags::magic_single()).with_coefficients(0.09297, 0.976185)
             ]),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         // Malevolent Offering line (no damage)
@@ -605,8 +521,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Siphoning,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -615,8 +529,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Siphoning,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -625,8 +537,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Siphoning,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         // Cripple line
@@ -636,12 +546,10 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Siphoning,
             SkillDamage::new().with_dots(vec![
-                DotDamage::new(4631.0, 20.0)
+                DotDamage::new(4631.0, 20.0, DamageFlags::magic_single())
                     .with_interval(2.0)
                     .with_coefficients(0.018182, 0.19091)
             ]),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -651,15 +559,13 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::Siphoning,
             SkillDamage::new()
                 .with_hits(vec![
-                    HitDamage::new(1199.0).with_coefficients(0.05165, 0.542325)
+                    HitDamage::new(1199.0, DamageFlags::magic_single()).with_coefficients(0.05165, 0.542325)
                 ])
                 .with_dots(vec![
-                    DotDamage::new(4350.0, 20.0)
+                    DotDamage::new(4350.0, 20.0, DamageFlags::magic_single())
                         .with_interval(2.0)
                         .with_coefficients(0.018782, 0.19721)
                 ]),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -668,12 +574,10 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Siphoning,
             SkillDamage::new().with_dots(vec![
-                DotDamage::new(4785.0, 20.0)
+                DotDamage::new(4785.0, 20.0, DamageFlags::magic_single())
                     .with_interval(2.0)
                     .with_coefficients(0.018782, 0.19721)
             ]),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         // Siphoning Strikes line (no damage)
@@ -683,8 +587,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Siphoning,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -693,8 +595,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Siphoning,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -703,8 +603,6 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Siphoning,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         // Drain Power line (grants Major Brutality + Major Sorcery for 30s on hit)
@@ -714,10 +612,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Siphoning,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(1742.0).with_coefficients(0.075, 0.7875)
+                HitDamage::new(1742.0, DamageFlags::magic_aoe()).with_coefficients(0.075, 0.7875)
             ]),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Magicka,
         )
         .with_bonuses(vec![
@@ -731,10 +627,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Siphoning,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(1742.0).with_coefficients(0.077475, 0.813488)
+                HitDamage::new(1742.0, DamageFlags::disease_aoe()).with_coefficients(0.077475, 0.813488)
             ]),
-            DamageType::Disease,
-            TargetType::Aoe,
             Resource::Stamina,
         )
         .with_bonuses(vec![
@@ -748,10 +642,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Nightblade,
             SkillLineName::Siphoning,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(1742.0).with_coefficients(0.077475, 0.813488)
+                HitDamage::new(1742.0, DamageFlags::magic_aoe()).with_coefficients(0.077475, 0.813488)
             ]),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Magicka,
         )
         .with_bonuses(vec![

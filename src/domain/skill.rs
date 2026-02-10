@@ -1,6 +1,6 @@
 use super::{
-    formulas, BonusData, BonusTarget, CharacterStats, ClassName, DamageType, ExecuteData,
-    ExecuteScaling, Resource, SkillDamage, SkillLineName, SkillMechanic, TargetType,
+    formulas, BonusData, CharacterStats, ClassName, DamageFlags, ExecuteData,
+    ExecuteScaling, Resource, SkillDamage, SkillLineName, SkillMechanic,
 };
 use serde::{Deserialize, Serialize};
 
@@ -12,8 +12,6 @@ pub struct SkillData {
     pub class_name: ClassName,
     pub skill_line: SkillLineName,
     pub damage: SkillDamage,
-    pub damage_type: DamageType,
-    pub target_type: TargetType,
     pub resource: Resource,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub channel_time: Option<f64>,
@@ -30,8 +28,6 @@ impl SkillData {
         class_name: ClassName,
         skill_line: SkillLineName,
         damage: SkillDamage,
-        damage_type: DamageType,
-        target_type: TargetType,
         resource: Resource,
     ) -> Self {
         Self {
@@ -40,8 +36,6 @@ impl SkillData {
             class_name,
             skill_line,
             damage,
-            damage_type,
-            target_type,
             resource,
             channel_time: None,
             execute: None,
@@ -67,6 +61,21 @@ impl SkillData {
     pub fn with_bonuses(mut self, bonuses: Vec<BonusData>) -> Self {
         self.bonuses = Some(bonuses);
         self
+    }
+
+    /// Get primary damage flags from the first hit or dot (for display purposes)
+    pub fn primary_flags(&self) -> Option<DamageFlags> {
+        if let Some(hits) = &self.damage.hits {
+            if let Some(hit) = hits.first() {
+                return Some(hit.flags);
+            }
+        }
+        if let Some(dots) = &self.damage.dots {
+            if let Some(dot) = dots.first() {
+                return Some(dot.flags);
+            }
+        }
+        None
     }
 
     /// Get the skill mechanic
@@ -122,48 +131,35 @@ impl SkillData {
     ) -> f64 {
         let mut total_damage = 0.0;
 
-        // Map target type to bonus type
-        let target_bonus_type = match self.target_type {
-            TargetType::Aoe => BonusTarget::AoeDamage,
-            TargetType::Single => BonusTarget::SingleDamage,
-        };
-
         // Filter bonuses by enemy health (for execute bonuses) and skill line
         let applicable_bonuses: Vec<_> = bonuses
             .iter()
             .filter(|b| {
-                // Check skill line filter
                 b.applies_to_skill_line(self.skill_line)
-                    // Check execute threshold - only apply if we know health and it's below threshold
                     && enemy_health.map_or(!b.is_execute_bonus(), |h| b.applies_at_health(h))
             })
             .collect();
 
         // Sum all direct hits
         if let Some(hits) = &self.damage.hits {
-            let hit_affected_by = [BonusTarget::DirectDamage, target_bonus_type];
-
-            let hit_modifiers: Vec<_> = applicable_bonuses
-                .iter()
-                .filter(|b| hit_affected_by.contains(&b.target))
-                .copied()
-                .collect();
-
             for hit in hits {
-                // Get effective damage value (uses coefficients if available)
+                // Filter bonuses for this specific hit's flags
+                let hit_modifiers: Vec<_> = applicable_bonuses
+                    .iter()
+                    .filter(|b| hit.flags.matches_bonus_target(b.target))
+                    .copied()
+                    .collect();
+
                 let hit_value = match stats {
                     Some((max_stat, max_power)) => hit.effective_value(max_stat, max_power),
                     None => hit.value,
                 };
 
-                // Check if this hit has an execute threshold
                 if let Some(threshold) = hit.execute_threshold {
-                    // Only include if enemy_health is known and below threshold
                     if enemy_health.map_or(false, |h| h < threshold) {
                         total_damage += Self::apply_damage_modifier(&hit_modifiers, hit_value);
                     }
                 } else {
-                    // Normal hit, always include
                     total_damage += Self::apply_damage_modifier(&hit_modifiers, hit_value);
                 }
             }
@@ -171,23 +167,19 @@ impl SkillData {
 
         // Add DoT damage over full duration
         if let Some(dots) = &self.damage.dots {
-            let dot_affected_by = [BonusTarget::DotDamage, target_bonus_type];
-
-            let dot_modifiers: Vec<_> = applicable_bonuses
-                .iter()
-                .filter(|b| dot_affected_by.contains(&b.target))
-                .copied()
-                .collect();
-
             for dot in dots {
-                // Get effective damage value (uses coefficients if available)
+                // Filter bonuses for this specific dot's flags
+                let dot_modifiers: Vec<_> = applicable_bonuses
+                    .iter()
+                    .filter(|b| dot.flags.matches_bonus_target(b.target))
+                    .copied()
+                    .collect();
+
                 let dot_value = match stats {
                     Some((max_stat, max_power)) => dot.effective_value(max_stat, max_power),
                     None => dot.value,
                 };
 
-                // If interval is not defined then we only know the total damage done over
-                // the duration which is equivalent to interval = duration
                 let interval = dot.interval.unwrap_or(dot.duration);
                 let ticks = (dot.duration / interval).floor() as i32;
                 let increase_per_tick = dot.increase_per_tick.unwrap_or(0.0);
@@ -231,16 +223,6 @@ impl SkillData {
     }
 
     /// Calculate damage using character stats for coefficient-based calculation.
-    ///
-    /// This method uses the full damage formula including:
-    /// - Coefficient-based base damage (when coefficients are available)
-    /// - Damage modifiers from bonuses
-    /// - Armor penetration
-    /// - Critical strike damage averaging
-    ///
-    /// # Arguments
-    /// * `bonuses` - Active damage bonuses
-    /// * `stats` - Character stats for damage calculation
     pub fn calculate_damage_with_stats(&self, bonuses: &[BonusData], stats: &CharacterStats) -> f64 {
         self.calculate_damage_with_stats_internal(bonuses, stats, None)
     }
@@ -270,11 +252,9 @@ impl SkillData {
         let max_stat = stats.max_stat();
         let max_power = stats.max_power();
 
-        // Get pre-mitigation damage using coefficients if available
         let pre_mitigation =
             self.calculate_damage_at_health_internal(bonuses, Some((max_stat, max_power)), enemy_health);
 
-        // Apply armor and crit
         let armor_factor =
             formulas::armor_damage_factor(stats.target_armor, stats.penetration);
         let crit_mult =
@@ -297,8 +277,12 @@ impl SkillData {
         lines.push(format!("  Source:          {}", self.class_name));
         lines.push(format!("  Skill Line:      {}", self.skill_line));
         lines.push(format!("  Resource:        {}", self.resource));
-        lines.push(format!("  Damage Type:     {}", self.damage_type));
-        lines.push(format!("  Target Type:     {}", self.target_type));
+
+        if let Some(flags) = self.primary_flags() {
+            lines.push(format!("  Damage Type:     {}", flags.element_display()));
+            lines.push(format!("  Target Type:     {}", flags.target_display()));
+        }
+
         lines.push(format!("  Mechanic:        {}", self.mechanic()));
 
         if let Some(channel_time) = self.channel_time {
@@ -321,7 +305,8 @@ impl SkillData {
                         .execute_threshold
                         .map(|t| format!(" (execute: <{:.0}% HP)", t * 100.0))
                         .unwrap_or_default();
-                    lines.push(format!("    {}. {}{}{}", j + 1, hit.value, delay, execute));
+                    let flags_str = format!(" [{}]", hit.flags);
+                    lines.push(format!("    {}. {}{}{}{}", j + 1, hit.value, delay, execute, flags_str));
                 }
             }
         }
@@ -342,14 +327,16 @@ impl SkillData {
                         .flat_increase_per_tick
                         .map(|f| format!(" (+{}/tick)", f))
                         .unwrap_or_default();
+                    let flags_str = format!(" [{}]", dot.flags);
                     lines.push(format!(
-                        "    {}. {}{} for {}s{}{}",
+                        "    {}. {}{} for {}s{}{}{}",
                         j + 1,
                         dot.value,
                         interval,
                         dot.duration,
                         increase,
-                        flat_increase
+                        flat_increase,
+                        flags_str
                     ));
                 }
             }
@@ -398,7 +385,6 @@ impl SkillData {
                 self.calculate_damage_at_health(&[], 0.0)
             ));
         } else if has_execute_hits {
-            // Show execute damage for skills with conditional execute hits
             lines.push(format!(
                 "  Damage @0% HP:   {:.0}",
                 self.calculate_damage_at_health(&[], 0.0)

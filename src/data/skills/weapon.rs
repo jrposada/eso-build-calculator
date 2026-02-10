@@ -1,7 +1,7 @@
 use crate::data::bonuses::unique::{
     EMPOWER, MAJOR_BERSERK, MAJOR_BREACH, MAJOR_BRUTALITY, MAJOR_SORCERY,
 };
-use crate::domain::{ClassName, DamageType, Resource, SkillLineName, TargetType};
+use crate::domain::{ClassName, DamageFlags, Resource, SkillLineName};
 use crate::domain::{DotDamage, ExecuteScaling, HitDamage, SkillDamage, SkillData};
 use once_cell::sync::Lazy;
 
@@ -14,9 +14,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Rapid Fire",
             ClassName::Weapon,
             SkillLineName::Bow,
-            SkillDamage::new().with_dots(vec![DotDamage::new(17415.0, 4.0)]),
-            DamageType::Physical,
-            TargetType::Single,
+            SkillDamage::new().with_dots(vec![DotDamage::new(17415.0, 4.0, DamageFlags::physical_single())]),
             Resource::Ultimate,
         )
         .with_channel_time(4.0),
@@ -25,9 +23,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Rapid Fire",
             ClassName::Weapon,
             SkillLineName::Bow,
-            SkillDamage::new().with_dots(vec![DotDamage::new(15587.0, 5.0)]),
-            DamageType::Physical,
-            TargetType::Single,
+            SkillDamage::new().with_dots(vec![DotDamage::new(15587.0, 5.0, DamageFlags::physical_single())]),
             Resource::Ultimate,
         ),
         // Toxic Barrage: Channel damage + additional poison DoT (9990 over 8s after 1s delay)
@@ -37,11 +33,9 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::Bow,
             SkillDamage::new().with_dots(vec![
-                DotDamage::new(17415.0, 4.0),
-                DotDamage::new(9990.0, 8.0).with_delay(1.0),
+                DotDamage::new(17415.0, 4.0, DamageFlags::poison_single()),
+                DotDamage::new(9990.0, 8.0, DamageFlags::poison_single()).with_delay(1.0),
             ]),
-            DamageType::Poison,
-            TargetType::Single,
             Resource::Ultimate,
         )
         .with_channel_time(4.0),
@@ -51,9 +45,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Snipe",
             ClassName::Weapon,
             SkillLineName::Bow,
-            SkillDamage::new().with_hits(vec![HitDamage::new(2404.0)]),
-            DamageType::Physical,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(2404.0, DamageFlags::physical_single())]),
             Resource::Stamina,
         ),
         // Focused Aim: Applies Sundered status (Major Breach)
@@ -62,9 +54,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Snipe",
             ClassName::Weapon,
             SkillLineName::Bow,
-            SkillDamage::new().with_hits(vec![HitDamage::new(2404.0)]),
-            DamageType::Physical,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(2404.0, DamageFlags::physical_single())]),
             Resource::Stamina,
         )
         .with_bonuses(vec![MAJOR_BREACH.clone()]),
@@ -73,9 +63,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Snipe",
             ClassName::Weapon,
             SkillLineName::Bow,
-            SkillDamage::new().with_hits(vec![HitDamage::new(2483.0)]),
-            DamageType::Poison,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(2483.0, DamageFlags::poison_single())]),
             Resource::Stamina,
         ),
         // Volley line
@@ -84,11 +72,9 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Volley",
             ClassName::Weapon,
             SkillLineName::Bow,
-            SkillDamage::new().with_dots(vec![DotDamage::new(342.0, 8.0)
+            SkillDamage::new().with_dots(vec![DotDamage::new(342.0, 8.0, DamageFlags::physical_aoe())
                 .with_delay(2.0)
                 .with_interval(1.0)]),
-            DamageType::Physical,
-            TargetType::Aoe,
             Resource::Stamina,
         ),
         SkillData::new(
@@ -96,11 +82,9 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Volley",
             ClassName::Weapon,
             SkillLineName::Bow,
-            SkillDamage::new().with_dots(vec![DotDamage::new(460.0, 8.0)
+            SkillDamage::new().with_dots(vec![DotDamage::new(460.0, 8.0, DamageFlags::physical_aoe())
                 .with_delay(2.0)
                 .with_interval(1.0)]),
-            DamageType::Physical,
-            TargetType::Aoe,
             Resource::Stamina,
         ),
         SkillData::new(
@@ -108,11 +92,9 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Volley",
             ClassName::Weapon,
             SkillLineName::Bow,
-            SkillDamage::new().with_dots(vec![DotDamage::new(343.0, 13.0)
+            SkillDamage::new().with_dots(vec![DotDamage::new(343.0, 13.0, DamageFlags::physical_aoe())
                 .with_delay(2.0)
                 .with_interval(1.0)]),
-            DamageType::Physical,
-            TargetType::Aoe,
             Resource::Stamina,
         ),
         SkillData::new(
@@ -121,17 +103,15 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::Bow,
             SkillDamage::new().with_dots(vec![
-                DotDamage::new(343.0, 13.0)
+                DotDamage::new(343.0, 13.0, DamageFlags::physical_aoe())
                     .with_delay(2.0)
                     .with_interval(1.0),
-                DotDamage::new(526.0, 13.0)
+                DotDamage::new(526.0, 13.0, DamageFlags::physical_aoe())
                     .with_delay(2.0)
                     .with_interval(1.0)
                     .with_flat_increase_per_tick(191.0)
                     .ignores_modifier(),
             ]),
-            DamageType::Physical,
-            TargetType::Aoe,
             Resource::Stamina,
         ),
         // Scatter Shot line
@@ -140,9 +120,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Scatter Shot",
             ClassName::Weapon,
             SkillLineName::Bow,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1392.0)]),
-            DamageType::Physical,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1392.0, DamageFlags::physical_single())]),
             Resource::Stamina,
         ),
         SkillData::new(
@@ -150,9 +128,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Scatter Shot",
             ClassName::Weapon,
             SkillLineName::Bow,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1393.0)]),
-            DamageType::Physical,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1393.0, DamageFlags::physical_single())]),
             Resource::Stamina,
         ),
         SkillData::new(
@@ -160,9 +136,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Scatter Shot",
             ClassName::Weapon,
             SkillLineName::Bow,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1727.0)]),
-            DamageType::Physical,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1727.0, DamageFlags::physical_single())]),
             Resource::Stamina,
         ),
         // Arrow Spray line
@@ -171,9 +145,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Arrow Spray",
             ClassName::Weapon,
             SkillLineName::Bow,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1742.0)]),
-            DamageType::Physical,
-            TargetType::Aoe,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1742.0, DamageFlags::physical_aoe())]),
             Resource::Stamina,
         ),
         SkillData::new(
@@ -182,10 +154,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::Bow,
             SkillDamage::new()
-                .with_hits(vec![HitDamage::new(1742.0)])
-                .with_dots(vec![DotDamage::new(1635.0, 5.0)]),
-            DamageType::Poison,
-            TargetType::Aoe,
+                .with_hits(vec![HitDamage::new(1742.0, DamageFlags::poison_aoe())])
+                .with_dots(vec![DotDamage::new(1635.0, 5.0, DamageFlags::poison_aoe())]),
             Resource::Stamina,
         ),
         SkillData::new(
@@ -193,9 +163,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Arrow Spray",
             ClassName::Weapon,
             SkillLineName::Bow,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1742.0)]),
-            DamageType::Physical,
-            TargetType::Aoe,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1742.0, DamageFlags::physical_aoe())]),
             Resource::Stamina,
         ),
         // Poison Arrow line
@@ -205,10 +173,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::Bow,
             SkillDamage::new()
-                .with_hits(vec![HitDamage::new(1161.0)])
-                .with_dots(vec![DotDamage::new(3470.0, 20.0)]),
-            DamageType::Poison,
-            TargetType::Single,
+                .with_hits(vec![HitDamage::new(1161.0, DamageFlags::poison_single())])
+                .with_dots(vec![DotDamage::new(3470.0, 20.0, DamageFlags::poison_single())]),
             Resource::Stamina,
         ),
         // Poison Injection: Deals up to 120% more damage to enemies under 50% Health
@@ -218,10 +184,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::Bow,
             SkillDamage::new()
-                .with_hits(vec![HitDamage::new(1161.0)])
-                .with_dots(vec![DotDamage::new(3470.0, 20.0)]),
-            DamageType::Poison,
-            TargetType::Single,
+                .with_hits(vec![HitDamage::new(1161.0, DamageFlags::poison_single())])
+                .with_dots(vec![DotDamage::new(3470.0, 20.0, DamageFlags::poison_single())]),
             Resource::Stamina,
         )
         .with_execute(1.2, 0.50, ExecuteScaling::Linear),
@@ -232,10 +196,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::Bow,
             SkillDamage::new()
-                .with_hits(vec![HitDamage::new(1161.0)])
-                .with_dots(vec![DotDamage::new(3470.0, 20.0)]),
-            DamageType::Poison,
-            TargetType::Single,
+                .with_hits(vec![HitDamage::new(1161.0, DamageFlags::poison_single())])
+                .with_dots(vec![DotDamage::new(3470.0, 20.0, DamageFlags::poison_single())]),
             Resource::Stamina,
         )
         .with_bonuses(vec![MAJOR_BRUTALITY.clone(), MAJOR_SORCERY.clone()]),
@@ -246,9 +208,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Berserker Strike",
             ClassName::Weapon,
             SkillLineName::TwoHanded,
-            SkillDamage::new().with_hits(vec![HitDamage::new(3486.0)]),
-            DamageType::Physical,
-            TargetType::Aoe,
+            SkillDamage::new().with_hits(vec![HitDamage::new(3486.0, DamageFlags::physical_aoe())]),
             Resource::Ultimate,
         ),
         SkillData::new(
@@ -256,9 +216,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Berserker Strike",
             ClassName::Weapon,
             SkillLineName::TwoHanded,
-            SkillDamage::new().with_hits(vec![HitDamage::new(3600.0)]),
-            DamageType::Physical,
-            TargetType::Aoe,
+            SkillDamage::new().with_hits(vec![HitDamage::new(3600.0, DamageFlags::physical_aoe())]),
             Resource::Ultimate,
         ),
         SkillData::new(
@@ -266,9 +224,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Berserker Strike",
             ClassName::Weapon,
             SkillLineName::TwoHanded,
-            SkillDamage::new().with_hits(vec![HitDamage::new(3485.0)]),
-            DamageType::Physical,
-            TargetType::Aoe,
+            SkillDamage::new().with_hits(vec![HitDamage::new(3485.0, DamageFlags::physical_aoe())]),
             Resource::Ultimate,
         ),
         // Uppercut line
@@ -277,9 +233,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Uppercut",
             ClassName::Weapon,
             SkillLineName::TwoHanded,
-            SkillDamage::new().with_hits(vec![HitDamage::new(2672.0)]),
-            DamageType::Physical,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(2672.0, DamageFlags::physical_single())]),
             Resource::Stamina,
         ),
         SkillData::new(
@@ -287,9 +241,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Uppercut",
             ClassName::Weapon,
             SkillLineName::TwoHanded,
-            SkillDamage::new().with_hits(vec![HitDamage::new(2760.0)]),
-            DamageType::Physical,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(2760.0, DamageFlags::physical_single())]),
             Resource::Stamina,
         ),
         // Wrecking Blow: Grants Empower and Major Berserk for 3s
@@ -298,9 +250,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Uppercut",
             ClassName::Weapon,
             SkillLineName::TwoHanded,
-            SkillDamage::new().with_hits(vec![HitDamage::new(2760.0)]),
-            DamageType::Physical,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(2760.0, DamageFlags::physical_single())]),
             Resource::Stamina,
         )
         .with_bonuses(vec![
@@ -313,9 +263,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Critical Charge",
             ClassName::Weapon,
             SkillLineName::TwoHanded,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1392.0)]),
-            DamageType::Physical,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1392.0, DamageFlags::physical_single())]),
             Resource::Stamina,
         ),
         SkillData::new(
@@ -323,9 +271,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Critical Charge",
             ClassName::Weapon,
             SkillLineName::TwoHanded,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1393.0)]),
-            DamageType::Physical,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1393.0, DamageFlags::physical_single())]),
             Resource::Stamina,
         ),
         SkillData::new(
@@ -334,10 +280,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::TwoHanded,
             SkillDamage::new()
-                .with_hits(vec![HitDamage::new(1393.0)])
-                .with_dots(vec![DotDamage::new(319.0, 15.0).with_interval(1.0)]),
-            DamageType::Physical,
-            TargetType::Aoe,
+                .with_hits(vec![HitDamage::new(1393.0, DamageFlags::physical_aoe())])
+                .with_dots(vec![DotDamage::new(319.0, 15.0, DamageFlags::physical_aoe()).with_interval(1.0)]),
             Resource::Stamina,
         ),
         // Cleave line
@@ -346,9 +290,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Cleave",
             ClassName::Weapon,
             SkillLineName::TwoHanded,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1742.0)]),
-            DamageType::Physical,
-            TargetType::Aoe,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1742.0, DamageFlags::physical_aoe())]),
             Resource::Stamina,
         ),
         SkillData::new(
@@ -356,9 +298,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Cleave",
             ClassName::Weapon,
             SkillLineName::TwoHanded,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1742.0)]),
-            DamageType::Physical,
-            TargetType::Aoe,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1742.0, DamageFlags::physical_aoe())]),
             Resource::Stamina,
         ),
         SkillData::new(
@@ -367,10 +307,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::TwoHanded,
             SkillDamage::new()
-                .with_hits(vec![HitDamage::new(1742.0)])
-                .with_dots(vec![DotDamage::new(2868.0, 12.0)]),
-            DamageType::Bleed,
-            TargetType::Aoe,
+                .with_hits(vec![HitDamage::new(1742.0, DamageFlags::bleed_aoe())])
+                .with_dots(vec![DotDamage::new(2868.0, 12.0, DamageFlags::bleed_aoe())]),
             Resource::Stamina,
         ),
         // Reverse Slash line - Execute abilities
@@ -380,9 +318,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Reverse Slash",
             ClassName::Weapon,
             SkillLineName::TwoHanded,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1161.0)]),
-            DamageType::Physical,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1161.0, DamageFlags::physical_single())]),
             Resource::Stamina,
         )
         .with_execute(3.0, 0.50, ExecuteScaling::Linear),
@@ -392,9 +328,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Reverse Slash",
             ClassName::Weapon,
             SkillLineName::TwoHanded,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1161.0)]),
-            DamageType::Bleed,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1161.0, DamageFlags::bleed_single())]),
             Resource::Stamina,
         )
         .with_execute(4.0, 0.50, ExecuteScaling::Linear),
@@ -404,9 +338,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Reverse Slash",
             ClassName::Weapon,
             SkillLineName::TwoHanded,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1199.0)]),
-            DamageType::Physical,
-            TargetType::Aoe,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1199.0, DamageFlags::physical_aoe())]),
             Resource::Stamina,
         )
         .with_execute(3.0, 0.50, ExecuteScaling::Linear),
@@ -418,8 +350,6 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::TwoHanded,
             SkillDamage::new(),
-            DamageType::Physical,
-            TargetType::Single,
             Resource::Stamina,
         )
         .with_bonuses(vec![MAJOR_BRUTALITY.clone(), MAJOR_SORCERY.clone()]),
@@ -430,8 +360,6 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::TwoHanded,
             SkillDamage::new(),
-            DamageType::Physical,
-            TargetType::Single,
             Resource::Stamina,
         )
         .with_bonuses(vec![
@@ -445,8 +373,6 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::TwoHanded,
             SkillDamage::new(),
-            DamageType::Physical,
-            TargetType::Single,
             Resource::Stamina,
         )
         .with_bonuses(vec![MAJOR_BRUTALITY.clone(), MAJOR_SORCERY.clone()]),
@@ -457,9 +383,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Elemental Storm",
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
-            SkillDamage::new().with_dots(vec![DotDamage::new(1742.0, 7.0).with_interval(1.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+            SkillDamage::new().with_dots(vec![DotDamage::new(1742.0, 7.0, DamageFlags::magic_aoe()).with_interval(1.0)]),
             Resource::Ultimate,
         ),
         SkillData::new(
@@ -467,9 +391,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Elemental Storm",
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
-            SkillDamage::new().with_dots(vec![DotDamage::new(2249.0, 7.0).with_interval(1.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+            SkillDamage::new().with_dots(vec![DotDamage::new(2249.0, 7.0, DamageFlags::magic_aoe()).with_interval(1.0)]),
             Resource::Ultimate,
         ),
         SkillData::new(
@@ -477,9 +399,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Elemental Storm",
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
-            SkillDamage::new().with_dots(vec![DotDamage::new(1799.0, 7.0).with_interval(1.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+            SkillDamage::new().with_dots(vec![DotDamage::new(1799.0, 7.0, DamageFlags::magic_aoe()).with_interval(1.0)]),
             Resource::Ultimate,
         ),
         // Force Shock line
@@ -488,9 +408,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Force Shock",
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
-            SkillDamage::new().with_hits(vec![HitDamage::new(2085.0)]),
-            DamageType::Magic,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(2085.0, DamageFlags::magic_single())]),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -498,9 +416,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Force Shock",
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
-            SkillDamage::new().with_hits(vec![HitDamage::new(2088.0)]),
-            DamageType::Magic,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(2088.0, DamageFlags::magic_single())]),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -508,9 +424,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Force Shock",
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
-            SkillDamage::new().with_hits(vec![HitDamage::new(2088.0)]),
-            DamageType::Magic,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(2088.0, DamageFlags::magic_single())]),
             Resource::Magicka,
         ),
         // Wall of Elements line
@@ -519,9 +433,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Wall of Elements",
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
-            SkillDamage::new().with_dots(vec![DotDamage::new(280.0, 8.0).with_interval(1.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+            SkillDamage::new().with_dots(vec![DotDamage::new(280.0, 8.0, DamageFlags::magic_aoe()).with_interval(1.0)]),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -529,9 +441,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Wall of Elements",
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
-            SkillDamage::new().with_dots(vec![DotDamage::new(281.0, 10.0).with_interval(1.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+            SkillDamage::new().with_dots(vec![DotDamage::new(281.0, 10.0, DamageFlags::magic_aoe()).with_interval(1.0)]),
             Resource::Magicka,
         ),
         // Unstable Wall of Elements: Explodes when it expires for additional damage
@@ -541,10 +451,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
             SkillDamage::new()
-                .with_dots(vec![DotDamage::new(281.0, 8.0).with_interval(1.0)])
-                .with_hits(vec![HitDamage::new(1199.0).with_delay(8.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+                .with_dots(vec![DotDamage::new(281.0, 8.0, DamageFlags::magic_aoe()).with_interval(1.0)])
+                .with_hits(vec![HitDamage::new(1199.0, DamageFlags::magic_aoe()).with_delay(8.0)]),
             Resource::Magicka,
         ),
         // Destructive Touch line
@@ -554,10 +462,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
             SkillDamage::new()
-                .with_hits(vec![HitDamage::new(1161.0)])
-                .with_dots(vec![DotDamage::new(3470.0, 20.0)]),
-            DamageType::Magic,
-            TargetType::Single,
+                .with_hits(vec![HitDamage::new(1161.0, DamageFlags::magic_single())])
+                .with_dots(vec![DotDamage::new(3470.0, 20.0, DamageFlags::magic_single())]),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -565,9 +471,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Destructive Touch",
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1161.0)]),
-            DamageType::Magic,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1161.0, DamageFlags::magic_single())]),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -576,10 +480,8 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
             SkillDamage::new()
-                .with_hits(vec![HitDamage::new(1161.0)])
-                .with_dots(vec![DotDamage::new(3470.0, 20.0)]),
-            DamageType::Magic,
-            TargetType::Single,
+                .with_hits(vec![HitDamage::new(1161.0, DamageFlags::magic_single())])
+                .with_dots(vec![DotDamage::new(3470.0, 20.0, DamageFlags::magic_single())]),
             Resource::Magicka,
         ),
         // Weakness to Elements line - Debuff skills (Major Breach)
@@ -590,8 +492,6 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         )
         .with_bonuses(vec![MAJOR_BREACH.clone().with_duration(30.0)]),
@@ -602,8 +502,6 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         )
         .with_bonuses(vec![MAJOR_BREACH.clone().with_duration(60.0)]),
@@ -614,8 +512,6 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         )
         .with_bonuses(vec![MAJOR_BREACH.clone().with_duration(30.0)]),
@@ -625,9 +521,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Impulse",
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1742.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1742.0, DamageFlags::magic_aoe())]),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -635,9 +529,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Impulse",
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1799.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1799.0, DamageFlags::magic_aoe())]),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -645,9 +537,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Impulse",
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1742.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1742.0, DamageFlags::magic_aoe())]),
             Resource::Magicka,
         ),
         // === DUAL WIELD ===
@@ -657,9 +547,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Lacerate",
             ClassName::Weapon,
             SkillLineName::DualWield,
-            SkillDamage::new().with_dots(vec![DotDamage::new(6960.0, 8.0)]),
-            DamageType::Bleed,
-            TargetType::Aoe,
+            SkillDamage::new().with_dots(vec![DotDamage::new(6960.0, 8.0, DamageFlags::bleed_aoe())]),
             Resource::Ultimate,
         ),
         SkillData::new(
@@ -667,9 +555,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Lacerate",
             ClassName::Weapon,
             SkillLineName::DualWield,
-            SkillDamage::new().with_dots(vec![DotDamage::new(12942.0, 16.0)]),
-            DamageType::Bleed,
-            TargetType::Aoe,
+            SkillDamage::new().with_dots(vec![DotDamage::new(12942.0, 16.0, DamageFlags::bleed_aoe())]),
             Resource::Ultimate,
         ),
         SkillData::new(
@@ -677,9 +563,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Lacerate",
             ClassName::Weapon,
             SkillLineName::DualWield,
-            SkillDamage::new().with_dots(vec![DotDamage::new(6965.0, 8.0)]),
-            DamageType::Bleed,
-            TargetType::Aoe,
+            SkillDamage::new().with_dots(vec![DotDamage::new(6965.0, 8.0, DamageFlags::bleed_aoe())]),
             Resource::Ultimate,
         ),
         // Flurry line
@@ -689,13 +573,11 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::DualWield,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(667.0),
-                HitDamage::new(667.0),
-                HitDamage::new(667.0),
-                HitDamage::new(667.0),
+                HitDamage::new(667.0, DamageFlags::physical_single()),
+                HitDamage::new(667.0, DamageFlags::physical_single()),
+                HitDamage::new(667.0, DamageFlags::physical_single()),
+                HitDamage::new(667.0, DamageFlags::physical_single()),
             ]),
-            DamageType::Physical,
-            TargetType::Single,
             Resource::Stamina,
         ),
         SkillData::new(
@@ -704,13 +586,11 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::DualWield,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(689.0),
-                HitDamage::new(689.0),
-                HitDamage::new(689.0),
-                HitDamage::new(689.0),
+                HitDamage::new(689.0, DamageFlags::bleed_single()),
+                HitDamage::new(689.0, DamageFlags::bleed_single()),
+                HitDamage::new(689.0, DamageFlags::bleed_single()),
+                HitDamage::new(689.0, DamageFlags::bleed_single()),
             ]),
-            DamageType::Bleed,
-            TargetType::Single,
             Resource::Stamina,
         ),
         SkillData::new(
@@ -719,13 +599,11 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::DualWield,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(689.0),
-                HitDamage::new(689.0),
-                HitDamage::new(689.0),
-                HitDamage::new(689.0),
+                HitDamage::new(689.0, DamageFlags::physical_single()),
+                HitDamage::new(689.0, DamageFlags::physical_single()),
+                HitDamage::new(689.0, DamageFlags::physical_single()),
+                HitDamage::new(689.0, DamageFlags::physical_single()),
             ]),
-            DamageType::Physical,
-            TargetType::Single,
             Resource::Stamina,
         ),
         // Twin Slashes line
@@ -735,10 +613,11 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::DualWield,
             SkillDamage::new()
-                .with_hits(vec![HitDamage::new(580.0), HitDamage::new(580.0)])
-                .with_dots(vec![DotDamage::new(3470.0, 20.0)]),
-            DamageType::Bleed,
-            TargetType::Single,
+                .with_hits(vec![
+                    HitDamage::new(580.0, DamageFlags::bleed_single()),
+                    HitDamage::new(580.0, DamageFlags::bleed_single()),
+                ])
+                .with_dots(vec![DotDamage::new(3470.0, 20.0, DamageFlags::bleed_single())]),
             Resource::Stamina,
         ),
         SkillData::new(
@@ -747,10 +626,11 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::DualWield,
             SkillDamage::new()
-                .with_hits(vec![HitDamage::new(580.0), HitDamage::new(580.0)])
-                .with_dots(vec![DotDamage::new(3470.0, 20.0)]),
-            DamageType::Bleed,
-            TargetType::Single,
+                .with_hits(vec![
+                    HitDamage::new(580.0, DamageFlags::bleed_single()),
+                    HitDamage::new(580.0, DamageFlags::bleed_single()),
+                ])
+                .with_dots(vec![DotDamage::new(3470.0, 20.0, DamageFlags::bleed_single())]),
             Resource::Stamina,
         ),
         SkillData::new(
@@ -759,10 +639,11 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::DualWield,
             SkillDamage::new()
-                .with_hits(vec![HitDamage::new(718.0), HitDamage::new(718.0)])
-                .with_dots(vec![DotDamage::new(3470.0, 20.0)]),
-            DamageType::Bleed,
-            TargetType::Single,
+                .with_hits(vec![
+                    HitDamage::new(718.0, DamageFlags::bleed_single()),
+                    HitDamage::new(718.0, DamageFlags::bleed_single()),
+                ])
+                .with_dots(vec![DotDamage::new(3470.0, 20.0, DamageFlags::bleed_single())]),
             Resource::Stamina,
         ),
         // Whirlwind line - Execute abilities
@@ -772,9 +653,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Whirlwind",
             ClassName::Weapon,
             SkillLineName::DualWield,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1742.0)]),
-            DamageType::Physical,
-            TargetType::Aoe,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1742.0, DamageFlags::physical_aoe())]),
             Resource::Stamina,
         )
         .with_execute(0.33, 0.50, ExecuteScaling::Linear),
@@ -784,9 +663,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Whirlwind",
             ClassName::Weapon,
             SkillLineName::DualWield,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1742.0)]),
-            DamageType::Physical,
-            TargetType::Aoe,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1742.0, DamageFlags::physical_aoe())]),
             Resource::Stamina,
         )
         .with_execute(0.33, 0.50, ExecuteScaling::Linear),
@@ -796,9 +673,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Whirlwind",
             ClassName::Weapon,
             SkillLineName::DualWield,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1799.0)]),
-            DamageType::Physical,
-            TargetType::Aoe,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1799.0, DamageFlags::physical_aoe())]),
             Resource::Stamina,
         )
         .with_execute(1.0, 0.50, ExecuteScaling::Linear),
@@ -808,9 +683,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Blade Cloak",
             ClassName::Weapon,
             SkillLineName::DualWield,
-            SkillDamage::new().with_dots(vec![DotDamage::new(421.0, 20.0).with_interval(2.0)]),
-            DamageType::Physical,
-            TargetType::Aoe,
+            SkillDamage::new().with_dots(vec![DotDamage::new(421.0, 20.0, DamageFlags::physical_aoe()).with_interval(2.0)]),
             Resource::Stamina,
         ),
         SkillData::new(
@@ -818,9 +691,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Blade Cloak",
             ClassName::Weapon,
             SkillLineName::DualWield,
-            SkillDamage::new().with_dots(vec![DotDamage::new(567.0, 20.0).with_interval(2.0)]),
-            DamageType::Physical,
-            TargetType::Aoe,
+            SkillDamage::new().with_dots(vec![DotDamage::new(567.0, 20.0, DamageFlags::physical_aoe()).with_interval(2.0)]),
             Resource::Stamina,
         ),
         SkillData::new(
@@ -828,9 +699,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Blade Cloak",
             ClassName::Weapon,
             SkillLineName::DualWield,
-            SkillDamage::new().with_dots(vec![DotDamage::new(422.0, 30.0).with_interval(2.0)]),
-            DamageType::Physical,
-            TargetType::Aoe,
+            SkillDamage::new().with_dots(vec![DotDamage::new(422.0, 30.0, DamageFlags::physical_aoe()).with_interval(2.0)]),
             Resource::Stamina,
         ),
         // Hidden Blade line - Buff skills (Major Brutality + Major Sorcery)
@@ -840,9 +709,7 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Hidden Blade",
             ClassName::Weapon,
             SkillLineName::DualWield,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1392.0)]),
-            DamageType::Physical,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1392.0, DamageFlags::physical_single())]),
             Resource::Stamina,
         )
         .with_bonuses(vec![MAJOR_BRUTALITY.clone(), MAJOR_SORCERY.clone()]),
@@ -852,9 +719,10 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Hidden Blade",
             ClassName::Weapon,
             SkillLineName::DualWield,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1438.0), HitDamage::new(2160.0)]),
-            DamageType::Physical,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![
+                HitDamage::new(1438.0, DamageFlags::physical_single()),
+                HitDamage::new(2160.0, DamageFlags::physical_single()),
+            ]),
             Resource::Stamina,
         )
         .with_bonuses(vec![
@@ -868,12 +736,10 @@ pub static WEAPON_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Weapon,
             SkillLineName::DualWield,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(1799.0),
-                HitDamage::new(1799.0),
-                HitDamage::new(1799.0),
+                HitDamage::new(1799.0, DamageFlags::physical_aoe()),
+                HitDamage::new(1799.0, DamageFlags::physical_aoe()),
+                HitDamage::new(1799.0, DamageFlags::physical_aoe()),
             ]),
-            DamageType::Physical,
-            TargetType::Aoe,
             Resource::Stamina,
         )
         .with_bonuses(vec![MAJOR_BRUTALITY.clone(), MAJOR_SORCERY.clone()]),

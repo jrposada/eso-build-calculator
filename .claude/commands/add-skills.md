@@ -118,9 +118,7 @@ SkillData::new(
     "Base Skill Name",      // base_skill_name (same as name for base skills)
     ClassName::X,           // class_name
     SkillLineName::Y,       // skill_line
-    SkillDamage::new()...,  // damage with coefficients
-    DamageType::X,          // damage_type
-    TargetType::X,          // target_type
+    SkillDamage::new()...,  // damage with coefficients and per-component DamageFlags
     Resource::X,            // resource
 )
 // Optional modifiers:
@@ -129,29 +127,42 @@ SkillData::new(
 // .with_bonuses(vec![...])
 ```
 
+### DamageFlags
+
+Each `HitDamage` and `DotDamage` carries its own `DamageFlags` bitflag describing element, target scope, delivery method, and range. The `DIRECT` flag is auto-added by `HitDamage::new()` and `DOT` is auto-added by `DotDamage::new()`.
+
+**Convenience constructors:**
+- `DamageFlags::magic_single()`, `DamageFlags::magic_aoe()`
+- `DamageFlags::physical_single()`, `DamageFlags::physical_aoe()`
+- `DamageFlags::flame_single()`, `DamageFlags::flame_aoe()`
+- `DamageFlags::frost_single()`, `DamageFlags::frost_aoe()`
+- `DamageFlags::shock_single()`, `DamageFlags::shock_aoe()`
+- `DamageFlags::poison_single()`, `DamageFlags::poison_aoe()`
+- `DamageFlags::disease_single()`, `DamageFlags::disease_aoe()`
+- `DamageFlags::bleed_single()`, `DamageFlags::bleed_aoe()`
+
 ### Damage Patterns with Coefficients
 
 **Instant damage with coefficients:**
 ```rust
-// UESP: <<1>> = 0.09797 MaxStat + 1.02992 MaxPower (Direct)
+// UESP: <<1>> = 0.09797 MaxStat + 1.02992 MaxPower (Dmg, Flame, SingleTarget, Direct)
 SkillData::new(
     "Lava Whip",
     "Lava Whip",
     ClassName::Dragonknight,
     SkillLineName::ArdentFlame,
     SkillDamage::new().with_hits(vec![
-        HitDamage::new(2323.0).with_coefficients(0.09797, 1.02992)
+        HitDamage::new(2323.0, DamageFlags::flame_single())
+            .with_coefficients(0.09797, 1.02992)
     ]),
-    DamageType::Flame,
-    TargetType::Single,
     Resource::Magicka,
 )
 ```
 
 **DoT with coefficients and interval:**
 ```rust
-// UESP: <<1>> = 0.05165 MaxStat + 0.542325 MaxPower (Direct)
-//       <<2>> = 0.015495 MaxStat + 0.162697 MaxPower (DOT, 18s duration, 2s tick)
+// UESP: <<1>> = 0.05165 MaxStat + 0.542325 MaxPower (Dmg, Flame, SingleTarget, Direct)
+//       <<2>> = 0.015495 MaxStat + 0.162697 MaxPower (Dmg, Flame, SingleTarget, DOT, 18s duration, 2s tick)
 SkillData::new(
     "Burning Embers",
     "Searing Strike",
@@ -159,51 +170,78 @@ SkillData::new(
     SkillLineName::ArdentFlame,
     SkillDamage::new()
         .with_hits(vec![
-            HitDamage::new(1161.0).with_coefficients(0.05165, 0.542325)
+            HitDamage::new(1161.0, DamageFlags::flame_single())
+                .with_coefficients(0.05165, 0.542325)
         ])
         .with_dots(vec![
-            DotDamage::new(3470.0, 18.0)
+            DotDamage::new(3470.0, 18.0, DamageFlags::flame_single())
                 .with_interval(2.0)
                 .with_coefficients(0.015495, 0.162697)
         ]),
-    DamageType::Flame,
-    TargetType::Single,
+    Resource::Magicka,
+)
+```
+
+**Mixed-type skill (different flags per component):**
+```rust
+// UESP: <<1>> = 0.071294 MaxStat + 0.748588 MaxPower (Dmg, Magic, AOE, Direct)
+//       <<2>> = 0.012866 MaxStat + 0.135137 MaxPower (Dmg, Magic, SingleTarget, DOT, 5s duration, 1s tick)
+SkillData::new(
+    "Lotus Fan",
+    "Teleport Strike",
+    ClassName::Nightblade,
+    SkillLineName::Assassination,
+    SkillDamage::new()
+        .with_hits(vec![
+            HitDamage::new(1603.0, DamageFlags::magic_aoe())
+                .with_coefficients(0.071294, 0.748588)
+        ])
+        .with_dots(vec![
+            DotDamage::new(2050.0, 5.0, DamageFlags::magic_single())
+                .with_interval(1.0)
+                .with_coefficients(0.012866, 0.135137)
+        ]),
     Resource::Magicka,
 )
 ```
 
 **Delayed damage with coefficients:**
 ```rust
-// UESP: <<1>> = 0.077475 MaxStat + 0.813488 MaxPower (Direct, 3s delay)
-//       <<2>> = 0.107663 MaxStat + 1.130456 MaxPower (Direct, 9s delay)
+// UESP: <<1>> = 0.077475 MaxStat + 0.813488 MaxPower (Dmg, Magic, AOE, Direct)
+//       <<2>> = 0.107663 MaxStat + 1.130456 MaxPower (Dmg, Magic, AOE, Direct)
 SkillData::new(
     "Scorch",
     "Scorch",
     ClassName::Warden,
     SkillLineName::AnimalCompanions,
     SkillDamage::new().with_hits(vec![
-        HitDamage::new(2509.0).with_delay(3.0).with_coefficients(0.077475, 0.813488),
-        HitDamage::new(3486.0).with_delay(9.0).with_coefficients(0.107663, 1.130456),
+        HitDamage::new(2509.0, DamageFlags::magic_aoe())
+            .with_delay(3.0)
+            .with_coefficients(0.077475, 0.813488),
+        HitDamage::new(3486.0, DamageFlags::magic_aoe())
+            .with_delay(9.0)
+            .with_coefficients(0.107663, 1.130456),
     ]),
-    DamageType::Magic,
-    TargetType::Aoe,
     Resource::Magicka,
 )
 ```
 
 **Channeled skill with coefficients:**
 ```rust
+// UESP: <<1>> = 0.038738 MaxStat + 0.406744 MaxPower (Dmg, Flame, AOE, Direct)
+//       <<2>> = 0.077475 MaxStat + 0.813488 MaxPower (Dmg, Flame, AOE, Direct)
 SkillData::new(
     "Inhale",
     "Inhale",
     ClassName::Dragonknight,
     SkillLineName::DraconicPower,
     SkillDamage::new().with_hits(vec![
-        HitDamage::new(870.0).with_coefficients(0.038738, 0.406744),
-        HitDamage::new(1742.0).with_delay(2.5).with_coefficients(0.077475, 0.813488),
+        HitDamage::new(870.0, DamageFlags::flame_aoe())
+            .with_coefficients(0.038738, 0.406744),
+        HitDamage::new(1742.0, DamageFlags::flame_aoe())
+            .with_delay(2.5)
+            .with_coefficients(0.077475, 0.813488),
     ]),
-    DamageType::Flame,
-    TargetType::Aoe,
     Resource::Magicka,
 ).with_channel_time(2.5)
 ```
@@ -216,24 +254,36 @@ SkillData::new(
     ClassName::Warden,
     SkillLineName::WintersEmbrace,
     SkillDamage::new(),  // No coefficients needed for utility skills
-    DamageType::Frost,
-    TargetType::Aoe,
     Resource::Magicka,
 )
 ```
 
-### Damage Type Mapping (from UESP metadata)
+### DamageFlags Mapping (from UESP metadata)
 
-| UESP Metadata | Rust Enum |
-|---------------|-----------|
-| `Dmg, Magic` | `DamageType::Magic` |
-| `Dmg, Physical` | `DamageType::Physical` |
-| `Dmg, Flame` | `DamageType::Flame` |
-| `Dmg, Frost` | `DamageType::Frost` |
-| `Dmg, Shock` | `DamageType::Shock` |
-| `Dmg, Poison` | `DamageType::Poison` |
-| `Dmg, Bleed` | `DamageType::Bleed` |
-| `Dmg, Disease` | `DamageType::Disease` |
+Each damage component's UESP metadata maps to a `DamageFlags` convenience constructor:
+
+| UESP Element + Target | DamageFlags Constructor |
+|------------------------|-------------------------|
+| `Dmg, Magic, SingleTarget` | `DamageFlags::magic_single()` |
+| `Dmg, Magic, AOE` | `DamageFlags::magic_aoe()` |
+| `Dmg, Physical, SingleTarget` | `DamageFlags::physical_single()` |
+| `Dmg, Physical, AOE` | `DamageFlags::physical_aoe()` |
+| `Dmg, Flame, SingleTarget` | `DamageFlags::flame_single()` |
+| `Dmg, Flame, AOE` | `DamageFlags::flame_aoe()` |
+| `Dmg, Frost, SingleTarget` | `DamageFlags::frost_single()` |
+| `Dmg, Frost, AOE` | `DamageFlags::frost_aoe()` |
+| `Dmg, Shock, SingleTarget` | `DamageFlags::shock_single()` |
+| `Dmg, Shock, AOE` | `DamageFlags::shock_aoe()` |
+| `Dmg, Poison, SingleTarget` | `DamageFlags::poison_single()` |
+| `Dmg, Poison, AOE` | `DamageFlags::poison_aoe()` |
+| `Dmg, Disease, SingleTarget` | `DamageFlags::disease_single()` |
+| `Dmg, Disease, AOE` | `DamageFlags::disease_aoe()` |
+| `Dmg, Bleed, SingleTarget` | `DamageFlags::bleed_single()` |
+| `Dmg, Bleed, AOE` | `DamageFlags::bleed_aoe()` |
+
+Note: `DIRECT` flag is auto-added by `HitDamage::new()` and `DOT` flag is auto-added by `DotDamage::new()`, so you don't need to include those.
+
+**Important:** Different components of the same skill can have different flags. For example, Lotus Fan has an AOE hit (`magic_aoe()`) and a SingleTarget DoT (`magic_single()`). Always use the per-component metadata from UESP.
 
 ### Resource Type Rules
 
@@ -244,13 +294,6 @@ SkillData::new(
 | Physical/Disease/Bleed/Poison damage | `Resource::Stamina` |
 | Morph converts to Stamina | `Resource::Stamina` |
 
-### Target Type (from UESP metadata)
-
-| UESP Metadata | Rust Enum |
-|---------------|-----------|
-| `SingleTarget` | `TargetType::Single` |
-| `AOE` | `TargetType::Aoe` |
-
 ### DoT Parsing from UESP
 
 From `(DOT, 18s duration, 2s tick)`:
@@ -259,7 +302,7 @@ From `(DOT, 18s duration, 2s tick)`:
 
 ### Tooltip Values
 
-The tooltip `value` parameter in `HitDamage::new(value)` and `DotDamage::new(value, duration)` should be calculated from the coefficients at standard stats (40k max stat, 5.5k max power) or taken from in-game tooltips. This value is used as a fallback when coefficients aren't available.
+The tooltip `value` parameter in `HitDamage::new(value, flags)` and `DotDamage::new(value, duration, flags)` should be calculated from the coefficients at standard stats (40k max stat, 5.5k max power) or taken from in-game tooltips. This value is used as a fallback when coefficients aren't available.
 
 ```
 tooltip_value = coef_a * 40000 + coef_b * 5500
@@ -319,17 +362,16 @@ MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted)
 **Skill with enemy debuff:**
 ```rust
 // Teleport Strike: Minor Vulnerability (10s)
-// UESP: <<1>> = 0.071294 MaxStat + 0.748588 MaxPower
+// UESP: <<1>> = 0.071294 MaxStat + 0.748588 MaxPower (Dmg, Magic, SingleTarget, Direct)
 SkillData::new(
     "Teleport Strike",
     "Teleport Strike",
     ClassName::Nightblade,
     SkillLineName::Assassination,
     SkillDamage::new().with_hits(vec![
-        HitDamage::new(1602.0).with_coefficients(0.071294, 0.748588)
+        HitDamage::new(1602.0, DamageFlags::magic_single())
+            .with_coefficients(0.071294, 0.748588)
     ]),
-    DamageType::Magic,
-    TargetType::Single,
     Resource::Magicka,
 )
 .with_bonuses(vec![MINOR_VULNERABILITY.clone()])
@@ -338,17 +380,16 @@ SkillData::new(
 **Skill with custom unique debuff:**
 ```rust
 // Death Stroke: +20% damage from player attacks for 8s
-// UESP: <<1>> = 0.165 MaxStat + 1.7325 MaxPower
+// UESP: <<1>> = 0.165 MaxStat + 1.7325 MaxPower (Dmg, Magic, SingleTarget, Direct)
 SkillData::new(
     "Death Stroke",
     "Death Stroke",
     ClassName::Nightblade,
     SkillLineName::Assassination,
     SkillDamage::new().with_hits(vec![
-        HitDamage::new(3716.0).with_coefficients(0.165, 1.7325)
+        HitDamage::new(3716.0, DamageFlags::magic_single())
+            .with_coefficients(0.165, 1.7325)
     ]),
-    DamageType::Magic,
-    TargetType::Single,
     Resource::Ultimate,
 )
 .with_bonuses(vec![BonusData::new(
@@ -376,10 +417,9 @@ SkillData::new(
     ClassName::Nightblade,
     SkillLineName::Assassination,
     SkillDamage::new().with_hits(vec![
-        HitDamage::new(1161.0).with_coefficients(0.05165, 0.542325)
+        HitDamage::new(1161.0, DamageFlags::magic_single())
+            .with_coefficients(0.05165, 0.542325)
     ]),
-    DamageType::Magic,
-    TargetType::Single,
     Resource::Magicka,
 )
 .with_execute(3.0, 0.25, ExecuteScaling::Flat)
@@ -608,7 +648,8 @@ Import from `src/data/bonuses/unique.rs`:
 - `src/domain/damage_coefficients.rs` - DamageCoefficients struct
 - `src/domain/passive.rs` - PassiveData struct
 - `src/domain/bonus.rs` - BonusData struct
-- `src/data/types.rs` - All enums (ClassName, SkillLineName, DamageType, BonusTrigger, BonusTarget, etc.)
+- `src/domain/damage_flags.rs` - DamageFlags bitflag type with per-component element/target/delivery flags
+- `src/data/types.rs` - All enums (ClassName, SkillLineName, BonusTrigger, BonusTarget, etc.)
 - `src/data/bonuses/unique.rs` - Predefined bonus constants
 - `datamine/UESP_ESO Skill Coefficients.html` - UESP coefficient data
 

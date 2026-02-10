@@ -1,5 +1,5 @@
 use crate::data::bonuses::{EMPOWER, MAJOR_BREACH, MAJOR_BRUTALITY, MAJOR_SORCERY};
-use crate::domain::{ClassName, DamageType, Resource, SkillLineName, TargetType};
+use crate::domain::{ClassName, DamageFlags, Resource, SkillLineName};
 use crate::domain::{DotDamage, HitDamage, SkillDamage, SkillData};
 use once_cell::sync::Lazy;
 
@@ -13,10 +13,8 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::AedricSpear,
             SkillDamage::new()
-                .with_hits(vec![HitDamage::new(2323.0)])
-                .with_dots(vec![DotDamage::new(1161.0, 6.0).with_interval(2.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+                .with_hits(vec![HitDamage::new(2323.0, DamageFlags::magic_aoe())])
+                .with_dots(vec![DotDamage::new(1161.0, 6.0, DamageFlags::magic_aoe()).with_interval(2.0)]),
             Resource::Ultimate,
         ),
         SkillData::new(
@@ -25,10 +23,8 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::AedricSpear,
             SkillDamage::new()
-                .with_hits(vec![HitDamage::new(2399.0)])
-                .with_dots(vec![DotDamage::new(1161.0, 6.0).with_interval(2.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+                .with_hits(vec![HitDamage::new(2399.0, DamageFlags::magic_aoe())])
+                .with_dots(vec![DotDamage::new(1161.0, 6.0, DamageFlags::magic_aoe()).with_interval(2.0)]),
             Resource::Ultimate,
         ),
         SkillData::new(
@@ -37,10 +33,8 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::AedricSpear,
             SkillDamage::new()
-                .with_hits(vec![HitDamage::new(2399.0)])
-                .with_dots(vec![DotDamage::new(1161.0, 10.0).with_interval(2.0)]),
-            DamageType::Physical,
-            TargetType::Aoe,
+                .with_hits(vec![HitDamage::new(2399.0, DamageFlags::physical_aoe())])
+                .with_dots(vec![DotDamage::new(1161.0, 10.0, DamageFlags::physical_aoe()).with_interval(2.0)]),
             Resource::Ultimate,
         ),
         // Puncturing Strikes line
@@ -49,9 +43,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Puncturing Strikes",
             ClassName::Templar,
             SkillLineName::AedricSpear,
-            SkillDamage::new().with_hits(vec![HitDamage::new(889.0 * 3.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+            SkillDamage::new().with_hits(vec![HitDamage::new(889.0 * 3.0, DamageFlags::magic_aoe())]),
             Resource::Magicka,
         )
         .with_channel_time(0.8),
@@ -61,9 +53,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Puncturing Strikes",
             ClassName::Templar,
             SkillLineName::AedricSpear,
-            SkillDamage::new().with_hits(vec![HitDamage::new(919.0 * 3.0)]),
-            DamageType::Physical,
-            TargetType::Aoe,
+            SkillDamage::new().with_hits(vec![HitDamage::new(919.0 * 3.0, DamageFlags::physical_aoe())]),
             Resource::Stamina,
         )
         .with_channel_time(0.8)
@@ -76,9 +66,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Puncturing Strikes",
             ClassName::Templar,
             SkillLineName::AedricSpear,
-            SkillDamage::new().with_hits(vec![HitDamage::new(919.0 * 3.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+            SkillDamage::new().with_hits(vec![HitDamage::new(919.0 * 3.0, DamageFlags::magic_aoe())]),
             Resource::Magicka,
         )
         .with_channel_time(0.8),
@@ -88,9 +76,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Piercing Javelin",
             ClassName::Templar,
             SkillLineName::AedricSpear,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1392.0)]),
-            DamageType::Magic,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1392.0, DamageFlags::magic_single())]),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -98,9 +84,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Piercing Javelin",
             ClassName::Templar,
             SkillLineName::AedricSpear,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1438.0)]),
-            DamageType::Magic,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1438.0, DamageFlags::magic_single())]),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -108,9 +92,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Piercing Javelin",
             ClassName::Templar,
             SkillLineName::AedricSpear,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1393.0)]),
-            DamageType::Physical,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1393.0, DamageFlags::physical_single())]),
             Resource::Stamina,
         ),
         // Focused Charge line
@@ -119,9 +101,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Focused Charge",
             ClassName::Templar,
             SkillLineName::AedricSpear,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1392.0)]),
-            DamageType::Magic,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1392.0, DamageFlags::magic_single())]),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -129,9 +109,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Focused Charge",
             ClassName::Templar,
             SkillLineName::AedricSpear,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1799.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1799.0, DamageFlags::magic_aoe())]),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -139,9 +117,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Focused Charge",
             ClassName::Templar,
             SkillLineName::AedricSpear,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1393.0)]),
-            DamageType::Magic,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1393.0, DamageFlags::magic_single())]),
             Resource::Magicka,
         ),
         // Spear Shards line
@@ -151,10 +127,8 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::AedricSpear,
             SkillDamage::new()
-                .with_hits(vec![HitDamage::new(1742.0)])
-                .with_dots(vec![DotDamage::new(166.0, 10.0).with_interval(1.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+                .with_hits(vec![HitDamage::new(1742.0, DamageFlags::magic_aoe())])
+                .with_dots(vec![DotDamage::new(166.0, 10.0, DamageFlags::magic_aoe()).with_interval(1.0)]),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -163,10 +137,8 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::AedricSpear,
             SkillDamage::new()
-                .with_hits(vec![HitDamage::new(1742.0)])
-                .with_dots(vec![DotDamage::new(276.0, 10.0).with_interval(1.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+                .with_hits(vec![HitDamage::new(1742.0, DamageFlags::magic_aoe())])
+                .with_dots(vec![DotDamage::new(276.0, 10.0, DamageFlags::magic_aoe()).with_interval(1.0)]),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -175,10 +147,8 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::AedricSpear,
             SkillDamage::new()
-                .with_hits(vec![HitDamage::new(1742.0)])
-                .with_dots(vec![DotDamage::new(165.0, 10.0).with_interval(1.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+                .with_hits(vec![HitDamage::new(1742.0, DamageFlags::magic_aoe())])
+                .with_dots(vec![DotDamage::new(165.0, 10.0, DamageFlags::magic_aoe()).with_interval(1.0)]),
             Resource::Magicka,
         ),
         // Sun Shield line
@@ -187,9 +157,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Sun Shield",
             ClassName::Templar,
             SkillLineName::AedricSpear,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1742.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1742.0, DamageFlags::magic_aoe())]),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -198,8 +166,6 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::AedricSpear,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -207,9 +173,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Sun Shield",
             ClassName::Templar,
             SkillLineName::AedricSpear,
-            SkillDamage::new().with_hits(vec![HitDamage::new(1742.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+            SkillDamage::new().with_hits(vec![HitDamage::new(1742.0, DamageFlags::magic_aoe())]),
             Resource::Magicka,
         ),
         // === DAWN'S WRATH ===
@@ -219,9 +183,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Nova",
             ClassName::Templar,
             SkillLineName::DawnsWrath,
-            SkillDamage::new().with_dots(vec![DotDamage::new(1161.0, 8.0).with_interval(1.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+            SkillDamage::new().with_dots(vec![DotDamage::new(1161.0, 8.0, DamageFlags::magic_aoe()).with_interval(1.0)]),
             Resource::Ultimate,
         ),
         SkillData::new(
@@ -229,9 +191,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Nova",
             ClassName::Templar,
             SkillLineName::DawnsWrath,
-            SkillDamage::new().with_dots(vec![DotDamage::new(1161.0, 8.0).with_interval(1.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+            SkillDamage::new().with_dots(vec![DotDamage::new(1161.0, 8.0, DamageFlags::magic_aoe()).with_interval(1.0)]),
             Resource::Ultimate,
         ),
         SkillData::new(
@@ -239,9 +199,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Nova",
             ClassName::Templar,
             SkillLineName::DawnsWrath,
-            SkillDamage::new().with_dots(vec![DotDamage::new(1199.0, 8.0).with_interval(1.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+            SkillDamage::new().with_dots(vec![DotDamage::new(1199.0, 8.0, DamageFlags::magic_aoe()).with_interval(1.0)]),
             Resource::Ultimate,
         ),
         // Sun Fire line
@@ -251,10 +209,8 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::DawnsWrath,
             SkillDamage::new()
-                .with_hits(vec![HitDamage::new(1161.0)])
-                .with_dots(vec![DotDamage::new(3470.0, 20.0)]),
-            DamageType::Flame,
-            TargetType::Single,
+                .with_hits(vec![HitDamage::new(1161.0, DamageFlags::flame_single())])
+                .with_dots(vec![DotDamage::new(3470.0, 20.0, DamageFlags::flame_single())]),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -263,10 +219,8 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::DawnsWrath,
             SkillDamage::new()
-                .with_hits(vec![HitDamage::new(1199.0)])
-                .with_dots(vec![DotDamage::new(3470.0, 20.0)]),
-            DamageType::Flame,
-            TargetType::Aoe,
+                .with_hits(vec![HitDamage::new(1199.0, DamageFlags::flame_aoe())])
+                .with_dots(vec![DotDamage::new(3470.0, 20.0, DamageFlags::flame_aoe())]),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -275,10 +229,8 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::DawnsWrath,
             SkillDamage::new()
-                .with_hits(vec![HitDamage::new(1161.0)])
-                .with_dots(vec![DotDamage::new(5370.0, 30.0)]),
-            DamageType::Flame,
-            TargetType::Single,
+                .with_hits(vec![HitDamage::new(1161.0, DamageFlags::flame_single())])
+                .with_dots(vec![DotDamage::new(5370.0, 30.0, DamageFlags::flame_single())]),
             Resource::Magicka,
         ),
         // Solar Flare line
@@ -288,9 +240,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Solar Flare",
             ClassName::Templar,
             SkillLineName::DawnsWrath,
-            SkillDamage::new().with_hits(vec![HitDamage::new(2404.0)]),
-            DamageType::Magic,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(2404.0, DamageFlags::magic_single())]),
             Resource::Magicka,
         )
         .with_bonuses(vec![EMPOWER.clone()]),
@@ -300,9 +250,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Solar Flare",
             ClassName::Templar,
             SkillLineName::DawnsWrath,
-            SkillDamage::new().with_hits(vec![HitDamage::new(2483.0)]),
-            DamageType::Magic,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(2483.0, DamageFlags::magic_single())]),
             Resource::Magicka,
         )
         .with_bonuses(vec![EMPOWER.clone()]),
@@ -312,9 +260,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Solar Flare",
             ClassName::Templar,
             SkillLineName::DawnsWrath,
-            SkillDamage::new().with_dots(vec![DotDamage::new(435.0, 20.0).with_interval(2.0)]),
-            DamageType::Magic,
-            TargetType::Aoe,
+            SkillDamage::new().with_dots(vec![DotDamage::new(435.0, 20.0, DamageFlags::magic_aoe()).with_interval(2.0)]),
             Resource::Magicka,
         )
         .with_bonuses(vec![EMPOWER.clone().with_duration(20.0)]),
@@ -325,11 +271,9 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::DawnsWrath,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(1161.0),
-                HitDamage::new(1284.0).with_delay(6.0),
+                HitDamage::new(1161.0, DamageFlags::magic_single()),
+                HitDamage::new(1284.0, DamageFlags::magic_single()).with_delay(6.0),
             ]),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         // Power of the Light: Major Breach (Sundered status on each hit)
@@ -339,11 +283,9 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::DawnsWrath,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(1161.0),
-                HitDamage::new(1285.0).with_delay(6.0),
+                HitDamage::new(1161.0, DamageFlags::physical_single()),
+                HitDamage::new(1285.0, DamageFlags::physical_single()).with_delay(6.0),
             ]),
-            DamageType::Physical,
-            TargetType::Single,
             Resource::Stamina,
         )
         .with_bonuses(vec![MAJOR_BREACH.clone()]),
@@ -353,11 +295,9 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::DawnsWrath,
             SkillDamage::new().with_hits(vec![
-                HitDamage::new(1161.0),
-                HitDamage::new(1285.0).with_delay(6.0),
+                HitDamage::new(1161.0, DamageFlags::magic_single()),
+                HitDamage::new(1285.0, DamageFlags::magic_single()).with_delay(6.0),
             ]),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         // Eclipse line
@@ -367,8 +307,6 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::DawnsWrath,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -377,8 +315,6 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::DawnsWrath,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -386,9 +322,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Eclipse",
             ClassName::Templar,
             SkillLineName::DawnsWrath,
-            SkillDamage::new().with_hits(vec![HitDamage::new(449.0 + 898.0 + 1799.0)]),
-            DamageType::Magic,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(449.0 + 898.0 + 1799.0, DamageFlags::magic_single())]),
             Resource::Magicka,
         ),
         // Radiant Destruction line
@@ -397,9 +331,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Radiant Destruction",
             ClassName::Templar,
             SkillLineName::DawnsWrath,
-            SkillDamage::new().with_hits(vec![HitDamage::new(7248.0)]),
-            DamageType::Magic,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(7248.0, DamageFlags::magic_single())]),
             Resource::Magicka,
         )
         .with_channel_time(3.8),
@@ -408,9 +340,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Radiant Destruction",
             ClassName::Templar,
             SkillLineName::DawnsWrath,
-            SkillDamage::new().with_hits(vec![HitDamage::new(7482.0)]),
-            DamageType::Magic,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(7482.0, DamageFlags::magic_single())]),
             Resource::Magicka,
         )
         .with_channel_time(3.8),
@@ -419,9 +349,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Radiant Destruction",
             ClassName::Templar,
             SkillLineName::DawnsWrath,
-            SkillDamage::new().with_hits(vec![HitDamage::new(7482.0)]),
-            DamageType::Magic,
-            TargetType::Single,
+            SkillDamage::new().with_hits(vec![HitDamage::new(7482.0, DamageFlags::magic_single())]),
             Resource::Magicka,
         )
         .with_channel_time(3.8),
@@ -433,8 +361,6 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::RestoringLight,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Ultimate,
         )
         .with_channel_time(4.0),
@@ -444,8 +370,6 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::RestoringLight,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Ultimate,
         )
         .with_channel_time(8.0),
@@ -455,8 +379,6 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::RestoringLight,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Ultimate,
         )
         .with_channel_time(4.0),
@@ -467,8 +389,6 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::RestoringLight,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -477,8 +397,6 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::RestoringLight,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -487,8 +405,6 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::RestoringLight,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         // Healing Ritual line (no damage)
@@ -498,8 +414,6 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::RestoringLight,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -508,8 +422,6 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::RestoringLight,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -518,8 +430,6 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::RestoringLight,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Magicka,
         ),
         // Restoring Aura line (no damage)
@@ -529,8 +439,6 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::RestoringLight,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -539,8 +447,6 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::RestoringLight,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -549,8 +455,6 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::RestoringLight,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Magicka,
         ),
         // Cleansing Ritual line
@@ -560,8 +464,6 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::RestoringLight,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -570,8 +472,6 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::RestoringLight,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -579,11 +479,9 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Cleansing Ritual",
             ClassName::Templar,
             SkillLineName::RestoringLight,
-            SkillDamage::new().with_dots(vec![DotDamage::new(435.0, 20.0)
+            SkillDamage::new().with_dots(vec![DotDamage::new(435.0, 20.0, DamageFlags::magic_aoe())
                 .with_interval(2.0)
                 .with_increase_per_tick(0.12)]),
-            DamageType::Magic,
-            TargetType::Aoe,
             Resource::Magicka,
         ),
         // Rune Focus line (no damage)
@@ -593,8 +491,6 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::RestoringLight,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -603,8 +499,6 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::RestoringLight,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
         SkillData::new(
@@ -613,8 +507,6 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Templar,
             SkillLineName::RestoringLight,
             SkillDamage::new(),
-            DamageType::Magic,
-            TargetType::Single,
             Resource::Magicka,
         ),
     ]
