@@ -25,6 +25,8 @@
     "magicka",
     "Netch",
     "Nightblade",
-    "Runeforms"
+    "Runeforms",
+    "spammable"
   ],
+  "remote.autoForwardPortsFallback": 0
 }

@@ -410,9 +410,9 @@ impl BuildOptimizer {
 // Optimize
 impl BuildOptimizer {
     pub fn find_optimal_build(&self) -> Option<Build> {
-        let start_time = Instant::now();
-
         logger::log(&format!("Using {} threads...", self.parallelism));
+        
+        let start_time = Instant::now();
 
         let evaluated_count = AtomicU64::new(0);
         let last_progress_update = AtomicU64::new(0);
