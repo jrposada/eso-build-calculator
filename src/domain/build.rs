@@ -48,6 +48,7 @@ pub struct Build {
     crit_damage: f64,
     conditional_bonuses: Vec<BonusData>,
     character_stats: CharacterStats,
+    effective_stats: CharacterStats,
     alternatives_selections: Vec<AlternativeSelection>,
 }
 
@@ -114,10 +115,13 @@ impl Build {
         // Resolve all bonuses
         let resolved_bonuses = Self::resolve_bonuses(&all_bonuses, &ctx);
 
+        // Apply stat-based bonuses to character stats for accurate damage calculation
+        let effective_stats =
+            Self::apply_stat_bonuses_to_stats(&resolved_bonuses, &character_stats);
+
         let mut total_damage = 0.0;
         for skill in &skills {
-            let damage = skill.calculate_damage_per_cast(&resolved_bonuses);
-            total_damage += damage;
+            total_damage += skill.calculate_damage_with_stats(&resolved_bonuses, &effective_stats);
         }
 
         Self {
@@ -129,6 +133,7 @@ impl Build {
             crit_damage,
             conditional_bonuses,
             character_stats,
+            effective_stats,
             alternatives_selections,
         }
     }
@@ -155,6 +160,37 @@ impl Build {
             .collect()
     }
 
+    /// Apply stat-based bonuses to a cloned CharacterStats.
+    /// Stat-based bonuses (weapon damage, crit damage, crit rating, penetration)
+    /// don't affect damage through percentage modifiers — they must be folded into
+    /// the character stats used by `calculate_damage_with_stats`.
+    fn apply_stat_bonuses_to_stats(
+        bonuses: &[BonusData],
+        base_stats: &CharacterStats,
+    ) -> CharacterStats {
+        let mut stats = base_stats.clone();
+        for bonus in bonuses {
+            match bonus.target {
+                BonusTarget::WeaponAndSpellDamageFlat => {
+                    stats.weapon_damage += bonus.value;
+                    stats.spell_damage += bonus.value;
+                }
+                BonusTarget::CriticalDamage => {
+                    stats.critical_damage += bonus.value;
+                }
+                BonusTarget::CriticalRating => {
+                    stats.critical_chance +=
+                        formulas::crit_rating_to_bonus_chance(bonus.value);
+                }
+                BonusTarget::PhysicalAndSpellPenetration => {
+                    stats.penetration += bonus.value;
+                }
+                _ => {}
+            }
+        }
+        stats
+    }
+
     /// Resolve mutually exclusive alternative groups by exhaustively evaluating
     /// all combinations and picking the one that maximizes total damage.
     fn resolve_alternatives(
@@ -169,6 +205,10 @@ impl Build {
         let crit_damage = base_crit_damage + crit_damage_bonus;
         let ctx = ResolveContext::new(crit_damage);
         let resolved_regular = Self::resolve_bonuses(regular_bonuses, &ctx);
+
+        // Apply stat-based regular bonuses to base stats
+        let base_effective_stats =
+            Self::apply_stat_bonuses_to_stats(&resolved_regular, character_stats);
 
         // Build ordered group list for cartesian product
         let group_ids: Vec<u16> = alt_groups.keys().copied().collect();
@@ -194,7 +234,7 @@ impl Build {
         let mut best_damage = f64::NEG_INFINITY;
 
         for combo in &combinations {
-            let mut stats = character_stats.clone();
+            let mut stats = base_effective_stats.clone();
             let mut percentage_bonuses = resolved_regular.clone();
 
             for (group_idx, &option_idx) in combo.iter().enumerate() {
@@ -328,7 +368,8 @@ impl Build {
             .skills
             .iter()
             .map(|skill| {
-                let damage = skill.calculate_damage_per_cast(&self.resolved_bonuses);
+                let damage =
+                    skill.calculate_damage_with_stats(&self.resolved_bonuses, &self.effective_stats);
                 (skill, damage)
             })
             .collect();
