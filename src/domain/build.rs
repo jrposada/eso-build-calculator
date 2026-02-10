@@ -26,6 +26,7 @@ pub struct Build {
     skills: Vec<SkillData>,
     champion_bonuses: Vec<BonusData>,
     skill_line_counts: HashMap<SkillLineName, usize>,
+    resolved_bonuses: Vec<BonusData>,
     pub total_damage: f64,
     crit_damage: f64,
     conditional_bonuses: Vec<BonusData>,
@@ -108,6 +109,7 @@ impl Build {
             skills,
             champion_bonuses,
             skill_line_counts,
+            resolved_bonuses,
             total_damage,
             crit_damage,
             conditional_bonuses,
@@ -217,11 +219,20 @@ impl Build {
     }
 
     fn fmt_skills_table(&self) -> String {
-        let skills_data: Vec<Vec<String>> = self
+        let mut skills_with_damage: Vec<_> = self
             .skills
             .iter()
+            .map(|skill| {
+                let damage = skill.calculate_damage_per_cast(&self.resolved_bonuses);
+                (skill, damage)
+            })
+            .collect();
+        skills_with_damage.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+
+        let skills_data: Vec<Vec<String>> = skills_with_damage
+            .iter()
             .enumerate()
-            .map(|(i, skill)| {
+            .map(|(i, (skill, damage))| {
                 let type_str = if skill.spammable {
                     format!("{} *", skill.mechanic())
                 } else {
@@ -233,6 +244,7 @@ impl Build {
                     skill.class_name.to_string(),
                     skill.skill_line.to_string(),
                     type_str,
+                    format::format_number(*damage as u64),
                 ]
             })
             .collect();
