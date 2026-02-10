@@ -22,22 +22,6 @@ pub struct BuildOptimizerOptions {
     pub required_champion_points: Vec<BonusData>,
     pub forced_morphs: Vec<String>,
     pub parallelism: u8,
-    pub require_spammable: bool,
-}
-
-impl Default for BuildOptimizerOptions {
-    fn default() -> Self {
-        Self {
-            verbose: false,
-            pure_class: None,
-            required_class_names: Vec::new(),
-            required_weapon_skill_lines: Vec::new(),
-            required_champion_points: Vec::new(),
-            forced_morphs: Vec::new(),
-            parallelism: 0,
-            require_spammable: true,
-        }
-    }
 }
 
 pub struct BuildOptimizer {
@@ -51,12 +35,10 @@ pub struct BuildOptimizer {
     parallelism: u8,
 
     champion_point_combinations: Vec<Vec<BonusData>>,
-    skills_combinations: Vec<Vec<&'static SkillData>>,
+    spammable_skills: Vec<Vec<&'static SkillData>>,
+    non_spammable_skills: Vec<Vec<&'static SkillData>>,
     passive_bonuses_list: Vec<Vec<BonusData>>,
     total_possible_build_count: u64,
-    // Pre-split pools: (pure_spammable, other) per skill line combo
-    // None when require_spammable is false (use skills_combinations instead)
-    split_skill_pools: Option<Vec<(Vec<&'static SkillData>, Vec<&'static SkillData>)>>,
 }
 
 // Constructor
@@ -72,7 +54,6 @@ impl BuildOptimizer {
             .map(|cp| cp.name.clone())
             .collect();
         let pure_class = options.pure_class;
-        let mut require_spammable = options.require_spammable;
 
         if verbose {
             logger::dim(&format!(
@@ -112,8 +93,25 @@ impl BuildOptimizer {
             ));
         }
 
-        let (skill_names, skills_combinations) =
-            Self::generate_skills_combinations(&skill_line_combinations, &skills_service);
+        let mut skill_names: HashSet<String> = HashSet::new();
+        let spammable_skills = Self::generate_spammable_skills(
+            &skill_line_combinations,
+            &skills_service,
+            &mut skill_names,
+        );
+        let non_spammable_skills = Self::generate_non_spammable_skills(
+            &skill_line_combinations,
+            &skills_service,
+            &mut skill_names,
+        );
+
+        let has_any_spammable = spammable_skills.iter().any(|skills| !skills.is_empty());
+        if !has_any_spammable {
+            logger::error(
+                "No spammable skills found in skill pool. Cannot optimize without a spammable.",
+            );
+            std::process::exit(1);
+        }
 
         let passive_bonuses_list =
             Self::generate_passive_bonuses(&skill_line_combinations, verbose);
@@ -121,46 +119,10 @@ impl BuildOptimizer {
         let (champion_point_names, champion_point_combinations) =
             Self::generate_champion_point_combinations(&required_champion_points, verbose);
 
-        // Pre-check: if spammable required but no spammable skills exist, warn and disable
-        if require_spammable {
-            let has_any_spammable = skills_combinations
-                .iter()
-                .any(|skills| skills.iter().any(|s| s.spammable));
-            if !has_any_spammable {
-                logger::warn(
-                    "No spammable skills found in skill pool. Disabling spammable constraint.",
-                );
-                require_spammable = false;
-            }
-        }
-
-        let split_skill_pools = if require_spammable {
-            Some(
-                skills_combinations
-                    .iter()
-                    .map(|skills| {
-                        let pure: Vec<_> = skills
-                            .iter()
-                            .copied()
-                            .filter(|s| s.spammable && s.bonuses.is_none())
-                            .collect();
-                        let other: Vec<_> = skills
-                            .iter()
-                            .copied()
-                            .filter(|s| !(s.spammable && s.bonuses.is_none()))
-                            .collect();
-                        (pure, other)
-                    })
-                    .collect(),
-            )
-        } else {
-            None
-        };
-
         let total_possible_build_count = Self::calculate_total_build_count(
             &champion_point_combinations,
-            &skills_combinations,
-            &split_skill_pools,
+            &spammable_skills,
+            &non_spammable_skills,
         );
 
         let optimizer = Self {
@@ -173,10 +135,10 @@ impl BuildOptimizer {
             skill_names,
             parallelism,
             champion_point_combinations,
-            skills_combinations,
+            spammable_skills,
+            non_spammable_skills,
             passive_bonuses_list,
             total_possible_build_count,
-            split_skill_pools,
         };
 
         logger::log(&optimizer.to_string());
@@ -339,19 +301,22 @@ impl BuildOptimizer {
         (weapon_skill_line_names, combinations)
     }
 
-    fn generate_skills_combinations(
+    fn generate_spammable_skills(
         skill_line_combinations: &[Vec<SkillLineName>],
         skills_service: &SkillsService,
-    ) -> (HashSet<String>, Vec<Vec<&'static SkillData>>) {
-        let mut skill_names: HashSet<String> = HashSet::new();
-
-        let combinations: Vec<Vec<&'static SkillData>> = skill_line_combinations
+        skill_names: &mut HashSet<String>,
+    ) -> Vec<Vec<&'static SkillData>> {
+        skill_line_combinations
             .iter()
             .map(|skill_line_combination| {
                 skill_line_combination
                     .iter()
                     .flat_map(|skill_line| {
-                        let skills = skills_service.get_skills_by_skill_line(*skill_line);
+                        let skills: Vec<_> = skills_service
+                            .get_skills_by_skill_line(*skill_line)
+                            .into_iter()
+                            .filter(|s| s.spammable && s.bonuses.is_none())
+                            .collect();
                         for skill in &skills {
                             skill_names.insert(skill.name.clone());
                         }
@@ -359,9 +324,33 @@ impl BuildOptimizer {
                     })
                     .collect()
             })
-            .collect();
+            .collect()
+    }
 
-        (skill_names, combinations)
+    fn generate_non_spammable_skills(
+        skill_line_combinations: &[Vec<SkillLineName>],
+        skills_service: &SkillsService,
+        skill_names: &mut HashSet<String>,
+    ) -> Vec<Vec<&'static SkillData>> {
+        skill_line_combinations
+            .iter()
+            .map(|skill_line_combination| {
+                skill_line_combination
+                    .iter()
+                    .flat_map(|skill_line| {
+                        let skills: Vec<_> = skills_service
+                            .get_skills_by_skill_line(*skill_line)
+                            .into_iter()
+                            .filter(|s| !(s.spammable && s.bonuses.is_none()))
+                            .collect();
+                        for skill in &skills {
+                            skill_names.insert(skill.name.clone());
+                        }
+                        skills
+                    })
+                    .collect()
+            })
+            .collect()
     }
 
     fn generate_passive_bonuses(
@@ -399,31 +388,20 @@ impl BuildOptimizer {
 
     fn calculate_total_build_count(
         champion_point_combinations: &[Vec<BonusData>],
-        skills_combinations: &[Vec<&'static SkillData>],
-        split_skill_pools: &Option<Vec<(Vec<&'static SkillData>, Vec<&'static SkillData>)>>,
+        spammable_skills: &[Vec<&'static SkillData>],
+        non_spammable_skills: &[Vec<&'static SkillData>],
     ) -> u64 {
-        let skill_combinations_count: u64 = if let Some(pools) = split_skill_pools {
-            pools
-                .iter()
-                .map(|(pure, other)| {
-                    let case1 = pure.len() as u64
-                        * combinatorics::count_combinations(
-                            other.len(),
-                            BUILD_CONSTRAINTS.skill_count - 1,
-                        );
-                    let case2 =
-                        combinatorics::count_combinations(other.len(), BUILD_CONSTRAINTS.skill_count);
-                    case1 + case2
-                })
-                .sum()
-        } else {
-            skills_combinations
-                .iter()
-                .map(|skills| {
-                    combinatorics::count_combinations(skills.len(), BUILD_CONSTRAINTS.skill_count)
-                })
-                .sum()
-        };
+        let skill_combinations_count: u64 = spammable_skills
+            .iter()
+            .zip(non_spammable_skills.iter())
+            .map(|(spammable, non_spammable)| {
+                spammable.len() as u64
+                    * combinatorics::count_combinations(
+                        non_spammable.len(),
+                        BUILD_CONSTRAINTS.skill_count - 1,
+                    )
+            })
+            .sum();
 
         champion_point_combinations.len() as u64 * skill_combinations_count
     }
@@ -501,62 +479,30 @@ impl BuildOptimizer {
 
     fn build_combinations(
         &self,
-    ) -> Box<
-        dyn Iterator<Item = (&Vec<BonusData>, &Vec<BonusData>, Vec<&'static SkillData>)>
-            + Send
-            + '_,
-    > {
-        if let Some(split_pools) = &self.split_skill_pools {
-            Box::new(self.champion_point_combinations.iter().flat_map(
-                move |cp_bonuses| {
-                    split_pools
-                        .iter()
-                        .zip(self.passive_bonuses_list.iter())
-                        .flat_map(move |((pure, other), passive_bonuses)| {
-                            // Case 1: 1 pure spammable + C(other, 9)
-                            let case1 = pure.iter().flat_map(move |&pure_skill| {
+    ) -> impl Iterator<Item = (&Vec<BonusData>, &Vec<BonusData>, Vec<&'static SkillData>)> + Send + '_
+    {
+        self.champion_point_combinations.iter().flat_map(
+            move |cp_bonuses| {
+                self.spammable_skills
+                    .iter()
+                    .zip(self.non_spammable_skills.iter())
+                    .zip(self.passive_bonuses_list.iter())
+                    .flat_map(
+                        move |((spammable, non_spammable), passive_bonuses)| {
+                            spammable.iter().flat_map(move |&spammable_skill| {
                                 combinatorics::CombinationIterator::new(
-                                    other,
+                                    non_spammable,
                                     BUILD_CONSTRAINTS.skill_count - 1,
                                 )
                                 .map(move |mut combo| {
-                                    combo.push(pure_skill);
+                                    combo.push(spammable_skill);
                                     (cp_bonuses, passive_bonuses, combo)
                                 })
-                            });
-
-                            // Case 2: 0 pure spammables, C(other, 10), filter for bonus-spammable
-                            let case2 = combinatorics::CombinationIterator::new(
-                                other,
-                                BUILD_CONSTRAINTS.skill_count,
-                            )
-                            .filter(|combo| combo.iter().any(|s| s.spammable))
-                            .map(move |combo| (cp_bonuses, passive_bonuses, combo));
-
-                            case1.chain(case2)
-                        })
-                },
-            ))
-        } else {
-            Box::new(
-                self.champion_point_combinations
-                    .iter()
-                    .flat_map(|cp_bonuses| {
-                        self.skills_combinations
-                            .iter()
-                            .zip(self.passive_bonuses_list.iter())
-                            .flat_map(move |(skills, passive_bonuses)| {
-                                combinatorics::CombinationIterator::new(
-                                    skills,
-                                    BUILD_CONSTRAINTS.skill_count,
-                                )
-                                .map(move |skill_combo| {
-                                    (cp_bonuses, passive_bonuses, skill_combo)
-                                })
                             })
-                    }),
-            )
-        }
+                        },
+                    )
+            },
+        )
     }
 }
 
