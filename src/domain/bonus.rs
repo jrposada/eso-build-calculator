@@ -190,25 +190,21 @@ impl BonusData {
         self
     }
 
-    /// Set execute threshold - bonus only applies when enemy health is below this percentage
     pub fn with_execute_threshold(mut self, threshold: f64) -> Self {
         self.execute_threshold = Some(threshold);
         self
     }
 
-    /// Set skill line filter - bonus only applies to skills from this skill line
     pub fn with_skill_line_filter(mut self, skill_line: SkillLineName) -> Self {
         self.skill_line_filter = Some(skill_line);
         self
     }
 
-    /// Set alternatives group - bonuses in the same group are mutually exclusive
     pub fn with_alternatives_group(mut self, group: u16) -> Self {
         self.alternatives_group = Some(group);
         self
     }
 
-    /// Check if this is an execute bonus (has an execute threshold)
     pub fn is_execute_bonus(&self) -> bool {
         self.execute_threshold.is_some()
     }

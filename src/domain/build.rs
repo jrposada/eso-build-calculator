@@ -2,7 +2,7 @@ use super::{
     alternatives_group_name, formulas, BonusData, BonusTarget, CharacterStats, ClassName,
     ResolveContext, SkillData, SkillLineName,
 };
-use crate::infrastructure::{format, table};
+use crate::infrastructure::{format, logger, table};
 use std::collections::{HashMap, HashSet};
 
 fn fmt_bonus_value(value: f64) -> String {
@@ -42,7 +42,6 @@ pub struct AlternativeSelection {
 pub struct Build {
     skills: Vec<SkillData>,
     champion_bonuses: Vec<BonusData>,
-    skill_line_counts: HashMap<SkillLineName, usize>,
     resolved_bonuses: Vec<BonusData>,
     resolved_passive_bonuses: Vec<BonusData>,
     pub total_damage: f64,
@@ -62,11 +61,6 @@ impl Build {
         passive_bonuses: &[BonusData],
         character_stats: CharacterStats,
     ) -> Self {
-        let mut skill_line_counts: HashMap<SkillLineName, usize> = HashMap::new();
-        for skill in &skills {
-            *skill_line_counts.entry(skill.skill_line).or_insert(0) += 1;
-        }
-
         // Clone skills for storage (better cache locality in parallel execution)
         let skills: Vec<SkillData> = skills.into_iter().map(|s| s.clone()).collect();
 
@@ -141,7 +135,6 @@ impl Build {
         Self {
             skills,
             champion_bonuses,
-            skill_line_counts,
             resolved_bonuses,
             resolved_passive_bonuses,
             total_damage,
@@ -195,8 +188,7 @@ impl Build {
                     stats.critical_damage += bonus.value;
                 }
                 BonusTarget::CriticalRating => {
-                    stats.critical_chance +=
-                        formulas::crit_rating_to_bonus_chance(bonus.value);
+                    stats.critical_chance += formulas::crit_rating_to_bonus_chance(bonus.value);
                 }
                 BonusTarget::PhysicalAndSpellPenetration => {
                     stats.penetration += bonus.value;
@@ -266,8 +258,7 @@ impl Build {
                         stats.critical_damage += bonus.value;
                     }
                     BonusTarget::CriticalRating => {
-                        stats.critical_chance +=
-                            formulas::crit_rating_to_bonus_chance(bonus.value);
+                        stats.critical_chance += formulas::crit_rating_to_bonus_chance(bonus.value);
                     }
                     BonusTarget::PhysicalAndSpellPenetration => {
                         stats.penetration += bonus.value;
@@ -422,25 +413,28 @@ impl Build {
     }
 
     fn fmt_build_summary(&self) -> Vec<String> {
-        let class_names: HashSet<_> = self
-            .skill_line_counts
+        let mut skill_line_counts: HashMap<SkillLineName, usize> = HashMap::new();
+        for skill in &self.skills {
+            *skill_line_counts.entry(skill.skill_line).or_insert(0) += 1;
+        }
+
+        let class_names: HashSet<_> = skill_line_counts
             .keys()
             .map(|sl| sl.get_class())
             .filter(|c| *c != ClassName::Weapon)
             .collect();
+
         let mut class_names: Vec<_> = class_names.iter().map(|c| c.to_string()).collect();
         class_names.sort();
 
-        let mut class_skill_lines: Vec<_> = self
-            .skill_line_counts
+        let mut class_skill_lines: Vec<_> = skill_line_counts
             .keys()
             .filter(|sl| !sl.is_weapon())
             .map(|sl| sl.to_string())
             .collect();
         class_skill_lines.sort();
 
-        let mut weapon_skill_lines: Vec<_> = self
-            .skill_line_counts
+        let mut weapon_skill_lines: Vec<_> = skill_line_counts
             .keys()
             .filter(|sl| sl.is_weapon())
             .map(|sl| sl.to_string())
@@ -471,8 +465,8 @@ impl Build {
                     &self.resolved_passive_bonuses,
                     &self.passive_effective_stats,
                 );
-                let effective =
-                    skill.calculate_damage_with_stats(&self.resolved_bonuses, &self.effective_stats);
+                let effective = skill
+                    .calculate_damage_with_stats(&self.resolved_bonuses, &self.effective_stats);
                 (skill, tooltip, effective)
             })
             .collect();
@@ -564,10 +558,7 @@ impl Build {
         ];
 
         for selection in &self.alternatives_selections {
-            lines.push(format!(
-                "  {}:",
-                alternatives_group_name(selection.group)
-            ));
+            lines.push(format!("  {}:", alternatives_group_name(selection.group)));
             for option in &selection.options {
                 let marker = if option.name == selection.selected.name {
                     ">>>"
