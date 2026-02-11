@@ -1,4 +1,5 @@
 pub mod bonus;
+pub mod bonus_source;
 pub mod bonus_target;
 pub mod bonus_trigger;
 pub mod build;
@@ -23,6 +24,7 @@ pub use bonus::{
     alternatives_group_name, BonusAlternative, BonusData, ConditionalSelectionInfo, ResolveContext,
     ALT_GROUP_ANCIENT_KNOWLEDGE, ALT_GROUP_HEAVY_WEAPONS, ALT_GROUP_TWIN_BLADE_AND_BLUNT,
 };
+pub use bonus_source::BonusSource;
 pub use bonus_target::BonusTarget;
 pub use bonus_trigger::BonusTrigger;
 pub use build::{AlternativeSelection, Build, BUILD_CONSTRAINTS};

@@ -1,5 +1,5 @@
 use crate::data::bonuses::MINOR_BRUTALITY;
-use crate::domain::{BonusData, PassiveData};
+use crate::domain::{BonusData, BonusSource, PassiveData};
 use crate::domain::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use once_cell::sync::Lazy;
 
@@ -13,12 +13,14 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             vec![
                 BonusData::new(
                     "Combustion 1",
+                    BonusSource::Passive,
                     BonusTrigger::Passive,
                     BonusTarget::BurningAndPoisonDamage,
                     0.33,
                 ),
                 BonusData::new(
                     "Combustion 2",
+                    BonusSource::Passive,
                     BonusTrigger::BurningOrPoisonDamageDealt,
                     BonusTarget::RestoreMagickaOrStamina,
                     423.0,
@@ -32,6 +34,7 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::ArdentFlame,
             vec![BonusData::new(
                 "Warmth",
+                BonusSource::Passive,
                 BonusTrigger::SkillLineSkillCast,
                 BonusTarget::AoeDamage,
                 0.06,
@@ -50,6 +53,7 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::ArdentFlame,
             vec![BonusData::new(
                 "World in Ruin",
+                BonusSource::Passive,
                 BonusTrigger::Passive,
                 BonusTarget::BurningAndPoisonDamage,
                 0.05,
@@ -87,6 +91,7 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::EarthenHeart,
             vec![BonusData::new(
                 "Eternal Mountain",
+                BonusSource::Passive,
                 BonusTrigger::Passive,
                 BonusTarget::DurationSkillLineMultiplier,
                 0.2,

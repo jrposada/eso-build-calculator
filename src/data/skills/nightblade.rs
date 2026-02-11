@@ -2,7 +2,9 @@ use crate::data::bonuses::{
     EMPOWER, MAJOR_BERSERK, MAJOR_BREACH, MAJOR_BRUTALITY, MAJOR_PROPHECY, MAJOR_SAVAGERY,
     MAJOR_SORCERY, MINOR_BERSERK, MINOR_VULNERABILITY,
 };
-use crate::domain::{BonusData, DotDamage, ExecuteScaling, HitDamage, SkillDamage, SkillData};
+use crate::domain::{
+    BonusData, BonusSource, DotDamage, ExecuteScaling, HitDamage, SkillDamage, SkillData,
+};
 use crate::domain::{BonusTarget, BonusTrigger, ClassName, DamageFlags, Resource, SkillLineName};
 use once_cell::sync::Lazy;
 
@@ -25,6 +27,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         )
         .with_bonuses(vec![BonusData::new(
             "Death Stroke Debuff",
+            BonusSource::Skill,
             BonusTrigger::Cast,
             BonusTarget::EnemyDamageTaken,
             0.20,
@@ -45,6 +48,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         )
         .with_bonuses(vec![BonusData::new(
             "Incapacitating Strike Debuff",
+            BonusSource::Skill,
             BonusTrigger::Cast,
             BonusTarget::EnemyDamageTaken,
             0.20,
@@ -65,6 +69,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         )
         .with_bonuses(vec![BonusData::new(
             "Soul Harvest Debuff",
+            BonusSource::Skill,
             BonusTrigger::Cast,
             BonusTarget::EnemyDamageTaken,
             0.20,

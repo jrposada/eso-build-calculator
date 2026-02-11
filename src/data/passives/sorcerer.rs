@@ -1,5 +1,5 @@
 use crate::data::bonuses::MINOR_PROPHECY;
-use crate::domain::{BonusData, PassiveData};
+use crate::domain::{BonusData, BonusSource, PassiveData};
 use crate::domain::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use once_cell::sync::Lazy;
 
@@ -58,12 +58,14 @@ pub static SORCERER_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             vec![
                 BonusData::new(
                     "Expert Summoner 1",
+                    BonusSource::Passive,
                     BonusTrigger::Passive,
                     BonusTarget::MaxMagicka,
                     0.05,
                 ),
                 BonusData::new(
                     "Expert Summoner 2",
+                    BonusSource::Passive,
                     BonusTrigger::Passive,
                     BonusTarget::MaxStamina,
                     0.05,
@@ -84,12 +86,14 @@ pub static SORCERER_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             vec![
                 BonusData::new(
                     "Energized (Physical)",
+                    BonusSource::Passive,
                     BonusTrigger::Passive,
                     BonusTarget::PhysicalDamage,
                     0.05,
                 ),
                 BonusData::new(
                     "Energized (Shock)",
+                    BonusSource::Passive,
                     BonusTrigger::Passive,
                     BonusTarget::ShockDamage,
                     0.05,
@@ -108,6 +112,7 @@ pub static SORCERER_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::StormCalling,
             vec![BonusData::new(
                 "Expert Mage",
+                BonusSource::Passive,
                 BonusTrigger::AbilitySlottedCount,
                 BonusTarget::WeaponAndSpellDamageFlat,
                 108.0,

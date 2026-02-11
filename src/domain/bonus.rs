@@ -1,4 +1,4 @@
-use super::{BonusTarget, BonusTrigger, SkillLineName, WeaponType};
+use super::{BonusSource, BonusTarget, BonusTrigger, SkillLineName, WeaponType};
 use serde::{Deserialize, Serialize};
 
 // Alternative group constants for weapon-type-dependent passives.
@@ -136,6 +136,7 @@ pub struct ConditionalSelectionInfo {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BonusData {
     pub name: String,
+    pub source: BonusSource,
     pub bonus_trigger: BonusTrigger,
     pub target: BonusTarget,
     pub value: f64,
@@ -157,12 +158,14 @@ pub struct BonusData {
 impl BonusData {
     pub fn new(
         name: impl Into<String>,
+        source: BonusSource,
         bonus_trigger: BonusTrigger,
         target: BonusTarget,
         value: f64,
     ) -> Self {
         BonusData {
             name: name.into(),
+            source,
             bonus_trigger,
             target,
             value,
@@ -282,6 +285,7 @@ mod tests {
     fn create_long_shots_bonus() -> BonusData {
         BonusData::new(
             "Long Shots",
+            BonusSource::Passive,
             BonusTrigger::SkillLineSlotted,
             BonusTarget::Damage,
             0.05,
@@ -294,8 +298,13 @@ mod tests {
         let bonus = create_long_shots_bonus();
         assert!(bonus.is_conditional());
 
-        let simple_bonus =
-            BonusData::new("Simple", BonusTrigger::Passive, BonusTarget::Damage, 0.10);
+        let simple_bonus = BonusData::new(
+            "Simple",
+            BonusSource::Passive,
+            BonusTrigger::Passive,
+            BonusTarget::Damage,
+            0.10,
+        );
         assert!(!simple_bonus.is_conditional());
     }
 
@@ -336,6 +345,7 @@ mod tests {
     fn test_resolve_non_conditional_always_returns_primary() {
         let bonus = BonusData::new(
             "Simple",
+            BonusSource::Passive,
             BonusTrigger::Passive,
             BonusTarget::CriticalDamage,
             0.10,
@@ -354,7 +364,13 @@ mod tests {
 
     #[test]
     fn test_selection_info_returns_none_for_non_conditional() {
-        let bonus = BonusData::new("Simple", BonusTrigger::Passive, BonusTarget::Damage, 0.10);
+        let bonus = BonusData::new(
+            "Simple",
+            BonusSource::Passive,
+            BonusTrigger::Passive,
+            BonusTarget::Damage,
+            0.10,
+        );
         let ctx = ResolveContext::new(0.80);
 
         assert!(bonus.selection_info(&ctx).is_none());

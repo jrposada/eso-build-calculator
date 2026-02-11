@@ -1,4 +1,4 @@
-use crate::domain::{BonusData, PassiveData};
+use crate::domain::{BonusData, BonusSource, PassiveData};
 use crate::domain::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use once_cell::sync::Lazy;
 
@@ -11,6 +11,7 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             vec![BonusData::new(
                 "Fated Fortune",
+                BonusSource::Passive,
                 BonusTrigger::ArcanistCrux,
                 BonusTarget::CriticalDamage,
                 0.12,
@@ -23,6 +24,7 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             vec![BonusData::new(
                 "Harnessed Quintessence W",
+                BonusSource::Passive,
                 BonusTrigger::MagickaOrStaminaRestored,
                 BonusTarget::WeaponAndSpellDamageFlat,
                 284.0,
@@ -38,6 +40,7 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             vec![
                 BonusData::new(
                     "Psychic Lesion 1",
+                    BonusSource::Passive,
                     BonusTrigger::AbilitySlotted,
                     BonusTarget::StatusEffectDamage,
                     0.15,
@@ -45,6 +48,7 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 .with_duration(10.0),
                 BonusData::new(
                     "Psychic Lesion 2",
+                    BonusSource::Passive,
                     BonusTrigger::AbilitySlotted,
                     BonusTarget::StatusEffectChance,
                     0.55,
@@ -58,6 +62,7 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             vec![BonusData::new(
                 "Splintered Secrets",
+                BonusSource::Passive,
                 BonusTrigger::AbilitySlottedCount,
                 BonusTarget::PhysicalAndSpellPenetration,
                 1240.0,
@@ -106,6 +111,7 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::CurativeRuneforms,
             vec![BonusData::new(
                 "Hideous Clarity",
+                BonusSource::Passive,
                 BonusTrigger::ArcanistCrux, // TODO should be only on generate
                 BonusTarget::RestoreMagickaOrStamina,
                 225.0,

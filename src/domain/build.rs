@@ -2,7 +2,7 @@ use super::{
     alternatives_group_name, formulas, BonusData, BonusTarget, CharacterStats, ClassName,
     ResolveContext, SkillData, SkillLineName,
 };
-use crate::infrastructure::{format, logger, table};
+use crate::infrastructure::{format, table};
 use std::collections::{HashMap, HashSet};
 
 fn fmt_bonus_value(value: f64) -> String {
@@ -162,9 +162,15 @@ impl Build {
             .iter()
             .map(|bonus| {
                 let (target, value) = bonus.resolve(ctx);
-                BonusData::new(&bonus.name, bonus.bonus_trigger, target, value)
-                    .with_duration(bonus.duration.unwrap_or(0.0))
-                    .with_cooldown(bonus.cooldown.unwrap_or(0.0))
+                BonusData::new(
+                    &bonus.name,
+                    bonus.source,
+                    bonus.bonus_trigger,
+                    target,
+                    value,
+                )
+                .with_duration(bonus.duration.unwrap_or(0.0))
+                .with_cooldown(bonus.cooldown.unwrap_or(0.0))
             })
             .collect()
     }

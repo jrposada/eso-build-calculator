@@ -1,4 +1,4 @@
-use crate::domain::{BonusData, PassiveData};
+use crate::domain::{BonusData, BonusSource, PassiveData};
 use crate::domain::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use once_cell::sync::Lazy;
 
@@ -29,6 +29,7 @@ pub static WARDEN_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::AnimalCompanions,
             vec![BonusData::new(
                 "Advanced Species",
+                BonusSource::Passive,
                 BonusTrigger::AbilitySlottedCount,
                 BonusTarget::CriticalDamage,
                 0.05,
@@ -67,12 +68,14 @@ pub static WARDEN_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             vec![
                 BonusData::new(
                     "Glacial Presence 1",
+                    BonusSource::Passive,
                     BonusTrigger::Passive,
                     BonusTarget::ChilledStatusEffectChance,
                     2.5,
                 ),
                 BonusData::new(
                     "Glacial Presence 2",
+                    BonusSource::Passive,
                     BonusTrigger::Passive,
                     BonusTarget::ChilledStatusEffectDamage,
                     105.0, // TODO: scales of WeaponOrSpellDamage
@@ -98,6 +101,7 @@ pub static WARDEN_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             vec![
                 BonusData::new(
                     "Piercing Cold",
+                    BonusSource::Passive,
                     BonusTrigger::SkillLineSlotted,
                     BonusTarget::FrostDamage,
                     0.15,

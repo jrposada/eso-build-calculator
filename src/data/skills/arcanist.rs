@@ -1,5 +1,7 @@
 use crate::data::bonuses::{MAJOR_BRUTALITY, MAJOR_SORCERY, MINOR_BREACH};
-use crate::domain::{BonusData, DamageFlags, DotDamage, HitDamage, SkillDamage, SkillData};
+use crate::domain::{
+    BonusData, BonusSource, DamageFlags, DotDamage, HitDamage, SkillDamage, SkillData,
+};
 use crate::domain::{BonusTarget, BonusTrigger, ClassName, Resource, SkillLineName};
 use once_cell::sync::Lazy;
 
@@ -153,6 +155,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         .with_spammable()
         .with_bonuses(vec![BonusData::new(
             "Abyssal Ink",
+            BonusSource::Skill,
             BonusTrigger::Cast,
             BonusTarget::EnemyDamageTaken,
             0.05,
@@ -174,6 +177,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         .with_spammable()
         .with_bonuses(vec![BonusData::new(
             "Abyssal Ink",
+            BonusSource::Skill,
             BonusTrigger::Cast,
             BonusTarget::EnemyDamageTaken,
             0.05,
@@ -195,6 +199,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         .with_spammable()
         .with_bonuses(vec![BonusData::new(
             "Abyssal Ink",
+            BonusSource::Skill,
             BonusTrigger::Cast,
             BonusTarget::EnemyDamageTaken,
             0.05,
@@ -391,6 +396,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         .with_spammable()
         .with_bonuses(vec![BonusData::new(
             "Runic Sunder Armor Steal",
+            BonusSource::Skill,
             BonusTrigger::Cast,
             BonusTarget::EnemyResistanceReduction,
             2200.0,

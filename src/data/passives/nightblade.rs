@@ -1,5 +1,5 @@
 use crate::data::bonuses::MINOR_SAVAGERY;
-use crate::domain::{BonusData, PassiveData};
+use crate::domain::{BonusData, BonusSource, PassiveData};
 use crate::domain::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use once_cell::sync::Lazy;
 
@@ -12,6 +12,7 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::Assassination,
             vec![BonusData::new(
                 "Master Assassin",
+                BonusSource::Passive,
                 BonusTrigger::Flanking,
                 BonusTarget::CriticalRating,
                 1448.0,
@@ -29,6 +30,7 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::Assassination,
             vec![BonusData::new(
                 "Pressure Points",
+                BonusSource::Passive,
                 BonusTrigger::AbilitySlottedCount,
                 BonusTarget::CriticalRating,
                 548.0,
@@ -41,6 +43,7 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             vec![
                 BonusData::new(
                     "Hemorrhage",
+                    BonusSource::Passive,
                     BonusTrigger::SkillLineSlotted,
                     BonusTarget::CriticalDamage,
                     0.1,
@@ -75,6 +78,7 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::Shadow,
             vec![BonusData::new(
                 "Dark Veil",
+                BonusSource::Passive,
                 BonusTrigger::Passive,
                 BonusTarget::DurationSkillLineFlat,
                 2.0,
@@ -94,12 +98,14 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             vec![
                 BonusData::new(
                     "Magicka Flood (Stamina)",
+                    BonusSource::Passive,
                     BonusTrigger::SkillLineSlotted,
                     BonusTarget::MaxStamina,
                     0.06,
                 ),
                 BonusData::new(
                     "Magicka Flood (Magicka)",
+                    BonusSource::Passive,
                     BonusTrigger::SkillLineSlotted,
                     BonusTarget::MaxMagicka,
                     0.06,
