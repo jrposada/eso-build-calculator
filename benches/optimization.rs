@@ -1,6 +1,6 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 use eso_build_calculator::data::bonuses::CHAMPION_POINTS;
-use eso_build_calculator::domain::{ClassName, SkillLineName};
+use eso_build_calculator::domain::{CharacterStats, ClassName, SkillLineName};
 use eso_build_calculator::infrastructure::logger;
 use eso_build_calculator::services::{BuildOptimizer, BuildOptimizerOptions};
 use std::hint::black_box;
@@ -23,6 +23,7 @@ fn benchmark_nightblade_bow_2h_with_cp(c: &mut Criterion) {
     group.bench_function("nightblade_bow_2h_with_cp", |b| {
         b.iter(|| {
             let optimizer = BuildOptimizer::new(BuildOptimizerOptions {
+                character_stats: CharacterStats::default(),
                 verbose: false,
                 pure_class: Some(ClassName::Nightblade),
                 required_class_names: vec![],
