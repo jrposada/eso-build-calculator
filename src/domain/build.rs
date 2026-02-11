@@ -342,6 +342,85 @@ impl Build {
         ]
     }
 
+    fn fmt_character_stats(&self) -> String {
+        let base = &self.character_stats;
+        let eff = &self.effective_stats;
+
+        let fmt_stat = |base_val: f64, eff_val: f64| -> (String, String) {
+            (
+                format::format_number(base_val as u64),
+                format::format_number(eff_val as u64),
+            )
+        };
+
+        let fmt_pct = |base_val: f64, eff_val: f64| -> (String, String) {
+            (
+                format!("{:.2}%", base_val * 100.0),
+                format!("{:.2}%", eff_val * 100.0),
+            )
+        };
+
+        let fmt_crit_dmg = |base_val: f64, eff_val: f64| -> (String, String) {
+            (
+                format!("{:.2}%", (base_val - 1.0) * 100.0),
+                format!("{:.2}%", (eff_val - 1.0) * 100.0),
+            )
+        };
+
+        let stats: Vec<(&str, String, String)> = vec![
+            {
+                let (b, e) = fmt_stat(base.max_magicka, eff.max_magicka);
+                ("Max Magicka", b, e)
+            },
+            {
+                let (b, e) = fmt_stat(base.max_stamina, eff.max_stamina);
+                ("Max Stamina", b, e)
+            },
+            {
+                let (b, e) = fmt_stat(base.weapon_damage, eff.weapon_damage);
+                ("Weapon Damage", b, e)
+            },
+            {
+                let (b, e) = fmt_stat(base.spell_damage, eff.spell_damage);
+                ("Spell Damage", b, e)
+            },
+            {
+                let (b, e) = fmt_pct(base.critical_chance, eff.critical_chance);
+                ("Critical Chance", b, e)
+            },
+            {
+                let (b, e) = fmt_crit_dmg(base.critical_damage, eff.critical_damage);
+                ("Critical Damage", b, e)
+            },
+            {
+                let (b, e) = fmt_stat(base.penetration, eff.penetration);
+                ("Penetration", b, e)
+            },
+            {
+                let (b, e) = fmt_stat(base.target_armor, eff.target_armor);
+                ("Target Armor", b, e)
+            },
+        ];
+
+        let data: Vec<Vec<String>> = stats
+            .into_iter()
+            .map(|(name, b, e)| vec![name.to_string(), b, e])
+            .collect();
+
+        table(
+            &data,
+            table::TableOptions {
+                title: Some("Character Stats".to_string()),
+                columns: vec![
+                    table::ColumnDefinition::new("Stat", 20),
+                    table::ColumnDefinition::new("Base", 12).align_right(),
+                    table::ColumnDefinition::new("Effective", 12).align_right(),
+                ],
+                footer: None,
+            },
+        )
+    }
+
     fn fmt_build_summary(&self) -> Vec<String> {
         let class_names: HashSet<_> = self
             .skill_line_counts
@@ -554,6 +633,7 @@ impl std::fmt::Display for Build {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut lines = Vec::new();
         lines.extend(self.fmt_header());
+        lines.push(self.fmt_character_stats());
         lines.extend(self.fmt_build_summary());
         lines.push(self.fmt_skills_table());
         lines.push(self.fmt_bonuses());
