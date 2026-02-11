@@ -44,11 +44,13 @@ pub struct Build {
     champion_bonuses: Vec<BonusData>,
     skill_line_counts: HashMap<SkillLineName, usize>,
     resolved_bonuses: Vec<BonusData>,
+    resolved_passive_bonuses: Vec<BonusData>,
     pub total_damage: f64,
     crit_damage: f64,
     conditional_bonuses: Vec<BonusData>,
     character_stats: CharacterStats,
     effective_stats: CharacterStats,
+    passive_effective_stats: CharacterStats,
     alternatives_selections: Vec<AlternativeSelection>,
 }
 
@@ -120,6 +122,17 @@ impl Build {
         let effective_stats =
             Self::apply_stat_bonuses_to_stats(&resolved_bonuses, &character_stats);
 
+        // Resolve passive-only bonuses for tooltip damage (excludes champion points)
+        let cp_names: HashSet<&str> = champion_bonuses.iter().map(|b| b.name.as_str()).collect();
+        let passive_only: Vec<_> = all_bonuses
+            .iter()
+            .filter(|b| !cp_names.contains(b.name.as_str()))
+            .cloned()
+            .collect();
+        let resolved_passive_bonuses = Self::resolve_bonuses(&passive_only, &ctx);
+        let passive_effective_stats =
+            Self::apply_stat_bonuses_to_stats(&resolved_passive_bonuses, &character_stats);
+
         let mut total_damage = 0.0;
         for skill in &skills {
             total_damage += skill.calculate_damage_with_stats(&resolved_bonuses, &effective_stats);
@@ -130,11 +143,13 @@ impl Build {
             champion_bonuses,
             skill_line_counts,
             resolved_bonuses,
+            resolved_passive_bonuses,
             total_damage,
             crit_damage,
             conditional_bonuses,
             character_stats,
             effective_stats,
+            passive_effective_stats,
             alternatives_selections,
         }
     }
@@ -373,17 +388,21 @@ impl Build {
             .skills
             .iter()
             .map(|skill| {
-                let damage =
+                let tooltip = skill.calculate_tooltip_damage_with_stats(
+                    &self.resolved_passive_bonuses,
+                    &self.passive_effective_stats,
+                );
+                let effective =
                     skill.calculate_damage_with_stats(&self.resolved_bonuses, &self.effective_stats);
-                (skill, damage)
+                (skill, tooltip, effective)
             })
             .collect();
-        skills_with_damage.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+        skills_with_damage.sort_by(|a, b| b.2.partial_cmp(&a.2).unwrap());
 
         let skills_data: Vec<Vec<String>> = skills_with_damage
             .iter()
             .enumerate()
-            .map(|(i, (skill, damage))| {
+            .map(|(i, (skill, tooltip, effective))| {
                 let type_str = if skill.spammable {
                     format!("{} *", skill.mechanic())
                 } else {
@@ -395,7 +414,8 @@ impl Build {
                     skill.class_name.to_string(),
                     skill.skill_line.to_string(),
                     type_str,
-                    format::format_number(*damage as u64),
+                    format::format_number(*tooltip as u64),
+                    format::format_number(*effective as u64),
                 ]
             })
             .collect();
@@ -411,6 +431,7 @@ impl Build {
                     table::ColumnDefinition::new("Skill Line", 18),
                     table::ColumnDefinition::new("Type", 10),
                     table::ColumnDefinition::new("Damage", 10).align_right(),
+                    table::ColumnDefinition::new("Eff. Damage", 12).align_right(),
                 ],
                 footer: Some("*Spammable skill".to_string()),
             },

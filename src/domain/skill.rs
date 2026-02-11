@@ -241,6 +241,18 @@ impl SkillData {
     }
 
     /// Calculate damage using character stats for coefficient-based calculation.
+    /// Calculate pre-mitigation damage (tooltip) using character stats but without
+    /// armor penetration or critical multipliers.
+    pub fn calculate_tooltip_damage_with_stats(
+        &self,
+        bonuses: &[BonusData],
+        stats: &CharacterStats,
+    ) -> f64 {
+        let max_stat = stats.max_stat();
+        let max_power = stats.max_power();
+        self.calculate_damage_at_health_internal(bonuses, max_stat, max_power, None)
+    }
+
     pub fn calculate_damage_with_stats(
         &self,
         bonuses: &[BonusData],
