@@ -7,26 +7,18 @@ use serde::{Deserialize, Serialize};
 /// of magicka/stamina and weapon/spell damage.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CharacterStats {
-    /// Maximum magicka pool
     pub max_magicka: f64,
-    /// Maximum stamina pool
     pub max_stamina: f64,
-    /// Weapon damage rating
     pub weapon_damage: f64,
-    /// Spell damage rating
     pub spell_damage: f64,
-    /// Critical strike chance (0.0 - 1.0, e.g., 0.60 for 60%)
     pub critical_chance: f64,
     /// Critical damage multiplier (e.g., 1.75 for 75% bonus damage)
     pub critical_damage: f64,
-    /// Armor penetration rating
     pub penetration: f64,
-    /// Target's armor value
     pub target_armor: f64,
 }
 
 impl Default for CharacterStats {
-    /// Default values representing typical endgame stats
     fn default() -> Self {
         Self {
             max_magicka: 12_000.0,
@@ -42,7 +34,6 @@ impl Default for CharacterStats {
 }
 
 impl CharacterStats {
-    /// Create new CharacterStats with all values specified
     pub fn new(
         max_magicka: f64,
         max_stamina: f64,
@@ -65,12 +56,10 @@ impl CharacterStats {
         }
     }
 
-    /// Get the higher of max_magicka and max_stamina (ESO Update 33+ scaling)
     pub fn max_stat(&self) -> f64 {
         self.max_magicka.max(self.max_stamina)
     }
 
-    /// Get the higher of weapon_damage and spell_damage (ESO Update 33+ scaling)
     pub fn max_power(&self) -> f64 {
         self.weapon_damage.max(self.spell_damage)
     }
