@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CharacterStats {
     pub max_magicka: f64,
-    pub max_stamina: f64,
+    pub max_stamina: f64, // TODO: 111 * 64 (per attribute level)
     pub weapon_damage: f64,
     pub spell_damage: f64,
     pub critical_chance: f64,
