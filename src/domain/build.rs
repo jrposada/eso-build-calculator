@@ -2,7 +2,10 @@ use super::{
     alternatives_group_name, formulas, BonusData, BonusTarget, CharacterStats, ClassName,
     ResolveContext, SkillData, SkillLineName,
 };
-use crate::infrastructure::{format, table};
+use crate::{
+    domain::character_stats::MAX_CRITICAL_DAMAGE,
+    infrastructure::{format, table},
+};
 use std::collections::{HashMap, HashSet};
 
 fn fmt_bonus_value(value: f64) -> String {
@@ -98,8 +101,7 @@ impl Build {
         let crit_damage_bonus = Self::aggregate_crit_damage(&all_bonuses);
         // Use character stats crit damage as base, add bonus from passives
         let base_crit_damage = character_stats.critical_damage - 1.0; // Convert from multiplier to bonus
-        let crit_damage =
-            (base_crit_damage + crit_damage_bonus).min(formulas::MAX_CRITICAL_DAMAGE - 1.0);
+        let crit_damage = (base_crit_damage + crit_damage_bonus).min(MAX_CRITICAL_DAMAGE - 1.0);
         let ctx = ResolveContext::new(crit_damage);
 
         // Store conditional bonuses for Display (minimal overhead - usually 0-2 items)
@@ -217,8 +219,7 @@ impl Build {
         // Resolve regular bonuses for comparison
         let crit_damage_bonus = Self::aggregate_crit_damage(regular_bonuses);
         let base_crit_damage = character_stats.critical_damage - 1.0;
-        let crit_damage =
-            (base_crit_damage + crit_damage_bonus).min(formulas::MAX_CRITICAL_DAMAGE - 1.0);
+        let crit_damage = (base_crit_damage + crit_damage_bonus).min(MAX_CRITICAL_DAMAGE - 1.0);
         let ctx = ResolveContext::new(crit_damage);
         let resolved_regular = Self::resolve_bonuses(regular_bonuses, &ctx);
 

@@ -18,12 +18,6 @@ pub const BASE_CRIT_CHANCE: f64 = 0.10;
 /// Used in armor mitigation calculations at CP160
 pub const ARMOR_LEVEL_CONSTANT: f64 = 3300.0;
 
-/// Maximum critical damage multiplier (base 1.50 + max 0.75 bonus)
-pub const MAX_CRITICAL_DAMAGE: f64 = 2.25;
-
-/// Maximum critical chance (100%)
-pub const MAX_CRITICAL_CHANCE: f64 = 1.0;
-
 // ==================== CRITICAL ====================
 
 /// Converts critical rating to total critical chance (includes base 10%)
@@ -124,6 +118,8 @@ pub fn calculate_final_damage(
 
 #[cfg(test)]
 mod tests {
+    use crate::domain::character_stats::{MAX_CRITICAL_CHANCE, MAX_CRITICAL_DAMAGE};
+
     use super::*;
 
     // ==================== CAP CONSTANT TESTS ====================

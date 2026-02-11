@@ -1,7 +1,8 @@
-use super::formulas;
 use serde::{Deserialize, Serialize};
 
 pub const ATTRIBUTE_POINTS_BONUS: f64 = 111.0 * 64.0;
+pub const MAX_CRITICAL_CHANCE: f64 = 1.0;
+pub const MAX_CRITICAL_DAMAGE: f64 = 2.25;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CharacterStats {
@@ -102,8 +103,8 @@ impl CharacterStats {
     }
 
     pub fn clamp_caps(&mut self) {
-        self.critical_chance = self.critical_chance.min(formulas::MAX_CRITICAL_CHANCE);
-        self.critical_damage = self.critical_damage.min(formulas::MAX_CRITICAL_DAMAGE);
+        self.critical_chance = self.critical_chance.min(MAX_CRITICAL_CHANCE);
+        self.critical_damage = self.critical_damage.min(MAX_CRITICAL_DAMAGE);
     }
 }
 
