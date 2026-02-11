@@ -12,7 +12,6 @@ pub struct CharacterStats {
     pub weapon_damage: f64,
     pub spell_damage: f64,
     pub critical_chance: f64,
-    /// Critical damage multiplier (e.g., 1.75 for 75% bonus damage)
     pub critical_damage: f64,
     pub penetration: f64,
     pub target_armor: f64,
