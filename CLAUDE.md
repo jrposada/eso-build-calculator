@@ -39,7 +39,6 @@ Coordinates multiple domain entities and data sources. Services handle:
 - `SkillsService` - Skill filtering, morph selection
 - `PassivesService` - Passive resolution
 - `BuildOptimizer` - Build optimization algorithms
-- `BreakpointsService` - Damage breakpoint calculations
 
 #### `infrastructure/` - Cross-Cutting Concerns
 Utilities shared across layers:

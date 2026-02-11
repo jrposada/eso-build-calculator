@@ -3,6 +3,8 @@
 //! This module contains all the mathematical formulas used to convert
 //! between different ESO attribute representations (ratings to percentages, etc.)
 
+use super::{BonusTarget, CharacterStats};
+
 // ==================== CONSTANTS ====================
 
 /// Maximum Critical Value at CP160 (level 66)
@@ -115,6 +117,63 @@ pub fn calculate_final_damage(
     let crit_mult = critical_multiplier(crit_chance, crit_damage);
     modified_damage * armor_factor * crit_mult
 }
+
+// ==================== EFFECTIVE DAMAGE CONTRIBUTION ====================
+
+/// Estimate the effective damage % increase a bonus provides given current stats.
+///
+/// Returns an approximate relative damage increase (e.g., 0.05 for ~5% more damage).
+/// Used to compare alternative bonus values and pick the best one.
+pub fn effective_damage_contribution(
+    target: BonusTarget,
+    value: f64,
+    stats: &CharacterStats,
+) -> f64 {
+    match target {
+        // Percentage damage modifiers — value is the direct contribution
+        BonusTarget::Damage
+        | BonusTarget::DirectDamage
+        | BonusTarget::DotDamage
+        | BonusTarget::AoeDamage
+        | BonusTarget::SingleDamage
+        | BonusTarget::FlameDamage
+        | BonusTarget::FrostDamage
+        | BonusTarget::ShockDamage
+        | BonusTarget::PhysicalDamage
+        | BonusTarget::EnemyDamageTaken => value,
+
+        // Crit rating → crit chance → scales with crit damage bonus
+        BonusTarget::CriticalRating => {
+            crit_rating_to_bonus_chance(value) * (stats.critical_damage - 1.0)
+        }
+
+        // Crit damage → scales with crit chance
+        BonusTarget::CriticalDamage => value * stats.critical_chance,
+
+        // Flat weapon/spell damage → relative increase to base power
+        BonusTarget::WeaponAndSpellDamageFlat => {
+            let base = stats.max_power();
+            if base <= 0.0 {
+                return 0.0;
+            }
+            value / base
+        }
+
+        // Penetration → relative improvement in armor damage factor
+        BonusTarget::PhysicalAndSpellPenetration => {
+            let old_factor = armor_damage_factor(stats.target_armor, stats.penetration);
+            if old_factor <= 0.0 {
+                return 0.0;
+            }
+            let new_factor = armor_damage_factor(stats.target_armor, stats.penetration + value);
+            (new_factor - old_factor) / old_factor
+        }
+
+        // Unsupported targets — no damage contribution estimate
+        _ => 0.0,
+    }
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -429,4 +488,118 @@ mod tests {
             damage
         );
     }
+
+    // ==================== EFFECTIVE DAMAGE CONTRIBUTION TESTS ====================
+
+    fn test_stats() -> CharacterStats {
+        CharacterStats::default()
+            .with_weapon_damage(6000.0)
+            .with_spell_damage(6000.0)
+            .with_critical_chance(0.60)
+            .with_critical_damage(1.75)
+            .with_penetration(10000.0)
+            .with_target_armor(18200.0)
+    }
+
+    #[test]
+    fn test_edc_percentage_damage_returns_value() {
+        let stats = test_stats();
+        let targets = [
+            BonusTarget::Damage,
+            BonusTarget::DirectDamage,
+            BonusTarget::DotDamage,
+            BonusTarget::AoeDamage,
+            BonusTarget::SingleDamage,
+            BonusTarget::FlameDamage,
+            BonusTarget::FrostDamage,
+            BonusTarget::ShockDamage,
+            BonusTarget::PhysicalDamage,
+            BonusTarget::EnemyDamageTaken,
+        ];
+        for target in targets {
+            let result = effective_damage_contribution(target, 0.05, &stats);
+            assert!(
+                (result - 0.05).abs() < 0.0001,
+                "{:?}: expected 0.05, got {}",
+                target,
+                result
+            );
+        }
+    }
+
+    #[test]
+    fn test_edc_crit_rating() {
+        let stats = test_stats();
+        // 1314 rating → bonus_chance = 1314/21912 ≈ 0.05995
+        // contribution = bonus_chance * (crit_damage - 1) = 0.05995 * 0.75
+        let result = effective_damage_contribution(BonusTarget::CriticalRating, 1314.0, &stats);
+        let expected = crit_rating_to_bonus_chance(1314.0) * (1.75 - 1.0);
+        assert!(
+            (result - expected).abs() < 0.0001,
+            "Expected {}, got {}",
+            expected,
+            result
+        );
+    }
+
+    #[test]
+    fn test_edc_crit_damage() {
+        let stats = test_stats();
+        // contribution = value * crit_chance = 0.06 * 0.60
+        let result = effective_damage_contribution(BonusTarget::CriticalDamage, 0.06, &stats);
+        let expected = 0.06 * 0.60;
+        assert!(
+            (result - expected).abs() < 0.0001,
+            "Expected {}, got {}",
+            expected,
+            result
+        );
+    }
+
+    #[test]
+    fn test_edc_flat_damage() {
+        let stats = test_stats();
+        // contribution = value / max_power = 129 / 6000
+        let result =
+            effective_damage_contribution(BonusTarget::WeaponAndSpellDamageFlat, 129.0, &stats);
+        let expected = 129.0 / 6000.0;
+        assert!(
+            (result - expected).abs() < 0.0001,
+            "Expected {}, got {}",
+            expected,
+            result
+        );
+    }
+
+    #[test]
+    fn test_edc_penetration() {
+        let stats = test_stats();
+        let result = effective_damage_contribution(
+            BonusTarget::PhysicalAndSpellPenetration,
+            1487.0,
+            &stats,
+        );
+        let old_factor = armor_damage_factor(18200.0, 10000.0);
+        let new_factor = armor_damage_factor(18200.0, 11487.0);
+        let expected = (new_factor - old_factor) / old_factor;
+        assert!(
+            (result - expected).abs() < 0.0001,
+            "Expected {}, got {}",
+            expected,
+            result
+        );
+    }
+
+    #[test]
+    fn test_edc_unsupported_target_returns_zero() {
+        let stats = test_stats();
+        let result =
+            effective_damage_contribution(BonusTarget::StatusEffectChance, 0.10, &stats);
+        assert!(
+            result.abs() < 0.0001,
+            "Expected 0.0 for unsupported target, got {}",
+            result
+        );
+    }
+
 }

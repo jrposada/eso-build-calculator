@@ -434,8 +434,11 @@ impl BuildOptimizer {
 
                     let build = Build::new(
                         skill_combo,
-                        cp_bonuses.clone(),
-                        passive_bonuses,
+                        {
+                            let mut all_bonuses = cp_bonuses.clone();
+                            all_bonuses.extend(passive_bonuses.iter().cloned());
+                            all_bonuses
+                        },
                         self.character_stats.clone(),
                     );
                     let damage = build.total_damage;

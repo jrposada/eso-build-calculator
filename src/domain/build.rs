@@ -1,6 +1,6 @@
 use super::{
-    alternatives_group_name, formulas, BonusData, BonusTarget, CharacterStats, ClassName,
-    ResolveContext, SkillData, SkillLineName,
+    formulas, BonusData, BonusTarget, CharacterStats, ClassName, ResolveContext, SkillData,
+    SkillLineName,
 };
 use crate::{
     domain::character_stats::MAX_CRITICAL_DAMAGE,
@@ -8,60 +8,27 @@ use crate::{
 };
 use std::collections::{HashMap, HashSet};
 
-fn fmt_bonus_value(value: f64) -> String {
-    if value.fract() == 0.0 && value.abs() >= 1.0 {
-        (value as i64).to_string()
-    } else {
-        format!("{:.2}%", value * 100.0)
-    }
-}
-
-/// Build constraints
-pub const BUILD_CONSTRAINTS: BuildConstraints = BuildConstraints {
-    skill_count: 10,
-    champion_point_count: 4,
-    class_skill_line_count: 3,
-    weapon_skill_line_count: 2,
-};
-
-#[derive(Debug, Clone, Copy)]
-pub struct BuildConstraints {
-    pub skill_count: usize,
-    pub champion_point_count: usize,
-    pub class_skill_line_count: usize,
-    pub weapon_skill_line_count: usize,
-}
-
-/// Tracks which alternative was selected from a mutually exclusive group
-#[derive(Debug, Clone)]
-pub struct AlternativeSelection {
-    pub group: u16,
-    pub selected: BonusData,
-    pub options: Vec<BonusData>,
-}
-
-/// A complete build with skills, champion points, and calculated damages
 #[derive(Debug, Clone)]
 pub struct Build {
     skills: Vec<SkillData>,
-    champion_bonuses: Vec<BonusData>,
-    resolved_bonuses: Vec<BonusData>,
-    resolved_passive_bonuses: Vec<BonusData>,
-    pub total_damage: f64,
-    crit_damage: f64,
-    conditional_bonuses: Vec<BonusData>,
-    character_stats: CharacterStats,
-    effective_stats: CharacterStats,
-    passive_effective_stats: CharacterStats,
-    alternatives_selections: Vec<AlternativeSelection>,
+    all_bonuses: Vec<BonusData>,
+    // champion_bonuses: Vec<BonusData>,
+    // resolved_bonuses: Vec<BonusData>,
+    // resolved_passive_bonuses: Vec<BonusData>,
+
+    // pub total_damage: f64,
+    // crit_damage: f64,
+    // conditional_bonuses: Vec<BonusData>,
+    // character_stats: CharacterStats,
+    // effective_stats: CharacterStats,
+    // passive_effective_stats: CharacterStats,
 }
 
 // Constructor
 impl Build {
     pub fn new(
         skills: Vec<&'static SkillData>,
-        champion_bonuses: Vec<BonusData>,
-        passive_bonuses: &[BonusData],
+        all_bonuses: Vec<BonusData>,
         character_stats: CharacterStats,
     ) -> Self {
         // Clone skills for storage (better cache locality in parallel execution)
@@ -69,8 +36,6 @@ impl Build {
 
         // FIXME: some passives are only active while on that bar,
         // do we wanna apply combination here too?
-        let mut all_bonuses = champion_bonuses.clone();
-        all_bonuses.extend(passive_bonuses.iter().cloned());
 
         // --- Partition bonuses into regular vs alternatives ---
         let mut regular_bonuses: Vec<BonusData> = Vec::new();
@@ -316,11 +281,6 @@ impl Build {
             .iter()
             .map(|b| b.name.clone())
             .collect()
-    }
-
-    /// Get character stats
-    pub fn character_stats(&self) -> &CharacterStats {
-        &self.character_stats
     }
 }
 
