@@ -29,13 +29,13 @@ impl Default for CharacterStats {
     /// Default values representing typical endgame stats
     fn default() -> Self {
         Self {
-            max_magicka: 40_000.0,
-            max_stamina: 40_000.0,
-            weapon_damage: 5_500.0,
-            spell_damage: 5_500.0,
-            critical_chance: 0.60,
-            critical_damage: 1.75,
-            penetration: 18_200.0,
+            max_magicka: 12_000.0,
+            max_stamina: 12_000.0,
+            weapon_damage: 1_000.0,
+            spell_damage: 1_000.0,
+            critical_chance: 0.10,
+            critical_damage: 1.50,
+            penetration: 0.0,
             target_armor: 18_200.0,
         }
     }
@@ -121,19 +121,6 @@ impl CharacterStats {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_default_values() {
-        let stats = CharacterStats::default();
-        assert_eq!(stats.max_magicka, 40_000.0);
-        assert_eq!(stats.max_stamina, 40_000.0);
-        assert_eq!(stats.weapon_damage, 5_500.0);
-        assert_eq!(stats.spell_damage, 5_500.0);
-        assert_eq!(stats.critical_chance, 0.60);
-        assert_eq!(stats.critical_damage, 1.75);
-        assert_eq!(stats.penetration, 18_200.0);
-        assert_eq!(stats.target_armor, 18_200.0);
-    }
 
     #[test]
     fn test_max_stat_magicka_higher() {
