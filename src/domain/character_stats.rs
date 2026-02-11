@@ -1,10 +1,12 @@
 use super::formulas;
 use serde::{Deserialize, Serialize};
 
+pub const ATTRIBUTE_POINTS_BONUS: f64 = 111.0 * 64.0;
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CharacterStats {
     pub max_magicka: f64,
-    pub max_stamina: f64, // TODO: 111 * 64 (per attribute level)
+    pub max_stamina: f64,
     pub weapon_damage: f64,
     pub spell_damage: f64,
     pub critical_chance: f64,

@@ -1,7 +1,8 @@
 use super::build_config::BuildConfig;
 use super::parsers::{parse_champion_point, parse_skill};
 use crate::domain::{
-    BonusData, Build, CharacterStats, SkillData, SkillLineName, BUILD_CONSTRAINTS,
+    BonusData, Build, CharacterStats, SkillData, SkillLineName, ATTRIBUTE_POINTS_BONUS,
+    BUILD_CONSTRAINTS,
 };
 use crate::infrastructure::logger;
 use crate::services::{PassivesService, PassivesServiceOptions};
@@ -24,6 +25,14 @@ pub struct CalculateArgs {
     /// Path to build configuration file (exported from optimize)
     #[arg(short = 'f', long, conflicts_with_all = ["skills", "champion_points"])]
     pub file: Option<PathBuf>,
+
+    /// Allocate 64 attribute points to magicka
+    #[arg(long, conflicts_with = "stamina")]
+    pub magicka: bool,
+
+    /// Allocate 64 attribute points to stamina
+    #[arg(long, conflicts_with = "magicka")]
+    pub stamina: bool,
 }
 
 impl CalculateArgs {
@@ -67,13 +76,15 @@ impl CalculateArgs {
             .flat_map(|p| p.bonuses.iter().cloned())
             .collect();
 
+        let mut stats = CharacterStats::default();
+        if self.magicka {
+            stats.max_magicka += ATTRIBUTE_POINTS_BONUS;
+        } else if self.stamina {
+            stats.max_stamina += ATTRIBUTE_POINTS_BONUS;
+        }
+
         // Create the build
-        let build = Build::new(
-            skills.clone(),
-            champion_points,
-            &passive_bonuses,
-            CharacterStats::default(),
-        );
+        let build = Build::new(skills.clone(), champion_points, &passive_bonuses, stats);
 
         if !skills.iter().any(|s| s.spammable) {
             logger::warn("This build has no spammable skill. Every rotation needs at least one instant-cast filler.");

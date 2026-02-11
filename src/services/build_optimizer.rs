@@ -15,6 +15,7 @@ use std::time::Instant;
 
 #[derive(Debug, Clone)]
 pub struct BuildOptimizerOptions {
+    pub character_stats: CharacterStats,
     pub verbose: bool,
     pub pure_class: Option<ClassName>,
     pub required_class_names: Vec<ClassName>,
@@ -25,6 +26,7 @@ pub struct BuildOptimizerOptions {
 }
 
 pub struct BuildOptimizer {
+    character_stats: CharacterStats,
     required_class_names: Vec<ClassName>,
     class_names: HashSet<ClassName>,
     required_weapon_skill_lines: Vec<SkillLineName>,
@@ -126,6 +128,7 @@ impl BuildOptimizer {
         );
 
         let optimizer = Self {
+            character_stats: options.character_stats,
             required_class_names,
             class_names,
             required_weapon_skill_lines,
@@ -433,7 +436,7 @@ impl BuildOptimizer {
                         skill_combo,
                         cp_bonuses.clone(),
                         passive_bonuses,
-                        CharacterStats::default(),
+                        self.character_stats.clone(),
                     );
                     let damage = build.total_damage;
 

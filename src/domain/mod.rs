@@ -26,7 +26,7 @@ pub use bonus::{
 pub use bonus_target::BonusTarget;
 pub use bonus_trigger::BonusTrigger;
 pub use build::{AlternativeSelection, Build, BUILD_CONSTRAINTS};
-pub use character_stats::CharacterStats;
+pub use character_stats::{CharacterStats, ATTRIBUTE_POINTS_BONUS};
 pub use class_name::ClassName;
 pub use damage_coefficients::DamageCoefficients;
 pub use damage_flags::DamageFlags;

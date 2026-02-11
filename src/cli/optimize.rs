@@ -5,7 +5,7 @@ use std::time::Instant;
 
 use super::build_config::BuildConfig;
 use super::parsers::{parse_champion_point, parse_class_name, parse_weapon_skill_line};
-use crate::domain::BUILD_CONSTRAINTS;
+use crate::domain::{CharacterStats, ATTRIBUTE_POINTS_BONUS, BUILD_CONSTRAINTS};
 use crate::domain::{ClassName, SkillLineName};
 use crate::infrastructure::logger;
 use crate::services::{BuildOptimizer, BuildOptimizerOptions};
@@ -41,6 +41,14 @@ pub struct OptimizeArgs {
     /// Number of parallel threads to use (default: half of available CPUs)
     #[arg(short = 'p', long)]
     pub parallelism: Option<u8>,
+
+    /// Allocate 64 attribute points to magicka
+    #[arg(long, conflicts_with = "stamina")]
+    pub magicka: bool,
+
+    /// Allocate 64 attribute points to stamina
+    #[arg(long, conflicts_with = "magicka")]
+    pub stamina: bool,
 }
 
 impl OptimizeArgs {
@@ -78,9 +86,17 @@ impl OptimizeArgs {
             }
         }
 
+        let mut character_stats = CharacterStats::default();
+        if self.magicka {
+            character_stats.max_magicka += ATTRIBUTE_POINTS_BONUS;
+        } else if self.stamina {
+            character_stats.max_stamina += ATTRIBUTE_POINTS_BONUS;
+        }
+
         logger::info("Finding optimal build...");
 
         let optimizer = BuildOptimizer::new(BuildOptimizerOptions {
+            character_stats,
             verbose: self.verbose,
             pure_class: self.pure,
             required_class_names: self.classes.clone().unwrap_or_default(),
