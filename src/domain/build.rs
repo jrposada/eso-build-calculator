@@ -531,6 +531,7 @@ impl Build {
                 vec![
                     (i + 1).to_string(),
                     bonus.name.clone(),
+                    bonus.source.to_string(),
                     bonus.target.to_string(),
                     value_str,
                 ]
@@ -544,6 +545,7 @@ impl Build {
                 columns: vec![
                     table::ColumnDefinition::new("#", 4).align_right(),
                     table::ColumnDefinition::new("Name", 30),
+                    table::ColumnDefinition::new("Source", 27),
                     table::ColumnDefinition::new("Target", 27),
                     table::ColumnDefinition::new("Value", 10).align_right(),
                 ],
