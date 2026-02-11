@@ -2,6 +2,7 @@ pub mod bonus;
 pub mod bonus_source;
 pub mod bonus_target;
 pub mod bonus_trigger;
+pub mod bonus_value;
 pub mod build;
 pub mod character_stats;
 pub mod class_name;
@@ -20,13 +21,11 @@ pub mod skill_mechanic;
 pub mod status_effect;
 pub mod weapon_type;
 
-pub use bonus::{
-    alternatives_group_name, BonusAlternative, BonusData, ConditionalSelectionInfo, ResolveContext,
-    ALT_GROUP_ANCIENT_KNOWLEDGE, ALT_GROUP_HEAVY_WEAPONS, ALT_GROUP_TWIN_BLADE_AND_BLUNT,
-};
+pub use bonus::{BonusData, ResolveContext};
 pub use bonus_source::BonusSource;
 pub use bonus_target::BonusTarget;
 pub use bonus_trigger::BonusTrigger;
+pub use bonus_value::BonusValue;
 pub use build::{AlternativeSelection, Build, BUILD_CONSTRAINTS};
 pub use character_stats::{CharacterStats, ATTRIBUTE_POINTS_BONUS};
 pub use class_name::ClassName;

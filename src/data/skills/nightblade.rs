@@ -3,7 +3,8 @@ use crate::data::bonuses::{
     MAJOR_SORCERY, MINOR_BERSERK, MINOR_VULNERABILITY,
 };
 use crate::domain::{
-    BonusData, BonusSource, DotDamage, ExecuteScaling, HitDamage, SkillDamage, SkillData,
+    BonusData, BonusSource, BonusValue, DotDamage, ExecuteScaling, HitDamage, SkillDamage,
+    SkillData,
 };
 use crate::domain::{BonusTarget, BonusTrigger, ClassName, DamageFlags, Resource, SkillLineName};
 use once_cell::sync::Lazy;
@@ -29,8 +30,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Death Stroke Debuff",
             BonusSource::Skill,
             BonusTrigger::Cast,
-            BonusTarget::EnemyDamageTaken,
-            0.20,
+            BonusValue::new("Death Stroke Debuff", BonusTarget::EnemyDamageTaken, 0.20),
         )
         .with_duration(8.0)]),
         // Incapacitating Strike: +20% damage for 8s (12s with 120+ ult), stun 3s with 120+ ult
@@ -50,8 +50,11 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Incapacitating Strike Debuff",
             BonusSource::Skill,
             BonusTrigger::Cast,
-            BonusTarget::EnemyDamageTaken,
-            0.20,
+            BonusValue::new(
+                "Incapacitating Strike Debuff",
+                BonusTarget::EnemyDamageTaken,
+                0.20,
+            ),
         )
         .with_duration(8.0)]),
         // Soul Harvest: +20% damage for 8s, Major Defile, +10 Ultimate on kill (while slotted)
@@ -71,8 +74,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Soul Harvest Debuff",
             BonusSource::Skill,
             BonusTrigger::Cast,
-            BonusTarget::EnemyDamageTaken,
-            0.20,
+            BonusValue::new("Soul Harvest Debuff", BonusTarget::EnemyDamageTaken, 0.20),
         )
         .with_duration(8.0)]),
         // Veiled Strike line

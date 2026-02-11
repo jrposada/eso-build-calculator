@@ -1,6 +1,6 @@
 use crate::data::bonuses::{MAJOR_BRUTALITY, MAJOR_SORCERY, MINOR_BREACH};
 use crate::domain::{
-    BonusData, BonusSource, DamageFlags, DotDamage, HitDamage, SkillDamage, SkillData,
+    BonusData, BonusSource, BonusValue, DamageFlags, DotDamage, HitDamage, SkillDamage, SkillData,
 };
 use crate::domain::{BonusTarget, BonusTrigger, ClassName, Resource, SkillLineName};
 use once_cell::sync::Lazy;
@@ -157,8 +157,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Abyssal Ink",
             BonusSource::Skill,
             BonusTrigger::Cast,
-            BonusTarget::EnemyDamageTaken,
-            0.05,
+            BonusValue::new("Abyssal Ink", BonusTarget::EnemyDamageTaken, 0.05),
         )
         .with_duration(20.0)]),
         // Heals for 1000 Health on hit
@@ -179,8 +178,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Abyssal Ink",
             BonusSource::Skill,
             BonusTrigger::Cast,
-            BonusTarget::EnemyDamageTaken,
-            0.05,
+            BonusValue::new("Abyssal Ink", BonusTarget::EnemyDamageTaken, 0.05),
         )
         .with_duration(20.0)]),
         // Converts to Frost/Magicka, damage to Ink targets increases 2% per Crux
@@ -201,8 +199,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Abyssal Ink",
             BonusSource::Skill,
             BonusTrigger::Cast,
-            BonusTarget::EnemyDamageTaken,
-            0.05,
+            BonusValue::new("Abyssal Ink", BonusTarget::EnemyDamageTaken, 0.05),
         )
         .with_duration(20.0)]),
         // Tome-Bearer's Inspiration line
@@ -398,8 +395,11 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Runic Sunder Armor Steal",
             BonusSource::Skill,
             BonusTrigger::Cast,
-            BonusTarget::EnemyResistanceReduction,
-            2200.0,
+            BonusValue::new(
+                "Runic Sunder Armor Steal",
+                BonusTarget::EnemyResistanceReduction,
+                2200.0,
+            ),
         )
         .with_duration(15.0)]),
         // Runespite Ward line (no damage modeled)

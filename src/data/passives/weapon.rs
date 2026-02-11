@@ -1,19 +1,10 @@
 use crate::domain::{
-    BonusData, BonusSource, BonusTarget, BonusTrigger, ClassName, PassiveData, SkillLineName,
-    ALT_GROUP_ANCIENT_KNOWLEDGE, ALT_GROUP_HEAVY_WEAPONS, ALT_GROUP_TWIN_BLADE_AND_BLUNT,
+    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, ClassName, PassiveData,
+    SkillLineName,
 };
-use crate::services::BreakpointsService;
 use once_cell::sync::Lazy;
 
 pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
-    let long_shots_breakpoint = BreakpointsService::calculate_breakpoint(
-        BonusTarget::Damage,
-        0.05,
-        BonusTarget::CriticalRating,
-        1314.0,
-    )
-    .expect("Long Shots breakpoint calculation should succeed");
-
     vec![
         // === BOW ===
         PassiveData::new(
@@ -24,14 +15,13 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 "Long Shots",
                 BonusSource::Passive,
                 BonusTrigger::BowEquipped,
-                BonusTarget::Damage,
-                0.05,
+                BonusValue::new("Long Shots (Damage)", BonusTarget::Damage, 0.05),
             )
-            .with_alternative(
+            .with_alternative(BonusValue::new(
+                "Long Shots (Crit Rating)",
                 BonusTarget::CriticalRating,
                 1314.0,
-                long_shots_breakpoint,
-            )],
+            ))],
         ),
         PassiveData::new(
             "Accuracy",
@@ -41,8 +31,7 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 "Accuracy",
                 BonusSource::Passive,
                 BonusTrigger::BowEquipped,
-                BonusTarget::CriticalRating,
-                1314.0,
+                BonusValue::new("Accuracy", BonusTarget::CriticalRating, 1314.0),
             )],
         ),
         PassiveData::new(
@@ -83,8 +72,11 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 "Penetrating Magic",
                 BonusSource::Passive,
                 BonusTrigger::DestructionStuffEquipped,
-                BonusTarget::PhysicalAndSpellPenetration,
-                2974.0,
+                BonusValue::new(
+                    "Penetrating Magic",
+                    BonusTarget::PhysicalAndSpellPenetration,
+                    2974.0,
+                ),
             )
             .with_skill_line_filter(SkillLineName::Bow)],
         ),
@@ -96,38 +88,25 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 "Elemental Force",
                 BonusSource::Passive,
                 BonusTrigger::DestructionStuffEquipped,
-                BonusTarget::StatusEffectChance,
-                1.0,
+                BonusValue::new("Elemental Force", BonusTarget::StatusEffectChance, 1.0),
             )],
         ),
         PassiveData::new(
             "Ancient Knowledge",
             ClassName::Weapon,
             SkillLineName::DestructionStaff,
-            vec![
-                BonusData::new(
-                    "Ancient Knowledge (Inferno)",
-                    BonusSource::Passive,
-                    BonusTrigger::DestructionStuffEquipped,
-                    BonusTarget::DotDamage,
-                    0.12,
-                )
-                .with_alternatives_group(ALT_GROUP_ANCIENT_KNOWLEDGE),
-                BonusData::new(
-                    "Ancient Knowledge (Lightning)",
-                    BonusSource::Passive,
-                    BonusTrigger::DestructionStuffEquipped,
-                    BonusTarget::DirectDamage,
-                    0.12,
-                )
-                .with_alternatives_group(ALT_GROUP_ANCIENT_KNOWLEDGE),
-            ],
-        ),
-        PassiveData::new(
-            "Ancient Knowledge (Ice)",
-            ClassName::Weapon,
-            SkillLineName::DestructionStaff,
-            vec![], // Block cost -36%, block damage +20% - defensive, not tracked
+            vec![BonusData::new(
+                "Ancient Knowledge (Inferno)",
+                BonusSource::Passive,
+                BonusTrigger::DestructionStuffEquipped,
+                BonusValue::new("Ancient Knowledge (Inferno)", BonusTarget::DotDamage, 0.12),
+            )
+            .with_alternative(BonusValue::new(
+                "Ancient Knowledge (Lightning)",
+                BonusTarget::DirectDamage,
+                0.12,
+            ))],
+            // Ignore Ice alternative -> Block cost -36%, block damage +20% - defensive, not tracked
         ),
         PassiveData::new(
             "Destruction Expert",
@@ -144,8 +123,7 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 "Slaughter",
                 BonusSource::Passive,
                 BonusTrigger::DualWieldEquipped,
-                BonusTarget::Damage,
-                0.20,
+                BonusValue::new("Slaughter", BonusTarget::Damage, 0.20),
             )
             .with_execute_threshold(0.25)
             .with_skill_line_filter(SkillLineName::DualWield)],
@@ -168,40 +146,31 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Twin Blade and Blunt",
             ClassName::Weapon,
             SkillLineName::DualWield,
-            vec![
-                BonusData::new(
+            vec![BonusData::new(
+                "Twin Blade and Blunt (Axe)",
+                BonusSource::Passive,
+                BonusTrigger::DualWieldEquipped,
+                BonusValue::new(
                     "Twin Blade and Blunt (Axe)",
-                    BonusSource::Passive,
-                    BonusTrigger::DualWieldEquipped,
                     BonusTarget::CriticalDamage,
                     0.06,
-                )
-                .with_alternatives_group(ALT_GROUP_TWIN_BLADE_AND_BLUNT),
-                BonusData::new(
-                    "Twin Blade and Blunt (Mace)",
-                    BonusSource::Passive,
-                    BonusTrigger::DualWieldEquipped,
-                    BonusTarget::PhysicalAndSpellPenetration,
-                    1487.0,
-                )
-                .with_alternatives_group(ALT_GROUP_TWIN_BLADE_AND_BLUNT),
-                BonusData::new(
-                    "Twin Blade and Blunt (Sword)",
-                    BonusSource::Passive,
-                    BonusTrigger::DualWieldEquipped,
-                    BonusTarget::WeaponAndSpellDamageFlat,
-                    129.0,
-                )
-                .with_alternatives_group(ALT_GROUP_TWIN_BLADE_AND_BLUNT),
-                BonusData::new(
-                    "Twin Blade and Blunt (Dagger)",
-                    BonusSource::Passive,
-                    BonusTrigger::DualWieldEquipped,
-                    BonusTarget::CriticalRating,
-                    657.0,
-                )
-                .with_alternatives_group(ALT_GROUP_TWIN_BLADE_AND_BLUNT),
-            ],
+                ),
+            )
+            .with_alternative(BonusValue::new(
+                "Twin Blade and Blunt (Mace)",
+                BonusTarget::PhysicalAndSpellPenetration,
+                1487.0,
+            ))
+            .with_alternative(BonusValue::new(
+                "Twin Blade and Blunt (Sword)",
+                BonusTarget::WeaponAndSpellDamageFlat,
+                129.0,
+            ))
+            .with_alternative(BonusValue::new(
+                "Twin Blade and Blunt (Dagger)",
+                BonusTarget::CriticalRating,
+                657.0,
+            ))],
         ),
         // === TWO HANDED ===
         PassiveData::new(
@@ -214,32 +183,26 @@ pub static WEAPON_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             "Heavy Weapons",
             ClassName::Weapon,
             SkillLineName::TwoHanded,
-            vec![
-                BonusData::new(
+            vec![BonusData::new(
+                "Heavy Weapons",
+                BonusSource::Passive,
+                BonusTrigger::TwoHandedEquipped,
+                BonusValue::new(
                     "Heavy Weapons (Sword)",
-                    BonusSource::Passive,
-                    BonusTrigger::TwoHandedEquipped,
                     BonusTarget::WeaponAndSpellDamageFlat,
                     258.0,
-                )
-                .with_alternatives_group(ALT_GROUP_HEAVY_WEAPONS),
-                BonusData::new(
-                    "Heavy Weapons (Axe)",
-                    BonusSource::Passive,
-                    BonusTrigger::TwoHandedEquipped,
-                    BonusTarget::CriticalDamage,
-                    0.12,
-                )
-                .with_alternatives_group(ALT_GROUP_HEAVY_WEAPONS),
-                BonusData::new(
-                    "Heavy Weapons (Mace)",
-                    BonusSource::Passive,
-                    BonusTrigger::TwoHandedEquipped,
-                    BonusTarget::PhysicalAndSpellPenetration,
-                    2974.0,
-                )
-                .with_alternatives_group(ALT_GROUP_HEAVY_WEAPONS),
-            ],
+                ),
+            )
+            .with_alternative(BonusValue::new(
+                "Heavy Weapons (Axe)",
+                BonusTarget::CriticalDamage,
+                0.12,
+            ))
+            .with_alternative(BonusValue::new(
+                "Heavy Weapons (Mace)",
+                BonusTarget::PhysicalAndSpellPenetration,
+                2974.0,
+            ))],
         ),
         PassiveData::new(
             "Balanced Blade",

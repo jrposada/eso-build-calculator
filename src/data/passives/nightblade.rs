@@ -1,5 +1,5 @@
 use crate::data::bonuses::MINOR_SAVAGERY;
-use crate::domain::{BonusData, BonusSource, PassiveData};
+use crate::domain::{BonusData, BonusSource, BonusValue, PassiveData};
 use crate::domain::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use once_cell::sync::Lazy;
 
@@ -14,8 +14,7 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 "Master Assassin",
                 BonusSource::Passive,
                 BonusTrigger::Flanking,
-                BonusTarget::CriticalRating,
-                1448.0,
+                BonusValue::new("Master Assassin", BonusTarget::CriticalRating, 1448.0),
             )],
         ),
         PassiveData::new(
@@ -32,8 +31,7 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 "Pressure Points",
                 BonusSource::Passive,
                 BonusTrigger::AbilitySlottedCount,
-                BonusTarget::CriticalRating,
-                548.0,
+                BonusValue::new("Pressure Points", BonusTarget::CriticalRating, 548.0),
             )],
         ),
         PassiveData::new(
@@ -45,8 +43,7 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                     "Hemorrhage",
                     BonusSource::Passive,
                     BonusTrigger::SkillLineSlotted,
-                    BonusTarget::CriticalDamage,
-                    0.1,
+                    BonusValue::new("Hemorrhage", BonusTarget::CriticalDamage, 0.1),
                 ),
                 MINOR_SAVAGERY // TODO: with condition skill line ability slotted
                     .clone()
@@ -80,8 +77,7 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 "Dark Veil",
                 BonusSource::Passive,
                 BonusTrigger::Passive,
-                BonusTarget::DurationSkillLineFlat,
-                2.0,
+                BonusValue::new("Dark Veil", BonusTarget::DurationSkillLineFlat, 2.0),
             )],
         ),
         // === SIPHONING ===
@@ -100,15 +96,13 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                     "Magicka Flood (Stamina)",
                     BonusSource::Passive,
                     BonusTrigger::SkillLineSlotted,
-                    BonusTarget::MaxStamina,
-                    0.06,
+                    BonusValue::new("Magicka Flood (Stamina)", BonusTarget::MaxStamina, 0.06),
                 ),
                 BonusData::new(
                     "Magicka Flood (Magicka)",
                     BonusSource::Passive,
                     BonusTrigger::SkillLineSlotted,
-                    BonusTarget::MaxMagicka,
-                    0.06,
+                    BonusValue::new("Magicka Flood (Magicka)", BonusTarget::MaxMagicka, 0.06),
                 ),
             ],
         ),

@@ -1,22 +1,7 @@
+use crate::domain::bonus_value::BonusValue;
+
 use super::{BonusSource, BonusTarget, BonusTrigger, SkillLineName, WeaponType};
 use serde::{Deserialize, Serialize};
-
-// Alternative group constants for weapon-type-dependent passives.
-// Bonuses in the same group are mutually exclusive (only one can be active).
-pub const ALT_GROUP_HEAVY_WEAPONS: u16 = 1;
-pub const ALT_GROUP_TWIN_BLADE_AND_BLUNT: u16 = 2;
-pub const ALT_GROUP_ANCIENT_KNOWLEDGE: u16 = 3;
-
-/// Get a display name for an alternatives group
-pub fn alternatives_group_name(group: u16) -> &'static str {
-    match group {
-        ALT_GROUP_HEAVY_WEAPONS => "Heavy Weapons",
-        ALT_GROUP_TWIN_BLADE_AND_BLUNT => "Twin Blade and Blunt",
-        ALT_GROUP_ANCIENT_KNOWLEDGE => "Ancient Knowledge",
-        _ => "Unknown",
-    }
-}
-
 #[derive(Debug, Clone, Default)]
 pub struct ResolveContext {
     pub crit_damage: f64,
@@ -117,79 +102,50 @@ impl ResolveContext {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct BonusAlternative {
-    pub target: BonusTarget,
-    pub value: f64,
-    pub crit_damage_breakpoint: f64,
-}
-
-#[derive(Debug, Clone)]
-pub struct ConditionalSelectionInfo {
-    pub used_alternative: bool,
-    pub crit_damage_breakpoint: f64,
-    pub primary_target: BonusTarget,
-    pub primary_value: f64,
-    pub alternative_target: BonusTarget,
-    pub alternative_value: f64,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BonusData {
     pub name: String,
     pub source: BonusSource,
-    pub bonus_trigger: BonusTrigger,
-    pub target: BonusTarget,
-    pub value: f64,
-    pub duration: Option<f64>,
+    pub trigger: BonusTrigger,
+
+    pub value: Vec<BonusValue>,
+
     pub cooldown: Option<f64>,
-    #[serde(default)]
-    alternative: Option<BonusAlternative>,
-    /// Health threshold below which this bonus applies (e.g., 0.25 for 25% HP)
-    #[serde(default)]
+    pub duration: Option<f64>,
     pub execute_threshold: Option<f64>,
-    /// Skill line filter - bonus only applies to skills from this skill line
-    #[serde(default)]
     pub skill_line_filter: Option<SkillLineName>,
-    /// Alternatives group - bonuses in the same group are mutually exclusive
-    #[serde(default)]
-    pub alternatives_group: Option<u16>,
 }
 
 impl BonusData {
     pub fn new(
         name: impl Into<String>,
         source: BonusSource,
-        bonus_trigger: BonusTrigger,
-        target: BonusTarget,
-        value: f64,
+        trigger: BonusTrigger,
+        value: BonusValue,
     ) -> Self {
         BonusData {
             name: name.into(),
             source,
-            bonus_trigger,
-            target,
-            value,
-            duration: None,
+            trigger,
+            value: vec![value],
             cooldown: None,
-            alternative: None,
+            duration: None,
             execute_threshold: None,
             skill_line_filter: None,
-            alternatives_group: None,
         }
     }
 
     pub fn with_trigger(mut self, trigger: BonusTrigger) -> Self {
-        self.bonus_trigger = trigger;
-        self
-    }
-
-    pub fn with_duration(mut self, duration: f64) -> Self {
-        self.duration = Some(duration);
+        self.trigger = trigger;
         self
     }
 
     pub fn with_cooldown(mut self, cooldown: f64) -> Self {
         self.cooldown = Some(cooldown);
+        self
+    }
+
+    pub fn with_duration(mut self, duration: f64) -> Self {
+        self.duration = Some(duration);
         self
     }
 
@@ -203,49 +159,9 @@ impl BonusData {
         self
     }
 
-    pub fn with_alternatives_group(mut self, group: u16) -> Self {
-        self.alternatives_group = Some(group);
+    pub fn with_alternative(mut self, value: BonusValue) -> Self {
+        self.value.push(value);
         self
-    }
-
-    pub fn is_execute_bonus(&self) -> bool {
-        self.execute_threshold.is_some()
-    }
-
-    /// Check if this bonus applies to a given enemy health percentage
-    pub fn applies_at_health(&self, enemy_health: f64) -> bool {
-        match self.execute_threshold {
-            Some(threshold) => enemy_health < threshold,
-            None => true,
-        }
-    }
-
-    /// Check if this bonus applies to a given skill line
-    pub fn applies_to_skill_line(&self, skill_line: SkillLineName) -> bool {
-        match self.skill_line_filter {
-            Some(filter) => filter == skill_line,
-            None => true,
-        }
-    }
-
-    /// Add an alternative bonus option with a pre-calculated crit damage breakpoint.
-    /// When crit damage is above the breakpoint, the alternative is used instead.
-    pub fn with_alternative(
-        mut self,
-        target: BonusTarget,
-        value: f64,
-        crit_damage_breakpoint: f64,
-    ) -> Self {
-        self.alternative = Some(BonusAlternative {
-            target,
-            value,
-            crit_damage_breakpoint,
-        });
-        self
-    }
-
-    pub fn is_conditional(&self) -> bool {
-        self.alternative.is_some()
     }
 
     /// Resolve the bonus based on build context.
@@ -258,21 +174,6 @@ impl BonusData {
             }
         }
         (self.target, self.value)
-    }
-
-    /// Returns selection info for conditional bonuses, None for non-conditional.
-    pub fn selection_info(&self, ctx: &ResolveContext) -> Option<ConditionalSelectionInfo> {
-        self.alternative.as_ref().map(|alt| {
-            let used_alternative = ctx.crit_damage > alt.crit_damage_breakpoint;
-            ConditionalSelectionInfo {
-                used_alternative,
-                crit_damage_breakpoint: alt.crit_damage_breakpoint,
-                primary_target: self.target,
-                primary_value: self.value,
-                alternative_target: alt.target,
-                alternative_value: alt.value,
-            }
-        })
     }
 }
 

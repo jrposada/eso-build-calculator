@@ -1,5 +1,7 @@
 use crate::data::bonuses::{MAJOR_BRUTALITY, MAJOR_PROPHECY, MAJOR_SAVAGERY, MAJOR_SORCERY};
-use crate::domain::{BonusData, BonusSource, DotDamage, HitDamage, SkillDamage, SkillData};
+use crate::domain::{
+    BonusData, BonusSource, BonusValue, DotDamage, HitDamage, SkillDamage, SkillData,
+};
 use crate::domain::{BonusTarget, BonusTrigger, ClassName, DamageFlags, Resource, SkillLineName};
 use once_cell::sync::Lazy;
 
@@ -81,8 +83,11 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Crystal Weapon Armor Reduction",
             BonusSource::Skill,
             BonusTrigger::Cast,
-            BonusTarget::EnemyResistanceReduction,
-            1000.0,
+            BonusValue::new(
+                "Crystal Weapon Armor Reduction",
+                BonusTarget::EnemyResistanceReduction,
+                1000.0,
+            ),
         )
         .with_duration(5.0)]),
         // Encase line

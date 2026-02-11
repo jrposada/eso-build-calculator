@@ -1,4 +1,4 @@
-use crate::domain::{BonusData, BonusSource, PassiveData};
+use crate::domain::{BonusData, BonusSource, BonusValue, PassiveData};
 use crate::domain::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use once_cell::sync::Lazy;
 
@@ -13,8 +13,7 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 "Fated Fortune",
                 BonusSource::Passive,
                 BonusTrigger::ArcanistCrux,
-                BonusTarget::CriticalDamage,
-                0.12,
+                BonusValue::new("Fated Fortune", BonusTarget::CriticalDamage, 0.12),
             )
             .with_duration(7.0)],
         ),
@@ -26,8 +25,11 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 "Harnessed Quintessence W",
                 BonusSource::Passive,
                 BonusTrigger::MagickaOrStaminaRestored,
-                BonusTarget::WeaponAndSpellDamageFlat,
-                284.0,
+                BonusValue::new(
+                    "Harnessed Quintessence W",
+                    BonusTarget::WeaponAndSpellDamageFlat,
+                    284.0,
+                ),
             )
             .with_duration(10.0)],
         ),
@@ -39,19 +41,25 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             vec![
                 BonusData::new(
-                    "Psychic Lesion 1",
+                    "Psychic Lesion (Damage)",
                     BonusSource::Passive,
                     BonusTrigger::AbilitySlotted,
-                    BonusTarget::StatusEffectDamage,
-                    0.15,
+                    BonusValue::new(
+                        "Psychic Lesion (Damage)",
+                        BonusTarget::StatusEffectDamage,
+                        0.15,
+                    ),
                 )
                 .with_duration(10.0),
                 BonusData::new(
-                    "Psychic Lesion 2",
+                    "Psychic Lesion (Chance)",
                     BonusSource::Passive,
                     BonusTrigger::AbilitySlotted,
-                    BonusTarget::StatusEffectChance,
-                    0.55,
+                    BonusValue::new(
+                        "Psychic Lesion (Chance)",
+                        BonusTarget::StatusEffectChance,
+                        0.55,
+                    ),
                 )
                 .with_duration(10.0),
             ],
@@ -64,8 +72,11 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 "Splintered Secrets",
                 BonusSource::Passive,
                 BonusTrigger::AbilitySlottedCount,
-                BonusTarget::PhysicalAndSpellPenetration,
-                1240.0,
+                BonusValue::new(
+                    "Splintered Secrets",
+                    BonusTarget::PhysicalAndSpellPenetration,
+                    1240.0,
+                ),
             )],
         ),
         // === SOLDIER OF APOCRYPHA ===
@@ -113,8 +124,11 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 "Hideous Clarity",
                 BonusSource::Passive,
                 BonusTrigger::ArcanistCrux, // TODO should be only on generate
-                BonusTarget::RestoreMagickaOrStamina,
-                225.0,
+                BonusValue::new(
+                    "Hideous Clarity",
+                    BonusTarget::RestoreMagickaOrStamina,
+                    225.0,
+                ),
             )],
         ),
         // +18% Magicka and Stamina Recovery - recovery, not tracked

@@ -1,5 +1,5 @@
 use crate::data::bonuses::{MINOR_BERSERK, MINOR_SORCERY};
-use crate::domain::{BonusData, BonusSource, PassiveData};
+use crate::domain::{BonusData, BonusSource, BonusValue, PassiveData};
 use crate::domain::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use once_cell::sync::Lazy;
 
@@ -14,8 +14,7 @@ pub static TEMPLAR_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 "Piercing Spear",
                 BonusSource::Passive,
                 BonusTrigger::AbilitySlotted,
-                BonusTarget::CriticalDamage,
-                0.12,
+                BonusValue::new("Piercing Spear", BonusTarget::CriticalDamage, 0.12),
             )],
         ),
         PassiveData::new(
@@ -45,8 +44,11 @@ pub static TEMPLAR_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                     "Balanced Warrior",
                     BonusSource::Passive,
                     BonusTrigger::SkillLineSlotted,
-                    BonusTarget::WeaponAndSpellDamageMultiplier,
-                    0.06,
+                    BonusValue::new(
+                        "Balanced Warrior",
+                        BonusTarget::WeaponAndSpellDamageMultiplier,
+                        0.06,
+                    ),
                 ), // Armor increase
             ],
         ),

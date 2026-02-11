@@ -1,4 +1,4 @@
-use crate::domain::{BonusData, BonusSource, PassiveData};
+use crate::domain::{BonusData, BonusSource, BonusValue, PassiveData};
 use crate::domain::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use once_cell::sync::Lazy;
 
@@ -31,8 +31,7 @@ pub static WARDEN_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 "Advanced Species",
                 BonusSource::Passive,
                 BonusTrigger::AbilitySlottedCount,
-                BonusTarget::CriticalDamage,
-                0.05,
+                BonusValue::new("Advanced Species", BonusTarget::CriticalDamage, 0.05),
             )],
         ),
         // === GREEN BALANCE ===
@@ -70,15 +69,21 @@ pub static WARDEN_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                     "Glacial Presence 1",
                     BonusSource::Passive,
                     BonusTrigger::Passive,
-                    BonusTarget::ChilledStatusEffectChance,
-                    2.5,
+                    BonusValue::new(
+                        "Glacial Presence (Chance)",
+                        BonusTarget::ChilledStatusEffectChance,
+                        2.5,
+                    ),
                 ),
                 BonusData::new(
                     "Glacial Presence 2",
                     BonusSource::Passive,
                     BonusTrigger::Passive,
-                    BonusTarget::ChilledStatusEffectDamage,
-                    105.0, // TODO: scales of WeaponOrSpellDamage
+                    BonusValue::new(
+                        "Glacial Presence (Damage)",
+                        BonusTarget::ChilledStatusEffectDamage,
+                        105.0, // TODO: scales of WeaponOrSpellDamage
+                    ),
                 ),
             ],
         ),
@@ -103,8 +108,7 @@ pub static WARDEN_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                     "Piercing Cold",
                     BonusSource::Passive,
                     BonusTrigger::SkillLineSlotted,
-                    BonusTarget::FrostDamage,
-                    0.15,
+                    BonusValue::new("Piercing Cold", BonusTarget::FrostDamage, 0.15),
                 ),
                 // Increases the amount of damage you block by 8% (not tracked - defensive)
             ],

@@ -1,5 +1,5 @@
 use crate::data::bonuses::MINOR_BRUTALITY;
-use crate::domain::{BonusData, BonusSource, PassiveData};
+use crate::domain::{BonusData, BonusSource, BonusValue, PassiveData};
 use crate::domain::{BonusTarget, BonusTrigger, ClassName, SkillLineName};
 use once_cell::sync::Lazy;
 
@@ -12,18 +12,24 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::ArdentFlame,
             vec![
                 BonusData::new(
-                    "Combustion 1",
+                    "Combustion (Damage)",
                     BonusSource::Passive,
                     BonusTrigger::Passive,
-                    BonusTarget::BurningAndPoisonDamage,
-                    0.33,
+                    BonusValue::new(
+                        "Combustion (Damage)",
+                        BonusTarget::BurningAndPoisonDamage,
+                        0.33,
+                    ),
                 ),
                 BonusData::new(
-                    "Combustion 2",
+                    "Combustion (Restore)",
                     BonusSource::Passive,
                     BonusTrigger::BurningOrPoisonDamageDealt,
-                    BonusTarget::RestoreMagickaOrStamina,
-                    423.0,
+                    BonusValue::new(
+                        "Combustion (Restore)",
+                        BonusTarget::RestoreMagickaOrStamina,
+                        423.0,
+                    ),
                 )
                 .with_cooldown(3.0),
             ],
@@ -36,8 +42,7 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 "Warmth",
                 BonusSource::Passive,
                 BonusTrigger::SkillLineSkillCast,
-                BonusTarget::AoeDamage,
-                0.06,
+                BonusValue::new("Warmth", BonusTarget::AoeDamage, 0.06),
             )
             .with_duration(3.0)],
         ),
@@ -55,8 +60,7 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 "World in Ruin",
                 BonusSource::Passive,
                 BonusTrigger::Passive,
-                BonusTarget::BurningAndPoisonDamage,
-                0.05,
+                BonusValue::new("World in Ruin", BonusTarget::BurningAndPoisonDamage, 0.05),
             )],
         ),
         // === DRACONIC POWER ===
@@ -93,8 +97,11 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 "Eternal Mountain",
                 BonusSource::Passive,
                 BonusTrigger::Passive,
-                BonusTarget::DurationSkillLineMultiplier,
-                0.2,
+                BonusValue::new(
+                    "Eternal Mountain",
+                    BonusTarget::DurationSkillLineMultiplier,
+                    0.2,
+                ),
             )],
         ),
         PassiveData::new(
