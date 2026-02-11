@@ -1,10 +1,6 @@
+use super::formulas;
 use serde::{Deserialize, Serialize};
 
-/// Character stats used for coefficient-based damage calculation.
-///
-/// These represent the offensive stats that affect damage output in ESO.
-/// Since Update 33+, ESO uses dynamic scaling where skills use the higher
-/// of magicka/stamina and weapon/spell damage.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CharacterStats {
     pub max_magicka: f64,
@@ -55,16 +51,6 @@ impl CharacterStats {
         }
     }
 
-    pub fn max_stat(&self) -> f64 {
-        self.max_magicka.max(self.max_stamina)
-    }
-
-    pub fn max_power(&self) -> f64 {
-        self.weapon_damage.max(self.spell_damage)
-    }
-
-    // Builder pattern methods
-
     pub fn with_max_magicka(mut self, value: f64) -> Self {
         self.max_magicka = value;
         self
@@ -103,6 +89,19 @@ impl CharacterStats {
     pub fn with_target_armor(mut self, value: f64) -> Self {
         self.target_armor = value;
         self
+    }
+
+    pub fn max_stat(&self) -> f64 {
+        self.max_magicka.max(self.max_stamina)
+    }
+
+    pub fn max_power(&self) -> f64 {
+        self.weapon_damage.max(self.spell_damage)
+    }
+
+    pub fn clamp_caps(&mut self) {
+        self.critical_chance = self.critical_chance.min(formulas::MAX_CRITICAL_CHANCE);
+        self.critical_damage = self.critical_damage.min(formulas::MAX_CRITICAL_DAMAGE);
     }
 }
 
@@ -144,5 +143,35 @@ mod tests {
         assert_eq!(stats.max_magicka, 45_000.0);
         assert_eq!(stats.spell_damage, 6_000.0);
         assert_eq!(stats.critical_chance, 0.70);
+    }
+
+    #[test]
+    fn test_clamp_caps_above_cap() {
+        let mut stats = CharacterStats::default()
+            .with_critical_chance(1.5)
+            .with_critical_damage(3.0);
+        stats.clamp_caps();
+        assert_eq!(stats.critical_chance, 1.0);
+        assert_eq!(stats.critical_damage, 2.25);
+    }
+
+    #[test]
+    fn test_clamp_caps_below_cap() {
+        let mut stats = CharacterStats::default()
+            .with_critical_chance(0.5)
+            .with_critical_damage(1.75);
+        stats.clamp_caps();
+        assert_eq!(stats.critical_chance, 0.5);
+        assert_eq!(stats.critical_damage, 1.75);
+    }
+
+    #[test]
+    fn test_clamp_caps_at_exact_cap() {
+        let mut stats = CharacterStats::default()
+            .with_critical_chance(1.0)
+            .with_critical_damage(2.25);
+        stats.clamp_caps();
+        assert_eq!(stats.critical_chance, 1.0);
+        assert_eq!(stats.critical_damage, 2.25);
     }
 }
