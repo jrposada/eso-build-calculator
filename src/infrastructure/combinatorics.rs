@@ -48,6 +48,8 @@ pub fn generate_combinations<T: Clone>(items: &[T], k: usize) -> Vec<Vec<T>> {
     result
 }
 
+use smallvec::SmallVec;
+
 /// Iterator for generating combinations lazily
 pub struct CombinationIterator<'a, T> {
     items: &'a [T],
@@ -70,7 +72,7 @@ impl<'a, T> CombinationIterator<'a, T> {
 }
 
 impl<'a, T: Clone> Iterator for CombinationIterator<'a, T> {
-    type Item = Vec<T>;
+    type Item = SmallVec<[T; 10]>;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.done {
@@ -79,11 +81,11 @@ impl<'a, T: Clone> Iterator for CombinationIterator<'a, T> {
 
         if self.k == 0 {
             self.done = true;
-            return Some(Vec::new());
+            return Some(SmallVec::new());
         }
 
         // Generate current combination
-        let result: Vec<T> = self
+        let result: SmallVec<[T; 10]> = self
             .indices
             .iter()
             .map(|&i| self.items[i].clone())

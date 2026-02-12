@@ -3,6 +3,7 @@ use crate::data::skills::ALL_SKILLS;
 use crate::domain::{BonusData, Build, CharacterStats, SkillData, BUILD_CONSTRAINTS};
 use crate::domain::{ClassName, SkillLineName};
 use crate::infrastructure::{combinatorics, format, logger, table};
+use smallvec::SmallVec;
 use crate::services::passives_service::{PassivesFilter, PassivesServiceOptions};
 use crate::services::skills_service::{MorphSelectionOptions, SkillsFilter, SkillsServiceOptions};
 use crate::services::{PassivesService, SkillsService};
@@ -460,7 +461,7 @@ impl BuildOptimizer {
         // Lightweight candidate that avoids constructing a full Build per combination
         struct Candidate<'a> {
             damage: f64,
-            skills: Vec<&'static SkillData>,
+            skills: SmallVec<[&'static SkillData; 10]>,
             cp_simple: &'a [BonusData],
             cp_alt: &'a [BonusData],
             passive_simple: &'a [BonusData],
@@ -547,7 +548,7 @@ impl BuildOptimizer {
             passive_bonuses.extend_from_slice(c.passive_alt);
 
             Build::new(
-                c.skills,
+                c.skills.to_vec(),
                 &cp_bonuses,
                 &passive_bonuses,
                 self.character_stats.clone(),
@@ -564,7 +565,7 @@ impl BuildOptimizer {
             &[BonusData],
             &[BonusData],
             &[BonusData],
-            Vec<&'static SkillData>,
+            SmallVec<[&'static SkillData; 10]>,
         ),
     > + Send + '_ {
         self.champion_point_combinations
