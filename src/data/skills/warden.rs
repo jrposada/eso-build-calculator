@@ -16,39 +16,39 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Feral Guardian",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
-            SkillDamage::new().with_hits(vec![HitDamage::new(
-                DamageFlags::magic_single(),
-                0.025,
-                0.2625,
-            )]),
             Resource::Ultimate,
-        ),
+        )
+        .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
+            DamageFlags::magic_single(),
+            0.025,
+            0.2625,
+        )])),
         // Eternal Guardian: Guardian's Wrath deals +150% damage below 25% Health
         SkillData::new(
             "Eternal Guardian",
             "Feral Guardian",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
-            SkillDamage::new().with_hits(vec![HitDamage::new(
-                DamageFlags::magic_single(),
-                0.025825,
-                0.271163,
-            )]),
             Resource::Ultimate,
-        ),
+        )
+        .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
+            DamageFlags::magic_single(),
+            0.025825,
+            0.271163,
+        )])),
         // Wild Guardian: Guardian's Savagery deals +100% damage below 25% Health
         SkillData::new(
             "Wild Guardian",
             "Feral Guardian",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
-            SkillDamage::new().with_hits(vec![HitDamage::new(
-                DamageFlags::bleed_single(),
-                0.028407,
-                0.298279,
-            )]),
             Resource::Ultimate,
-        ),
+        )
+        .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
+            DamageFlags::bleed_single(),
+            0.028407,
+            0.298279,
+        )])),
         // Dive line
         // Dive: Sets Off Balance for 7s when cast from >7m (conditional, not tracked)
         SkillData::new(
@@ -56,13 +56,13 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Dive",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
-            SkillDamage::new().with_hits(vec![HitDamage::new(
-                DamageFlags::magic_single(),
-                0.09,
-                0.945,
-            )]),
             Resource::Magicka,
         )
+        .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
+            DamageFlags::magic_single(),
+            0.09,
+            0.945,
+        )]))
         .with_spammable(),
         // Cutting Dive: Sets Off Balance for 7s when cast from >7m, adds bleed DoT
         SkillData::new(
@@ -70,6 +70,9 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Dive",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
+            Resource::Stamina,
+        )
+        .with_damage(
             SkillDamage::new()
                 .with_hits(vec![HitDamage::new(
                     DamageFlags::bleed_single(),
@@ -82,7 +85,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                     0.009297,
                     0.097618,
                 )]),
-            Resource::Stamina,
         ),
         // Screaming Cliff Racer: Sets Off Balance for 7s when cast from >7m,
         // +100 Weapon/Spell Damage for 10s (+400 when hitting Off Balance enemies)
@@ -91,13 +93,13 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Dive",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
-            SkillDamage::new().with_hits(vec![HitDamage::new(
-                DamageFlags::magic_single(),
-                0.09297,
-                0.976185,
-            )]),
             Resource::Magicka,
         )
+        .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
+            DamageFlags::magic_single(),
+            0.09297,
+            0.976185,
+        )]))
         .with_spammable(),
         // Scorch line
         SkillData::new(
@@ -105,24 +107,24 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Scorch",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
-            SkillDamage::new().with_hits(vec![
-                HitDamage::new(DamageFlags::magic_aoe(), 0.108, 1.134).with_delay(3.0),
-                HitDamage::new(DamageFlags::magic_aoe(), 0.15, 1.575).with_delay(9.0),
-            ]),
             Resource::Magicka,
-        ),
+        )
+        .with_damage(SkillDamage::new().with_hits(vec![
+            HitDamage::new(DamageFlags::magic_aoe(), 0.108, 1.134).with_delay(3.0),
+            HitDamage::new(DamageFlags::magic_aoe(), 0.15, 1.575).with_delay(9.0),
+        ])),
         // Deep Fissure: Major Breach + Minor Breach for 10s
         SkillData::new(
             "Deep Fissure",
             "Scorch",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
-            SkillDamage::new().with_hits(vec![
-                HitDamage::new(DamageFlags::magic_aoe(), 0.111564, 1.17142).with_delay(3.0),
-                HitDamage::new(DamageFlags::magic_aoe(), 0.15495, 1.62698).with_delay(9.0),
-            ]),
             Resource::Magicka,
         )
+        .with_damage(SkillDamage::new().with_hits(vec![
+            HitDamage::new(DamageFlags::magic_aoe(), 0.111564, 1.17142).with_delay(3.0),
+            HitDamage::new(DamageFlags::magic_aoe(), 0.15495, 1.62698).with_delay(9.0),
+        ]))
         .with_bonuses(vec![
             MAJOR_BREACH.clone().with_duration(10.0),
             MINOR_BREACH.clone().with_duration(10.0),
@@ -132,12 +134,12 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Scorch",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
-            SkillDamage::new().with_hits(vec![
-                HitDamage::new(DamageFlags::poison_aoe(), 0.111564, 1.17142).with_delay(3.0),
-                HitDamage::new(DamageFlags::poison_aoe(), 0.111564, 1.17142).with_delay(6.0),
-            ]),
             Resource::Stamina,
-        ),
+        )
+        .with_damage(SkillDamage::new().with_hits(vec![
+            HitDamage::new(DamageFlags::poison_aoe(), 0.111564, 1.17142).with_delay(3.0),
+            HitDamage::new(DamageFlags::poison_aoe(), 0.111564, 1.17142).with_delay(6.0),
+        ])),
         // Swarm line
         // Swarm: Minor Vulnerability for 20s
         SkillData::new(
@@ -145,14 +147,14 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Swarm",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
-            SkillDamage::new().with_dots(vec![DotDamage::new(
-                20.0,
-                DamageFlags::magic_single(),
-                0.018182,
-                0.19091,
-            )]),
             Resource::Magicka,
         )
+        .with_damage(SkillDamage::new().with_dots(vec![DotDamage::new(
+            20.0,
+            DamageFlags::magic_single(),
+            0.018182,
+            0.19091,
+        )]))
         .with_bonuses(vec![MINOR_VULNERABILITY.clone().with_duration(20.0)]),
         // Fetcher Infection: Minor Vulnerability for 20s, every second cast deals +60% damage
         SkillData::new(
@@ -160,14 +162,14 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Swarm",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
-            SkillDamage::new().with_dots(vec![DotDamage::new(
-                20.0,
-                DamageFlags::magic_single(),
-                0.018782,
-                0.19721,
-            )]),
             Resource::Magicka,
         )
+        .with_damage(SkillDamage::new().with_dots(vec![DotDamage::new(
+            20.0,
+            DamageFlags::magic_single(),
+            0.018782,
+            0.19721,
+        )]))
         .with_bonuses(vec![MINOR_VULNERABILITY.clone().with_duration(20.0)]),
         // Growing Swarm: Minor Vulnerability for 20s, spreads to nearby enemies
         SkillData::new(
@@ -175,14 +177,14 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Swarm",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
-            SkillDamage::new().with_dots(vec![DotDamage::new(
-                20.0,
-                DamageFlags::bleed_single(),
-                0.018782,
-                0.19721,
-            )]),
             Resource::Stamina,
         )
+        .with_damage(SkillDamage::new().with_dots(vec![DotDamage::new(
+            20.0,
+            DamageFlags::bleed_single(),
+            0.018782,
+            0.19721,
+        )]))
         .with_bonuses(vec![MINOR_VULNERABILITY.clone().with_duration(20.0)]),
         // Betty Netch line
         // Betty Netch: Major Brutality + Major Sorcery for 22s
@@ -191,7 +193,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Betty Netch",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
-            SkillDamage::new(),
             Resource::Magicka,
         )
         .with_bonuses(vec![
@@ -205,7 +206,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Betty Netch",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
-            SkillDamage::new(),
             Resource::Magicka,
         )
         .with_bonuses(vec![
@@ -219,7 +219,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Betty Netch",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
-            SkillDamage::new(),
             Resource::Stamina,
         )
         .with_bonuses(vec![
@@ -233,7 +232,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Falcon's Swiftness",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
-            SkillDamage::new(),
             Resource::Stamina,
         ),
         // Bird of Prey: Major Expedition for 6s, Minor Berserk while slotted
@@ -242,7 +240,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Falcon's Swiftness",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
-            SkillDamage::new(),
             Resource::Stamina,
         )
         .with_bonuses(vec![MINOR_BERSERK
@@ -254,7 +251,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Falcon's Swiftness",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
-            SkillDamage::new(),
             Resource::Stamina,
         ),
         // === GREEN BALANCE === (mostly heals, few damage skills)
@@ -264,7 +260,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Secluded Grove",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            SkillDamage::new(),
             Resource::Ultimate,
         ),
         SkillData::new(
@@ -272,7 +267,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Secluded Grove",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            SkillDamage::new(),
             Resource::Ultimate,
         ),
         SkillData::new(
@@ -280,7 +274,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Secluded Grove",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            SkillDamage::new(),
             Resource::Ultimate,
         ),
         // Fungal Growth line (no damage)
@@ -289,7 +282,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Fungal Growth",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            SkillDamage::new(),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -297,7 +289,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Fungal Growth",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            SkillDamage::new(),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -305,7 +296,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Fungal Growth",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            SkillDamage::new(),
             Resource::Stamina,
         ),
         // Healing Seed line (no damage)
@@ -314,7 +304,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Healing Seed",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            SkillDamage::new(),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -322,7 +311,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Healing Seed",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            SkillDamage::new(),
             Resource::Magicka,
         ),
         // Corrupting Pollen: Major Defile, Minor Cowardice to enemies (defensive/healing reduction)
@@ -331,7 +319,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Healing Seed",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            SkillDamage::new(),
             Resource::Magicka,
         ),
         // Living Vines line (no damage)
@@ -340,7 +327,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Living Vines",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            SkillDamage::new(),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -348,7 +334,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Living Vines",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            SkillDamage::new(),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -356,7 +341,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Living Vines",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            SkillDamage::new(),
             Resource::Magicka,
         ),
         // Lotus Flower line
@@ -366,7 +350,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Lotus Flower",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            SkillDamage::new(),
             Resource::Magicka,
         )
         .with_bonuses(vec![
@@ -379,7 +362,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Lotus Flower",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            SkillDamage::new(),
             Resource::Magicka,
         )
         .with_bonuses(vec![
@@ -392,7 +374,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Lotus Flower",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            SkillDamage::new(),
             Resource::Magicka,
         )
         .with_bonuses(vec![
@@ -405,7 +386,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Nature's Grasp",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            SkillDamage::new(),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -413,7 +393,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Nature's Grasp",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            SkillDamage::new(),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -421,7 +400,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Nature's Grasp",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            SkillDamage::new(),
             Resource::Magicka,
         ),
         // === WINTER'S EMBRACE ===
@@ -432,52 +410,39 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Sleet Storm",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            SkillDamage::new().with_dots(vec![DotDamage::new(
-                8.0,
-                DamageFlags::frost_aoe(),
-                0.05,
-                0.525,
-            )
-            .with_interval(1.0)]),
             Resource::Ultimate,
-        ),
+        )
+        .with_damage(SkillDamage::new().with_dots(vec![
+            DotDamage::new(8.0, DamageFlags::frost_aoe(), 0.05, 0.525).with_interval(1.0),
+        ])),
         // Northern Storm: Major Protection, +2% damage per second up to 9 stacks (complex)
         SkillData::new(
             "Northern Storm",
             "Sleet Storm",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            SkillDamage::new().with_dots(vec![DotDamage::new(
-                8.0,
-                DamageFlags::frost_aoe(),
-                0.05165,
-                0.542325,
-            )
-            .with_interval(1.0)]),
             Resource::Ultimate,
-        ),
+        )
+        .with_damage(SkillDamage::new().with_dots(vec![
+            DotDamage::new(8.0, DamageFlags::frost_aoe(), 0.05165, 0.542325).with_interval(1.0),
+        ])),
         // Permafrost: Major Protection, Chilled status, 70% snare
         SkillData::new(
             "Permafrost",
             "Sleet Storm",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            SkillDamage::new().with_dots(vec![DotDamage::new(
-                13.0,
-                DamageFlags::frost_aoe(),
-                0.007059,
-                0.074118,
-            )
-            .with_interval(1.0)]),
             Resource::Ultimate,
-        ),
+        )
+        .with_damage(SkillDamage::new().with_dots(vec![
+            DotDamage::new(13.0, DamageFlags::frost_aoe(), 0.007059, 0.074118).with_interval(1.0),
+        ])),
         // Frost Cloak line (no damage, defensive buffs)
         SkillData::new(
             "Frost Cloak",
             "Frost Cloak",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            SkillDamage::new(),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -485,7 +450,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Frost Cloak",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            SkillDamage::new(),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -493,7 +457,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Frost Cloak",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            SkillDamage::new(),
             Resource::Magicka,
         ),
         // Impaling Shards line
@@ -504,15 +467,11 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Impaling Shards",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            SkillDamage::new().with_dots(vec![DotDamage::new(
-                12.0,
-                DamageFlags::frost_aoe(),
-                0.0,
-                0.0,
-            )
-            .with_interval(1.0)]),
             Resource::Magicka,
-        ),
+        )
+        .with_damage(SkillDamage::new().with_dots(vec![
+            DotDamage::new(12.0, DamageFlags::frost_aoe(), 0.0, 0.0).with_interval(1.0),
+        ])),
         // Gripping Shards: Immobilize for 3s, Chilled status
         // Note: Scales off Max Health, not MaxStat+MaxPower
         SkillData::new(
@@ -520,30 +479,22 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Impaling Shards",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            SkillDamage::new().with_dots(vec![DotDamage::new(
-                12.0,
-                DamageFlags::frost_aoe(),
-                0.0,
-                0.0,
-            )
-            .with_interval(1.0)]),
             Resource::Magicka,
-        ),
+        )
+        .with_damage(SkillDamage::new().with_dots(vec![
+            DotDamage::new(12.0, DamageFlags::frost_aoe(), 0.0, 0.0).with_interval(1.0),
+        ])),
         // Winter's Revenge: Chilled status, +30% damage with Destruction Staff equipped
         SkillData::new(
             "Winter's Revenge",
             "Impaling Shards",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            SkillDamage::new().with_dots(vec![DotDamage::new(
-                12.0,
-                DamageFlags::frost_aoe(),
-                0.012714,
-                0.133496,
-            )
-            .with_interval(1.0)]),
             Resource::Magicka,
-        ),
+        )
+        .with_damage(SkillDamage::new().with_dots(vec![
+            DotDamage::new(12.0, DamageFlags::frost_aoe(), 0.012714, 0.133496).with_interval(1.0),
+        ])),
         // Arctic Wind line
         // Arctic Wind: Self heal
         SkillData::new(
@@ -551,7 +502,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Arctic Wind",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            SkillDamage::new(),
             Resource::Magicka,
         ),
         // Arctic Blast: Instant damage + DoT, stuns after 2s delay
@@ -560,6 +510,9 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Arctic Wind",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
+            Resource::Magicka,
+        )
+        .with_damage(
             SkillDamage::new()
                 .with_hits(vec![HitDamage::new(
                     DamageFlags::frost_aoe(),
@@ -573,7 +526,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                     0.135581,
                 )
                 .with_interval(2.0)]),
-            Resource::Magicka,
         ),
         // Polar Wind: Self heal + ally heal
         SkillData::new(
@@ -581,7 +533,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Arctic Wind",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            SkillDamage::new(),
             Resource::Magicka,
         ),
         // Crystallized Shield line (no damage, defensive)
@@ -590,7 +541,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Crystallized Shield",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            SkillDamage::new(),
             Resource::Magicka,
         ),
         SkillData::new(
@@ -598,7 +548,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Crystallized Shield",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            SkillDamage::new(),
             Resource::Magicka,
         ),
         // Shimmering Shield: Major Heroism for 6s on projectile absorb
@@ -607,7 +556,6 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Crystallized Shield",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            SkillDamage::new(),
             Resource::Magicka,
         ),
         // Frozen Gate line
@@ -617,39 +565,30 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Frozen Gate",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            SkillDamage::new().with_hits(vec![HitDamage::new(
-                DamageFlags::frost_single(),
-                0.075,
-                0.7875,
-            )
-            .with_delay(1.5)]),
             Resource::Magicka,
-        ),
+        )
+        .with_damage(SkillDamage::new().with_hits(vec![
+            HitDamage::new(DamageFlags::frost_single(), 0.075, 0.7875).with_delay(1.5),
+        ])),
         SkillData::new(
             "Frozen Device",
             "Frozen Gate",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            SkillDamage::new().with_hits(vec![HitDamage::new(
-                DamageFlags::frost_single(),
-                0.077475,
-                0.813488,
-            )
-            .with_delay(1.5)]),
             Resource::Magicka,
-        ),
+        )
+        .with_damage(SkillDamage::new().with_hits(vec![
+            HitDamage::new(DamageFlags::frost_single(), 0.077475, 0.813488).with_delay(1.5),
+        ])),
         SkillData::new(
             "Frozen Retreat",
             "Frozen Gate",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            SkillDamage::new().with_hits(vec![HitDamage::new(
-                DamageFlags::frost_single(),
-                0.077475,
-                0.813488,
-            )
-            .with_delay(1.5)]),
             Resource::Magicka,
-        ),
+        )
+        .with_damage(SkillDamage::new().with_hits(vec![
+            HitDamage::new(DamageFlags::frost_single(), 0.077475, 0.813488).with_delay(1.5),
+        ])),
     ]
 });

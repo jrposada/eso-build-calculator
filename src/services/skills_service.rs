@@ -56,7 +56,7 @@ impl SkillsService {
                 if filter.exclude_ultimates && skill.resource == Resource::Ultimate {
                     return false;
                 }
-                if filter.exclude_non_damaging && !skill.damage.has_damage() {
+                if filter.exclude_non_damaging && skill.damage.is_none() {
                     return false;
                 }
                 true

@@ -1,6 +1,6 @@
 use super::{
     formulas, BonusData, CharacterStats, ClassName, DamageFlags, ExecuteData, ExecuteScaling,
-    Resource, SkillDamage, SkillLineName, SkillMechanic,
+    ResolveContext, Resource, SkillDamage, SkillLineName, SkillMechanic,
 };
 use serde::{Deserialize, Serialize};
 
@@ -11,9 +11,10 @@ pub struct SkillData {
     pub base_skill_name: String,
     pub class_name: ClassName,
     pub skill_line: SkillLineName,
-
-    pub damage: SkillDamage,
     pub resource: Resource,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub damage: Option<SkillDamage>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub channel_time: Option<f64>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -24,13 +25,13 @@ pub struct SkillData {
     pub spammable: bool,
 }
 
+// Builder
 impl SkillData {
     pub fn new(
         name: impl Into<String>,
         base_skill_name: impl Into<String>,
         class_name: ClassName,
         skill_line: SkillLineName,
-        damage: SkillDamage,
         resource: Resource,
     ) -> Self {
         Self {
@@ -38,13 +39,18 @@ impl SkillData {
             base_skill_name: base_skill_name.into(),
             class_name,
             skill_line,
-            damage,
             resource,
+            damage: None,
             channel_time: None,
             execute: None,
             bonuses: None,
             spammable: false,
         }
+    }
+
+    pub fn with_damage(mut self, damage: SkillDamage) -> Self {
+        self.damage = Some(damage);
+        self
     }
 
     pub fn with_channel_time(mut self, channel_time: f64) -> Self {
@@ -71,15 +77,18 @@ impl SkillData {
         self.spammable = true;
         self
     }
+}
 
+impl SkillData {
     /// Get primary damage flags from the first hit or dot (for display purposes)
     pub fn primary_flags(&self) -> Option<DamageFlags> {
-        if let Some(hits) = &self.damage.hits {
+        let damage = self.damage.as_ref()?;
+        if let Some(hits) = &damage.hits {
             if let Some(hit) = hits.first() {
                 return Some(hit.flags);
             }
         }
-        if let Some(dots) = &self.damage.dots {
+        if let Some(dots) = &damage.dots {
             if let Some(dot) = dots.first() {
                 return Some(dot.flags);
             }
@@ -93,13 +102,15 @@ impl SkillData {
             return SkillMechanic::Channeled;
         }
 
-        if self.damage.dots.as_ref().is_some_and(|d| !d.is_empty()) {
-            return SkillMechanic::Dot;
-        }
+        if let Some(damage) = &self.damage {
+            if damage.dots.as_ref().is_some_and(|d| !d.is_empty()) {
+                return SkillMechanic::Dot;
+            }
 
-        if let Some(hits) = &self.damage.hits {
-            if !hits.is_empty() {
-                return SkillMechanic::Instant;
+            if let Some(hits) = &damage.hits {
+                if !hits.is_empty() {
+                    return SkillMechanic::Instant;
+                }
             }
         }
 
@@ -109,12 +120,14 @@ impl SkillData {
 
     /// Get the skill duration (max DoT duration or channel time)
     pub fn duration(&self) -> f64 {
-        if let Some(dots) = &self.damage.dots {
-            if !dots.is_empty() {
-                return dots
-                    .iter()
-                    .map(|dot| dot.duration + dot.delay.unwrap_or(0.0))
-                    .fold(0.0, f64::max);
+        if let Some(damage) = &self.damage {
+            if let Some(dots) = &damage.dots {
+                if !dots.is_empty() {
+                    return dots
+                        .iter()
+                        .map(|dot| dot.duration + dot.delay.unwrap_or(0.0))
+                        .fold(0.0, f64::max);
+                }
             }
         }
         self.channel_time.unwrap_or(0.0)
@@ -151,74 +164,74 @@ impl SkillData {
     ) -> f64 {
         let mut total_damage = 0.0;
 
-        // Filter bonuses by enemy health (for execute bonuses) and skill line
-        let applicable_bonuses: Vec<_> = bonuses
+        // Filter bonuses by skill line and execute threshold, then resolve to BonusValues
+        let ctx = ResolveContext::default();
+        let applicable: Vec<_> = bonuses
             .iter()
             .filter(|b| {
-                b.applies_to_skill_line(self.skill_line)
-                    && enemy_health.map_or(!b.is_execute_bonus(), |h| b.applies_at_health(h))
+                b.skill_line_filter.map_or(true, |sl| sl == self.skill_line)
+                    && match b.execute_threshold {
+                        Some(threshold) => enemy_health.map_or(false, |h| h <= threshold),
+                        None => true,
+                    }
             })
+            .map(|b| b.resolve(&ctx))
             .collect();
 
-        // Sum all direct hits
-        if let Some(hits) = &self.damage.hits {
-            for hit in hits {
-                // Filter bonuses for this specific hit's flags
-                let hit_modifiers: Vec<_> = applicable_bonuses
-                    .iter()
-                    .filter(|b| hit.flags.matches_bonus_target(b.target))
-                    .copied()
-                    .collect();
+        if let Some(damage) = &self.damage {
+            // Sum all direct hits
+            if let Some(hits) = &damage.hits {
+                for hit in hits {
+                    let modifier: f64 = applicable
+                        .iter()
+                        .filter(|bv| hit.flags.matches_bonus_target(bv.target))
+                        .map(|bv| bv.value)
+                        .sum();
 
-                let hit_value = hit.effective_value(max_stat, max_power);
+                    let hit_value = hit.effective_value(max_stat, max_power);
 
-                if let Some(threshold) = hit.execute_threshold {
-                    if enemy_health.map_or(false, |h| h < threshold) {
-                        total_damage += Self::apply_damage_modifier(&hit_modifiers, hit_value);
+                    if let Some(threshold) = hit.execute_threshold {
+                        if enemy_health.map_or(false, |h| h < threshold) {
+                            total_damage += hit_value * (1.0 + modifier);
+                        }
+                    } else {
+                        total_damage += hit_value * (1.0 + modifier);
                     }
-                } else {
-                    total_damage += Self::apply_damage_modifier(&hit_modifiers, hit_value);
                 }
             }
-        }
 
-        // Add DoT damage over full duration
-        if let Some(dots) = &self.damage.dots {
-            for dot in dots {
-                // Filter bonuses for this specific dot's flags
-                let dot_modifiers: Vec<_> = applicable_bonuses
-                    .iter()
-                    .filter(|b| dot.flags.matches_bonus_target(b.target))
-                    .copied()
-                    .collect();
+            // Add DoT damage over full duration
+            if let Some(dots) = &damage.dots {
+                for dot in dots {
+                    let modifier: f64 = applicable
+                        .iter()
+                        .filter(|bv| dot.flags.matches_bonus_target(bv.target))
+                        .map(|bv| bv.value)
+                        .sum();
 
-                let dot_value = dot.effective_value(max_stat, max_power);
+                    let dot_value = dot.effective_value(max_stat, max_power);
 
-                let interval = dot.interval.unwrap_or(dot.duration);
-                let ticks = (dot.duration / interval).floor() as i32;
-                let increase_per_tick = dot.increase_per_tick.unwrap_or(0.0);
-                let flat_increase_per_tick = dot.flat_increase_per_tick.unwrap_or(0.0);
+                    let interval = dot.interval.unwrap_or(dot.duration);
+                    let ticks = (dot.duration / interval).floor() as i32;
+                    let increase_per_tick = dot.increase_per_tick.unwrap_or(0.0);
+                    let flat_increase_per_tick = dot.flat_increase_per_tick.unwrap_or(0.0);
 
-                for i in 0..ticks {
-                    let percentage_multiplier = 1.0 + (i as f64) * increase_per_tick;
-                    let flat_increase = (i as f64) * flat_increase_per_tick;
-                    let tick_damage = dot_value * percentage_multiplier + flat_increase;
+                    for i in 0..ticks {
+                        let percentage_multiplier = 1.0 + (i as f64) * increase_per_tick;
+                        let flat_increase = (i as f64) * flat_increase_per_tick;
+                        let tick_damage = dot_value * percentage_multiplier + flat_increase;
 
-                    if dot.ignores_modifier.unwrap_or(false) {
-                        total_damage += tick_damage;
-                    } else {
-                        total_damage += Self::apply_damage_modifier(&dot_modifiers, tick_damage);
+                        if dot.ignores_modifier.unwrap_or(false) {
+                            total_damage += tick_damage;
+                        } else {
+                            total_damage += tick_damage * (1.0 + modifier);
+                        }
                     }
                 }
             }
         }
 
         total_damage
-    }
-
-    fn apply_damage_modifier(modifiers: &[&BonusData], value: f64) -> f64 {
-        let total_modifier: f64 = modifiers.iter().map(|m| m.value).sum();
-        value * (1.0 + total_modifier)
     }
 
     /// Calculate damage at a specific enemy health percentage using default stats,
@@ -335,62 +348,64 @@ impl SkillData {
     fn fmt_damage(&self) -> Vec<String> {
         let mut lines = vec!["  Damage".to_string(), format!("  {}", "-".repeat(56))];
 
-        if let Some(hits) = &self.damage.hits {
-            if !hits.is_empty() {
-                lines.push("  Hits:".to_string());
-                for (j, hit) in hits.iter().enumerate() {
-                    let delay = hit
-                        .delay
-                        .map(|d| format!(" (delay: {}s)", d))
-                        .unwrap_or_default();
-                    let execute = hit
-                        .execute_threshold
-                        .map(|t| format!(" (execute: <{:.0}% HP)", t * 100.0))
-                        .unwrap_or_default();
-                    let flags_str = format!(" [{}]", hit.flags);
-                    let value =
-                        hit.effective_value(Self::DEFAULT_MAX_STAT, Self::DEFAULT_MAX_POWER);
-                    lines.push(format!(
-                        "    {}. {:.0}{}{}{}",
-                        j + 1,
-                        value,
-                        delay,
-                        execute,
-                        flags_str
-                    ));
+        if let Some(damage) = &self.damage {
+            if let Some(hits) = &damage.hits {
+                if !hits.is_empty() {
+                    lines.push("  Hits:".to_string());
+                    for (j, hit) in hits.iter().enumerate() {
+                        let delay = hit
+                            .delay
+                            .map(|d| format!(" (delay: {}s)", d))
+                            .unwrap_or_default();
+                        let execute = hit
+                            .execute_threshold
+                            .map(|t| format!(" (execute: <{:.0}% HP)", t * 100.0))
+                            .unwrap_or_default();
+                        let flags_str = format!(" [{}]", hit.flags);
+                        let value =
+                            hit.effective_value(Self::DEFAULT_MAX_STAT, Self::DEFAULT_MAX_POWER);
+                        lines.push(format!(
+                            "    {}. {:.0}{}{}{}",
+                            j + 1,
+                            value,
+                            delay,
+                            execute,
+                            flags_str
+                        ));
+                    }
                 }
             }
-        }
 
-        if let Some(dots) = &self.damage.dots {
-            if !dots.is_empty() {
-                lines.push("  DoTs:".to_string());
-                for (j, dot) in dots.iter().enumerate() {
-                    let interval = dot
-                        .interval
-                        .map(|i| format!(" every {}s", i))
-                        .unwrap_or_default();
-                    let increase = dot
-                        .increase_per_tick
-                        .map(|i| format!(" (+{:.0}%/tick)", i * 100.0))
-                        .unwrap_or_default();
-                    let flat_increase = dot
-                        .flat_increase_per_tick
-                        .map(|f| format!(" (+{}/tick)", f))
-                        .unwrap_or_default();
-                    let flags_str = format!(" [{}]", dot.flags);
-                    let value =
-                        dot.effective_value(Self::DEFAULT_MAX_STAT, Self::DEFAULT_MAX_POWER);
-                    lines.push(format!(
-                        "    {}. {:.0}{} for {}s{}{}{}",
-                        j + 1,
-                        value,
-                        interval,
-                        dot.duration,
-                        increase,
-                        flat_increase,
-                        flags_str
-                    ));
+            if let Some(dots) = &damage.dots {
+                if !dots.is_empty() {
+                    lines.push("  DoTs:".to_string());
+                    for (j, dot) in dots.iter().enumerate() {
+                        let interval = dot
+                            .interval
+                            .map(|i| format!(" every {}s", i))
+                            .unwrap_or_default();
+                        let increase = dot
+                            .increase_per_tick
+                            .map(|i| format!(" (+{:.0}%/tick)", i * 100.0))
+                            .unwrap_or_default();
+                        let flat_increase = dot
+                            .flat_increase_per_tick
+                            .map(|f| format!(" (+{}/tick)", f))
+                            .unwrap_or_default();
+                        let flags_str = format!(" [{}]", dot.flags);
+                        let value =
+                            dot.effective_value(Self::DEFAULT_MAX_STAT, Self::DEFAULT_MAX_POWER);
+                        lines.push(format!(
+                            "    {}. {:.0}{} for {}s{}{}{}",
+                            j + 1,
+                            value,
+                            interval,
+                            dot.duration,
+                            increase,
+                            flat_increase,
+                            flags_str
+                        ));
+                    }
                 }
             }
         }
@@ -413,9 +428,13 @@ impl SkillData {
             self.calculate_damage_per_cast(&[])
         ));
 
-        let has_execute_hits = self.damage.hits.as_ref().map_or(false, |hits| {
-            hits.iter().any(|h| h.execute_threshold.is_some())
-        });
+        let has_execute_hits = self
+            .damage
+            .as_ref()
+            .and_then(|d| d.hits.as_ref())
+            .map_or(false, |hits| {
+                hits.iter().any(|h| h.execute_threshold.is_some())
+            });
 
         if let Some(execute) = &self.execute {
             lines.push(String::new());

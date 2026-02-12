@@ -70,7 +70,7 @@ impl BuildOptimizer {
             })
             .with_filter(SkillsFilter {
                 exclude_ultimates: true,
-                exclude_non_damaging: true,
+                exclude_non_damaging: true, // TODO: only exclude if no buff
             });
 
         let (class_names, class_skill_line_combinations) =
