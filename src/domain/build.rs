@@ -1,6 +1,6 @@
 use super::{
-    formulas, BonusData, BonusSource, BonusTarget, CharacterStats, ClassName, ResolveContext,
-    SkillData, SkillLineName,
+    BonusData, BonusSource, BonusTarget, CharacterStats, ClassName, ResolveContext, SkillData,
+    SkillLineName,
 };
 use crate::infrastructure::{format, table};
 use std::collections::{HashMap, HashSet};
@@ -90,7 +90,7 @@ impl Build {
                     stats.critical_damage += bv.value;
                 }
                 BonusTarget::CriticalRating => {
-                    stats.critical_chance += formulas::crit_rating_to_bonus_chance(bv.value);
+                    stats.critical_rating += bv.value;
                 }
                 BonusTarget::PhysicalAndSpellPenetration => {
                     stats.penetration += bv.value;
@@ -179,7 +179,7 @@ impl Build {
                 ("Spell Damage", b, e)
             },
             {
-                let (b, e) = fmt_pct(base.critical_chance, eff.critical_chance);
+                let (b, e) = fmt_pct(base.critical_chance(), eff.critical_chance());
                 ("Critical Chance", b, e)
             },
             {
@@ -278,7 +278,7 @@ impl Build {
                 let mut tooltip_stats = passive_stats.clone();
                 tooltip_stats.target_armor = 0.0;
                 tooltip_stats.penetration = 0.0;
-                tooltip_stats.critical_chance = 0.0;
+                tooltip_stats.critical_rating = 0.0;
                 tooltip_stats.critical_damage = 1.0;
                 let tooltip =
                     skill.calculate_damage_per_cast(&passive_bonuses, &tooltip_stats, None);

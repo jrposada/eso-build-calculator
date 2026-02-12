@@ -161,7 +161,7 @@ impl SkillData {
         }
 
         let armor_factor = formulas::armor_damage_factor(stats.target_armor, stats.penetration);
-        let crit_mult = formulas::critical_multiplier(stats.critical_chance, stats.critical_damage);
+        let crit_mult = formulas::critical_multiplier(stats.critical_chance(), stats.critical_damage);
 
         total_damage_per_cast * armor_factor * crit_mult
     }

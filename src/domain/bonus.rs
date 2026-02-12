@@ -166,7 +166,7 @@ mod tests {
         let bonus = long_shots_bonus();
         // Low crit damage → Damage% is better
         let stats = CharacterStats::default()
-            .with_critical_chance(0.30)
+            .with_critical_rating(4382.4)
             .with_critical_damage(1.50);
         let ctx = ResolveContext::new(stats);
         let result = bonus.resolve(&ctx);
@@ -178,7 +178,7 @@ mod tests {
         let bonus = long_shots_bonus();
         // High crit damage → CritRating is better
         let stats = CharacterStats::default()
-            .with_critical_chance(0.60)
+            .with_critical_rating(10956.0)
             .with_critical_damage(2.25);
         let ctx = ResolveContext::new(stats);
         let result = bonus.resolve(&ctx);
@@ -235,7 +235,7 @@ mod tests {
         let stats = CharacterStats::default()
             .with_weapon_damage(6000.0)
             .with_spell_damage(6000.0)
-            .with_critical_chance(0.60)
+            .with_critical_rating(10956.0)
             .with_critical_damage(1.75)
             .with_penetration(10000.0)
             .with_target_armor(18200.0);

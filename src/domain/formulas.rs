@@ -149,7 +149,7 @@ pub fn effective_damage_contribution(
         }
 
         // Crit damage → scales with crit chance
-        BonusTarget::CriticalDamage => value * stats.critical_chance,
+        BonusTarget::CriticalDamage => value * stats.critical_chance(),
 
         // Flat weapon/spell damage → relative increase to base power
         BonusTarget::WeaponAndSpellDamageFlat => {
@@ -495,7 +495,7 @@ mod tests {
         CharacterStats::default()
             .with_weapon_damage(6000.0)
             .with_spell_damage(6000.0)
-            .with_critical_chance(0.60)
+            .with_critical_rating(10956.0)
             .with_critical_damage(1.75)
             .with_penetration(10000.0)
             .with_target_armor(18200.0)
