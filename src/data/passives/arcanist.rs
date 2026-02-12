@@ -123,7 +123,7 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             vec![BonusData::new(
                 "Hideous Clarity",
                 BonusSource::Passive,
-                BonusTrigger::ArcanistCrux, // TODO should be only on generate
+                BonusTrigger::ArcanistCrux, // TODO: should be only on generate
                 BonusValue::new(
                     "Hideous Clarity",
                     BonusTarget::RestoreMagickaOrStamina,

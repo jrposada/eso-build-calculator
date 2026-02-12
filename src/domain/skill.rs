@@ -4,7 +4,6 @@ use super::{
 };
 use serde::{Deserialize, Serialize};
 
-/// Raw skill data used to construct skills
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SkillData {
     pub name: String,
@@ -80,91 +79,17 @@ impl SkillData {
 }
 
 impl SkillData {
-    /// Get primary damage flags from the first hit or dot (for display purposes)
-    pub fn primary_flags(&self) -> Option<DamageFlags> {
-        let damage = self.damage.as_ref()?;
-        if let Some(hits) = &damage.hits {
-            if let Some(hit) = hits.first() {
-                return Some(hit.flags);
-            }
-        }
-        if let Some(dots) = &damage.dots {
-            if let Some(dot) = dots.first() {
-                return Some(dot.flags);
-            }
-        }
-        None
-    }
-
-    /// Get the skill mechanic
-    pub fn mechanic(&self) -> SkillMechanic {
-        if self.channel_time.is_some() {
-            return SkillMechanic::Channeled;
-        }
-
-        if let Some(damage) = &self.damage {
-            if damage.dots.as_ref().is_some_and(|d| !d.is_empty()) {
-                return SkillMechanic::Dot;
-            }
-
-            if let Some(hits) = &damage.hits {
-                if !hits.is_empty() {
-                    return SkillMechanic::Instant;
-                }
-            }
-        }
-
-        // Default to Instant for skills with no damage
-        SkillMechanic::Instant
-    }
-
-    /// Get the skill duration (max DoT duration or channel time)
-    pub fn duration(&self) -> f64 {
-        if let Some(damage) = &self.damage {
-            if let Some(dots) = &damage.dots {
-                if !dots.is_empty() {
-                    return dots
-                        .iter()
-                        .map(|dot| dot.duration + dot.delay.unwrap_or(0.0))
-                        .fold(0.0, f64::max);
-                }
-            }
-        }
-        self.channel_time.unwrap_or(0.0)
-    }
-
-    /// Default stats used when no character stats are provided (40k max stat, 5.5k max power)
-    const DEFAULT_MAX_STAT: f64 = 40000.0;
-    const DEFAULT_MAX_POWER: f64 = 5500.0;
-
-    /// Calculate the total damage per cast with optional bonuses using default stats.
-    /// This excludes conditional execute hits (hits with execute_threshold).
-    pub fn calculate_damage_per_cast(&self, bonuses: &[BonusData]) -> f64 {
-        self.calculate_damage_at_health_internal(
-            bonuses,
-            Self::DEFAULT_MAX_STAT,
-            Self::DEFAULT_MAX_POWER,
-            None,
-        )
-    }
-
-    /// Internal method to calculate damage with enemy health filtering
-    ///
-    /// # Arguments
-    /// * `bonuses` - Active damage bonuses
-    /// * `max_stat` - The higher of max_magicka and max_stamina
-    /// * `max_power` - The higher of weapon_damage and spell_damage
-    /// * `enemy_health` - Optional enemy health percentage for execute calculations
-    fn calculate_damage_at_health_internal(
+    pub fn calculate_damage_per_cast(
         &self,
         bonuses: &[BonusData],
-        max_stat: f64,
-        max_power: f64,
+        stats: &CharacterStats,
         enemy_health: Option<f64>,
     ) -> f64 {
-        let mut total_damage = 0.0;
+        let max_stat = stats.max_stat();
+        let max_power = stats.max_power();
 
-        // Filter bonuses by skill line and execute threshold, then resolve to BonusValues
+        let mut total_damage_per_cast = 0.0;
+
         let ctx = ResolveContext::default();
         let applicable: Vec<_> = bonuses
             .iter()
@@ -179,7 +104,6 @@ impl SkillData {
             .collect();
 
         if let Some(damage) = &self.damage {
-            // Sum all direct hits
             if let Some(hits) = &damage.hits {
                 for hit in hits {
                     let modifier: f64 = applicable
@@ -192,15 +116,14 @@ impl SkillData {
 
                     if let Some(threshold) = hit.execute_threshold {
                         if enemy_health.map_or(false, |h| h < threshold) {
-                            total_damage += hit_value * (1.0 + modifier);
+                            total_damage_per_cast += hit_value * (1.0 + modifier);
                         }
                     } else {
-                        total_damage += hit_value * (1.0 + modifier);
+                        total_damage_per_cast += hit_value * (1.0 + modifier);
                     }
                 }
             }
 
-            // Add DoT damage over full duration
             if let Some(dots) = &damage.dots {
                 for dot in dots {
                     let modifier: f64 = applicable
@@ -222,97 +145,80 @@ impl SkillData {
                         let tick_damage = dot_value * percentage_multiplier + flat_increase;
 
                         if dot.ignores_modifier.unwrap_or(false) {
-                            total_damage += tick_damage;
+                            total_damage_per_cast += tick_damage;
                         } else {
-                            total_damage += tick_damage * (1.0 + modifier);
+                            total_damage_per_cast += tick_damage * (1.0 + modifier);
                         }
                     }
                 }
             }
         }
 
-        total_damage
-    }
-
-    /// Calculate damage at a specific enemy health percentage using default stats,
-    /// including execute bonuses.
-    pub fn calculate_damage_at_health(
-        &self,
-        bonuses: &[BonusData],
-        enemy_health_percent: f64,
-    ) -> f64 {
-        let base = self.calculate_damage_at_health_internal(
-            bonuses,
-            Self::DEFAULT_MAX_STAT,
-            Self::DEFAULT_MAX_POWER,
-            Some(enemy_health_percent),
-        );
         if let Some(execute) = &self.execute {
-            base * execute.calculate_multiplier(enemy_health_percent)
-        } else {
-            base
+            if let Some(health) = enemy_health {
+                total_damage_per_cast *= execute.calculate_multiplier(health);
+            }
         }
-    }
-
-    /// Calculate damage using character stats for coefficient-based calculation.
-    /// Calculate pre-mitigation damage (tooltip) using character stats but without
-    /// armor penetration or critical multipliers.
-    pub fn calculate_tooltip_damage_with_stats(
-        &self,
-        bonuses: &[BonusData],
-        stats: &CharacterStats,
-    ) -> f64 {
-        let max_stat = stats.max_stat();
-        let max_power = stats.max_power();
-        self.calculate_damage_at_health_internal(bonuses, max_stat, max_power, None)
-    }
-
-    pub fn calculate_damage_with_stats(
-        &self,
-        bonuses: &[BonusData],
-        stats: &CharacterStats,
-    ) -> f64 {
-        self.calculate_damage_with_stats_internal(bonuses, stats, None)
-    }
-
-    /// Calculate damage at specific health with character stats
-    pub fn calculate_damage_with_stats_at_health(
-        &self,
-        bonuses: &[BonusData],
-        stats: &CharacterStats,
-        enemy_health_percent: f64,
-    ) -> f64 {
-        let base =
-            self.calculate_damage_with_stats_internal(bonuses, stats, Some(enemy_health_percent));
-        if let Some(execute) = &self.execute {
-            base * execute.calculate_multiplier(enemy_health_percent)
-        } else {
-            base
-        }
-    }
-
-    /// Internal method to calculate damage with character stats
-    fn calculate_damage_with_stats_internal(
-        &self,
-        bonuses: &[BonusData],
-        stats: &CharacterStats,
-        enemy_health: Option<f64>,
-    ) -> f64 {
-        let max_stat = stats.max_stat();
-        let max_power = stats.max_power();
-
-        let pre_mitigation =
-            self.calculate_damage_at_health_internal(bonuses, max_stat, max_power, enemy_health);
 
         let armor_factor = formulas::armor_damage_factor(stats.target_armor, stats.penetration);
         let crit_mult = formulas::critical_multiplier(stats.critical_chance, stats.critical_damage);
 
-        pre_mitigation * armor_factor * crit_mult
+        total_damage_per_cast * armor_factor * crit_mult
+    }
+
+    pub fn mechanic(&self) -> SkillMechanic {
+        if self.channel_time.is_some() {
+            return SkillMechanic::Channeled;
+        }
+
+        if let Some(damage) = &self.damage {
+            if damage.dots.as_ref().is_some_and(|d| !d.is_empty()) {
+                return SkillMechanic::Dot;
+            }
+
+            if let Some(hits) = &damage.hits {
+                if !hits.is_empty() {
+                    return SkillMechanic::Instant;
+                }
+            }
+        }
+
+        // Default to Instant for skills with no damage
+        SkillMechanic::Instant
+    }
+
+    pub fn duration(&self) -> f64 {
+        if let Some(damage) = &self.damage {
+            if let Some(dots) = &damage.dots {
+                if !dots.is_empty() {
+                    return dots
+                        .iter()
+                        .map(|dot| dot.duration + dot.delay.unwrap_or(0.0))
+                        .fold(0.0, f64::max);
+                }
+            }
+        }
+        self.channel_time.unwrap_or(0.0)
     }
 }
 
 // Format
 impl SkillData {
+    fn primary_flags(&self) -> Option<DamageFlags> {
+        let damage = self.damage.as_ref()?;
+        if let Some(hits) = &damage.hits {
+            if let Some(hit) = hits.first() {
+                return Some(hit.flags);
+            }
+        }
+        if let Some(dots) = &damage.dots {
+            if let Some(dot) = dots.first() {
+                return Some(dot.flags);
+            }
+        }
+        None
+    }
+
     fn fmt_header(&self) -> Vec<String> {
         vec!["=".repeat(60), format!("  {}", self.name), "=".repeat(60)]
     }
@@ -348,6 +254,10 @@ impl SkillData {
     fn fmt_damage(&self) -> Vec<String> {
         let mut lines = vec!["  Damage".to_string(), format!("  {}", "-".repeat(56))];
 
+        let stats = CharacterStats::default();
+        let max_stat = stats.max_stat();
+        let max_power = stats.max_power();
+
         if let Some(damage) = &self.damage {
             if let Some(hits) = &damage.hits {
                 if !hits.is_empty() {
@@ -362,8 +272,7 @@ impl SkillData {
                             .map(|t| format!(" (execute: <{:.0}% HP)", t * 100.0))
                             .unwrap_or_default();
                         let flags_str = format!(" [{}]", hit.flags);
-                        let value =
-                            hit.effective_value(Self::DEFAULT_MAX_STAT, Self::DEFAULT_MAX_POWER);
+                        let value = hit.effective_value(max_stat, max_power);
                         lines.push(format!(
                             "    {}. {:.0}{}{}{}",
                             j + 1,
@@ -393,8 +302,7 @@ impl SkillData {
                             .map(|f| format!(" (+{}/tick)", f))
                             .unwrap_or_default();
                         let flags_str = format!(" [{}]", dot.flags);
-                        let value =
-                            dot.effective_value(Self::DEFAULT_MAX_STAT, Self::DEFAULT_MAX_POWER);
+                        let value = dot.effective_value(max_stat, max_power);
                         lines.push(format!(
                             "    {}. {:.0}{} for {}s{}{}{}",
                             j + 1,
@@ -423,9 +331,10 @@ impl SkillData {
             "instant".to_string()
         };
         lines.push(format!("  Duration:        {}", duration_str));
+        let default_stats = CharacterStats::default();
         lines.push(format!(
             "  Damage/Cast:     {:.0}",
-            self.calculate_damage_per_cast(&[])
+            self.calculate_damage_per_cast(&[], &default_stats, None)
         ));
 
         let has_execute_hits = self
@@ -455,12 +364,12 @@ impl SkillData {
             ));
             lines.push(format!(
                 "  Damage @0% HP:   {:.0}",
-                self.calculate_damage_at_health(&[], 0.0)
+                self.calculate_damage_per_cast(&[], &default_stats, Some(0.0))
             ));
         } else if has_execute_hits {
             lines.push(format!(
                 "  Damage @0% HP:   {:.0}",
-                self.calculate_damage_at_health(&[], 0.0)
+                self.calculate_damage_per_cast(&[], &default_stats, Some(0.0))
             ));
         }
 

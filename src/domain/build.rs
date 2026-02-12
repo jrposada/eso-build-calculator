@@ -11,7 +11,7 @@ pub struct Build {
     resolved_bonuses: Vec<BonusData>,
     character_stats: CharacterStats,
     effective_stats: CharacterStats,
-    pub total_damage: f64,
+    pub total_damage_per_cast: f64,
 }
 
 // Constructor
@@ -58,9 +58,10 @@ impl Build {
             Self::apply_stat_bonuses_to_stats(&resolved_bonuses, &character_stats);
 
         // --- Calculate total damage ---
-        let mut total_damage = 0.0;
+        let mut total_damage_per_cast = 0.0;
         for skill in &skills {
-            total_damage += skill.calculate_damage_with_stats(&resolved_bonuses, &effective_stats);
+            total_damage_per_cast +=
+                skill.calculate_damage_per_cast(&resolved_bonuses, &effective_stats, None);
         }
 
         Self {
@@ -68,7 +69,7 @@ impl Build {
             resolved_bonuses,
             character_stats,
             effective_stats,
-            total_damage,
+            total_damage_per_cast,
         }
     }
 
@@ -128,8 +129,8 @@ impl Build {
             "Optimal Build - Maximum Damage Per Cast".to_string(),
             divider,
             format!(
-                "Total Damage: {}",
-                format::format_number(self.total_damage as u64) // FIXME
+                "Total Damage per Cast: {}",
+                format::format_number(self.total_damage_per_cast as u64) // FIXME: cast
             ),
             String::new(),
         ]
@@ -274,10 +275,18 @@ impl Build {
             .skills
             .iter()
             .map(|skill| {
+                let mut tooltip_stats = passive_stats.clone();
+                tooltip_stats.target_armor = 0.0;
+                tooltip_stats.penetration = 0.0;
+                tooltip_stats.critical_chance = 0.0;
+                tooltip_stats.critical_damage = 1.0;
                 let tooltip =
-                    skill.calculate_tooltip_damage_with_stats(&passive_bonuses, &passive_stats);
-                let effective = skill
-                    .calculate_damage_with_stats(&self.resolved_bonuses, &self.effective_stats);
+                    skill.calculate_damage_per_cast(&passive_bonuses, &tooltip_stats, None);
+                let effective = skill.calculate_damage_per_cast(
+                    &self.resolved_bonuses,
+                    &self.effective_stats,
+                    None,
+                );
                 (skill, tooltip, effective)
             })
             .collect();

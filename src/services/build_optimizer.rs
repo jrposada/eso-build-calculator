@@ -441,7 +441,7 @@ impl BuildOptimizer {
                         },
                         self.character_stats.clone(),
                     );
-                    let damage = build.total_damage;
+                    let damage = build.total_damage_per_cast;
 
                     // Atomically update global best damage for progress display
                     let damage_bits = damage.to_bits();
@@ -474,7 +474,7 @@ impl BuildOptimizer {
                     build
                 })
                 .reduce_with(|a, b| {
-                    if a.total_damage > b.total_damage {
+                    if a.total_damage_per_cast > b.total_damage_per_cast {
                         a
                     } else {
                         b

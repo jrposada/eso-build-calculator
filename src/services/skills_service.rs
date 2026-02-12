@@ -1,6 +1,5 @@
 use crate::data::skills::ALL_SKILLS;
-use crate::domain::SkillData;
-use crate::domain::{Resource, SkillLineName};
+use crate::domain::{CharacterStats, Resource, SkillData, SkillLineName};
 use crate::infrastructure::logger;
 use std::collections::{HashMap, HashSet};
 
@@ -152,9 +151,10 @@ impl SkillsService {
     }
 
     fn select_highest_damage_morph(morphs: &[&'static SkillData]) -> Option<&'static SkillData> {
+        let default_stats = CharacterStats::default();
         morphs.iter().copied().max_by(|a, b| {
-            let damage_a = a.calculate_damage_per_cast(&[]);
-            let damage_b = b.calculate_damage_per_cast(&[]);
+            let damage_a = a.calculate_damage_per_cast(&[], &default_stats, None);
+            let damage_b = b.calculate_damage_per_cast(&[], &default_stats, None);
             damage_a
                 .partial_cmp(&damage_b)
                 .unwrap_or(std::cmp::Ordering::Equal)
