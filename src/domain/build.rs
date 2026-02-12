@@ -134,28 +134,21 @@ impl Build {
 
     /// Fast damage computation without constructing a full Build.
     /// Uses references and lightweight ResolvedBonus to minimize allocations.
+    /// Accepts pre-split simple/alt bonus slices (from CP and passives separately)
+    /// to avoid per-evaluation classification and merging.
     pub fn compute_total_damage(
         skills: &[&'static SkillData],
-        cp_bonuses: &[BonusData],
-        passive_bonuses: &[BonusData],
+        cp_simple: &[BonusData],
+        cp_alt: &[BonusData],
+        passive_simple: &[BonusData],
+        passive_alt: &[BonusData],
         character_stats: &CharacterStats,
     ) -> f64 {
-        // Split bonuses by reference (no cloning)
-        let mut simple: Vec<&BonusData> = Vec::new();
-        let mut alt: Vec<&BonusData> = Vec::new();
-        for bonus in cp_bonuses.iter().chain(passive_bonuses.iter()) {
-            if bonus.has_alternative() {
-                alt.push(bonus);
-            } else {
-                simple.push(bonus);
-            }
-        }
-
         let default_ctx = ResolveContext::default();
 
         // Step 1: Apply simple stat bonuses → intermediate_stats (for resolving alternatives)
         let mut intermediate_stats = character_stats.clone();
-        for &bonus in &simple {
+        for bonus in cp_simple.iter().chain(passive_simple.iter()) {
             let bv = bonus.resolve_ref(&default_ctx);
             let multiplier = Self::bonus_multiplier(bonus, skills);
             Self::apply_stat_bonus(&mut intermediate_stats, bv.target, bv.value * multiplier);
@@ -166,10 +159,12 @@ impl Build {
         let resolve_ctx = ResolveContext::new(intermediate_stats);
 
         // Step 3: Build effective_stats and resolved bonus list simultaneously
+        let total_count =
+            cp_simple.len() + cp_alt.len() + passive_simple.len() + passive_alt.len();
         let mut effective_stats = character_stats.clone();
-        let mut resolved: Vec<ResolvedBonus> = Vec::with_capacity(simple.len() + alt.len());
+        let mut resolved: Vec<ResolvedBonus> = Vec::with_capacity(total_count);
 
-        for &bonus in &simple {
+        for bonus in cp_simple.iter().chain(passive_simple.iter()) {
             let bv = bonus.resolve_ref(&default_ctx);
             let multiplier = Self::bonus_multiplier(bonus, skills);
             Self::apply_stat_bonus(&mut effective_stats, bv.target, bv.value * multiplier);
@@ -181,7 +176,7 @@ impl Build {
             });
         }
 
-        for &bonus in &alt {
+        for bonus in cp_alt.iter().chain(passive_alt.iter()) {
             let chosen = bonus.resolve_ref(&resolve_ctx);
             let multiplier = Self::bonus_multiplier(bonus, skills);
             Self::apply_stat_bonus(&mut effective_stats, chosen.target, chosen.value * multiplier);
@@ -194,10 +189,23 @@ impl Build {
         }
         effective_stats.clamp_caps();
 
-        // Step 4: Calculate total damage
+        // Step 4: Calculate total damage (armor_factor and crit_mult are the same for all skills)
+        let armor_factor =
+            super::formulas::armor_damage_factor(effective_stats.target_armor, effective_stats.penetration);
+        let crit_mult = super::formulas::critical_multiplier(
+            effective_stats.critical_chance(),
+            effective_stats.critical_damage,
+        );
+
         let mut total = 0.0;
         for skill in skills {
-            total += skill.calculate_damage_per_cast_fast(&resolved, &effective_stats, None);
+            total += skill.calculate_damage_per_cast_fast(
+                &resolved,
+                &effective_stats,
+                None,
+                armor_factor,
+                crit_mult,
+            );
         }
         total
     }

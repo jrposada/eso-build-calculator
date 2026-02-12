@@ -168,35 +168,38 @@ impl SkillData {
 
     /// Fast damage calculation using pre-resolved lightweight bonuses.
     /// Avoids BonusValue String cloning and BonusData overhead.
+    /// `armor_factor` and `crit_mult` are precomputed from effective_stats
+    /// and shared across all skills in a build evaluation.
     pub fn calculate_damage_per_cast_fast(
         &self,
         bonuses: &[ResolvedBonus],
         stats: &CharacterStats,
         enemy_health: Option<f64>,
+        armor_factor: f64,
+        crit_mult: f64,
     ) -> f64 {
         let max_stat = stats.max_stat();
         let max_power = stats.max_power();
 
         let mut total_damage_per_cast = 0.0;
 
-        let applicable: Vec<&ResolvedBonus> = bonuses
-            .iter()
-            .filter(|b| {
-                b.skill_line_filter.map_or(true, |sl| sl == self.skill_line)
-                    && match b.execute_threshold {
-                        Some(threshold) => enemy_health.map_or(false, |h| h <= threshold),
-                        None => true,
-                    }
-            })
-            .collect();
+        // Inline filter: avoid collecting into a Vec per skill
+        let skill_line = self.skill_line;
+        let is_applicable = |b: &ResolvedBonus| -> bool {
+            b.skill_line_filter.map_or(true, |sl| sl == skill_line)
+                && match b.execute_threshold {
+                    Some(threshold) => enemy_health.map_or(false, |h| h <= threshold),
+                    None => true,
+                }
+        };
 
         if let Some(damage) = &self.damage {
             if let Some(hits) = &damage.hits {
                 for hit in hits {
-                    let modifier: f64 = applicable
+                    let modifier: f64 = bonuses
                         .iter()
-                        .filter(|bv| hit.flags.matches_bonus_target(bv.target))
-                        .map(|bv| bv.value)
+                        .filter(|b| is_applicable(b) && hit.flags.matches_bonus_target(b.target))
+                        .map(|b| b.value)
                         .sum();
 
                     let hit_value = hit.effective_value(max_stat, max_power);
@@ -213,10 +216,10 @@ impl SkillData {
 
             if let Some(dots) = &damage.dots {
                 for dot in dots {
-                    let modifier: f64 = applicable
+                    let modifier: f64 = bonuses
                         .iter()
-                        .filter(|bv| dot.flags.matches_bonus_target(bv.target))
-                        .map(|bv| bv.value)
+                        .filter(|b| is_applicable(b) && dot.flags.matches_bonus_target(b.target))
+                        .map(|b| b.value)
                         .sum();
 
                     let dot_value = dot.effective_value(max_stat, max_power);
@@ -246,10 +249,6 @@ impl SkillData {
                 total_damage_per_cast *= execute.calculate_multiplier(health);
             }
         }
-
-        let armor_factor = formulas::armor_damage_factor(stats.target_armor, stats.penetration);
-        let crit_mult =
-            formulas::critical_multiplier(stats.critical_chance(), stats.critical_damage);
 
         total_damage_per_cast * armor_factor * crit_mult
     }
