@@ -332,9 +332,6 @@ impl Build {
     }
 
     fn fmt_bonuses(&self) -> String {
-        let mut bonuses = self.resolved_bonuses.clone();
-        bonuses.sort_by(|a, b| a.name.cmp(&b.name));
-
         let fmt_bonus_value = |target: BonusTarget, value: f64| -> String {
             match target {
                 BonusTarget::CriticalDamage
@@ -364,11 +361,20 @@ impl Build {
         };
 
         let ctx = ResolveContext::new(self.effective_stats.clone());
-        let bonuses_data: Vec<Vec<String>> = bonuses
+        let mut resolved: Vec<_> = self
+            .resolved_bonuses
+            .iter()
+            .map(|bonus| {
+                let bv = bonus.resolve(&ctx);
+                (bonus, bv)
+            })
+            .collect();
+        resolved.sort_by(|a, b| a.1.target.to_string().cmp(&b.1.target.to_string()));
+
+        let bonuses_data: Vec<Vec<String>> = resolved
             .iter()
             .enumerate()
-            .map(|(i, bonus)| {
-                let bv = bonus.resolve(&ctx);
+            .map(|(i, (bonus, bv))| {
                 let value_str = fmt_bonus_value(bv.target, bv.value);
                 vec![
                     (i + 1).to_string(),
