@@ -97,12 +97,17 @@ impl BonusData {
     }
 
     pub fn resolve(&self, ctx: &ResolveContext) -> BonusValue {
+        self.resolve_ref(ctx).clone()
+    }
+
+    pub fn resolve_ref(&self, ctx: &ResolveContext) -> &BonusValue {
         if self.value.len() <= 1 {
-            return self.value[0].clone();
+            return &self.value[0];
         }
 
-        let active = self
-            .value
+        // TODO: use trigger to multiple active by trigger, things like once per
+        // slotted skill, just once if skill line used, etc
+        self.value
             .iter()
             .max_by(|a, b| {
                 let a_eff = formulas::effective_damage_contribution(
@@ -119,12 +124,7 @@ impl BonusData {
                     .partial_cmp(&b_eff)
                     .unwrap_or(std::cmp::Ordering::Equal)
             })
-            .cloned()
-            .unwrap();
-
-        // TODO: use trigger to multiple active by trigger, things like once per
-        // slotted skill, just once if skill line used, etc
-        active
+            .unwrap()
     }
 }
 

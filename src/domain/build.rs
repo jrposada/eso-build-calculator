@@ -1,13 +1,13 @@
 use super::{
-    BonusData, BonusSource, BonusTarget, BonusTrigger, CharacterStats, ClassName, ResolveContext,
-    SkillData, SkillLineName,
+    BonusData, BonusSource, BonusTarget, BonusTrigger, CharacterStats, ClassName, ResolvedBonus,
+    ResolveContext, SkillData, SkillLineName,
 };
 use crate::infrastructure::{format, table};
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Clone)]
 pub struct Build {
-    skills: Vec<SkillData>,
+    skills: Vec<&'static SkillData>,
     resolved_bonuses: Vec<BonusData>,
     character_stats: CharacterStats,
     effective_stats: CharacterStats,
@@ -18,18 +18,16 @@ pub struct Build {
 impl Build {
     pub fn new(
         skills: Vec<&'static SkillData>,
-        all_bonuses: Vec<BonusData>,
+        cp_bonuses: &[BonusData],
+        passive_bonuses: &[BonusData],
         character_stats: CharacterStats,
     ) -> Self {
         // FIXME: some passives are only active while on that bar,
         // do we wanna apply combination here too?
 
-        // Clone skills for storage (better cache locality in parallel execution)
-        let skills: Vec<SkillData> = skills.into_iter().map(|s| s.clone()).collect();
-
         let mut simple_bonuses: Vec<BonusData> = Vec::new();
         let mut alt_bonuses: Vec<BonusData> = Vec::new();
-        for bonus in all_bonuses {
+        for bonus in cp_bonuses.iter().chain(passive_bonuses.iter()).cloned() {
             if bonus.has_alternative() {
                 alt_bonuses.push(bonus);
             } else {
@@ -76,7 +74,7 @@ impl Build {
     fn apply_stat_bonuses_to_stats(
         bonuses: &[BonusData],
         base_stats: &CharacterStats,
-        skills: &Vec<SkillData>,
+        skills: &[&SkillData],
     ) -> CharacterStats {
         let mut stats = base_stats.clone();
         let ctx = ResolveContext::new(base_stats.clone());
@@ -105,7 +103,7 @@ impl Build {
         stats
     }
 
-    fn bonus_multiplier(bonus: &BonusData, skills: &[SkillData]) -> f64 {
+    fn bonus_multiplier(bonus: &BonusData, skills: &[&SkillData]) -> f64 {
         match bonus.trigger {
             BonusTrigger::AbilitySlottedCount => match bonus.skill_line_filter {
                 Some(sl) => skills.iter().filter(|s| s.skill_line == sl).count() as f64,
@@ -113,6 +111,95 @@ impl Build {
             },
             _ => 1.0,
         }
+    }
+
+    fn apply_stat_bonus(stats: &mut CharacterStats, target: BonusTarget, value: f64) {
+        match target {
+            BonusTarget::WeaponAndSpellDamageFlat => {
+                stats.weapon_damage += value;
+                stats.spell_damage += value;
+            }
+            BonusTarget::CriticalDamage => {
+                stats.critical_damage += value;
+            }
+            BonusTarget::CriticalRating => {
+                stats.critical_rating += value;
+            }
+            BonusTarget::PhysicalAndSpellPenetration => {
+                stats.penetration += value;
+            }
+            _ => {}
+        }
+    }
+
+    /// Fast damage computation without constructing a full Build.
+    /// Uses references and lightweight ResolvedBonus to minimize allocations.
+    pub fn compute_total_damage(
+        skills: &[&'static SkillData],
+        cp_bonuses: &[BonusData],
+        passive_bonuses: &[BonusData],
+        character_stats: &CharacterStats,
+    ) -> f64 {
+        // Split bonuses by reference (no cloning)
+        let mut simple: Vec<&BonusData> = Vec::new();
+        let mut alt: Vec<&BonusData> = Vec::new();
+        for bonus in cp_bonuses.iter().chain(passive_bonuses.iter()) {
+            if bonus.has_alternative() {
+                alt.push(bonus);
+            } else {
+                simple.push(bonus);
+            }
+        }
+
+        let default_ctx = ResolveContext::default();
+
+        // Step 1: Apply simple stat bonuses → intermediate_stats (for resolving alternatives)
+        let mut intermediate_stats = character_stats.clone();
+        for &bonus in &simple {
+            let bv = bonus.resolve_ref(&default_ctx);
+            let multiplier = Self::bonus_multiplier(bonus, skills);
+            Self::apply_stat_bonus(&mut intermediate_stats, bv.target, bv.value * multiplier);
+        }
+        intermediate_stats.clamp_caps();
+
+        // Step 2: Resolve alternatives using intermediate_stats
+        let resolve_ctx = ResolveContext::new(intermediate_stats);
+
+        // Step 3: Build effective_stats and resolved bonus list simultaneously
+        let mut effective_stats = character_stats.clone();
+        let mut resolved: Vec<ResolvedBonus> = Vec::with_capacity(simple.len() + alt.len());
+
+        for &bonus in &simple {
+            let bv = bonus.resolve_ref(&default_ctx);
+            let multiplier = Self::bonus_multiplier(bonus, skills);
+            Self::apply_stat_bonus(&mut effective_stats, bv.target, bv.value * multiplier);
+            resolved.push(ResolvedBonus {
+                target: bv.target,
+                value: bv.value,
+                skill_line_filter: bonus.skill_line_filter,
+                execute_threshold: bonus.execute_threshold,
+            });
+        }
+
+        for &bonus in &alt {
+            let chosen = bonus.resolve_ref(&resolve_ctx);
+            let multiplier = Self::bonus_multiplier(bonus, skills);
+            Self::apply_stat_bonus(&mut effective_stats, chosen.target, chosen.value * multiplier);
+            resolved.push(ResolvedBonus {
+                target: chosen.target,
+                value: chosen.value,
+                skill_line_filter: bonus.skill_line_filter,
+                execute_threshold: bonus.execute_threshold,
+            });
+        }
+        effective_stats.clamp_caps();
+
+        // Step 4: Calculate total damage
+        let mut total = 0.0;
+        for skill in skills {
+            total += skill.calculate_damage_per_cast_fast(&resolved, &effective_stats, None);
+        }
+        total
     }
 }
 

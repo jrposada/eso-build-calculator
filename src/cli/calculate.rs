@@ -84,15 +84,7 @@ impl CalculateArgs {
         }
 
         // Create the build
-        let build = Build::new(
-            skills.clone(),
-            {
-                let mut all_bonuses = champion_points.clone();
-                all_bonuses.extend(passive_bonuses.iter().cloned());
-                all_bonuses
-            },
-            stats,
-        );
+        let build = Build::new(skills.clone(), &champion_points, &passive_bonuses, stats);
 
         if !skills.iter().any(|s| s.spammable) {
             logger::warn("This build has no spammable skill. Every rotation needs at least one instant-cast filler.");

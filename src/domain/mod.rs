@@ -26,7 +26,7 @@ pub use bonus::{BonusData, ResolveContext};
 pub use bonus_source::BonusSource;
 pub use bonus_target::BonusTarget;
 pub use bonus_trigger::BonusTrigger;
-pub use bonus_value::BonusValue;
+pub use bonus_value::{BonusValue, ResolvedBonus};
 pub use build::Build;
 pub use build_constrains::BUILD_CONSTRAINTS;
 pub use character_stats::{CharacterStats, ATTRIBUTE_POINTS_BONUS};

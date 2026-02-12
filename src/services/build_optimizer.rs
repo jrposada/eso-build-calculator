@@ -426,22 +426,26 @@ impl BuildOptimizer {
             .build()
             .expect("Failed to create thread pool");
 
-        let best_build: Option<Build> = pool.install(|| {
+        // Lightweight candidate that avoids constructing a full Build per combination
+        struct Candidate<'a> {
+            damage: f64,
+            skills: Vec<&'static SkillData>,
+            cp_bonuses: &'a [BonusData],
+            passive_bonuses: &'a [BonusData],
+        }
+
+        let best_candidate: Option<Candidate<'_>> = pool.install(|| {
             self.build_combinations()
                 .par_bridge()
                 .map(|(cp_bonuses, passive_bonuses, skill_combo)| {
                     let count = evaluated_count.fetch_add(1, Ordering::Relaxed) + 1;
 
-                    let build = Build::new(
-                        skill_combo,
-                        {
-                            let mut all_bonuses = cp_bonuses.clone();
-                            all_bonuses.extend(passive_bonuses.iter().cloned());
-                            all_bonuses
-                        },
-                        self.character_stats.clone(),
+                    let damage = Build::compute_total_damage(
+                        &skill_combo,
+                        cp_bonuses,
+                        passive_bonuses,
+                        &self.character_stats,
                     );
-                    let damage = build.total_damage_per_cast;
 
                     // Atomically update global best damage for progress display
                     let damage_bits = damage.to_bits();
@@ -471,15 +475,14 @@ impl BuildOptimizer {
                         }
                     }
 
-                    build
-                })
-                .reduce_with(|a, b| {
-                    if a.total_damage_per_cast > b.total_damage_per_cast {
-                        a
-                    } else {
-                        b
+                    Candidate {
+                        damage,
+                        skills: skill_combo,
+                        cp_bonuses,
+                        passive_bonuses,
                     }
                 })
+                .reduce_with(|a, b| if a.damage > b.damage { a } else { b })
         });
 
         let total_evaluated = evaluated_count.load(Ordering::Relaxed);
@@ -491,7 +494,15 @@ impl BuildOptimizer {
             elapsed.as_secs_f64()
         ));
 
-        best_build
+        // Construct the full Build only for the winner
+        best_candidate.map(|c| {
+            Build::new(
+                c.skills,
+                c.cp_bonuses,
+                c.passive_bonuses,
+                self.character_stats.clone(),
+            )
+        })
     }
 
     fn build_combinations(
