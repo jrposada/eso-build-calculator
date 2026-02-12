@@ -17,7 +17,7 @@ impl ViewArgs {
 
         match skill_data {
             Some(data) => {
-                println!("{}", data.format_details());
+                println!("{}", data);
                 println!();
             }
             None => {

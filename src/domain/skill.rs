@@ -11,6 +11,7 @@ pub struct SkillData {
     pub base_skill_name: String,
     pub class_name: ClassName,
     pub skill_line: SkillLineName,
+
     pub damage: SkillDamage,
     pub resource: Resource,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -295,21 +296,23 @@ impl SkillData {
 
         pre_mitigation * armor_factor * crit_mult
     }
+}
 
-    /// Format skill details for display
-    pub fn format_details(&self) -> String {
-        let mut lines = Vec::new();
+// Format
+impl SkillData {
+    fn fmt_header(&self) -> Vec<String> {
+        vec!["=".repeat(60), format!("  {}", self.name), "=".repeat(60)]
+    }
 
-        lines.push("=".repeat(60));
-        lines.push(format!("  {}", self.name));
-        lines.push("=".repeat(60));
-        lines.push(String::new());
-        lines.push("  Basic Info".to_string());
-        lines.push(format!("  {}", "-".repeat(56)));
-        lines.push(format!("  Base Skill:      {}", self.base_skill_name));
-        lines.push(format!("  Source:          {}", self.class_name));
-        lines.push(format!("  Skill Line:      {}", self.skill_line));
-        lines.push(format!("  Resource:        {}", self.resource));
+    fn fmt_basic_info(&self) -> Vec<String> {
+        let mut lines = vec![
+            "  Basic Info".to_string(),
+            format!("  {}", "-".repeat(56)),
+            format!("  Base Skill:      {}", self.base_skill_name),
+            format!("  Source:          {}", self.class_name),
+            format!("  Skill Line:      {}", self.skill_line),
+            format!("  Resource:        {}", self.resource),
+        ];
 
         if let Some(flags) = self.primary_flags() {
             lines.push(format!("  Damage Type:     {}", flags.element_display()));
@@ -326,9 +329,11 @@ impl SkillData {
             lines.push(format!("  Channel Time:    {}s", channel_time));
         }
 
-        lines.push(String::new());
-        lines.push("  Damage".to_string());
-        lines.push(format!("  {}", "-".repeat(56)));
+        lines
+    }
+
+    fn fmt_damage(&self) -> Vec<String> {
+        let mut lines = vec!["  Damage".to_string(), format!("  {}", "-".repeat(56))];
 
         if let Some(hits) = &self.damage.hits {
             if !hits.is_empty() {
@@ -390,9 +395,11 @@ impl SkillData {
             }
         }
 
-        lines.push(String::new());
-        lines.push("  Calculated".to_string());
-        lines.push(format!("  {}", "-".repeat(56)));
+        lines
+    }
+
+    fn fmt_calculated(&self) -> Vec<String> {
+        let mut lines = vec!["  Calculated".to_string(), format!("  {}", "-".repeat(56))];
 
         let duration = self.duration();
         let duration_str = if duration > 0.0 {
@@ -406,7 +413,6 @@ impl SkillData {
             self.calculate_damage_per_cast(&[])
         ));
 
-        // Check if skill has conditional execute hits
         let has_execute_hits = self.damage.hits.as_ref().map_or(false, |hits| {
             hits.iter().any(|h| h.execute_threshold.is_some())
         });
@@ -439,9 +445,14 @@ impl SkillData {
             ));
         }
 
+        lines
+    }
+
+    fn fmt_bonuses(&self) -> Vec<String> {
+        let mut lines = Vec::new();
+
         if let Some(bonuses) = &self.bonuses {
             if !bonuses.is_empty() {
-                lines.push(String::new());
                 lines.push("  Granted Bonuses".to_string());
                 lines.push(format!("  {}", "-".repeat(56)));
                 for bonus in bonuses {
@@ -454,6 +465,27 @@ impl SkillData {
             }
         }
 
-        lines.join("\n")
+        lines
+    }
+}
+
+impl std::fmt::Display for SkillData {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut lines = Vec::new();
+        lines.extend(self.fmt_header());
+        lines.push(String::new());
+        lines.extend(self.fmt_basic_info());
+        lines.push(String::new());
+        lines.extend(self.fmt_damage());
+        lines.push(String::new());
+        lines.extend(self.fmt_calculated());
+
+        let bonus_lines = self.fmt_bonuses();
+        if !bonus_lines.is_empty() {
+            lines.push(String::new());
+            lines.extend(bonus_lines);
+        }
+
+        write!(f, "{}", lines.join("\n"))
     }
 }
