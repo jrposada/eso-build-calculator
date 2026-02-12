@@ -10,7 +10,7 @@ use super::{BonusTarget, CharacterStats};
 /// Maximum Critical Value at CP160 (level 66)
 /// Formula: MCV = 2 × Level × (100 + Level) = 2 × 66 × 166 = 21912
 /// Source: https://en.uesp.net/wiki/Online:Weapon_Critical_(effect)
-pub const MAX_CRIT_VALUE_CP160: f64 = 21912.0;
+pub const MAX_CRIT_VALUE_CP160: f64 = 21_912.0;
 
 /// Base critical chance all characters have (10%)
 /// Source: https://en.uesp.net/wiki/Online:Weapon_Critical_(effect)
@@ -18,7 +18,7 @@ pub const BASE_CRIT_CHANCE: f64 = 0.10;
 
 /// Armor formula constant: 50 × level = 50 × 66 = 3300
 /// Used in armor mitigation calculations at CP160
-pub const ARMOR_LEVEL_CONSTANT: f64 = 3300.0;
+pub const ARMOR_LEVEL_CONSTANT: f64 = 3_300.0;
 
 // ==================== CRITICAL ====================
 
@@ -30,7 +30,7 @@ pub fn crit_rating_to_chance(crit_rating: f64) -> f64 {
 
 /// Converts critical rating to bonus critical chance (excludes base 10%)
 /// This is the additional crit chance provided by the rating alone.
-pub fn crit_rating_to_bonus_chance(crit_rating: f64) -> f64 {
+fn crit_rating_to_bonus_chance(crit_rating: f64) -> f64 {
     crit_rating / MAX_CRIT_VALUE_CP160
 }
 
