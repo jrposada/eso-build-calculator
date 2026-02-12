@@ -35,12 +35,12 @@ pub struct BonusData {
     pub source: BonusSource,
     pub trigger: BonusTrigger,
 
-    pub value: Vec<BonusValue>,
-
     pub cooldown: Option<f64>,
     pub duration: Option<f64>,
     pub execute_threshold: Option<f64>,
     pub skill_line_filter: Option<SkillLineName>,
+
+    value: Vec<BonusValue>,
 }
 
 impl BonusData {
@@ -90,6 +90,10 @@ impl BonusData {
     pub fn with_alternative(mut self, value: BonusValue) -> Self {
         self.value.push(value);
         self
+    }
+
+    pub fn has_alternative(&self) -> bool {
+        self.value.len() > 1
     }
 
     pub fn resolve(&self, ctx: &ResolveContext) -> BonusValue {

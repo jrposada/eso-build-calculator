@@ -124,6 +124,7 @@ pub fn calculate_final_damage(
 ///
 /// Returns an approximate relative damage increase (e.g., 0.05 for ~5% more damage).
 /// Used to compare alternative bonus values and pick the best one.
+/// TODO: review, make sure caps are taken into consideration
 pub fn effective_damage_contribution(
     target: BonusTarget,
     value: f64,
@@ -173,7 +174,6 @@ pub fn effective_damage_contribution(
         _ => 0.0,
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -574,11 +574,8 @@ mod tests {
     #[test]
     fn test_edc_penetration() {
         let stats = test_stats();
-        let result = effective_damage_contribution(
-            BonusTarget::PhysicalAndSpellPenetration,
-            1487.0,
-            &stats,
-        );
+        let result =
+            effective_damage_contribution(BonusTarget::PhysicalAndSpellPenetration, 1487.0, &stats);
         let old_factor = armor_damage_factor(18200.0, 10000.0);
         let new_factor = armor_damage_factor(18200.0, 11487.0);
         let expected = (new_factor - old_factor) / old_factor;
@@ -593,13 +590,11 @@ mod tests {
     #[test]
     fn test_edc_unsupported_target_returns_zero() {
         let stats = test_stats();
-        let result =
-            effective_damage_contribution(BonusTarget::StatusEffectChance, 0.10, &stats);
+        let result = effective_damage_contribution(BonusTarget::StatusEffectChance, 0.10, &stats);
         assert!(
             result.abs() < 0.0001,
             "Expected 0.0 for unsupported target, got {}",
             result
         );
     }
-
 }
