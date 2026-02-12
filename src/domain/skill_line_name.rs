@@ -14,6 +14,10 @@ pub enum SkillLineName {
     ArdentFlame,
     DraconicPower,
     EarthenHeart,
+    // Necromancer
+    GraveLord,
+    BoneTyrant,
+    LivingDeath,
     // Nightblade
     Assassination,
     Shadow,
@@ -46,6 +50,9 @@ impl fmt::Display for SkillLineName {
             SkillLineName::ArdentFlame => write!(f, "Ardent Flame"),
             SkillLineName::DraconicPower => write!(f, "Draconic Power"),
             SkillLineName::EarthenHeart => write!(f, "Earthen Heart"),
+            SkillLineName::GraveLord => write!(f, "Grave Lord"),
+            SkillLineName::BoneTyrant => write!(f, "Bone Tyrant"),
+            SkillLineName::LivingDeath => write!(f, "Living Death"),
             SkillLineName::Assassination => write!(f, "Assassination"),
             SkillLineName::Shadow => write!(f, "Shadow"),
             SkillLineName::Siphoning => write!(f, "Siphoning"),
@@ -67,13 +74,16 @@ impl fmt::Display for SkillLineName {
 }
 
 impl SkillLineName {
-    pub const ALL: [SkillLineName; 22] = [
+    pub const ALL: [SkillLineName; 25] = [
         SkillLineName::CurativeRuneforms,
         SkillLineName::SoldierOfApocrypha,
         SkillLineName::HeraldOfTheTome,
         SkillLineName::ArdentFlame,
         SkillLineName::DraconicPower,
         SkillLineName::EarthenHeart,
+        SkillLineName::GraveLord,
+        SkillLineName::BoneTyrant,
+        SkillLineName::LivingDeath,
         SkillLineName::Assassination,
         SkillLineName::Shadow,
         SkillLineName::Siphoning,
@@ -109,6 +119,10 @@ impl SkillLineName {
             SkillLineName::ArdentFlame
             | SkillLineName::DraconicPower
             | SkillLineName::EarthenHeart => ClassName::Dragonknight,
+
+            SkillLineName::GraveLord
+            | SkillLineName::BoneTyrant
+            | SkillLineName::LivingDeath => ClassName::Necromancer,
 
             SkillLineName::Assassination | SkillLineName::Shadow | SkillLineName::Siphoning => {
                 ClassName::Nightblade
@@ -156,6 +170,11 @@ impl SkillLineName {
                 SkillLineName::ArdentFlame,
                 SkillLineName::DraconicPower,
                 SkillLineName::EarthenHeart,
+            ],
+            ClassName::Necromancer => vec![
+                SkillLineName::GraveLord,
+                SkillLineName::BoneTyrant,
+                SkillLineName::LivingDeath,
             ],
             ClassName::Nightblade => vec![
                 SkillLineName::Assassination,

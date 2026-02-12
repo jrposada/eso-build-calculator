@@ -1,5 +1,6 @@
 mod arcanist;
 mod dragonknight;
+mod necromancer;
 mod nightblade;
 mod sorcerer;
 mod templar;
@@ -8,6 +9,7 @@ mod weapon;
 
 pub use arcanist::ARCANIST_SKILLS;
 pub use dragonknight::DRAGONKNIGHT_SKILLS;
+pub use necromancer::NECROMANCER_SKILLS;
 pub use nightblade::NIGHTBLADE_SKILLS;
 pub use sorcerer::SORCERER_SKILLS;
 pub use templar::TEMPLAR_SKILLS;
@@ -20,6 +22,7 @@ use once_cell::sync::Lazy;
 pub static ALL_CLASS_SKILLS: Lazy<Vec<&'static SkillData>> = Lazy::new(|| {
     let mut skills = Vec::new();
     skills.extend(DRAGONKNIGHT_SKILLS.iter());
+    skills.extend(NECROMANCER_SKILLS.iter());
     skills.extend(SORCERER_SKILLS.iter());
     skills.extend(NIGHTBLADE_SKILLS.iter());
     skills.extend(TEMPLAR_SKILLS.iter());

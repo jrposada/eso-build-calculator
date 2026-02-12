@@ -112,6 +112,16 @@ pub static EMPOWER: Lazy<BonusData> = Lazy::new(|| {
     .with_duration(10.0)
 });
 
+pub static MAJOR_VULNERABILITY: Lazy<BonusData> = Lazy::new(|| {
+    BonusData::new(
+        "Major Vulnerability",
+        BonusSource::Buff,
+        BonusTrigger::Cast,
+        BonusValue::new("Major Vulnerability", BonusTarget::EnemyDamageTaken, 0.10),
+    )
+    .with_duration(12.0)
+});
+
 pub static MINOR_VULNERABILITY: Lazy<BonusData> = Lazy::new(|| {
     BonusData::new(
         "Minor Vulnerability",
