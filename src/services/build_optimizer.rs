@@ -3,13 +3,13 @@ use crate::data::skills::ALL_SKILLS;
 use crate::domain::{BonusData, Build, CharacterStats, SkillData, BUILD_CONSTRAINTS};
 use crate::domain::{ClassName, SkillLineName};
 use crate::infrastructure::{combinatorics, format, logger, table};
-use smallvec::SmallVec;
 use crate::services::passives_service::{PassivesFilter, PassivesServiceOptions};
 use crate::services::skills_service::{MorphSelectionOptions, SkillsFilter, SkillsServiceOptions};
 use crate::services::{PassivesService, SkillsService};
 use rayon::iter::ParallelBridge;
 use rayon::prelude::*;
 use rayon::ThreadPoolBuilder;
+use smallvec::SmallVec;
 use std::collections::HashSet;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Instant;
@@ -488,21 +488,19 @@ impl BuildOptimizer {
                         let damage_bits = damage.to_bits();
                         let _ = best_damage.fetch_max(damage_bits, Ordering::Relaxed);
 
-                        // Progress update every 100k iterations
-                        if count % 100_000 == 0 {
+                        // Progress update every 1M iterations
+                        if count % 1_000_000 == 0 {
                             let last = last_progress_update.swap(count, Ordering::Relaxed);
                             if count > last {
-                                let progress = (count as f64
-                                    / self.total_possible_build_count as f64)
-                                    * 100.0;
+                                let progress =
+                                    (count as f64 / self.total_possible_build_count as f64) * 100.0;
                                 let elapsed = start_time.elapsed().as_secs_f64();
                                 let eta = if progress > 0.0 {
                                     elapsed * (100.0 - progress) / progress
                                 } else {
                                     0.0
                                 };
-                                let best =
-                                    f64::from_bits(best_damage.load(Ordering::Relaxed));
+                                let best = f64::from_bits(best_damage.load(Ordering::Relaxed));
 
                                 logger::progress(&format!(
                                     "Progress: {:.1}% ({}) | Best: {} | ETA: {}",
@@ -567,7 +565,8 @@ impl BuildOptimizer {
             &[BonusData],
             SmallVec<[&'static SkillData; 10]>,
         ),
-    > + Send + '_ {
+    > + Send
+           + '_ {
         self.champion_point_combinations
             .iter()
             .flat_map(move |(cp_simple, cp_alt)| {
