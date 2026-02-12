@@ -111,7 +111,8 @@ pub static SORCERER_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 BonusSource::Passive,
                 BonusTrigger::AbilitySlottedCount,
                 BonusValue::new("Expert Mage", BonusTarget::WeaponAndSpellDamageFlat, 108.0),
-            )],
+            )
+            .with_skill_line_filter(SkillLineName::StormCalling)],
         ),
     ]
 });

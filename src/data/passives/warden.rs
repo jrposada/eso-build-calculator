@@ -32,7 +32,8 @@ pub static WARDEN_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 BonusSource::Passive,
                 BonusTrigger::AbilitySlottedCount,
                 BonusValue::new("Advanced Species", BonusTarget::CriticalDamage, 0.05),
-            )],
+            )
+            .with_skill_line_filter(SkillLineName::AnimalCompanions)],
         ),
         // === GREEN BALANCE ===
         PassiveData::new(

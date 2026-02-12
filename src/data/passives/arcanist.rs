@@ -77,7 +77,8 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                     BonusTarget::PhysicalAndSpellPenetration,
                     1240.0,
                 ),
-            )],
+            )
+            .with_skill_line_filter(SkillLineName::HeraldOfTheTome)],
         ),
         // === SOLDIER OF APOCRYPHA ===
         // +3271 Armor - defensive, not tracked in damage calculations

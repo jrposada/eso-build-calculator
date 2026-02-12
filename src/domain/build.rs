@@ -1,6 +1,6 @@
 use super::{
-    BonusData, BonusSource, BonusTarget, CharacterStats, ClassName, ResolveContext, SkillData,
-    SkillLineName,
+    BonusData, BonusSource, BonusTarget, BonusTrigger, CharacterStats, ClassName, ResolveContext,
+    SkillData, SkillLineName,
 };
 use crate::infrastructure::{format, table};
 use std::collections::{HashMap, HashSet};
@@ -38,7 +38,7 @@ impl Build {
         }
 
         let intermediate_stats =
-            Self::apply_stat_bonuses_to_stats(&simple_bonuses, &character_stats);
+            Self::apply_stat_bonuses_to_stats(&simple_bonuses, &character_stats, &skills);
 
         let ctx = ResolveContext::new(intermediate_stats);
         let resolved_alts: Vec<BonusData> = alt_bonuses
@@ -55,7 +55,7 @@ impl Build {
         resolved_bonuses.extend(resolved_alts);
 
         let effective_stats =
-            Self::apply_stat_bonuses_to_stats(&resolved_bonuses, &character_stats);
+            Self::apply_stat_bonuses_to_stats(&resolved_bonuses, &character_stats, &skills);
 
         // --- Calculate total damage ---
         let mut total_damage_per_cast = 0.0;
@@ -76,30 +76,43 @@ impl Build {
     fn apply_stat_bonuses_to_stats(
         bonuses: &[BonusData],
         base_stats: &CharacterStats,
+        skills: &Vec<SkillData>,
     ) -> CharacterStats {
         let mut stats = base_stats.clone();
         let ctx = ResolveContext::new(base_stats.clone());
         for bonus in bonuses {
-            let bv = bonus.resolve(&ctx);
-            match bv.target {
+            let bonus_value = bonus.resolve(&ctx);
+            let bonus_multiplier = Self::bonus_multiplier(bonus, skills);
+            // Bonus value has to be multiply according to trigger. If trigger is
+            match bonus_value.target {
                 BonusTarget::WeaponAndSpellDamageFlat => {
-                    stats.weapon_damage += bv.value;
-                    stats.spell_damage += bv.value;
+                    stats.weapon_damage += bonus_value.value * bonus_multiplier;
+                    stats.spell_damage += bonus_value.value * bonus_multiplier;
                 }
                 BonusTarget::CriticalDamage => {
-                    stats.critical_damage += bv.value;
+                    stats.critical_damage += bonus_value.value * bonus_multiplier;
                 }
                 BonusTarget::CriticalRating => {
-                    stats.critical_rating += bv.value;
+                    stats.critical_rating += bonus_value.value * bonus_multiplier;
                 }
                 BonusTarget::PhysicalAndSpellPenetration => {
-                    stats.penetration += bv.value;
+                    stats.penetration += bonus_value.value * bonus_multiplier;
                 }
                 _ => {}
             }
         }
         stats.clamp_caps();
         stats
+    }
+
+    fn bonus_multiplier(bonus: &BonusData, skills: &[SkillData]) -> f64 {
+        match bonus.trigger {
+            BonusTrigger::AbilitySlottedCount => match bonus.skill_line_filter {
+                Some(sl) => skills.iter().filter(|s| s.skill_line == sl).count() as f64,
+                None => skills.len() as f64,
+            },
+            _ => 1.0,
+        }
     }
 }
 
@@ -268,8 +281,11 @@ impl Build {
             .filter(|b| b.source != BonusSource::ChampionPointSlottable)
             .cloned()
             .collect();
-        let passive_stats =
-            Self::apply_stat_bonuses_to_stats(&passive_bonuses, &self.character_stats);
+        let passive_stats = Self::apply_stat_bonuses_to_stats(
+            &passive_bonuses,
+            &self.character_stats,
+            &self.skills,
+        );
 
         let mut skills_with_damage: Vec<_> = self
             .skills
@@ -376,12 +392,19 @@ impl Build {
             .enumerate()
             .map(|(i, (bonus, bv))| {
                 let value_str = fmt_bonus_value(bv.target, bv.value);
+                let multiplier = Self::bonus_multiplier(bonus, &self.skills);
+                let multiplier_str = if multiplier > 1.0 {
+                    format!("x{}", multiplier as u64)
+                } else {
+                    String::new()
+                };
                 vec![
                     (i + 1).to_string(),
                     bonus.name.clone(),
                     bonus.source.to_string(),
                     bv.target.to_string(),
                     value_str,
+                    multiplier_str,
                 ]
             })
             .collect();
@@ -396,6 +419,7 @@ impl Build {
                     table::ColumnDefinition::new("Source", 27),
                     table::ColumnDefinition::new("Target", 27),
                     table::ColumnDefinition::new("Value", 10).align_right(),
+                    table::ColumnDefinition::new("Count", 6).align_right(),
                 ],
                 footer: None,
             },

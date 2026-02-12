@@ -32,7 +32,8 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 BonusSource::Passive,
                 BonusTrigger::AbilitySlottedCount,
                 BonusValue::new("Pressure Points", BonusTarget::CriticalRating, 548.0),
-            )],
+            )
+            .with_skill_line_filter(SkillLineName::Assassination)],
         ),
         PassiveData::new(
             "Hemorrhage",
