@@ -25,7 +25,7 @@ impl Default for CharacterStats {
             max_stamina: 12_000.0,
             weapon_damage: 1_000.0,
             spell_damage: 1_000.0,
-            critical_rating: 0.0, // FIXME: @javi
+            critical_rating: 0.0,
             critical_damage: 1.50,
             penetration: 0.0,
             target_armor: 18_200.0,
