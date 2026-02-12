@@ -83,10 +83,17 @@ impl BuildOptimizer {
         let (weapon_skill_line_names, weapon_skill_line_combinations) =
             Self::generate_weapon_skill_line_combinations(&required_weapon_skill_lines, verbose);
 
-        let skill_line_combinations = combinatorics::cartesian_product(
+        let guild_skill_lines = SkillLineName::GUILD.to_vec();
+        let skill_line_combinations: Vec<Vec<SkillLineName>> = combinatorics::cartesian_product(
             &class_skill_line_combinations,
             &weapon_skill_line_combinations,
-        );
+        )
+        .into_iter()
+        .map(|mut combo| {
+            combo.extend_from_slice(&guild_skill_lines);
+            combo
+        })
+        .collect();
 
         if verbose {
             logger::dim(&format!(

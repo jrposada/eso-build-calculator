@@ -1,5 +1,6 @@
 pub mod arcanist;
 pub mod dragonknight;
+pub mod guild;
 pub mod necromancer;
 pub mod nightblade;
 pub mod sorcerer;
@@ -12,6 +13,7 @@ use once_cell::sync::Lazy;
 
 pub use arcanist::ARCANIST_PASSIVES;
 pub use dragonknight::DRAGONKNIGHT_PASSIVES;
+pub use guild::GUILD_PASSIVES;
 pub use necromancer::NECROMANCER_PASSIVES;
 pub use nightblade::NIGHTBLADE_PASSIVES;
 pub use sorcerer::SORCERER_PASSIVES;
@@ -34,9 +36,13 @@ pub static ALL_CLASS_PASSIVES: Lazy<Vec<&'static PassiveData>> = Lazy::new(|| {
 pub static ALL_WEAPON_PASSIVES: Lazy<Vec<&'static PassiveData>> =
     Lazy::new(|| WEAPON_PASSIVES.iter().collect());
 
+pub static ALL_GUILD_PASSIVES: Lazy<Vec<&'static PassiveData>> =
+    Lazy::new(|| GUILD_PASSIVES.iter().collect());
+
 pub static ALL_PASSIVES: Lazy<Vec<&'static PassiveData>> = Lazy::new(|| {
     let mut passives: Vec<&'static PassiveData> = Vec::new();
     passives.extend(ALL_CLASS_PASSIVES.iter().copied());
     passives.extend(ALL_WEAPON_PASSIVES.iter().copied());
+    passives.extend(ALL_GUILD_PASSIVES.iter().copied());
     passives
 });

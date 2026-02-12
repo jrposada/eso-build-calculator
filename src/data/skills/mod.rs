@@ -1,5 +1,6 @@
 mod arcanist;
 mod dragonknight;
+mod guild;
 mod necromancer;
 mod nightblade;
 mod sorcerer;
@@ -9,6 +10,7 @@ mod weapon;
 
 pub use arcanist::ARCANIST_SKILLS;
 pub use dragonknight::DRAGONKNIGHT_SKILLS;
+pub use guild::GUILD_SKILLS;
 pub use necromancer::NECROMANCER_SKILLS;
 pub use nightblade::NIGHTBLADE_SKILLS;
 pub use sorcerer::SORCERER_SKILLS;
@@ -34,9 +36,13 @@ pub static ALL_CLASS_SKILLS: Lazy<Vec<&'static SkillData>> = Lazy::new(|| {
 pub static ALL_WEAPON_SKILLS: Lazy<Vec<&'static SkillData>> =
     Lazy::new(|| WEAPON_SKILLS.iter().collect());
 
+pub static ALL_GUILD_SKILLS: Lazy<Vec<&'static SkillData>> =
+    Lazy::new(|| GUILD_SKILLS.iter().collect());
+
 pub static ALL_SKILLS: Lazy<Vec<&'static SkillData>> = Lazy::new(|| {
     let mut skills = Vec::new();
     skills.extend(ALL_CLASS_SKILLS.iter().copied());
     skills.extend(ALL_WEAPON_SKILLS.iter().copied());
+    skills.extend(ALL_GUILD_SKILLS.iter().copied());
     skills
 });

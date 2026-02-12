@@ -146,6 +146,16 @@ pub static MAJOR_BREACH: Lazy<BonusData> = Lazy::new(|| {
     .with_duration(20.0)
 });
 
+pub static MINOR_FORCE: Lazy<BonusData> = Lazy::new(|| {
+    BonusData::new(
+        "Minor Force",
+        BonusSource::Buff,
+        BonusTrigger::Cast,
+        BonusValue::new("Minor Force", BonusTarget::CriticalDamage, 0.10),
+    )
+    .with_duration(20.0)
+});
+
 pub static MINOR_BREACH: Lazy<BonusData> = Lazy::new(|| {
     BonusData::new(
         "Minor Breach",

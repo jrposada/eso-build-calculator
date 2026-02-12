@@ -39,6 +39,11 @@ pub enum SkillLineName {
     TwoHanded,
     DestructionStaff,
     DualWield,
+    // Guild
+    FightersGuild,
+    MagesGuild,
+    Undaunted,
+    PsijicOrder,
 }
 
 impl fmt::Display for SkillLineName {
@@ -69,12 +74,16 @@ impl fmt::Display for SkillLineName {
             SkillLineName::TwoHanded => write!(f, "Two-Handed"),
             SkillLineName::DestructionStaff => write!(f, "Destruction Staff"),
             SkillLineName::DualWield => write!(f, "Dual Wield"),
+            SkillLineName::FightersGuild => write!(f, "Fighters Guild"),
+            SkillLineName::MagesGuild => write!(f, "Mages Guild"),
+            SkillLineName::Undaunted => write!(f, "Undaunted"),
+            SkillLineName::PsijicOrder => write!(f, "Psijic Order"),
         }
     }
 }
 
 impl SkillLineName {
-    pub const ALL: [SkillLineName; 25] = [
+    pub const ALL: [SkillLineName; 29] = [
         SkillLineName::CurativeRuneforms,
         SkillLineName::SoldierOfApocrypha,
         SkillLineName::HeraldOfTheTome,
@@ -100,6 +109,10 @@ impl SkillLineName {
         SkillLineName::TwoHanded,
         SkillLineName::DestructionStaff,
         SkillLineName::DualWield,
+        SkillLineName::FightersGuild,
+        SkillLineName::MagesGuild,
+        SkillLineName::Undaunted,
+        SkillLineName::PsijicOrder,
     ];
 
     pub const WEAPON: [SkillLineName; 4] = [
@@ -107,6 +120,13 @@ impl SkillLineName {
         SkillLineName::TwoHanded,
         SkillLineName::DestructionStaff,
         SkillLineName::DualWield,
+    ];
+
+    pub const GUILD: [SkillLineName; 4] = [
+        SkillLineName::FightersGuild,
+        SkillLineName::MagesGuild,
+        SkillLineName::Undaunted,
+        SkillLineName::PsijicOrder,
     ];
 
     /// Get the class that this skill line belongs to
@@ -144,6 +164,11 @@ impl SkillLineName {
             | SkillLineName::TwoHanded
             | SkillLineName::DestructionStaff
             | SkillLineName::DualWield => ClassName::Weapon,
+
+            SkillLineName::FightersGuild
+            | SkillLineName::MagesGuild
+            | SkillLineName::Undaunted
+            | SkillLineName::PsijicOrder => ClassName::Guild,
         }
     }
 
@@ -155,6 +180,17 @@ impl SkillLineName {
                 | SkillLineName::TwoHanded
                 | SkillLineName::DestructionStaff
                 | SkillLineName::DualWield
+        )
+    }
+
+    /// Check if this skill line is a guild skill line
+    pub fn is_guild(&self) -> bool {
+        matches!(
+            self,
+            SkillLineName::FightersGuild
+                | SkillLineName::MagesGuild
+                | SkillLineName::Undaunted
+                | SkillLineName::PsijicOrder
         )
     }
 
@@ -201,6 +237,12 @@ impl SkillLineName {
                 SkillLineName::TwoHanded,
                 SkillLineName::DestructionStaff,
                 SkillLineName::DualWield,
+            ],
+            ClassName::Guild => vec![
+                SkillLineName::FightersGuild,
+                SkillLineName::MagesGuild,
+                SkillLineName::Undaunted,
+                SkillLineName::PsijicOrder,
             ],
         }
     }

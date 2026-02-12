@@ -12,6 +12,7 @@ pub enum ClassName {
     Templar,
     Arcanist,
     Weapon,
+    Guild,
 }
 
 impl fmt::Display for ClassName {
@@ -25,12 +26,13 @@ impl fmt::Display for ClassName {
             ClassName::Templar => write!(f, "Templar"),
             ClassName::Arcanist => write!(f, "Arcanist"),
             ClassName::Weapon => write!(f, "Weapon"),
+            ClassName::Guild => write!(f, "Guild"),
         }
     }
 }
 
 impl ClassName {
-    pub const ALL: [ClassName; 8] = [
+    pub const ALL: [ClassName; 9] = [
         ClassName::Dragonknight,
         ClassName::Necromancer,
         ClassName::Sorcerer,
@@ -39,6 +41,7 @@ impl ClassName {
         ClassName::Templar,
         ClassName::Arcanist,
         ClassName::Weapon,
+        ClassName::Guild,
     ];
 
     pub const CLASS_ONLY: [ClassName; 7] = [
