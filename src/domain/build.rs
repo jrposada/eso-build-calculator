@@ -6,6 +6,18 @@ use crate::infrastructure::{format, table};
 use smallvec::SmallVec;
 use std::collections::{HashMap, HashSet};
 
+/// Pre-computed passive bonus context for a given (skill combo, passive bonuses) pair.
+/// Caches per-skill modifier sums from passive bonuses so the inner CP loop only
+/// iterates the small CP bonus list (~4-8 items) instead of all ~30 bonuses.
+pub struct CachedPassiveContext {
+    /// character_stats + passive stat bonuses (unclamped, CP stats added on top per eval)
+    pub base_stats: CharacterStats,
+    /// Per skill, per hit: cached passive modifier sum
+    pub hit_mods: SmallVec<[SmallVec<[f64; 4]>; 10]>,
+    /// Per skill, per dot: cached passive modifier sum
+    pub dot_mods: SmallVec<[SmallVec<[f64; 4]>; 10]>,
+}
+
 #[derive(Debug, Clone)]
 pub struct Build {
     skills: Vec<&'static SkillData>,
@@ -133,11 +145,8 @@ impl Build {
         }
     }
 
-    /// Fast damage computation without constructing a full Build.
-    /// Accepts three-way split bonuses:
-    /// - `pre_resolved`: simple non-AbilitySlottedCount bonuses (already ResolvedBonus, mult=1.0)
-    /// - `ability_count`: simple AbilitySlottedCount bonuses (multiplier depends on skills)
-    /// - `alt`: alternative bonuses (need per-eval resolution)
+    /// Fast damage computation without caching. Used when there is only 1 CP combo
+    /// (caching overhead not amortized).
     pub fn compute_total_damage(
         skills: &[&'static SkillData],
         cp_pre_resolved: &[ResolvedBonus],
@@ -150,20 +159,16 @@ impl Build {
     ) -> f64 {
         let default_ctx = ResolveContext::default();
 
-        // Build intermediate_stats and effective_stats, plus the resolved bonus list.
-        // Pre-resolved bonuses have multiplier 1.0 — apply directly to stats and copy to resolved.
         let mut intermediate_stats = character_stats.clone();
         let mut effective_stats = character_stats.clone();
         let mut resolved: SmallVec<[ResolvedBonus; 24]> = SmallVec::new();
 
-        // Pre-resolved bonuses: no resolve_ref() needed, just apply stats and copy
         for rb in cp_pre_resolved.iter().chain(passive_pre_resolved.iter()) {
             Self::apply_stat_bonus(&mut intermediate_stats, rb.target, rb.value);
             Self::apply_stat_bonus(&mut effective_stats, rb.target, rb.value);
             resolved.push(*rb);
         }
 
-        // AbilitySlottedCount bonuses: multiplier depends on skill selection
         for bonus in cp_ability_count.iter().chain(passive_ability_count.iter()) {
             let bv = bonus.resolve_ref(&default_ctx);
             let multiplier = Self::bonus_multiplier(bonus, skills);
@@ -179,7 +184,6 @@ impl Build {
         }
         intermediate_stats.clamp_caps();
 
-        // Resolve alternatives using intermediate_stats
         let resolve_ctx = ResolveContext::new(intermediate_stats);
 
         for bonus in cp_alt.iter().chain(passive_alt.iter()) {
@@ -195,7 +199,6 @@ impl Build {
         }
         effective_stats.clamp_caps();
 
-        // Calculate total damage
         let armor_factor =
             super::formulas::armor_damage_factor(effective_stats.target_armor, effective_stats.penetration);
         let crit_mult = super::formulas::critical_multiplier(
@@ -214,6 +217,238 @@ impl Build {
             );
         }
         total
+    }
+
+    /// Build cached passive context for a given (skill combo, passive bonuses) pair.
+    /// Pre-computes per-skill, per-hit/dot modifier sums from passive bonuses.
+    /// Constant across all CP combos — computed once per skill combo.
+    pub fn cache_passive_context(
+        skills: &[&'static SkillData],
+        passive_pre_resolved: &[ResolvedBonus],
+        passive_ability_count: &[BonusData],
+        character_stats: &CharacterStats,
+    ) -> CachedPassiveContext {
+        let default_ctx = ResolveContext::default();
+        let mut base_stats = character_stats.clone();
+
+        // Build passive resolved list and apply stat bonuses
+        let mut passive_resolved: SmallVec<[ResolvedBonus; 16]> = SmallVec::new();
+
+        for rb in passive_pre_resolved {
+            Self::apply_stat_bonus(&mut base_stats, rb.target, rb.value);
+            passive_resolved.push(*rb);
+        }
+
+        for bonus in passive_ability_count {
+            let bv = bonus.resolve_ref(&default_ctx);
+            let multiplier = Self::bonus_multiplier(bonus, skills);
+            let applied = bv.value * multiplier;
+            Self::apply_stat_bonus(&mut base_stats, bv.target, applied);
+            passive_resolved.push(ResolvedBonus {
+                target: bv.target,
+                value: bv.value,
+                skill_line_filter: bonus.skill_line_filter,
+                execute_threshold: bonus.execute_threshold,
+            });
+        }
+
+        // Pre-compute per-skill, per-component modifier sums from passive bonuses.
+        // This is the expensive part that we avoid redoing per CP combo.
+        let mut hit_mods: SmallVec<[SmallVec<[f64; 4]>; 10]> = SmallVec::new();
+        let mut dot_mods: SmallVec<[SmallVec<[f64; 4]>; 10]> = SmallVec::new();
+
+        for skill in skills {
+            let skill_line = skill.skill_line;
+            let mut skill_hit_mods: SmallVec<[f64; 4]> = SmallVec::new();
+            let mut skill_dot_mods: SmallVec<[f64; 4]> = SmallVec::new();
+
+            if let Some(damage) = &skill.damage {
+                if let Some(hits) = &damage.hits {
+                    for hit in hits {
+                        let modifier: f64 = passive_resolved
+                            .iter()
+                            .filter(|b| {
+                                b.skill_line_filter.map_or(true, |sl| sl == skill_line)
+                                    && b.execute_threshold.is_none()
+                                    && hit.flags.matches_bonus_target(b.target)
+                            })
+                            .map(|b| b.value)
+                            .sum();
+                        skill_hit_mods.push(modifier);
+                    }
+                }
+                if let Some(dots) = &damage.dots {
+                    for dot in dots {
+                        let modifier: f64 = passive_resolved
+                            .iter()
+                            .filter(|b| {
+                                b.skill_line_filter.map_or(true, |sl| sl == skill_line)
+                                    && b.execute_threshold.is_none()
+                                    && dot.flags.matches_bonus_target(b.target)
+                            })
+                            .map(|b| b.value)
+                            .sum();
+                        skill_dot_mods.push(modifier);
+                    }
+                }
+            }
+
+            hit_mods.push(skill_hit_mods);
+            dot_mods.push(skill_dot_mods);
+        }
+
+        CachedPassiveContext {
+            base_stats,
+            hit_mods,
+            dot_mods,
+        }
+    }
+
+    /// Fast damage computation using cached passive context.
+    /// Per-skill modifier sums from passive bonuses are pre-computed in the cache.
+    /// Only iterates the small CP bonus list (~4-8 items) per skill per component,
+    /// instead of the full ~30 bonus list.
+    pub fn compute_total_damage_cached(
+        skills: &[&'static SkillData],
+        passive_ctx: &CachedPassiveContext,
+        passive_alt: &[BonusData],
+        cp_pre_resolved: &[ResolvedBonus],
+        cp_ability_count: &[BonusData],
+        cp_alt: &[BonusData],
+    ) -> f64 {
+        let default_ctx = ResolveContext::default();
+
+        // Start from passive_ctx.base_stats (character_stats + passive stat bonuses).
+        let mut intermediate_stats = passive_ctx.base_stats.clone();
+        let mut effective_stats = passive_ctx.base_stats.clone();
+
+        // Build small list of CP + alt resolved bonuses (only these are iterated per skill)
+        let mut cp_resolved: SmallVec<[ResolvedBonus; 8]> = SmallVec::new();
+
+        for rb in cp_pre_resolved {
+            Self::apply_stat_bonus(&mut intermediate_stats, rb.target, rb.value);
+            Self::apply_stat_bonus(&mut effective_stats, rb.target, rb.value);
+            cp_resolved.push(*rb);
+        }
+
+        for bonus in cp_ability_count {
+            let bv = bonus.resolve_ref(&default_ctx);
+            let multiplier = Self::bonus_multiplier(bonus, skills);
+            let applied = bv.value * multiplier;
+            Self::apply_stat_bonus(&mut intermediate_stats, bv.target, applied);
+            Self::apply_stat_bonus(&mut effective_stats, bv.target, applied);
+            cp_resolved.push(ResolvedBonus {
+                target: bv.target,
+                value: bv.value,
+                skill_line_filter: bonus.skill_line_filter,
+                execute_threshold: bonus.execute_threshold,
+            });
+        }
+        intermediate_stats.clamp_caps();
+
+        // Resolve alternatives (both CP and passive) using intermediate_stats
+        let resolve_ctx = ResolveContext::new(intermediate_stats);
+
+        for bonus in cp_alt.iter().chain(passive_alt.iter()) {
+            let chosen = bonus.resolve_ref(&resolve_ctx);
+            let multiplier = Self::bonus_multiplier(bonus, skills);
+            Self::apply_stat_bonus(&mut effective_stats, chosen.target, chosen.value * multiplier);
+            cp_resolved.push(ResolvedBonus {
+                target: chosen.target,
+                value: chosen.value,
+                skill_line_filter: bonus.skill_line_filter,
+                execute_threshold: bonus.execute_threshold,
+            });
+        }
+        effective_stats.clamp_caps();
+
+        let armor_factor = super::formulas::armor_damage_factor(
+            effective_stats.target_armor,
+            effective_stats.penetration,
+        );
+        let crit_mult = super::formulas::critical_multiplier(
+            effective_stats.critical_chance(),
+            effective_stats.critical_damage,
+        );
+
+        let max_stat = effective_stats.max_stat();
+        let max_power = effective_stats.max_power();
+
+        // Inline damage calculation using cached passive modifiers + CP-only iteration
+        let mut total = 0.0;
+
+        for (skill_idx, skill) in skills.iter().enumerate() {
+            let skill_line = skill.skill_line;
+            let mut skill_damage = 0.0;
+
+            if let Some(damage) = &skill.damage {
+                if let Some(hits) = &damage.hits {
+                    for (hit_idx, hit) in hits.iter().enumerate() {
+                        // Skip hits gated by execute_threshold (enemy_health is always None)
+                        if hit.execute_threshold.is_some() {
+                            continue;
+                        }
+
+                        // CP modifier: iterate only the small CP resolved list
+                        let cp_modifier: f64 = cp_resolved
+                            .iter()
+                            .filter(|b| {
+                                b.skill_line_filter.map_or(true, |sl| sl == skill_line)
+                                    && b.execute_threshold.is_none()
+                                    && hit.flags.matches_bonus_target(b.target)
+                            })
+                            .map(|b| b.value)
+                            .sum();
+
+                        let total_modifier =
+                            passive_ctx.hit_mods[skill_idx][hit_idx] + cp_modifier;
+                        let hit_value = hit.effective_value(max_stat, max_power);
+                        skill_damage += hit_value * (1.0 + total_modifier);
+                    }
+                }
+
+                if let Some(dots) = &damage.dots {
+                    for (dot_idx, dot) in dots.iter().enumerate() {
+                        let cp_modifier: f64 = cp_resolved
+                            .iter()
+                            .filter(|b| {
+                                b.skill_line_filter.map_or(true, |sl| sl == skill_line)
+                                    && b.execute_threshold.is_none()
+                                    && dot.flags.matches_bonus_target(b.target)
+                            })
+                            .map(|b| b.value)
+                            .sum();
+
+                        let total_modifier =
+                            passive_ctx.dot_mods[skill_idx][dot_idx] + cp_modifier;
+                        let dot_value = dot.effective_value(max_stat, max_power);
+
+                        let interval = dot.interval.unwrap_or(dot.duration);
+                        let ticks = (dot.duration / interval).floor() as i32;
+                        let increase_per_tick = dot.increase_per_tick.unwrap_or(0.0);
+                        let flat_increase_per_tick =
+                            dot.flat_increase_per_tick.unwrap_or(0.0);
+
+                        for i in 0..ticks {
+                            let pct_mult = 1.0 + (i as f64) * increase_per_tick;
+                            let flat_inc = (i as f64) * flat_increase_per_tick;
+                            let tick_damage = dot_value * pct_mult + flat_inc;
+
+                            if dot.ignores_modifier.unwrap_or(false) {
+                                skill_damage += tick_damage;
+                            } else {
+                                skill_damage += tick_damage * (1.0 + total_modifier);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Skill-level execute: no-op when enemy_health is None
+            total += skill_damage;
+        }
+
+        total * armor_factor * crit_mult
     }
 }
 

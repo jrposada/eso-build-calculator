@@ -542,19 +542,81 @@ impl BuildOptimizer {
                         sl_idx,
                     };
 
-                    // Skills outermost: keep skill data in cache while iterating CP combos
-                    for mut combo in combinatorics::CombinationIterator::new(
-                        non_spammable,
-                        BUILD_CONSTRAINTS.skill_count - 1,
-                    ) {
-                        combo.push(spammable_skill);
+                    // Track progress and update local best for a single evaluation
+                    let mut track = |damage: f64,
+                                     combo: &SmallVec<[&'static SkillData; 10]>,
+                                     cp_idx: usize| {
+                        let count = evaluated_count.fetch_add(1, Ordering::Relaxed) + 1;
+                        if damage > local_best.damage {
+                            local_best = Candidate {
+                                damage,
+                                skills: combo.clone(),
+                                cp_idx,
+                                sl_idx,
+                            };
+                        }
+                        let _ = best_damage.fetch_max(damage.to_bits(), Ordering::Relaxed);
+                        if count % 1_000_000 == 0 {
+                            let last = last_progress_update.swap(count, Ordering::Relaxed);
+                            if count > last {
+                                let progress = (count as f64
+                                    / self.total_possible_build_count as f64)
+                                    * 100.0;
+                                let elapsed = start_time.elapsed().as_secs_f64();
+                                let eta = if progress > 0.0 {
+                                    elapsed * (100.0 - progress) / progress
+                                } else {
+                                    0.0
+                                };
+                                let best =
+                                    f64::from_bits(best_damage.load(Ordering::Relaxed));
+                                logger::progress(&format!(
+                                    "Progress: {:.1}% ({}) | Best: {} | ETA: {}",
+                                    progress,
+                                    format::format_number(count),
+                                    format::format_number(best as u64),
+                                    format::format_duration((eta * 1000.0) as u64)
+                                ));
+                            }
+                        }
+                    };
 
-                        // CP combos innermost: iterate all CP combos for this skill combo
-                        for (cp_idx, (cp_pre_resolved, cp_ability_count, cp_alt)) in
-                            self.champion_point_combinations.iter().enumerate()
-                        {
-                            let count = evaluated_count.fetch_add(1, Ordering::Relaxed) + 1;
-
+                    if self.champion_point_combinations.len() > 1 {
+                        // Multiple CP combos: cache passive context per skill combo
+                        for mut combo in combinatorics::CombinationIterator::new(
+                            non_spammable,
+                            BUILD_CONSTRAINTS.skill_count - 1,
+                        ) {
+                            combo.push(spammable_skill);
+                            let passive_ctx = Build::cache_passive_context(
+                                &combo,
+                                passive_pre_resolved,
+                                passive_ability_count,
+                                &self.character_stats,
+                            );
+                            for (cp_idx, (cp_pre_resolved, cp_ability_count, cp_alt)) in
+                                self.champion_point_combinations.iter().enumerate()
+                            {
+                                let damage = Build::compute_total_damage_cached(
+                                    &combo,
+                                    &passive_ctx,
+                                    passive_alt,
+                                    cp_pre_resolved,
+                                    cp_ability_count,
+                                    cp_alt,
+                                );
+                                track(damage, &combo, cp_idx);
+                            }
+                        }
+                    } else {
+                        // Single CP combo: direct path, no caching overhead
+                        let (cp_pre_resolved, cp_ability_count, cp_alt) =
+                            &self.champion_point_combinations[0];
+                        for mut combo in combinatorics::CombinationIterator::new(
+                            non_spammable,
+                            BUILD_CONSTRAINTS.skill_count - 1,
+                        ) {
+                            combo.push(spammable_skill);
                             let damage = Build::compute_total_damage(
                                 &combo,
                                 cp_pre_resolved,
@@ -565,45 +627,7 @@ impl BuildOptimizer {
                                 passive_alt,
                                 &self.character_stats,
                             );
-
-                            if damage > local_best.damage {
-                                local_best = Candidate {
-                                    damage,
-                                    skills: combo.clone(),
-                                    cp_idx,
-                                    sl_idx,
-                                };
-                            }
-
-                            // Atomically update global best damage for progress display
-                            let damage_bits = damage.to_bits();
-                            let _ = best_damage.fetch_max(damage_bits, Ordering::Relaxed);
-
-                            // Progress update every 1M iterations
-                            if count % 1_000_000 == 0 {
-                                let last = last_progress_update.swap(count, Ordering::Relaxed);
-                                if count > last {
-                                    let progress = (count as f64
-                                        / self.total_possible_build_count as f64)
-                                        * 100.0;
-                                    let elapsed = start_time.elapsed().as_secs_f64();
-                                    let eta = if progress > 0.0 {
-                                        elapsed * (100.0 - progress) / progress
-                                    } else {
-                                        0.0
-                                    };
-                                    let best =
-                                        f64::from_bits(best_damage.load(Ordering::Relaxed));
-
-                                    logger::progress(&format!(
-                                        "Progress: {:.1}% ({}) | Best: {} | ETA: {}",
-                                        progress,
-                                        format::format_number(count),
-                                        format::format_number(best as u64),
-                                        format::format_duration((eta * 1000.0) as u64)
-                                    ));
-                                }
-                            }
+                            track(damage, &combo, 0);
                         }
                     }
 
