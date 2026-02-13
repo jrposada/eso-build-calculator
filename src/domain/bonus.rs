@@ -31,8 +31,7 @@ impl ResolveContext {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BonusData {
-    #[serde(skip)]
-    pub name: &'static str,
+    pub name: String,
     pub source: BonusSource,
     pub trigger: BonusTrigger,
 
@@ -46,13 +45,13 @@ pub struct BonusData {
 
 impl BonusData {
     pub fn new(
-        name: &'static str,
+        name: impl Into<String>,
         source: BonusSource,
         trigger: BonusTrigger,
         value: BonusValue,
     ) -> Self {
         BonusData {
-            name,
+            name: name.into(),
             source,
             trigger,
             value: vec![value],

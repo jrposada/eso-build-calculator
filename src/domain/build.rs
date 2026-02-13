@@ -129,7 +129,7 @@ impl Build {
             .into_iter()
             .map(|bonus| {
                 let chosen = bonus.resolve(&ctx);
-                BonusData::new(bonus.name, bonus.source, bonus.trigger, chosen)
+                BonusData::new(&bonus.name, bonus.source, bonus.trigger, chosen)
                     .with_cooldown(bonus.cooldown.unwrap_or(0.0))
                     .with_duration(bonus.duration.unwrap_or(0.0))
             })
@@ -714,7 +714,7 @@ impl Build {
         self.resolved_bonuses
             .iter()
             .filter(|b| b.source == BonusSource::ChampionPointSlottable)
-            .map(|b| b.name.to_string())
+            .map(|b| b.name.clone())
             .collect()
     }
 }
@@ -847,7 +847,7 @@ impl Build {
             .resolved_bonuses
             .iter()
             .filter(|b| b.source == BonusSource::ChampionPointSlottable)
-            .map(|b| b.name)
+            .map(|b| b.name.as_str())
             .collect();
         champion_point_names.sort();
 
@@ -986,7 +986,7 @@ impl Build {
                 };
                 vec![
                     (i + 1).to_string(),
-                    bonus.name.to_string(),
+                    bonus.name.clone(),
                     bonus.source.to_string(),
                     bv.target.to_string(),
                     value_str,
