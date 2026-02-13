@@ -3,6 +3,7 @@ use super::{
     ResolveContext, SkillData, SkillLineName,
 };
 use crate::infrastructure::{format, table};
+use smallvec::SmallVec;
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Clone)]
@@ -133,41 +134,42 @@ impl Build {
     }
 
     /// Fast damage computation without constructing a full Build.
-    /// Uses references and lightweight ResolvedBonus to minimize allocations.
-    /// Accepts pre-split simple/alt bonus slices (from CP and passives separately)
-    /// to avoid per-evaluation classification and merging.
+    /// Accepts three-way split bonuses:
+    /// - `pre_resolved`: simple non-AbilitySlottedCount bonuses (already ResolvedBonus, mult=1.0)
+    /// - `ability_count`: simple AbilitySlottedCount bonuses (multiplier depends on skills)
+    /// - `alt`: alternative bonuses (need per-eval resolution)
     pub fn compute_total_damage(
         skills: &[&'static SkillData],
-        cp_simple: &[BonusData],
+        cp_pre_resolved: &[ResolvedBonus],
+        cp_ability_count: &[BonusData],
         cp_alt: &[BonusData],
-        passive_simple: &[BonusData],
+        passive_pre_resolved: &[ResolvedBonus],
+        passive_ability_count: &[BonusData],
         passive_alt: &[BonusData],
         character_stats: &CharacterStats,
     ) -> f64 {
         let default_ctx = ResolveContext::default();
 
-        // Step 1: Apply simple stat bonuses → intermediate_stats (for resolving alternatives)
+        // Build intermediate_stats and effective_stats, plus the resolved bonus list.
+        // Pre-resolved bonuses have multiplier 1.0 — apply directly to stats and copy to resolved.
         let mut intermediate_stats = character_stats.clone();
-        for bonus in cp_simple.iter().chain(passive_simple.iter()) {
-            let bv = bonus.resolve_ref(&default_ctx);
-            let multiplier = Self::bonus_multiplier(bonus, skills);
-            Self::apply_stat_bonus(&mut intermediate_stats, bv.target, bv.value * multiplier);
-        }
-        intermediate_stats.clamp_caps();
-
-        // Step 2: Resolve alternatives using intermediate_stats
-        let resolve_ctx = ResolveContext::new(intermediate_stats);
-
-        // Step 3: Build effective_stats and resolved bonus list simultaneously
-        let total_count =
-            cp_simple.len() + cp_alt.len() + passive_simple.len() + passive_alt.len();
         let mut effective_stats = character_stats.clone();
-        let mut resolved: Vec<ResolvedBonus> = Vec::with_capacity(total_count);
+        let mut resolved: SmallVec<[ResolvedBonus; 24]> = SmallVec::new();
 
-        for bonus in cp_simple.iter().chain(passive_simple.iter()) {
+        // Pre-resolved bonuses: no resolve_ref() needed, just apply stats and copy
+        for rb in cp_pre_resolved.iter().chain(passive_pre_resolved.iter()) {
+            Self::apply_stat_bonus(&mut intermediate_stats, rb.target, rb.value);
+            Self::apply_stat_bonus(&mut effective_stats, rb.target, rb.value);
+            resolved.push(*rb);
+        }
+
+        // AbilitySlottedCount bonuses: multiplier depends on skill selection
+        for bonus in cp_ability_count.iter().chain(passive_ability_count.iter()) {
             let bv = bonus.resolve_ref(&default_ctx);
             let multiplier = Self::bonus_multiplier(bonus, skills);
-            Self::apply_stat_bonus(&mut effective_stats, bv.target, bv.value * multiplier);
+            let applied = bv.value * multiplier;
+            Self::apply_stat_bonus(&mut intermediate_stats, bv.target, applied);
+            Self::apply_stat_bonus(&mut effective_stats, bv.target, applied);
             resolved.push(ResolvedBonus {
                 target: bv.target,
                 value: bv.value,
@@ -175,6 +177,10 @@ impl Build {
                 execute_threshold: bonus.execute_threshold,
             });
         }
+        intermediate_stats.clamp_caps();
+
+        // Resolve alternatives using intermediate_stats
+        let resolve_ctx = ResolveContext::new(intermediate_stats);
 
         for bonus in cp_alt.iter().chain(passive_alt.iter()) {
             let chosen = bonus.resolve_ref(&resolve_ctx);
@@ -189,7 +195,7 @@ impl Build {
         }
         effective_stats.clamp_caps();
 
-        // Step 4: Calculate total damage (armor_factor and crit_mult are the same for all skills)
+        // Calculate total damage
         let armor_factor =
             super::formulas::armor_damage_factor(effective_stats.target_armor, effective_stats.penetration);
         let crit_mult = super::formulas::critical_multiplier(

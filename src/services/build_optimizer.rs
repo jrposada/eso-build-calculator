@@ -1,12 +1,13 @@
 use crate::data::bonuses::CHAMPION_POINTS;
 use crate::data::skills::ALL_SKILLS;
-use crate::domain::{BonusData, Build, CharacterStats, SkillData, BUILD_CONSTRAINTS};
-use crate::domain::{ClassName, SkillLineName};
+use crate::domain::{
+    BonusData, BonusTrigger, Build, CharacterStats, ResolvedBonus, SkillData, BUILD_CONSTRAINTS,
+};
+use crate::domain::{ClassName, ResolveContext, SkillLineName};
 use crate::infrastructure::{combinatorics, format, logger, table};
 use crate::services::passives_service::{PassivesFilter, PassivesServiceOptions};
 use crate::services::skills_service::{MorphSelectionOptions, SkillsFilter, SkillsServiceOptions};
 use crate::services::{PassivesService, SkillsService};
-use rayon::iter::ParallelBridge;
 use rayon::prelude::*;
 use rayon::ThreadPoolBuilder;
 use smallvec::SmallVec;
@@ -24,7 +25,14 @@ pub struct BuildOptimizerOptions {
     pub required_champion_points: Vec<BonusData>,
     pub forced_morphs: Vec<String>,
     pub parallelism: u8,
+    pub max_pool_size: Option<usize>,
 }
+
+/// Three-way split of bonuses for the optimizer fast path:
+/// - `pre_resolved`: simple non-AbilitySlottedCount bonuses pre-resolved to ResolvedBonus
+/// - `ability_count`: simple AbilitySlottedCount bonuses (multiplier depends on skills)
+/// - `alt`: alternative bonuses (need per-eval resolution)
+type PreSplitBonuses = (Vec<ResolvedBonus>, Vec<BonusData>, Vec<BonusData>);
 
 pub struct BuildOptimizer {
     character_stats: CharacterStats,
@@ -37,12 +45,16 @@ pub struct BuildOptimizer {
     skill_names: HashSet<String>,
     parallelism: u8,
 
-    /// Pre-split champion point combinations: (simple, alt)
-    champion_point_combinations: Vec<(Vec<BonusData>, Vec<BonusData>)>,
+    /// Pre-split champion point combinations: (pre_resolved, ability_count, alt)
+    champion_point_combinations: Vec<PreSplitBonuses>,
+    /// Original champion point BonusData for final Build reconstruction
+    champion_point_original: Vec<Vec<BonusData>>,
     spammable_skills: Vec<Vec<&'static SkillData>>,
     non_spammable_skills: Vec<Vec<&'static SkillData>>,
-    /// Pre-split passive bonus lists: (simple, alt)
-    passive_bonuses_list: Vec<(Vec<BonusData>, Vec<BonusData>)>,
+    /// Pre-split passive bonus lists: (pre_resolved, ability_count, alt)
+    passive_bonuses_list: Vec<PreSplitBonuses>,
+    /// Original passive BonusData for final Build reconstruction
+    passive_original: Vec<Vec<BonusData>>,
     total_possible_build_count: u64,
 }
 
@@ -115,6 +127,9 @@ impl BuildOptimizer {
             &skill_line_combinations,
             &skills_service,
             &mut skill_names,
+            options.max_pool_size,
+            &options.character_stats,
+            verbose,
         );
 
         let has_any_spammable = spammable_skills.iter().any(|skills| !skills.is_empty());
@@ -125,10 +140,10 @@ impl BuildOptimizer {
             std::process::exit(1);
         }
 
-        let passive_bonuses_list =
+        let (passive_bonuses_list, passive_original) =
             Self::generate_passive_bonuses(&skill_line_combinations, verbose);
 
-        let (champion_point_names, champion_point_combinations) =
+        let (champion_point_names, champion_point_combinations, champion_point_original) =
             Self::generate_champion_point_combinations(&required_champion_points, verbose);
 
         let total_possible_build_count = Self::calculate_total_build_count(
@@ -148,9 +163,11 @@ impl BuildOptimizer {
             skill_names,
             parallelism,
             champion_point_combinations,
+            champion_point_original,
             spammable_skills,
             non_spammable_skills,
             passive_bonuses_list,
+            passive_original,
             total_possible_build_count,
         };
 
@@ -159,14 +176,43 @@ impl BuildOptimizer {
         optimizer
     }
 
+    /// Three-way split a list of bonuses into:
+    /// - pre_resolved: simple non-AbilitySlottedCount → ResolvedBonus (multiplier always 1.0)
+    /// - ability_count: simple AbilitySlottedCount → BonusData (multiplier depends on skills)
+    /// - alt: alternative bonuses → BonusData (need per-eval resolution)
+    fn three_way_split(bonuses: Vec<BonusData>) -> PreSplitBonuses {
+        let default_ctx = ResolveContext::default();
+        let mut pre_resolved = Vec::new();
+        let mut ability_count = Vec::new();
+        let mut alt = Vec::new();
+
+        for bonus in bonuses {
+            if bonus.has_alternative() {
+                alt.push(bonus);
+            } else if bonus.trigger == BonusTrigger::AbilitySlottedCount {
+                ability_count.push(bonus);
+            } else {
+                let bv = bonus.resolve_ref(&default_ctx);
+                pre_resolved.push(ResolvedBonus {
+                    target: bv.target,
+                    value: bv.value,
+                    skill_line_filter: bonus.skill_line_filter,
+                    execute_threshold: bonus.execute_threshold,
+                });
+            }
+        }
+
+        (pre_resolved, ability_count, alt)
+    }
+
     fn generate_champion_point_combinations(
         required_champion_points: &[String],
         verbose: bool,
-    ) -> (HashSet<String>, Vec<(Vec<BonusData>, Vec<BonusData>)>) {
+    ) -> (HashSet<String>, Vec<PreSplitBonuses>, Vec<Vec<BonusData>>) {
         let mut champion_point_names: HashSet<String> = HashSet::new();
         let cp_vec: Vec<_> = CHAMPION_POINTS.iter().cloned().collect();
 
-        let combinations: Vec<(Vec<BonusData>, Vec<BonusData>)> =
+        let filtered: Vec<Vec<BonusData>> =
             combinatorics::generate_combinations(&cp_vec, BUILD_CONSTRAINTS.champion_point_count)
                 .into_iter()
                 .filter(|combination| {
@@ -183,19 +229,12 @@ impl BuildOptimizer {
 
                     has_required
                 })
-                .map(|combo| {
-                    let mut simple = Vec::new();
-                    let mut alt = Vec::new();
-                    for bonus in combo {
-                        if bonus.has_alternative() {
-                            alt.push(bonus);
-                        } else {
-                            simple.push(bonus);
-                        }
-                    }
-                    (simple, alt)
-                })
                 .collect();
+
+        let split: Vec<PreSplitBonuses> = filtered
+            .iter()
+            .map(|combo| Self::three_way_split(combo.clone()))
+            .collect();
 
         if verbose {
             let required_str = if required_champion_points.is_empty() {
@@ -205,13 +244,13 @@ impl BuildOptimizer {
             };
             logger::dim(&format!(
                 "Generated {} champion point combinations using {} CPs (required: {})",
-                combinations.len(),
+                split.len(),
                 champion_point_names.len(),
                 required_str
             ));
         }
 
-        (champion_point_names, combinations)
+        (champion_point_names, split, filtered)
     }
 
     fn generate_class_skill_line_combinations(
@@ -356,24 +395,46 @@ impl BuildOptimizer {
         skill_line_combinations: &[Vec<SkillLineName>],
         skills_service: &SkillsService,
         skill_names: &mut HashSet<String>,
+        max_pool_size: Option<usize>,
+        character_stats: &CharacterStats,
+        verbose: bool,
     ) -> Vec<Vec<&'static SkillData>> {
         skill_line_combinations
             .iter()
             .map(|skill_line_combination| {
-                skill_line_combination
+                let mut skills: Vec<&'static SkillData> = skill_line_combination
                     .iter()
                     .flat_map(|skill_line| {
-                        let skills: Vec<_> = skills_service
+                        skills_service
                             .get_skills_by_skill_line(*skill_line)
                             .into_iter()
                             .filter(|s| !(s.spammable && s.bonuses.is_none()))
-                            .collect();
-                        for skill in &skills {
-                            skill_names.insert(skill.name.clone());
-                        }
-                        skills
                     })
-                    .collect()
+                    .collect();
+
+                // Sort by standalone damage (descending) and cap to max_pool_size
+                if let Some(cap) = max_pool_size {
+                    if skills.len() > cap {
+                        skills.sort_by(|a, b| {
+                            let da = a.calculate_damage_per_cast(&[], character_stats, None);
+                            let db = b.calculate_damage_per_cast(&[], character_stats, None);
+                            db.partial_cmp(&da).unwrap_or(std::cmp::Ordering::Equal)
+                        });
+                        if verbose {
+                            logger::dim(&format!(
+                                "Capping non-spammable pool from {} to {} skills",
+                                skills.len(),
+                                cap
+                            ));
+                        }
+                        skills.truncate(cap);
+                    }
+                }
+
+                for skill in &skills {
+                    skill_names.insert(skill.name.clone());
+                }
+                skills
             })
             .collect()
     }
@@ -381,7 +442,7 @@ impl BuildOptimizer {
     fn generate_passive_bonuses(
         skill_line_combinations: &[Vec<SkillLineName>],
         verbose: bool,
-    ) -> Vec<(Vec<BonusData>, Vec<BonusData>)> {
+    ) -> (Vec<PreSplitBonuses>, Vec<Vec<BonusData>>) {
         let all_used_skill_lines: HashSet<SkillLineName> =
             skill_line_combinations.iter().flatten().copied().collect();
 
@@ -390,39 +451,34 @@ impl BuildOptimizer {
                 skill_lines: Some(all_used_skill_lines),
             });
 
-        let bonuses: Vec<(Vec<BonusData>, Vec<BonusData>)> = skill_line_combinations
+        let originals: Vec<Vec<BonusData>> = skill_line_combinations
             .iter()
             .map(|skill_lines| {
-                let all: Vec<BonusData> = skill_lines
+                skill_lines
                     .iter()
                     .flat_map(|sl| passives_service.get_passives_by_skill_line(*sl))
                     .flat_map(|passive| passive.bonuses.iter().cloned())
-                    .collect();
-                let mut simple = Vec::new();
-                let mut alt = Vec::new();
-                for bonus in all {
-                    if bonus.has_alternative() {
-                        alt.push(bonus);
-                    } else {
-                        simple.push(bonus);
-                    }
-                }
-                (simple, alt)
+                    .collect()
             })
+            .collect();
+
+        let split: Vec<PreSplitBonuses> = originals
+            .iter()
+            .map(|all| Self::three_way_split(all.clone()))
             .collect();
 
         if verbose {
             logger::dim(&format!(
                 "Pre-computed passive bonuses for {} skill line combinations",
-                bonuses.len()
+                split.len()
             ));
         }
 
-        bonuses
+        (split, originals)
     }
 
     fn calculate_total_build_count(
-        champion_point_combinations: &[(Vec<BonusData>, Vec<BonusData>)],
+        champion_point_combinations: &[PreSplitBonuses],
         spammable_skills: &[Vec<&'static SkillData>],
         non_spammable_skills: &[Vec<&'static SkillData>],
     ) -> u64 {
@@ -458,70 +514,101 @@ impl BuildOptimizer {
             .build()
             .expect("Failed to create thread pool");
 
-        // Lightweight candidate that avoids constructing a full Build per combination
-        struct Candidate<'a> {
+        // Lightweight candidate — stores indices for final Build reconstruction
+        struct Candidate {
             damage: f64,
             skills: SmallVec<[&'static SkillData; 10]>,
-            cp_simple: &'a [BonusData],
-            cp_alt: &'a [BonusData],
-            passive_simple: &'a [BonusData],
-            passive_alt: &'a [BonusData],
+            cp_idx: usize,
+            sl_idx: usize,
         }
 
-        let best_candidate: Option<Candidate<'_>> = pool.install(|| {
-            self.build_combinations()
-                .par_bridge()
-                .map(
-                    |(cp_simple, cp_alt, passive_simple, passive_alt, skill_combo)| {
-                        let count = evaluated_count.fetch_add(1, Ordering::Relaxed) + 1;
+        // Pre-collect lightweight work units to avoid par_bridge() mutex contention.
+        // Each work unit is (cp_idx, skill_line_idx, spammable_idx) — a few KB total.
+        let work_units = self.collect_work_units();
 
-                        let damage = Build::compute_total_damage(
-                            &skill_combo,
-                            cp_simple,
-                            cp_alt,
-                            passive_simple,
-                            passive_alt,
-                            &self.character_stats,
-                        );
+        let best_candidate: Option<Candidate> = pool.install(|| {
+            work_units
+                .par_iter()
+                .map(|&(sl_idx, spam_idx)| {
+                    let (passive_pre_resolved, passive_ability_count, passive_alt) =
+                        &self.passive_bonuses_list[sl_idx];
+                    let spammable_skill = self.spammable_skills[sl_idx][spam_idx];
+                    let non_spammable = &self.non_spammable_skills[sl_idx];
 
-                        // Atomically update global best damage for progress display
-                        let damage_bits = damage.to_bits();
-                        let _ = best_damage.fetch_max(damage_bits, Ordering::Relaxed);
+                    let mut local_best = Candidate {
+                        damage: f64::NEG_INFINITY,
+                        skills: SmallVec::new(),
+                        cp_idx: 0,
+                        sl_idx,
+                    };
 
-                        // Progress update every 1M iterations
-                        if count % 1_000_000 == 0 {
-                            let last = last_progress_update.swap(count, Ordering::Relaxed);
-                            if count > last {
-                                let progress =
-                                    (count as f64 / self.total_possible_build_count as f64) * 100.0;
-                                let elapsed = start_time.elapsed().as_secs_f64();
-                                let eta = if progress > 0.0 {
-                                    elapsed * (100.0 - progress) / progress
-                                } else {
-                                    0.0
+                    // Skills outermost: keep skill data in cache while iterating CP combos
+                    for mut combo in combinatorics::CombinationIterator::new(
+                        non_spammable,
+                        BUILD_CONSTRAINTS.skill_count - 1,
+                    ) {
+                        combo.push(spammable_skill);
+
+                        // CP combos innermost: iterate all CP combos for this skill combo
+                        for (cp_idx, (cp_pre_resolved, cp_ability_count, cp_alt)) in
+                            self.champion_point_combinations.iter().enumerate()
+                        {
+                            let count = evaluated_count.fetch_add(1, Ordering::Relaxed) + 1;
+
+                            let damage = Build::compute_total_damage(
+                                &combo,
+                                cp_pre_resolved,
+                                cp_ability_count,
+                                cp_alt,
+                                passive_pre_resolved,
+                                passive_ability_count,
+                                passive_alt,
+                                &self.character_stats,
+                            );
+
+                            if damage > local_best.damage {
+                                local_best = Candidate {
+                                    damage,
+                                    skills: combo.clone(),
+                                    cp_idx,
+                                    sl_idx,
                                 };
-                                let best = f64::from_bits(best_damage.load(Ordering::Relaxed));
+                            }
 
-                                logger::progress(&format!(
-                                    "Progress: {:.1}% ({}) | Best: {} | ETA: {}",
-                                    progress,
-                                    format::format_number(count),
-                                    format::format_number(best as u64),
-                                    format::format_duration((eta * 1000.0) as u64)
-                                ));
+                            // Atomically update global best damage for progress display
+                            let damage_bits = damage.to_bits();
+                            let _ = best_damage.fetch_max(damage_bits, Ordering::Relaxed);
+
+                            // Progress update every 1M iterations
+                            if count % 1_000_000 == 0 {
+                                let last = last_progress_update.swap(count, Ordering::Relaxed);
+                                if count > last {
+                                    let progress = (count as f64
+                                        / self.total_possible_build_count as f64)
+                                        * 100.0;
+                                    let elapsed = start_time.elapsed().as_secs_f64();
+                                    let eta = if progress > 0.0 {
+                                        elapsed * (100.0 - progress) / progress
+                                    } else {
+                                        0.0
+                                    };
+                                    let best =
+                                        f64::from_bits(best_damage.load(Ordering::Relaxed));
+
+                                    logger::progress(&format!(
+                                        "Progress: {:.1}% ({}) | Best: {} | ETA: {}",
+                                        progress,
+                                        format::format_number(count),
+                                        format::format_number(best as u64),
+                                        format::format_duration((eta * 1000.0) as u64)
+                                    ));
+                                }
                             }
                         }
+                    }
 
-                        Candidate {
-                            damage,
-                            skills: skill_combo,
-                            cp_simple,
-                            cp_alt,
-                            passive_simple,
-                            passive_alt,
-                        }
-                    },
-                )
+                    local_best
+                })
                 .reduce_with(|a, b| if a.damage > b.damage { a } else { b })
         });
 
@@ -534,67 +621,30 @@ impl BuildOptimizer {
             elapsed.as_secs_f64()
         ));
 
-        // Construct the full Build only for the winner — merge pre-split slices back
+        // Construct the full Build only for the winner using original BonusData
         best_candidate.map(|c| {
-            let mut cp_bonuses = Vec::with_capacity(c.cp_simple.len() + c.cp_alt.len());
-            cp_bonuses.extend_from_slice(c.cp_simple);
-            cp_bonuses.extend_from_slice(c.cp_alt);
-
-            let mut passive_bonuses =
-                Vec::with_capacity(c.passive_simple.len() + c.passive_alt.len());
-            passive_bonuses.extend_from_slice(c.passive_simple);
-            passive_bonuses.extend_from_slice(c.passive_alt);
+            let cp_bonuses = &self.champion_point_original[c.cp_idx];
+            let passive_bonuses = &self.passive_original[c.sl_idx];
 
             Build::new(
                 c.skills.to_vec(),
-                &cp_bonuses,
-                &passive_bonuses,
+                cp_bonuses,
+                passive_bonuses,
                 self.character_stats.clone(),
             )
         })
     }
 
-    /// Yields (cp_simple, cp_alt, passive_simple, passive_alt, skill_combo) tuples.
-    fn build_combinations(
-        &self,
-    ) -> impl Iterator<
-        Item = (
-            &[BonusData],
-            &[BonusData],
-            &[BonusData],
-            &[BonusData],
-            SmallVec<[&'static SkillData; 10]>,
-        ),
-    > + Send
-           + '_ {
-        self.champion_point_combinations
-            .iter()
-            .flat_map(move |(cp_simple, cp_alt)| {
-                self.spammable_skills
-                    .iter()
-                    .zip(self.non_spammable_skills.iter())
-                    .zip(self.passive_bonuses_list.iter())
-                    .flat_map(
-                        move |((spammable, non_spammable), (passive_simple, passive_alt))| {
-                            spammable.iter().flat_map(move |&spammable_skill| {
-                                combinatorics::CombinationIterator::new(
-                                    non_spammable,
-                                    BUILD_CONSTRAINTS.skill_count - 1,
-                                )
-                                .map(move |mut combo| {
-                                    combo.push(spammable_skill);
-                                    (
-                                        cp_simple.as_slice(),
-                                        cp_alt.as_slice(),
-                                        passive_simple.as_slice(),
-                                        passive_alt.as_slice(),
-                                        combo,
-                                    )
-                                })
-                            })
-                        },
-                    )
-            })
+    /// Pre-collect lightweight work unit indices: (skill_line_idx, spammable_idx).
+    /// Skills are outermost; each work unit iterates all CP combos internally.
+    fn collect_work_units(&self) -> Vec<(usize, usize)> {
+        let mut units = Vec::new();
+        for sl_idx in 0..self.spammable_skills.len() {
+            for spam_idx in 0..self.spammable_skills[sl_idx].len() {
+                units.push((sl_idx, spam_idx));
+            }
+        }
+        units
     }
 }
 

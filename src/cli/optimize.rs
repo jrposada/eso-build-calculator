@@ -42,6 +42,10 @@ pub struct OptimizeArgs {
     #[arg(short = 'p', long)]
     pub parallelism: Option<u8>,
 
+    /// Cap non-spammable skill pool per skill-line combo (prune lowest-damage skills)
+    #[arg(long)]
+    pub max_pool_size: Option<usize>,
+
     /// Allocate 64 attribute points to magicka
     #[arg(long, conflicts_with = "stamina")]
     pub magicka: bool,
@@ -106,6 +110,7 @@ impl OptimizeArgs {
             parallelism: self
                 .parallelism
                 .unwrap_or_else(|| (num_cpus::get() / 2).max(1) as u8),
+            max_pool_size: self.max_pool_size,
         });
 
         let start = Instant::now();
