@@ -40,8 +40,8 @@ pub struct BuildOptimizer {
     class_names: HashSet<ClassName>,
     required_weapon_skill_lines: Vec<SkillLineName>,
     weapon_skill_line_names: HashSet<SkillLineName>,
-    required_champion_points: Vec<String>,
-    champion_point_names: HashSet<String>,
+    required_champion_points: Vec<&'static str>,
+    champion_point_names: HashSet<&'static str>,
     skill_names: HashSet<String>,
     parallelism: u8,
 
@@ -65,10 +65,10 @@ impl BuildOptimizer {
         let parallelism = options.parallelism;
         let required_class_names = options.required_class_names;
         let required_weapon_skill_lines = options.required_weapon_skill_lines;
-        let required_champion_points: Vec<String> = options
+        let required_champion_points: Vec<&'static str> = options
             .required_champion_points
             .iter()
-            .map(|cp| cp.name.clone())
+            .map(|cp| cp.name)
             .collect();
         let pure_class = options.pure_class;
 
@@ -206,10 +206,10 @@ impl BuildOptimizer {
     }
 
     fn generate_champion_point_combinations(
-        required_champion_points: &[String],
+        required_champion_points: &[&'static str],
         verbose: bool,
-    ) -> (HashSet<String>, Vec<PreSplitBonuses>, Vec<Vec<BonusData>>) {
-        let mut champion_point_names: HashSet<String> = HashSet::new();
+    ) -> (HashSet<&'static str>, Vec<PreSplitBonuses>, Vec<Vec<BonusData>>) {
+        let mut champion_point_names: HashSet<&'static str> = HashSet::new();
         let cp_vec: Vec<_> = CHAMPION_POINTS.iter().cloned().collect();
 
         let filtered: Vec<Vec<BonusData>> =
@@ -219,11 +219,11 @@ impl BuildOptimizer {
                     let has_required = required_champion_points.is_empty()
                         || required_champion_points
                             .iter()
-                            .all(|required| combination.iter().any(|cp| &cp.name == required));
+                            .all(|required| combination.iter().any(|cp| cp.name == *required));
 
                     if has_required {
                         for cp in combination {
-                            champion_point_names.insert(cp.name.clone());
+                            champion_point_names.insert(cp.name);
                         }
                     }
 

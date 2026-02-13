@@ -4,15 +4,16 @@ use crate::domain::{BonusTarget, SkillLineName};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BonusValue {
-    pub name: String,
+    #[serde(skip)]
+    pub name: &'static str,
     pub target: BonusTarget,
     pub value: f64,
 }
 
 impl BonusValue {
-    pub fn new(name: impl Into<String>, target: BonusTarget, value: f64) -> Self {
+    pub fn new(name: &'static str, target: BonusTarget, value: f64) -> Self {
         Self {
-            name: name.into(),
+            name,
             target,
             value,
         }
