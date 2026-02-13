@@ -80,6 +80,17 @@ pub struct CachedPassiveContext {
     pub dot_mods: SmallVec<[SmallVec<[f64; 4]>; 10]>,
 }
 
+/// Pre-computed evaluation context: values constant across skills for a given
+/// (skill combo, bonus set) pair. Used by both the direct and cached paths.
+pub(crate) struct EvalContext {
+    pub armor_factor: f64,
+    pub crit_mult: f64,
+    pub max_stat: f64,
+    pub max_power: f64,
+    pub lookup: ModifierLookup,
+    pub filtered: SmallVec<[ResolvedBonus; 4]>,
+}
+
 #[derive(Debug, Clone)]
 pub struct Build {
     skills: Vec<&'static SkillData>,
@@ -207,9 +218,9 @@ impl Build {
         }
     }
 
-    /// Fast damage computation without caching. Used when there is only 1 CP combo
-    /// (caching overhead not amortized).
-    pub fn compute_total_damage(
+    /// Build evaluation context from all bonuses (direct path).
+    /// Contains pre-computed stats, modifier lookup, and filtered bonuses.
+    pub(crate) fn compute_eval_context(
         skills: &[&'static SkillData],
         cp_pre_resolved: &[ResolvedBonus],
         cp_ability_count: &[BonusData],
@@ -218,7 +229,7 @@ impl Build {
         passive_ability_count: &[BonusData],
         passive_alt: &[BonusData],
         character_stats: &CharacterStats,
-    ) -> f64 {
+    ) -> EvalContext {
         let default_ctx = ResolveContext::default();
 
         let mut intermediate_stats = character_stats.clone();
@@ -268,7 +279,6 @@ impl Build {
             effective_stats.critical_damage,
         );
 
-        // Build modifier lookup from global bonuses; collect filtered bonuses separately
         let lookup = ModifierLookup::new(&resolved);
         let filtered: SmallVec<[ResolvedBonus; 4]> = resolved
             .iter()
@@ -279,55 +289,91 @@ impl Build {
         let max_stat = effective_stats.max_stat();
         let max_power = effective_stats.max_power();
 
-        let mut total = 0.0;
-        for skill in skills {
-            let skill_line = skill.skill_line;
-            let mut skill_damage = 0.0;
+        EvalContext {
+            armor_factor,
+            crit_mult,
+            max_stat,
+            max_power,
+            lookup,
+            filtered,
+        }
+    }
 
-            if let Some(damage) = &skill.damage {
-                if let Some(hits) = &damage.hits {
-                    for hit in hits {
-                        if hit.execute_threshold.is_some() {
-                            continue;
-                        }
-                        let modifier = lookup.modifier_for(hit.flags)
-                            + Self::filtered_modifier(&filtered, skill_line, hit.flags);
-                        let hit_value = hit.effective_value(max_stat, max_power);
-                        skill_damage += hit_value * (1.0 + modifier);
+    /// Compute raw damage for a single skill (before armor_factor * crit_mult).
+    #[inline]
+    pub(crate) fn single_skill_damage(skill: &SkillData, ctx: &EvalContext) -> f64 {
+        let skill_line = skill.skill_line;
+        let mut skill_damage = 0.0;
+
+        if let Some(damage) = &skill.damage {
+            if let Some(hits) = &damage.hits {
+                for hit in hits {
+                    if hit.execute_threshold.is_some() {
+                        continue;
                     }
+                    let modifier = ctx.lookup.modifier_for(hit.flags)
+                        + Self::filtered_modifier(&ctx.filtered, skill_line, hit.flags);
+                    let hit_value = hit.effective_value(ctx.max_stat, ctx.max_power);
+                    skill_damage += hit_value * (1.0 + modifier);
                 }
+            }
 
-                if let Some(dots) = &damage.dots {
-                    for dot in dots {
-                        let modifier = lookup.modifier_for(dot.flags)
-                            + Self::filtered_modifier(&filtered, skill_line, dot.flags);
-                        let dot_value = dot.effective_value(max_stat, max_power);
+            if let Some(dots) = &damage.dots {
+                for dot in dots {
+                    let modifier = ctx.lookup.modifier_for(dot.flags)
+                        + Self::filtered_modifier(&ctx.filtered, skill_line, dot.flags);
+                    let dot_value = dot.effective_value(ctx.max_stat, ctx.max_power);
 
-                        let interval = dot.interval.unwrap_or(dot.duration);
-                        let ticks = (dot.duration / interval).floor() as i32;
-                        let increase_per_tick = dot.increase_per_tick.unwrap_or(0.0);
-                        let flat_increase_per_tick =
-                            dot.flat_increase_per_tick.unwrap_or(0.0);
+                    let interval = dot.interval.unwrap_or(dot.duration);
+                    let ticks = (dot.duration / interval).floor() as i32;
+                    let increase_per_tick = dot.increase_per_tick.unwrap_or(0.0);
+                    let flat_increase_per_tick =
+                        dot.flat_increase_per_tick.unwrap_or(0.0);
 
-                        for i in 0..ticks {
-                            let pct_mult = 1.0 + (i as f64) * increase_per_tick;
-                            let flat_inc = (i as f64) * flat_increase_per_tick;
-                            let tick_damage = dot_value * pct_mult + flat_inc;
+                    for i in 0..ticks {
+                        let pct_mult = 1.0 + (i as f64) * increase_per_tick;
+                        let flat_inc = (i as f64) * flat_increase_per_tick;
+                        let tick_damage = dot_value * pct_mult + flat_inc;
 
-                            if dot.ignores_modifier.unwrap_or(false) {
-                                skill_damage += tick_damage;
-                            } else {
-                                skill_damage += tick_damage * (1.0 + modifier);
-                            }
+                        if dot.ignores_modifier.unwrap_or(false) {
+                            skill_damage += tick_damage;
+                        } else {
+                            skill_damage += tick_damage * (1.0 + modifier);
                         }
                     }
                 }
             }
-
-            total += skill_damage;
         }
 
-        total * armor_factor * crit_mult
+        skill_damage
+    }
+
+    /// Fast damage computation without caching. Used when there is only 1 CP combo.
+    pub fn compute_total_damage(
+        skills: &[&'static SkillData],
+        cp_pre_resolved: &[ResolvedBonus],
+        cp_ability_count: &[BonusData],
+        cp_alt: &[BonusData],
+        passive_pre_resolved: &[ResolvedBonus],
+        passive_ability_count: &[BonusData],
+        passive_alt: &[BonusData],
+        character_stats: &CharacterStats,
+    ) -> f64 {
+        let ctx = Self::compute_eval_context(
+            skills,
+            cp_pre_resolved,
+            cp_ability_count,
+            cp_alt,
+            passive_pre_resolved,
+            passive_ability_count,
+            passive_alt,
+            character_stats,
+        );
+        let mut total = 0.0;
+        for skill in skills {
+            total += Self::single_skill_damage(skill, &ctx);
+        }
+        total * ctx.armor_factor * ctx.crit_mult
     }
 
     /// Sum modifier values from filtered bonuses (those with skill_line_filter)
@@ -435,25 +481,20 @@ impl Build {
         }
     }
 
-    /// Fast damage computation using cached passive context.
-    /// Per-skill modifier sums from passive bonuses are pre-computed in the cache.
-    /// Only iterates the small CP bonus list (~4-8 items) per skill per component,
-    /// instead of the full ~30 bonus list.
-    pub fn compute_total_damage_cached(
+    /// Build evaluation context from CP bonuses (cached path).
+    /// Uses pre-computed passive base_stats from CachedPassiveContext.
+    pub(crate) fn compute_cp_eval_context(
         skills: &[&'static SkillData],
         passive_ctx: &CachedPassiveContext,
         passive_alt: &[BonusData],
         cp_pre_resolved: &[ResolvedBonus],
         cp_ability_count: &[BonusData],
         cp_alt: &[BonusData],
-    ) -> f64 {
+    ) -> EvalContext {
         let default_ctx = ResolveContext::default();
 
-        // Start from passive_ctx.base_stats (character_stats + passive stat bonuses).
         let mut intermediate_stats = passive_ctx.base_stats.clone();
         let mut effective_stats = passive_ctx.base_stats.clone();
-
-        // Build small list of CP + alt resolved bonuses (only these are iterated per skill)
         let mut cp_resolved: SmallVec<[ResolvedBonus; 8]> = SmallVec::new();
 
         for rb in cp_pre_resolved {
@@ -477,7 +518,6 @@ impl Build {
         }
         intermediate_stats.clamp_caps();
 
-        // Resolve alternatives (both CP and passive) using intermediate_stats
         let resolve_ctx = ResolveContext::new(intermediate_stats);
 
         for bonus in cp_alt.iter().chain(passive_alt.iter()) {
@@ -502,74 +542,163 @@ impl Build {
             effective_stats.critical_damage,
         );
 
-        let max_stat = effective_stats.max_stat();
-        let max_power = effective_stats.max_power();
-
-        // Build modifier lookup from CP resolved bonuses; collect filtered separately
-        let cp_lookup = ModifierLookup::new(&cp_resolved);
-        let cp_filtered: SmallVec<[ResolvedBonus; 4]> = cp_resolved
+        let lookup = ModifierLookup::new(&cp_resolved);
+        let filtered: SmallVec<[ResolvedBonus; 4]> = cp_resolved
             .iter()
             .filter(|b| b.skill_line_filter.is_some() && b.execute_threshold.is_none())
             .copied()
             .collect();
 
-        let mut total = 0.0;
+        let max_stat = effective_stats.max_stat();
+        let max_power = effective_stats.max_power();
 
-        for (skill_idx, skill) in skills.iter().enumerate() {
-            let skill_line = skill.skill_line;
-            let mut skill_damage = 0.0;
+        EvalContext {
+            armor_factor,
+            crit_mult,
+            max_stat,
+            max_power,
+            lookup,
+            filtered,
+        }
+    }
 
-            if let Some(damage) = &skill.damage {
-                if let Some(hits) = &damage.hits {
-                    for (hit_idx, hit) in hits.iter().enumerate() {
-                        if hit.execute_threshold.is_some() {
-                            continue;
-                        }
+    /// Compute raw damage for a single skill using cached passive mods + CP eval context.
+    #[inline]
+    pub(crate) fn single_skill_damage_cached(
+        skill: &SkillData,
+        skill_idx: usize,
+        passive_ctx: &CachedPassiveContext,
+        cp_ctx: &EvalContext,
+    ) -> f64 {
+        let skill_line = skill.skill_line;
+        let mut skill_damage = 0.0;
 
-                        let cp_modifier = cp_lookup.modifier_for(hit.flags)
-                            + Self::filtered_modifier(&cp_filtered, skill_line, hit.flags);
-
-                        let total_modifier =
-                            passive_ctx.hit_mods[skill_idx][hit_idx] + cp_modifier;
-                        let hit_value = hit.effective_value(max_stat, max_power);
-                        skill_damage += hit_value * (1.0 + total_modifier);
+        if let Some(damage) = &skill.damage {
+            if let Some(hits) = &damage.hits {
+                for (hit_idx, hit) in hits.iter().enumerate() {
+                    if hit.execute_threshold.is_some() {
+                        continue;
                     }
+                    let cp_modifier = cp_ctx.lookup.modifier_for(hit.flags)
+                        + Self::filtered_modifier(&cp_ctx.filtered, skill_line, hit.flags);
+                    let total_modifier =
+                        passive_ctx.hit_mods[skill_idx][hit_idx] + cp_modifier;
+                    let hit_value = hit.effective_value(cp_ctx.max_stat, cp_ctx.max_power);
+                    skill_damage += hit_value * (1.0 + total_modifier);
                 }
+            }
 
-                if let Some(dots) = &damage.dots {
-                    for (dot_idx, dot) in dots.iter().enumerate() {
-                        let cp_modifier = cp_lookup.modifier_for(dot.flags)
-                            + Self::filtered_modifier(&cp_filtered, skill_line, dot.flags);
+            if let Some(dots) = &damage.dots {
+                for (dot_idx, dot) in dots.iter().enumerate() {
+                    let cp_modifier = cp_ctx.lookup.modifier_for(dot.flags)
+                        + Self::filtered_modifier(&cp_ctx.filtered, skill_line, dot.flags);
+                    let total_modifier =
+                        passive_ctx.dot_mods[skill_idx][dot_idx] + cp_modifier;
+                    let dot_value = dot.effective_value(cp_ctx.max_stat, cp_ctx.max_power);
 
-                        let total_modifier =
-                            passive_ctx.dot_mods[skill_idx][dot_idx] + cp_modifier;
-                        let dot_value = dot.effective_value(max_stat, max_power);
+                    let interval = dot.interval.unwrap_or(dot.duration);
+                    let ticks = (dot.duration / interval).floor() as i32;
+                    let increase_per_tick = dot.increase_per_tick.unwrap_or(0.0);
+                    let flat_increase_per_tick =
+                        dot.flat_increase_per_tick.unwrap_or(0.0);
 
-                        let interval = dot.interval.unwrap_or(dot.duration);
-                        let ticks = (dot.duration / interval).floor() as i32;
-                        let increase_per_tick = dot.increase_per_tick.unwrap_or(0.0);
-                        let flat_increase_per_tick =
-                            dot.flat_increase_per_tick.unwrap_or(0.0);
+                    for i in 0..ticks {
+                        let pct_mult = 1.0 + (i as f64) * increase_per_tick;
+                        let flat_inc = (i as f64) * flat_increase_per_tick;
+                        let tick_damage = dot_value * pct_mult + flat_inc;
 
-                        for i in 0..ticks {
-                            let pct_mult = 1.0 + (i as f64) * increase_per_tick;
-                            let flat_inc = (i as f64) * flat_increase_per_tick;
-                            let tick_damage = dot_value * pct_mult + flat_inc;
-
-                            if dot.ignores_modifier.unwrap_or(false) {
-                                skill_damage += tick_damage;
-                            } else {
-                                skill_damage += tick_damage * (1.0 + total_modifier);
-                            }
+                        if dot.ignores_modifier.unwrap_or(false) {
+                            skill_damage += tick_damage;
+                        } else {
+                            skill_damage += tick_damage * (1.0 + total_modifier);
                         }
                     }
                 }
             }
-
-            total += skill_damage;
         }
 
-        total * armor_factor * crit_mult
+        skill_damage
+    }
+
+    /// Fast damage computation using cached passive context.
+    pub fn compute_total_damage_cached(
+        skills: &[&'static SkillData],
+        passive_ctx: &CachedPassiveContext,
+        passive_alt: &[BonusData],
+        cp_pre_resolved: &[ResolvedBonus],
+        cp_ability_count: &[BonusData],
+        cp_alt: &[BonusData],
+    ) -> f64 {
+        let cp_ctx = Self::compute_cp_eval_context(
+            skills, passive_ctx, passive_alt, cp_pre_resolved, cp_ability_count, cp_alt,
+        );
+        let mut total = 0.0;
+        for (i, skill) in skills.iter().enumerate() {
+            total += Self::single_skill_damage_cached(skill, i, passive_ctx, &cp_ctx);
+        }
+        total * cp_ctx.armor_factor * cp_ctx.crit_mult
+    }
+
+    /// Build passive modifier lookup (constant within a work unit).
+    /// Returns (ModifierLookup, filtered_bonuses) for incremental passive mod updates.
+    pub(crate) fn compute_passive_lookup(
+        passive_pre_resolved: &[ResolvedBonus],
+        passive_ability_count: &[BonusData],
+    ) -> (ModifierLookup, SmallVec<[ResolvedBonus; 4]>) {
+        let default_ctx = ResolveContext::default();
+        let mut passive_resolved: SmallVec<[ResolvedBonus; 16]> = SmallVec::new();
+
+        for rb in passive_pre_resolved {
+            passive_resolved.push(*rb);
+        }
+        for bonus in passive_ability_count {
+            let bv = bonus.resolve_ref(&default_ctx);
+            passive_resolved.push(ResolvedBonus {
+                target: bv.target,
+                value: bv.value,
+                skill_line_filter: bonus.skill_line_filter,
+                execute_threshold: bonus.execute_threshold,
+            });
+        }
+
+        let lookup = ModifierLookup::new(&passive_resolved);
+        let filtered: SmallVec<[ResolvedBonus; 4]> = passive_resolved
+            .iter()
+            .filter(|b| b.skill_line_filter.is_some() && b.execute_threshold.is_none())
+            .copied()
+            .collect();
+        (lookup, filtered)
+    }
+
+    /// Update passive modifier cache for a single skill position.
+    /// Used for incremental evaluation when only 1-2 skills change between combos.
+    pub(crate) fn update_passive_mod(
+        skill: &SkillData,
+        skill_idx: usize,
+        passive_lookup: &ModifierLookup,
+        passive_filtered: &[ResolvedBonus],
+        ctx: &mut CachedPassiveContext,
+    ) {
+        let skill_line = skill.skill_line;
+        ctx.hit_mods[skill_idx].clear();
+        ctx.dot_mods[skill_idx].clear();
+
+        if let Some(damage) = &skill.damage {
+            if let Some(hits) = &damage.hits {
+                for hit in hits {
+                    let modifier = passive_lookup.modifier_for(hit.flags)
+                        + Self::filtered_modifier(passive_filtered, skill_line, hit.flags);
+                    ctx.hit_mods[skill_idx].push(modifier);
+                }
+            }
+            if let Some(dots) = &damage.dots {
+                for dot in dots {
+                    let modifier = passive_lookup.modifier_for(dot.flags)
+                        + Self::filtered_modifier(passive_filtered, skill_line, dot.flags);
+                    ctx.dot_mods[skill_idx].push(modifier);
+                }
+            }
+        }
     }
 }
 

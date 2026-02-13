@@ -50,12 +50,17 @@ pub fn generate_combinations<T: Clone>(items: &[T], k: usize) -> Vec<Vec<T>> {
 
 use smallvec::SmallVec;
 
-/// Iterator for generating combinations lazily
+/// Iterator for generating combinations lazily.
+/// Tracks which positions changed between consecutive outputs via `first_changed()`.
 pub struct CombinationIterator<'a, T> {
     items: &'a [T],
     k: usize,
     indices: Vec<usize>,
     done: bool,
+    /// Leftmost position that differs between previous and most-recently-returned combo.
+    first_changed: usize,
+    /// Staged value: leftmost position that will change in the NEXT combo.
+    pending_first_changed: usize,
 }
 
 impl<'a, T> CombinationIterator<'a, T> {
@@ -67,7 +72,16 @@ impl<'a, T> CombinationIterator<'a, T> {
             k,
             indices,
             done,
+            first_changed: 0,
+            pending_first_changed: 0,
         }
+    }
+
+    /// Leftmost position that changed between the previous and most-recently-returned
+    /// combination. For the very first combination, returns 0.
+    #[inline]
+    pub fn first_changed(&self) -> usize {
+        self.first_changed
     }
 }
 
@@ -78,6 +92,9 @@ impl<'a, T: Clone> Iterator for CombinationIterator<'a, T> {
         if self.done {
             return None;
         }
+
+        // Promote the staged first_changed computed during the previous advance.
+        self.first_changed = self.pending_first_changed;
 
         if self.k == 0 {
             self.done = true;
@@ -102,6 +119,7 @@ impl<'a, T: Clone> Iterator for CombinationIterator<'a, T> {
                 for j in (i + 1)..self.k {
                     self.indices[j] = self.indices[j - 1] + 1;
                 }
+                self.pending_first_changed = i;
                 return Some(result);
             }
         }
@@ -153,6 +171,47 @@ mod tests {
         assert!(combos.contains(&vec![2, 3]));
         assert!(combos.contains(&vec![2, 4]));
         assert!(combos.contains(&vec![3, 4]));
+    }
+
+    #[test]
+    fn test_combination_iterator_first_changed() {
+        let items = vec![0, 1, 2, 3, 4];
+        let mut iter = CombinationIterator::new(&items, 3);
+
+        // First combo [0,1,2]: first_changed = 0 (all new)
+        let c0 = iter.next().unwrap();
+        assert_eq!(&c0[..], &[0, 1, 2]);
+        assert_eq!(iter.first_changed(), 0);
+
+        // [0,1,3]: only position 2 changed
+        let c1 = iter.next().unwrap();
+        assert_eq!(&c1[..], &[0, 1, 3]);
+        assert_eq!(iter.first_changed(), 2);
+
+        // [0,1,4]: only position 2 changed
+        let c2 = iter.next().unwrap();
+        assert_eq!(&c2[..], &[0, 1, 4]);
+        assert_eq!(iter.first_changed(), 2);
+
+        // [0,2,3]: positions 1 and 2 changed (carry)
+        let c3 = iter.next().unwrap();
+        assert_eq!(&c3[..], &[0, 2, 3]);
+        assert_eq!(iter.first_changed(), 1);
+
+        // [0,2,4]: only position 2 changed
+        let c4 = iter.next().unwrap();
+        assert_eq!(&c4[..], &[0, 2, 4]);
+        assert_eq!(iter.first_changed(), 2);
+
+        // [0,3,4]: positions 1 and 2 changed (carry)
+        let c5 = iter.next().unwrap();
+        assert_eq!(&c5[..], &[0, 3, 4]);
+        assert_eq!(iter.first_changed(), 1);
+
+        // [1,2,3]: positions 0, 1, 2 all changed (carry)
+        let c6 = iter.next().unwrap();
+        assert_eq!(&c6[..], &[1, 2, 3]);
+        assert_eq!(iter.first_changed(), 0);
     }
 
     #[test]

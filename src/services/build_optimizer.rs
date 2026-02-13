@@ -582,52 +582,183 @@ impl BuildOptimizer {
                     };
 
                     if self.champion_point_combinations.len() > 1 {
-                        // Multiple CP combos: cache passive context per skill combo
-                        for mut combo in combinatorics::CombinationIterator::new(
-                            non_spammable,
-                            BUILD_CONSTRAINTS.skill_count - 1,
-                        ) {
-                            combo.push(spammable_skill);
-                            let passive_ctx = Build::cache_passive_context(
-                                &combo,
+                        // Multiple CP combos: incremental evaluation with cached passive context
+                        let num_cp = self.champion_point_combinations.len();
+                        let non_spam_count = BUILD_CONSTRAINTS.skill_count - 1;
+
+                        // Passive lookup is constant for this work unit
+                        let (passive_lookup, passive_filtered) =
+                            Build::compute_passive_lookup(
                                 passive_pre_resolved,
                                 passive_ability_count,
-                                &self.character_stats,
                             );
-                            for (cp_idx, (cp_pre_resolved, cp_ability_count, cp_alt)) in
-                                self.champion_point_combinations.iter().enumerate()
-                            {
-                                let damage = Build::compute_total_damage_cached(
+
+                        // Incremental state
+                        let mut passive_ctx = None;
+                        let mut cp_ctxs = Vec::with_capacity(num_cp);
+                        let mut cp_raw_totals = vec![0.0f64; num_cp];
+                        let mut cp_skill_damages = vec![[0.0f64; 10]; num_cp];
+                        let mut prev_combo: SmallVec<[&'static SkillData; 10]> =
+                            SmallVec::new();
+
+                        let mut combo_iter = combinatorics::CombinationIterator::new(
+                            non_spammable,
+                            non_spam_count,
+                        );
+
+                        while let Some(mut combo) = combo_iter.next() {
+                            combo.push(spammable_skill);
+                            let first_changed = combo_iter.first_changed();
+
+                            let can_incr = passive_ctx.is_some()
+                                && (first_changed..non_spam_count).all(|i| {
+                                    combo[i].skill_line == prev_combo[i].skill_line
+                                });
+
+                            if can_incr {
+                                let pctx = passive_ctx.as_mut().unwrap();
+
+                                // Update passive mods only for changed positions
+                                for i in first_changed..non_spam_count {
+                                    Build::update_passive_mod(
+                                        combo[i],
+                                        i,
+                                        &passive_lookup,
+                                        &passive_filtered,
+                                        pctx,
+                                    );
+                                }
+
+                                // Update per-CP-combo damages for changed positions
+                                for cp_idx in 0..num_cp {
+                                    for i in first_changed..non_spam_count {
+                                        cp_raw_totals[cp_idx] -=
+                                            cp_skill_damages[cp_idx][i];
+                                        cp_skill_damages[cp_idx][i] =
+                                            Build::single_skill_damage_cached(
+                                                combo[i],
+                                                i,
+                                                pctx,
+                                                &cp_ctxs[cp_idx],
+                                            );
+                                        cp_raw_totals[cp_idx] +=
+                                            cp_skill_damages[cp_idx][i];
+                                    }
+                                    let damage = cp_raw_totals[cp_idx]
+                                        * cp_ctxs[cp_idx].armor_factor
+                                        * cp_ctxs[cp_idx].crit_mult;
+                                    track(damage, &combo, cp_idx);
+                                }
+                            } else {
+                                // Full recompute
+                                let pctx = Build::cache_passive_context(
                                     &combo,
-                                    &passive_ctx,
-                                    passive_alt,
+                                    passive_pre_resolved,
+                                    passive_ability_count,
+                                    &self.character_stats,
+                                );
+
+                                cp_ctxs.clear();
+                                for (
+                                    cp_idx,
+                                    (cp_pre_resolved, cp_ability_count, cp_alt),
+                                ) in self
+                                    .champion_point_combinations
+                                    .iter()
+                                    .enumerate()
+                                {
+                                    let cp_ctx =
+                                        Build::compute_cp_eval_context(
+                                            &combo,
+                                            &pctx,
+                                            passive_alt,
+                                            cp_pre_resolved,
+                                            cp_ability_count,
+                                            cp_alt,
+                                        );
+                                    let mut raw = 0.0;
+                                    for (i, skill) in combo.iter().enumerate() {
+                                        let d =
+                                            Build::single_skill_damage_cached(
+                                                skill, i, &pctx, &cp_ctx,
+                                            );
+                                        cp_skill_damages[cp_idx][i] = d;
+                                        raw += d;
+                                    }
+                                    cp_raw_totals[cp_idx] = raw;
+                                    let damage =
+                                        raw * cp_ctx.armor_factor * cp_ctx.crit_mult;
+                                    track(damage, &combo, cp_idx);
+                                    cp_ctxs.push(cp_ctx);
+                                }
+
+                                passive_ctx = Some(pctx);
+                            }
+
+                            prev_combo = combo;
+                        }
+                    } else {
+                        // Single CP combo: direct path with incremental evaluation
+                        let (cp_pre_resolved, cp_ability_count, cp_alt) =
+                            &self.champion_point_combinations[0];
+                        let non_spam_count = BUILD_CONSTRAINTS.skill_count - 1;
+
+                        // Incremental state
+                        let mut eval_ctx = None;
+                        let mut per_skill_damages = [0.0f64; 10];
+                        let mut raw_total = 0.0f64;
+                        let mut prev_combo: SmallVec<[&'static SkillData; 10]> =
+                            SmallVec::new();
+
+                        let mut combo_iter = combinatorics::CombinationIterator::new(
+                            non_spammable,
+                            non_spam_count,
+                        );
+
+                        while let Some(mut combo) = combo_iter.next() {
+                            combo.push(spammable_skill);
+                            let first_changed = combo_iter.first_changed();
+
+                            let can_incr = eval_ctx.is_some()
+                                && (first_changed..non_spam_count).all(|i| {
+                                    combo[i].skill_line == prev_combo[i].skill_line
+                                });
+
+                            if can_incr {
+                                let ctx = eval_ctx.as_ref().unwrap();
+                                for i in first_changed..non_spam_count {
+                                    raw_total -= per_skill_damages[i];
+                                    per_skill_damages[i] =
+                                        Build::single_skill_damage(combo[i], ctx);
+                                    raw_total += per_skill_damages[i];
+                                }
+                                let damage =
+                                    raw_total * ctx.armor_factor * ctx.crit_mult;
+                                track(damage, &combo, 0);
+                            } else {
+                                let ctx = Build::compute_eval_context(
+                                    &combo,
                                     cp_pre_resolved,
                                     cp_ability_count,
                                     cp_alt,
+                                    passive_pre_resolved,
+                                    passive_ability_count,
+                                    passive_alt,
+                                    &self.character_stats,
                                 );
-                                track(damage, &combo, cp_idx);
+                                raw_total = 0.0;
+                                for (i, skill) in combo.iter().enumerate() {
+                                    per_skill_damages[i] =
+                                        Build::single_skill_damage(skill, &ctx);
+                                    raw_total += per_skill_damages[i];
+                                }
+                                let damage =
+                                    raw_total * ctx.armor_factor * ctx.crit_mult;
+                                track(damage, &combo, 0);
+                                eval_ctx = Some(ctx);
                             }
-                        }
-                    } else {
-                        // Single CP combo: direct path, no caching overhead
-                        let (cp_pre_resolved, cp_ability_count, cp_alt) =
-                            &self.champion_point_combinations[0];
-                        for mut combo in combinatorics::CombinationIterator::new(
-                            non_spammable,
-                            BUILD_CONSTRAINTS.skill_count - 1,
-                        ) {
-                            combo.push(spammable_skill);
-                            let damage = Build::compute_total_damage(
-                                &combo,
-                                cp_pre_resolved,
-                                cp_ability_count,
-                                cp_alt,
-                                passive_pre_resolved,
-                                passive_ability_count,
-                                passive_alt,
-                                &self.character_stats,
-                            );
-                            track(damage, &combo, 0);
+
+                            prev_combo = combo;
                         }
                     }
 
