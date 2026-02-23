@@ -1,7 +1,8 @@
 use crate::data::bonuses::CHAMPION_POINTS;
 use crate::data::skills::ALL_SKILLS;
 use crate::domain::{
-    BonusData, BonusTrigger, Build, CharacterStats, ResolvedBonus, SkillData, BUILD_CONSTRAINTS,
+    BonusData, BonusTrigger, Build, CharacterStats, DamageFlags, ResolvedBonus, SkillData,
+    BUILD_CONSTRAINTS,
 };
 use crate::domain::{ClassName, ResolveContext, SkillLineName};
 use crate::infrastructure::{combinatorics, format, logger, table};
@@ -11,7 +12,7 @@ use crate::services::{PassivesService, SkillsService};
 use rayon::prelude::*;
 use rayon::ThreadPoolBuilder;
 use smallvec::SmallVec;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Instant;
 
@@ -412,6 +413,18 @@ impl BuildOptimizer {
                     })
                     .collect();
 
+                // Prune dominated skills per skill line before pool capping
+                let before = skills.len();
+                skills = Self::prune_dominated_skills(skills, character_stats);
+                if verbose && skills.len() < before {
+                    logger::dim(&format!(
+                        "Pruned {} dominated skills ({} → {})",
+                        before - skills.len(),
+                        before,
+                        skills.len()
+                    ));
+                }
+
                 // Sort by standalone damage (descending) and cap to max_pool_size
                 if let Some(cap) = max_pool_size {
                     if skills.len() > cap {
@@ -437,6 +450,83 @@ impl BuildOptimizer {
                 skills
             })
             .collect()
+    }
+
+    /// Signature capturing how a skill interacts with bonus modifiers.
+    /// Two skills with the same signature respond to the same bonuses in the
+    /// same proportional way, so higher standalone damage ⇒ strict dominance.
+    ///
+    /// Components: sorted list of `(DamageFlags, is_hit)` tuples.
+    /// Sorting by `(flags.bits(), is_hit)` gives a canonical order.
+    fn damage_signature(skill: &SkillData) -> Vec<(DamageFlags, bool)> {
+        let mut sig = Vec::new();
+        if let Some(damage) = &skill.damage {
+            if let Some(hits) = &damage.hits {
+                for hit in hits {
+                    sig.push((hit.flags, true));
+                }
+            }
+            if let Some(dots) = &damage.dots {
+                for dot in dots {
+                    sig.push((dot.flags, false));
+                }
+            }
+        }
+        sig.sort_by_key(|(flags, is_hit)| (flags.bits(), *is_hit));
+        sig
+    }
+
+    /// Remove skills that are strictly outclassed by another skill from the
+    /// same skill line with the same damage signature. Pruning is per skill
+    /// line: a skill from line A never prunes a skill from line B.
+    ///
+    /// Exempt from pruning:
+    /// - Skills with bonuses (provide utility beyond raw damage)
+    /// - Skills with execute mechanics (relative value varies by enemy HP)
+    fn prune_dominated_skills(
+        skills: Vec<&'static SkillData>,
+        character_stats: &CharacterStats,
+    ) -> Vec<&'static SkillData> {
+        // Group by (skill_line, damage_signature)
+        let mut groups: HashMap<
+            (SkillLineName, Vec<(DamageFlags, bool)>),
+            Vec<&'static SkillData>,
+        > = HashMap::new();
+        let mut exempt: Vec<&'static SkillData> = Vec::new();
+
+        for skill in &skills {
+            if skill.bonuses.is_some() || skill.execute.is_some() {
+                exempt.push(skill);
+                continue;
+            }
+            let sig = Self::damage_signature(skill);
+            groups
+                .entry((skill.skill_line, sig))
+                .or_default()
+                .push(skill);
+        }
+
+        let mut result = Vec::with_capacity(skills.len());
+        result.extend(exempt);
+
+        for (_key, group) in groups {
+            if group.len() <= 1 {
+                result.extend(group);
+                continue;
+            }
+            // Keep only the skill with the highest standalone damage
+            let best = group
+                .iter()
+                .max_by(|a, b| {
+                    let da = a.calculate_damage_per_cast(&[], character_stats, None);
+                    let db = b.calculate_damage_per_cast(&[], character_stats, None);
+                    da.partial_cmp(&db).unwrap_or(std::cmp::Ordering::Equal)
+                })
+                .unwrap();
+            result.push(best);
+        }
+
+        result
     }
 
     fn generate_passive_bonuses(

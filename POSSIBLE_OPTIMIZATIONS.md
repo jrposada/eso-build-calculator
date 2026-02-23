@@ -6,13 +6,6 @@ Remaining optimization opportunities for `find_optimal_build`. Items already imp
 
 ## Pending
 
-### B2. Dominated skill pruning (exact)
-- **File:** `src/services/build_optimizer.rs` (setup phase)
-- **Problem:** Some skills are strictly outclassed by others from the same skill line with the same damage flags profile.
-- **Fix:** Skill X is dominated by skill Y if: same skill line, same DamageFlags, Y has higher damage under all reasonable bonus sets. Remove dominated skills from the pool before combination generation. Since C(N,9) grows rapidly, even removing a few skills can eliminate millions of combinations.
-- **Impact:** MEDIUM-HIGH (data-dependent) | **Complexity:** MEDIUM
-- **Trade-offs:** None when dominance is strict. Must account for different flag interactions (AoE vs Single Target skills are not comparable).
-
 ### B3. Branch and bound with upper bound estimation
 - **Problem:** Flat `CombinationIterator` cannot skip subtrees. A weak partial combination may lead to billions of evaluations that can never beat the current best.
 - **Fix:** Replace lexicographic iterator with recursive DFS. Pre-sort skills by standalone damage (descending). At each node, compute upper bound: `partial_damage + sum_of_top_(10-k)_remaining_skills`. If upper bound < current best, prune.
@@ -47,3 +40,4 @@ Remaining optimization opportunities for `find_optimal_build`. Items already imp
 | C2 | Cache per-skill passive modifier sums across CP combos | `601df9f` |
 | C3 | Bit-indexed ModifierLookup for O(1) damage flag queries | `e773eae` |
 | B4 | Incremental evaluation for consecutive combinations | `0929982` |
+| B2 | Dominated skill pruning (per skill line) | *pending commit* |
