@@ -39,7 +39,7 @@ pub use dot_damage::DotDamage;
 pub use execute::{ExecuteData, ExecuteScaling};
 pub use hit_damage::HitDamage;
 pub use light_attack::LightAttackData;
-pub use simulation::{ActiveBar, ActiveEffect, SimulationResult, SkillBreakdown};
+pub use simulation::{ActiveBar, ActiveBuff, ActiveEffect, SimulationResult, SkillBreakdown};
 pub use passive::PassiveData;
 pub use resource::Resource;
 pub use skill::SkillData;

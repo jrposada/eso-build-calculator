@@ -1,3 +1,4 @@
+use super::BonusTarget;
 use super::DamageCoefficients;
 use super::DamageFlags;
 
@@ -40,6 +41,25 @@ pub struct ActiveEffect {
     pub increase_per_tick: f64,
     pub flat_increase_per_tick: f64,
     pub ignores_modifier: bool,
+    /// Modifier sum snapshotted at cast time (DoT ticks use this, not current buffs)
+    pub snapshotted_modifier: f64,
+    /// Armor damage factor snapshotted at cast time
+    pub snapshotted_armor_factor: f64,
+    /// Critical multiplier snapshotted at cast time
+    pub snapshotted_crit_mult: f64,
+}
+
+/// Tracks an active buff granted by a skill.
+#[derive(Debug, Clone)]
+pub struct ActiveBuff {
+    /// Dedup key (e.g., "Major Brutality")
+    pub name: String,
+    /// Which skill granted this buff (for rotation priority checks)
+    pub source_skill_name: String,
+    /// None = permanent (AbilitySlotted)
+    pub remaining_duration: Option<f64>,
+    pub target: BonusTarget,
+    pub value: f64,
 }
 
 /// Results of a fight simulation.

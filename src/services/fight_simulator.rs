@@ -1,8 +1,8 @@
 use crate::data::light_attacks::light_attack_for_weapon;
 use crate::domain::simulation::{BAR_SWAP_DELAY, GCD, TRIAL_DUMMY_HP};
 use crate::domain::{
-    ActiveBar, ActiveEffect, BonusData, CharacterStats, DamageFlags, ResolveContext,
-    SimulationResult, SkillBreakdown, SkillData, SkillLineName,
+    ActiveBar, ActiveBuff, ActiveEffect, BonusData, BonusTarget, BonusTrigger, CharacterStats,
+    DamageFlags, ResolveContext, SimulationResult, SkillBreakdown, SkillData, SkillLineName,
 };
 use std::collections::HashMap;
 
@@ -21,6 +21,7 @@ struct SimState {
     remaining_hp: f64,
     active_bar: ActiveBar,
     active_effects: Vec<ActiveEffect>,
+    active_buffs: Vec<ActiveBuff>,
     gcd_ready: f64,
     // Proc tracking: skill name -> accumulated light attack count
     proc_counters: HashMap<String, u32>,
@@ -29,6 +30,14 @@ struct SimState {
     la_damage: f64,
     la_count: u32,
     bar_swap_count: u32,
+}
+
+/// Pre-computed stats with active buffs applied.
+struct BuffedContext {
+    max_stat: f64,
+    max_power: f64,
+    armor_factor: f64,
+    crit_mult: f64,
 }
 
 #[derive(Debug)]
@@ -61,9 +70,6 @@ impl FightSimulator {
     }
 
     pub fn simulate(&self, distribution: &BarDistribution) -> SimulationResult {
-        let max_stat = self.effective_stats.max_stat();
-        let max_power = self.effective_stats.max_power();
-
         // Initialize proc counters for all proc skills on both bars
         let mut proc_counters = HashMap::new();
         for skill in distribution
@@ -82,6 +88,7 @@ impl FightSimulator {
             remaining_hp: self.target_hp,
             active_bar: ActiveBar::Bar1,
             active_effects: Vec::new(),
+            active_buffs: Vec::new(),
             gcd_ready: 0.0,
             proc_counters,
             skill_damage: HashMap::new(),
@@ -89,6 +96,9 @@ impl FightSimulator {
             la_count: 0,
             bar_swap_count: 0,
         };
+
+        // Register permanent AbilitySlotted buffs from all skills on both bars
+        self.register_ability_slotted_buffs(&mut state, distribution);
 
         // Safety: prevent infinite loops
         let max_iterations = 1_000_000;
@@ -100,7 +110,7 @@ impl FightSimulator {
             // Advance time to next GCD
             let target_time = state.gcd_ready;
             if state.time < target_time {
-                self.advance_time(&mut state, target_time, max_stat, max_power);
+                self.advance_time(&mut state, target_time);
             }
 
             let current_skills = match state.active_bar {
@@ -122,11 +132,20 @@ impl FightSimulator {
                         ActiveBar::Bar2 => distribution.bar2.weapon_type,
                     };
 
-                    // 1. Light attack damage
+                    // Compute buffed context from current active buffs
+                    let buffed = self.compute_buffed_context(&state.active_buffs);
+
+                    // 1. Light attack damage (uses current buffs)
                     let la_data = light_attack_for_weapon(current_weapon);
-                    let la_modifier = self.compute_modifier_for_flags(la_data.flags, None);
-                    let la_dmg =
-                        la_data.calculate_damage(la_modifier, max_stat, max_power, self.armor_factor, self.crit_mult);
+                    let la_modifier = self.compute_modifier_for_flags(la_data.flags, None)
+                        + self.compute_buff_modifier_for_flags(la_data.flags, &state.active_buffs);
+                    let la_dmg = la_data.calculate_damage(
+                        la_modifier,
+                        buffed.max_stat,
+                        buffed.max_power,
+                        buffed.armor_factor,
+                        buffed.crit_mult,
+                    );
                     state.remaining_hp -= la_dmg;
                     state.la_damage += la_dmg;
                     state.la_count += 1;
@@ -140,14 +159,14 @@ impl FightSimulator {
                     let hit_dmg = if let Some(threshold) = skill.proc_light_attacks {
                         let counter = state.proc_counters.get(&skill.name).copied().unwrap_or(0);
                         if counter >= threshold {
-                            let dmg = self.calc_skill_hits(skill);
+                            let dmg = self.calc_skill_hits(skill, &buffed, &state.active_buffs);
                             state.proc_counters.insert(skill.name.clone(), 0);
                             dmg
                         } else {
                             0.0
                         }
                     } else {
-                        self.calc_skill_hits(skill)
+                        self.calc_skill_hits(skill, &buffed, &state.active_buffs)
                     };
                     state.remaining_hp -= hit_dmg;
 
@@ -158,14 +177,22 @@ impl FightSimulator {
                     entry.0 += hit_dmg;
                     entry.1 += 1;
 
-                    // 3. Register/refresh DoTs as active effects
+                    // 3. Register/refresh DoTs as active effects (snapshot at cast time)
                     if let Some(damage) = &skill.damage {
                         if let Some(dots) = &damage.dots {
                             for dot in dots {
-                                let base_value = dot.effective_value(max_stat, max_power);
+                                let base_value = dot.effective_value(buffed.max_stat, buffed.max_power);
                                 let interval = dot.interval.unwrap_or(dot.duration);
                                 let total_ticks = (dot.duration / interval).floor() as i32;
                                 let delay = dot.delay.unwrap_or(0.0);
+
+                                // Snapshot modifier at cast time
+                                let snapshotted_modifier = if dot.ignores_modifier.unwrap_or(false) {
+                                    0.0
+                                } else {
+                                    self.compute_modifier_for_flags(dot.flags, Some(skill.skill_line))
+                                        + self.compute_buff_modifier_for_flags(dot.flags, &state.active_buffs)
+                                };
 
                                 // Remove existing effect from same skill
                                 state.active_effects.retain(|e| {
@@ -186,12 +213,18 @@ impl FightSimulator {
                                     increase_per_tick: dot.increase_per_tick.unwrap_or(0.0),
                                     flat_increase_per_tick: dot.flat_increase_per_tick.unwrap_or(0.0),
                                     ignores_modifier: dot.ignores_modifier.unwrap_or(false),
+                                    snapshotted_modifier,
+                                    snapshotted_armor_factor: buffed.armor_factor,
+                                    snapshotted_crit_mult: buffed.crit_mult,
                                 });
                             }
                         }
                     }
 
-                    // 4. Advance GCD
+                    // 4. Register/refresh Cast buffs from skill bonuses
+                    self.register_cast_buffs(&mut state, skill);
+
+                    // 5. Advance GCD
                     let cast_time = skill.channel_time.unwrap_or(GCD);
                     state.gcd_ready = state.time + cast_time;
                 }
@@ -229,19 +262,169 @@ impl FightSimulator {
         }
     }
 
+    /// Compute a BuffedContext by applying active buff stat bonuses on top of base effective_stats.
+    fn compute_buffed_context(&self, active_buffs: &[ActiveBuff]) -> BuffedContext {
+        let mut stats = self.effective_stats.clone();
+
+        // Pass 1: apply flat stat buffs
+        for buff in active_buffs {
+            match buff.target {
+                BonusTarget::WeaponAndSpellDamageFlat => {
+                    stats.weapon_damage += buff.value;
+                    stats.spell_damage += buff.value;
+                }
+                BonusTarget::CriticalDamage => {
+                    stats.critical_damage += buff.value;
+                }
+                BonusTarget::CriticalRating
+                | BonusTarget::WeaponCriticalRating
+                | BonusTarget::SpellCriticalRating => {
+                    stats.critical_rating += buff.value;
+                }
+                BonusTarget::PhysicalAndSpellPenetration
+                | BonusTarget::EnemyResistanceReduction => {
+                    stats.penetration += buff.value;
+                }
+                _ => {}
+            }
+        }
+
+        // Pass 2: apply percentage multipliers after flats
+        for buff in active_buffs {
+            match buff.target {
+                BonusTarget::WeaponDamage => {
+                    stats.weapon_damage *= 1.0 + buff.value;
+                }
+                BonusTarget::SpellDamage => {
+                    stats.spell_damage *= 1.0 + buff.value;
+                }
+                BonusTarget::WeaponAndSpellDamageMultiplier => {
+                    stats.weapon_damage *= 1.0 + buff.value;
+                    stats.spell_damage *= 1.0 + buff.value;
+                }
+                _ => {}
+            }
+        }
+
+        stats.clamp_caps();
+
+        let armor_factor = crate::domain::formulas::armor_damage_factor(
+            stats.target_armor,
+            stats.penetration,
+        );
+        let crit_mult = crate::domain::formulas::critical_multiplier(
+            stats.critical_chance(),
+            stats.critical_damage,
+        );
+
+        BuffedContext {
+            max_stat: stats.max_stat(),
+            max_power: stats.max_power(),
+            armor_factor,
+            crit_mult,
+        }
+    }
+
+    /// Sum damage modifier values from active buffs matching given DamageFlags.
+    fn compute_buff_modifier_for_flags(
+        &self,
+        flags: DamageFlags,
+        active_buffs: &[ActiveBuff],
+    ) -> f64 {
+        active_buffs
+            .iter()
+            .filter(|b| flags.matches_bonus_target(b.target))
+            .map(|b| b.value)
+            .sum()
+    }
+
+    /// Register permanent buffs from AbilitySlotted bonuses on all skills.
+    fn register_ability_slotted_buffs(
+        &self,
+        state: &mut SimState,
+        distribution: &BarDistribution,
+    ) {
+        for skill in distribution
+            .bar1
+            .skills
+            .iter()
+            .chain(distribution.bar2.skills.iter())
+        {
+            if let Some(bonuses) = &skill.bonuses {
+                let ctx = ResolveContext::new(self.effective_stats.clone());
+                for bonus in bonuses {
+                    if bonus.trigger != BonusTrigger::AbilitySlotted {
+                        continue;
+                    }
+                    let bv = bonus.resolve(&ctx);
+                    // Deduplicate by bonus name
+                    if !state.active_buffs.iter().any(|b| b.name == bv.name) {
+                        state.active_buffs.push(ActiveBuff {
+                            name: bv.name,
+                            source_skill_name: skill.name.clone(),
+                            remaining_duration: None, // permanent
+                            target: bv.target,
+                            value: bv.value,
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    /// Register/refresh buffs from Cast-triggered bonuses when a skill is cast.
+    fn register_cast_buffs(&self, state: &mut SimState, skill: &SkillData) {
+        if let Some(bonuses) = &skill.bonuses {
+            let ctx = ResolveContext::new(self.effective_stats.clone());
+            for bonus in bonuses {
+                if bonus.trigger != BonusTrigger::Cast {
+                    continue;
+                }
+                let duration = match bonus.duration {
+                    Some(d) => d,
+                    None => continue, // Cast buffs without duration are ignored
+                };
+                let bv = bonus.resolve(&ctx);
+                // Refresh existing buff or add new one
+                if let Some(existing) = state.active_buffs.iter_mut().find(|b| b.name == bv.name) {
+                    existing.remaining_duration = Some(duration);
+                    existing.value = bv.value;
+                    existing.source_skill_name = skill.name.clone();
+                } else {
+                    state.active_buffs.push(ActiveBuff {
+                        name: bv.name,
+                        source_skill_name: skill.name.clone(),
+                        remaining_duration: Some(duration),
+                        target: bv.target,
+                        value: bv.value,
+                    });
+                }
+            }
+        }
+    }
+
     fn advance_time(
         &self,
         state: &mut SimState,
         target_time: f64,
-        _max_stat: f64,
-        _max_power: f64,
     ) {
         let dt = target_time - state.time;
         if dt <= 0.0 {
             return;
         }
 
-        // Tick all active DoT effects
+        // Expire buffs (before ticking DoTs — DoTs already snapshotted so order doesn't matter)
+        state.active_buffs.retain_mut(|buff| {
+            match &mut buff.remaining_duration {
+                None => true, // permanent buffs never expire
+                Some(remaining) => {
+                    *remaining -= dt;
+                    *remaining > 0.0
+                }
+            }
+        });
+
+        // Tick all active DoT effects (using snapshotted values)
         let mut effects_to_remove = Vec::new();
         for (idx, effect) in state.active_effects.iter_mut().enumerate() {
             effect.remaining_duration -= dt;
@@ -249,20 +432,17 @@ impl FightSimulator {
 
             // Process any ticks that occurred during this time window
             while effect.next_tick_in <= 0.0 && effect.tick_count < effect.total_ticks {
-                let modifier = if effect.ignores_modifier {
-                    0.0
-                } else {
-                    self.compute_modifier_for_flags(effect.flags, None)
-                };
-
                 let pct_mult = 1.0 + (effect.tick_count as f64) * effect.increase_per_tick;
                 let flat_inc = (effect.tick_count as f64) * effect.flat_increase_per_tick;
                 let tick_damage = effect.base_value * pct_mult + flat_inc;
 
                 let final_damage = if effect.ignores_modifier {
-                    tick_damage * self.armor_factor * self.crit_mult
+                    tick_damage * effect.snapshotted_armor_factor * effect.snapshotted_crit_mult
                 } else {
-                    tick_damage * (1.0 + modifier) * self.armor_factor * self.crit_mult
+                    tick_damage
+                        * (1.0 + effect.snapshotted_modifier)
+                        * effect.snapshotted_armor_factor
+                        * effect.snapshotted_crit_mult
                 };
 
                 state.remaining_hp -= final_damage;
@@ -341,6 +521,34 @@ impl FightSimulator {
         Action::BarSwap
     }
 
+    /// Check if a skill has an active effect (DoT) or active buff sourced from it.
+    fn skill_has_active_presence(&self, state: &SimState, skill: &SkillData) -> bool {
+        let has_active_effect = state
+            .active_effects
+            .iter()
+            .any(|e| e.source_skill_name == skill.name && e.remaining_duration > 0.0);
+        let has_active_buff = state.active_buffs.iter().any(|b| {
+            b.source_skill_name == skill.name
+                && b.remaining_duration.map_or(false, |d| d > 0.0)
+        });
+        has_active_effect || has_active_buff
+    }
+
+    /// Check if a skill has an active effect/buff with enough remaining duration
+    /// to survive a bar swap + one GCD.
+    fn skill_has_durable_presence(&self, state: &SimState, skill: &SkillData) -> bool {
+        let threshold = BAR_SWAP_DELAY + GCD;
+        let has_durable_effect = state
+            .active_effects
+            .iter()
+            .any(|e| e.source_skill_name == skill.name && e.remaining_duration > threshold);
+        let has_durable_buff = state.active_buffs.iter().any(|b| {
+            b.source_skill_name == skill.name
+                && b.remaining_duration.map_or(false, |d| d > threshold)
+        });
+        has_durable_effect || has_durable_buff
+    }
+
     fn find_expired_dot_skill(
         &self,
         state: &SimState,
@@ -352,13 +560,9 @@ impl FightSimulator {
             if !self.skill_has_dot_or_buff(skill) {
                 continue;
             }
-            // Check if this skill's effects have expired
-            let has_active_effect = state.active_effects.iter().any(|e| {
-                e.source_skill_name == skill.name && e.remaining_duration > 0.0
-            });
-
-            if !has_active_effect {
-                // Check if it was ever applied (has entry in damage tracking)
+            // Check if this skill's effects/buffs have expired
+            if !self.skill_has_active_presence(state, skill) {
+                // Check if it was ever applied (has entry in damage tracking or was cast)
                 let was_applied = state.skill_damage.contains_key(&skill.name);
                 if was_applied {
                     let dpc = self.estimate_skill_dpc(skill);
@@ -383,12 +587,10 @@ impl FightSimulator {
             if !self.skill_has_dot_or_buff(skill) {
                 continue;
             }
-            let has_active_effect = state.active_effects.iter().any(|e| {
-                e.source_skill_name == skill.name
-            });
+            let has_presence = self.skill_has_active_presence(state, skill);
             let was_cast = state.skill_damage.contains_key(&skill.name);
 
-            if !has_active_effect && !was_cast {
+            if !has_presence && !was_cast {
                 let dpc = self.estimate_skill_dpc(skill);
                 if best.map_or(true, |(_, best_dpc)| dpc > best_dpc) {
                     best = Some((idx, dpc));
@@ -408,10 +610,7 @@ impl FightSimulator {
             if !self.skill_has_dot_or_buff(skill) {
                 continue;
             }
-            let has_active = state.active_effects.iter().any(|e| {
-                e.source_skill_name == skill.name && e.remaining_duration > BAR_SWAP_DELAY + GCD
-            });
-            if !has_active {
+            if !self.skill_has_durable_presence(state, skill) {
                 return true;
             }
         }
@@ -485,9 +684,12 @@ impl FightSimulator {
         skill.calculate_damage_per_cast(&self.resolved_bonuses, &self.effective_stats, None)
     }
 
-    fn calc_skill_hits(&self, skill: &SkillData) -> f64 {
-        let max_stat = self.effective_stats.max_stat();
-        let max_power = self.effective_stats.max_power();
+    fn calc_skill_hits(
+        &self,
+        skill: &SkillData,
+        buffed: &BuffedContext,
+        active_buffs: &[ActiveBuff],
+    ) -> f64 {
         let mut total = 0.0;
 
         if let Some(damage) = &skill.damage {
@@ -499,9 +701,9 @@ impl FightSimulator {
                     let modifier = self.compute_modifier_for_flags(
                         hit.flags,
                         Some(skill.skill_line),
-                    );
-                    let base = hit.effective_value(max_stat, max_power);
-                    total += base * (1.0 + modifier) * self.armor_factor * self.crit_mult;
+                    ) + self.compute_buff_modifier_for_flags(hit.flags, active_buffs);
+                    let base = hit.effective_value(buffed.max_stat, buffed.max_power);
+                    total += base * (1.0 + modifier) * buffed.armor_factor * buffed.crit_mult;
                 }
             }
         }

@@ -32,7 +32,7 @@ impl ModifierLookup {
                 continue;
             }
             match b.target {
-                BonusTarget::Damage => damage_sum += b.value,
+                BonusTarget::Damage | BonusTarget::EnemyDamageTaken => damage_sum += b.value,
                 BonusTarget::PhysicalDamage => bit_sums[1] += b.value,
                 BonusTarget::FlameDamage => bit_sums[2] += b.value,
                 BonusTarget::FrostDamage => bit_sums[3] += b.value,

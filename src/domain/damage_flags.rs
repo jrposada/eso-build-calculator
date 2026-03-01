@@ -49,6 +49,7 @@ impl DamageFlags {
             BonusTarget::PhysicalDamage => self.contains(DamageFlags::PHYSICAL),
             BonusTarget::LightAttackDamage => self.contains(DamageFlags::DIRECT),
             BonusTarget::Damage => true,
+            BonusTarget::EnemyDamageTaken => true,
             _ => false,
         }
     }
