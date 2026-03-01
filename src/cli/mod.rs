@@ -3,6 +3,7 @@ pub mod calculate;
 pub mod convert;
 pub mod optimize;
 mod parsers;
+pub mod simulation_display;
 pub mod view;
 
 pub use build_config::BuildConfig;

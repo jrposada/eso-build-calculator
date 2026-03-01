@@ -704,6 +704,10 @@ impl Build {
 
 // Public getters
 impl Build {
+    pub fn skills(&self) -> &[&'static SkillData] {
+        &self.skills
+    }
+
     /// Get skill names for export
     pub fn skill_names(&self) -> Vec<String> {
         self.skills.iter().map(|s| s.name.clone()).collect()

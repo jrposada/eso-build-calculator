@@ -35,7 +35,9 @@ fn nightblade_bow_2h_all_cp_forced() {
         max_pool_size: None,
     });
 
-    let build = optimizer.find_optimal_build().expect("Should find a build");
+    let builds = optimizer.find_optimal_build();
+    assert!(!builds.is_empty(), "Should find a build");
+    let build = &builds[0];
 
     assert_eq!(
         build.total_damage_per_cast as u64, 14_173,
@@ -97,7 +99,9 @@ fn nightblade_bow_2h_one_cp_forced() {
         max_pool_size: None,
     });
 
-    let build = optimizer.find_optimal_build().expect("Should find a build");
+    let builds = optimizer.find_optimal_build();
+    assert!(!builds.is_empty(), "Should find a build");
+    let build = &builds[0];
 
     assert_eq!(
         build.total_damage_per_cast as u64, 14_326,

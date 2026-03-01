@@ -672,7 +672,7 @@ impl BuildOptimizer {
 
 // Optimize
 impl BuildOptimizer {
-    pub fn find_optimal_build(&self) -> Option<Build> {
+    pub fn find_optimal_build(&self) -> Vec<Build> {
         logger::log(&format!("Using {} threads...", self.parallelism));
 
         let start_time = Instant::now();
@@ -687,6 +687,7 @@ impl BuildOptimizer {
             .expect("Failed to create thread pool");
 
         // Lightweight candidate — stores indices for final Build reconstruction
+        #[derive(Clone)]
         struct Candidate {
             damage: f64,
             skills: SmallVec<[&'static SkillData; 10]>,
@@ -694,11 +695,55 @@ impl BuildOptimizer {
             sl_idx: usize,
         }
 
+        const TOP_N_CAPACITY: usize = 100;
+
+        struct TopN {
+            candidates: Vec<Candidate>,
+            capacity: usize,
+            min_damage: f64,
+        }
+
+        impl TopN {
+            fn new(capacity: usize) -> Self {
+                Self {
+                    candidates: Vec::with_capacity(capacity + 1),
+                    capacity,
+                    min_damage: f64::NEG_INFINITY,
+                }
+            }
+
+            fn try_insert(&mut self, candidate: Candidate) {
+                if self.candidates.len() >= self.capacity
+                    && candidate.damage <= self.min_damage
+                {
+                    return;
+                }
+                // Binary search for insertion point (descending order)
+                let pos = self
+                    .candidates
+                    .partition_point(|c| c.damage > candidate.damage);
+                self.candidates.insert(pos, candidate);
+                if self.candidates.len() > self.capacity {
+                    self.candidates.pop();
+                }
+                if self.candidates.len() >= self.capacity {
+                    self.min_damage = self.candidates.last().unwrap().damage;
+                }
+            }
+
+            fn merge(mut self, other: TopN) -> TopN {
+                for c in other.candidates {
+                    self.try_insert(c);
+                }
+                self
+            }
+        }
+
         // Pre-collect lightweight work units to avoid par_bridge() mutex contention.
         // Each work unit is (cp_idx, skill_line_idx, spammable_idx) — a few KB total.
         let work_units = self.collect_work_units();
 
-        let best_candidate: Option<Candidate> = pool.install(|| {
+        let best_candidates: Option<TopN> = pool.install(|| {
             work_units
                 .par_iter()
                 .map(|&(sl_idx, spam_idx)| {
@@ -707,26 +752,19 @@ impl BuildOptimizer {
                     let spammable_skill = self.spammable_skills[sl_idx][spam_idx];
                     let non_spammable = &self.non_spammable_skills[sl_idx];
 
-                    let mut local_best = Candidate {
-                        damage: f64::NEG_INFINITY,
-                        skills: SmallVec::new(),
-                        cp_idx: 0,
-                        sl_idx,
-                    };
+                    let mut top_n = TopN::new(TOP_N_CAPACITY);
 
-                    // Track progress and update local best for a single evaluation
+                    // Track progress and update top-N for a single evaluation
                     let mut track = |damage: f64,
                                      combo: &SmallVec<[&'static SkillData; 10]>,
                                      cp_idx: usize| {
                         let count = evaluated_count.fetch_add(1, Ordering::Relaxed) + 1;
-                        if damage > local_best.damage {
-                            local_best = Candidate {
-                                damage,
-                                skills: combo.clone(),
-                                cp_idx,
-                                sl_idx,
-                            };
-                        }
+                        top_n.try_insert(Candidate {
+                            damage,
+                            skills: combo.clone(),
+                            cp_idx,
+                            sl_idx,
+                        });
                         let _ = best_damage.fetch_max(damage.to_bits(), Ordering::Relaxed);
                         if count % 1_000_000 == 0 {
                             let last = last_progress_update.swap(count, Ordering::Relaxed);
@@ -950,9 +988,9 @@ impl BuildOptimizer {
                         }
                     }
 
-                    local_best
+                    top_n
                 })
-                .reduce_with(|a, b| if a.damage > b.damage { a } else { b })
+                .reduce_with(|a, b| a.merge(b))
         });
 
         let total_evaluated = evaluated_count.load(Ordering::Relaxed);
@@ -964,18 +1002,25 @@ impl BuildOptimizer {
             elapsed.as_secs_f64()
         ));
 
-        // Construct the full Build only for the winner using original BonusData
-        best_candidate.map(|c| {
-            let cp_bonuses = &self.champion_point_original[c.cp_idx];
-            let passive_bonuses = &self.passive_original[c.sl_idx];
+        // Construct full Builds for the top-N candidates using original BonusData
+        match best_candidates {
+            Some(top) => top
+                .candidates
+                .into_iter()
+                .map(|c| {
+                    let cp_bonuses = &self.champion_point_original[c.cp_idx];
+                    let passive_bonuses = &self.passive_original[c.sl_idx];
 
-            Build::new(
-                c.skills.to_vec(),
-                cp_bonuses,
-                passive_bonuses,
-                self.character_stats.clone(),
-            )
-        })
+                    Build::new(
+                        c.skills.to_vec(),
+                        cp_bonuses,
+                        passive_bonuses,
+                        self.character_stats.clone(),
+                    )
+                })
+                .collect(),
+            None => Vec::new(),
+        }
     }
 
     /// Pre-collect lightweight work unit indices: (skill_line_idx, spammable_idx).

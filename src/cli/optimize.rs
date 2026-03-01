@@ -5,10 +5,13 @@ use std::time::Instant;
 
 use super::build_config::BuildConfig;
 use super::parsers::{parse_champion_point, parse_class_name, parse_skill, parse_weapon_skill_line};
-use crate::domain::{CharacterStats, SkillData, ATTRIBUTE_POINTS_BONUS, BUILD_CONSTRAINTS};
+use super::simulation_display::display_simulation_result;
+use crate::domain::{CharacterStats, SkillData, WeaponType, ATTRIBUTE_POINTS_BONUS, BUILD_CONSTRAINTS};
 use crate::domain::{ClassName, SkillLineName};
 use crate::infrastructure::logger;
-use crate::services::{BuildOptimizer, BuildOptimizerOptions};
+use crate::services::{
+    generate_distributions, infer_weapons, BuildOptimizer, BuildOptimizerOptions, FightSimulator,
+};
 use clap::Args;
 
 /// Optimize build command arguments
@@ -57,6 +60,14 @@ pub struct OptimizeArgs {
     /// Allocate 64 attribute points to stamina
     #[arg(long, conflicts_with = "magicka")]
     pub stamina: bool,
+
+    /// Bar 1 weapon type for fight simulation (e.g., inferno-staff, bow)
+    #[arg(long, value_parser = WeaponType::parse)]
+    pub bar1_weapon: Option<WeaponType>,
+
+    /// Bar 2 weapon type for fight simulation (e.g., inferno-staff, bow)
+    #[arg(long, value_parser = WeaponType::parse)]
+    pub bar2_weapon: Option<WeaponType>,
 }
 
 impl OptimizeArgs {
@@ -130,23 +141,107 @@ impl OptimizeArgs {
         });
 
         let start = Instant::now();
-        let build = optimizer.find_optimal_build();
+        let builds = optimizer.find_optimal_build();
         let elapsed = start.elapsed();
 
-        match build {
-            Some(b) => {
-                logger::info(&b.to_string());
-                logger::info(&format!("Optimization completed in {:.2?}", elapsed));
-                Self::prompt_export(&b);
+        if builds.is_empty() {
+            logger::error("No valid build found with the given constraints.");
+            std::process::exit(1);
+        }
+
+        // Display top-1 build by damage-per-cast
+        let best_build = &builds[0];
+        logger::info(&best_build.to_string());
+        logger::info(&format!("Optimization completed in {:.2?}", elapsed));
+
+        // --- Fight simulation on top candidates ---
+        self.run_simulation(&builds);
+
+        Self::prompt_export(best_build, self.bar1_weapon, self.bar2_weapon);
+    }
+
+    fn run_simulation(&self, builds: &[crate::domain::Build]) {
+        // Determine weapon types from CLI args or infer from the top build
+        let (bar1_weapon, bar2_weapon) = match (self.bar1_weapon, self.bar2_weapon) {
+            (Some(w1), Some(w2)) => (w1, w2),
+            (Some(w1), None) => (w1, w1),
+            (None, Some(w2)) => (w2, w2),
+            (None, None) => {
+                let top_skills = builds[0].skills();
+                match infer_weapons(top_skills) {
+                    Ok(weapons) => weapons,
+                    Err(e) => {
+                        logger::warn(&format!(
+                            "Could not infer weapons for simulation: {}. Skipping fight simulation.",
+                            e
+                        ));
+                        return;
+                    }
+                }
             }
-            None => {
-                logger::error("No valid build found with the given constraints.");
-                std::process::exit(1);
+        };
+
+        logger::info(&format!(
+            "Running fight simulation on top {} candidates (Bar1: {}, Bar2: {})...",
+            builds.len(),
+            bar1_weapon,
+            bar2_weapon
+        ));
+
+        let sim_start = Instant::now();
+
+        let mut best_dps = f64::NEG_INFINITY;
+        let mut best_build_idx = 0;
+        let mut best_dist_idx = 0;
+        let mut best_result = None;
+        let mut best_distributions = None;
+
+        for (build_idx, build) in builds.iter().enumerate() {
+            let skills = build.skills();
+            let distributions = generate_distributions(skills, bar1_weapon, bar2_weapon);
+
+            if distributions.is_empty() {
+                continue;
             }
+
+            let effective_stats = build.effective_stats();
+            let resolved_bonuses = build.resolved_bonuses();
+            let simulator = FightSimulator::new(effective_stats, resolved_bonuses);
+
+            for (dist_idx, dist) in distributions.iter().enumerate() {
+                let result = simulator.simulate(dist);
+                if result.dps > best_dps {
+                    best_dps = result.dps;
+                    best_build_idx = build_idx;
+                    best_dist_idx = dist_idx;
+                    best_result = Some(result);
+                    best_distributions = Some(distributions.clone());
+                }
+            }
+        }
+
+        let sim_elapsed = sim_start.elapsed();
+
+        if let (Some(result), Some(distributions)) = (best_result, best_distributions) {
+            if best_build_idx > 0 {
+                logger::info(&format!(
+                    "Simulation selected build #{} (of {} candidates) as best DPS.",
+                    best_build_idx + 1,
+                    builds.len()
+                ));
+                logger::info(&builds[best_build_idx].to_string());
+            }
+            let best_dist = &distributions[best_dist_idx];
+            display_simulation_result(&result, best_dist, distributions.len());
+            logger::info(&format!("Simulation completed in {:.2?}", sim_elapsed));
         }
     }
 
-    fn prompt_export(build: &crate::domain::Build) {
+    fn prompt_export(
+        build: &crate::domain::Build,
+        bar1_weapon: Option<WeaponType>,
+        bar2_weapon: Option<WeaponType>,
+    ) {
         // Show prompt with greyed-out default value "no"
         print!("\nExport build to file? [path/no]: \x1b[90mn\x1b[0m");
         // Move cursor back over the default value so user input overwrites it
@@ -167,8 +262,8 @@ impl OptimizeArgs {
         let config = BuildConfig {
             skills: build.skill_names(),
             champion_points: build.champion_point_names(),
-            bar1_weapon: None,
-            bar2_weapon: None,
+            bar1_weapon: bar1_weapon.map(|w| w.to_string()),
+            bar2_weapon: bar2_weapon.map(|w| w.to_string()),
         };
 
         match serde_json::to_string_pretty(&config) {
