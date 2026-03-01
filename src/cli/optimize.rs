@@ -167,6 +167,8 @@ impl OptimizeArgs {
         let config = BuildConfig {
             skills: build.skill_names(),
             champion_points: build.champion_point_names(),
+            bar1_weapon: None,
+            bar2_weapon: None,
         };
 
         match serde_json::to_string_pretty(&config) {

@@ -709,6 +709,14 @@ impl Build {
         self.skills.iter().map(|s| s.name.clone()).collect()
     }
 
+    pub fn effective_stats(&self) -> &CharacterStats {
+        &self.effective_stats
+    }
+
+    pub fn resolved_bonuses(&self) -> &[BonusData] {
+        &self.resolved_bonuses
+    }
+
     /// Get champion point names for export
     pub fn champion_point_names(&self) -> Vec<String> {
         self.resolved_bonuses

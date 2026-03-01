@@ -22,6 +22,8 @@ pub struct SkillData {
     pub bonuses: Option<Vec<BonusData>>,
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub spammable: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cooldown: Option<f64>,
 }
 
 // Builder
@@ -44,6 +46,7 @@ impl SkillData {
             execute: None,
             bonuses: None,
             spammable: false,
+            cooldown: None,
         }
     }
 
@@ -74,6 +77,11 @@ impl SkillData {
 
     pub fn with_spammable(mut self) -> Self {
         self.spammable = true;
+        self
+    }
+
+    pub fn with_cooldown(mut self, cooldown: f64) -> Self {
+        self.cooldown = Some(cooldown);
         self
     }
 }

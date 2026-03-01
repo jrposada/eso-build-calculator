@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 use super::class_name::ClassName;
+use super::weapon_type::WeaponType;
 
 /// Skill line names for all classes and weapons
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -192,6 +193,18 @@ impl SkillLineName {
                 | SkillLineName::Undaunted
                 | SkillLineName::PsijicOrder
         )
+    }
+
+    /// Get the default weapon type for weapon skill lines.
+    /// Returns `None` for non-weapon skill lines.
+    pub fn default_weapon_type(&self) -> Option<WeaponType> {
+        match self {
+            SkillLineName::Bow => Some(WeaponType::Bow),
+            SkillLineName::TwoHanded => Some(WeaponType::TwoHandedSword),
+            SkillLineName::DestructionStaff => Some(WeaponType::InfernoStaff),
+            SkillLineName::DualWield => Some(WeaponType::DualWieldDagger),
+            _ => None,
+        }
     }
 
     /// Get all skill lines for a given class

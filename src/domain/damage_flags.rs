@@ -47,6 +47,7 @@ impl DamageFlags {
             BonusTarget::FrostDamage => self.contains(DamageFlags::FROST),
             BonusTarget::ShockDamage => self.contains(DamageFlags::SHOCK),
             BonusTarget::PhysicalDamage => self.contains(DamageFlags::PHYSICAL),
+            BonusTarget::LightAttackDamage => self.contains(DamageFlags::DIRECT),
             BonusTarget::Damage => true,
             _ => false,
         }
