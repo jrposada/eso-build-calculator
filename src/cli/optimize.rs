@@ -161,12 +161,21 @@ impl OptimizeArgs {
         logger::info(&format!("Optimization completed in {:.2?}", elapsed));
 
         // --- Fight simulation on top candidates ---
-        self.run_simulation(&builds);
+        let sim_result = self.run_simulation(&builds);
 
-        Self::prompt_export(best_build, self.bar1_weapon, self.bar2_weapon);
+        // Use the build selected by simulation (if any), otherwise fall back to DPC-best
+        let export_build = sim_result
+            .as_ref()
+            .map(|(build_idx, _, _)| &builds[*build_idx])
+            .unwrap_or(best_build);
+        let sim_data = sim_result.as_ref().map(|(_, dist, result)| (dist, result));
+        Self::prompt_export(export_build, self.bar1_weapon, self.bar2_weapon, sim_data);
     }
 
-    fn run_simulation(&self, builds: &[crate::domain::Build]) {
+    fn run_simulation(
+        &self,
+        builds: &[crate::domain::Build],
+    ) -> Option<(usize, BarDistribution, SimulationResult)> {
         // Determine weapon types from CLI args or infer from the top build
         let (bar1_weapon, bar2_weapon) = match (self.bar1_weapon, self.bar2_weapon) {
             (Some(w1), Some(w2)) => (w1, w2),
@@ -181,7 +190,7 @@ impl OptimizeArgs {
                             "Could not infer weapons for simulation: {}. Skipping fight simulation.",
                             e
                         ));
-                        return;
+                        return None;
                     }
                 }
             }
@@ -285,13 +294,17 @@ impl OptimizeArgs {
             let best_dist = &distributions[best_dist_idx];
             display_simulation_result(&result, best_dist, distributions.len());
             logger::info(&format!("Simulation completed in {:.2?}", sim_elapsed));
+            return Some((best_build_idx, best_dist.clone(), result));
         }
+
+        None
     }
 
     fn prompt_export(
         build: &crate::domain::Build,
         bar1_weapon: Option<WeaponType>,
         bar2_weapon: Option<WeaponType>,
+        simulation: Option<(&BarDistribution, &SimulationResult)>,
     ) {
         // Show prompt with greyed-out default value "no"
         print!("\nExport build to file? [path/no]: \x1b[90mn\x1b[0m");
@@ -309,12 +322,23 @@ impl OptimizeArgs {
             return;
         }
 
+        let metadata = simulation.map(|(dist, result)| {
+            super::build_config::BuildMetadata {
+                dps: result.dps,
+                total_damage: result.total_damage,
+                fight_duration: result.fight_duration,
+                bar1_skills: dist.bar1.skills.iter().map(|s| s.name.to_string()).collect(),
+                bar2_skills: dist.bar2.skills.iter().map(|s| s.name.to_string()).collect(),
+            }
+        });
+
         let path = PathBuf::from(input);
         let config = BuildConfig {
             skills: build.skill_names(),
             champion_points: build.champion_point_names(),
             bar1_weapon: bar1_weapon.map(|w| w.to_string()),
             bar2_weapon: bar2_weapon.map(|w| w.to_string()),
+            metadata,
         };
 
         match serde_json::to_string_pretty(&config) {

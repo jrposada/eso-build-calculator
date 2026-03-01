@@ -50,12 +50,15 @@ pub struct BuildOptimizer {
 
     /// Required non-spammable skills prepended to every combination
     required_non_spammable: Vec<&'static SkillData>,
+    /// Required finisher skill (if any) — always included in builds
+    required_finisher: Option<&'static SkillData>,
 
     /// Pre-split champion point combinations: (pre_resolved, ability_count, alt)
     champion_point_combinations: Vec<PreSplitBonuses>,
     /// Original champion point BonusData for final Build reconstruction
     champion_point_original: Vec<Vec<BonusData>>,
     spammable_skills: Vec<Vec<&'static SkillData>>,
+    finisher_skills: Vec<Vec<&'static SkillData>>,
     non_spammable_skills: Vec<Vec<&'static SkillData>>,
     /// Pre-split passive bonus lists: (pre_resolved, ability_count, alt)
     passive_bonuses_list: Vec<PreSplitBonuses>,
@@ -109,8 +112,9 @@ impl BuildOptimizer {
             }
         }
 
-        // Classify required skills into spammable vs non-spammable
+        // Classify required skills into spammable / finisher / non-spammable
         let mut required_spammable: Option<&'static SkillData> = None;
+        let mut required_finisher: Option<&'static SkillData> = None;
         let mut required_non_spammable: Vec<&'static SkillData> = Vec::new();
         let required_skill_names: Vec<String> = options
             .required_skills
@@ -119,14 +123,22 @@ impl BuildOptimizer {
             .collect();
 
         for skill in &options.required_skills {
-            if skill.spammable && skill.bonuses.is_none() {
+            if skill.spammable && skill.bonuses.is_none() && skill.execute.is_none() {
                 if required_spammable.is_some() {
                     logger::error(
-                        "At most 1 pure spammable skill can be required (spammable with no bonuses)",
+                        "At most 1 pure spammable skill can be required (spammable with no bonuses and no execute)",
                     );
                     std::process::exit(1);
                 }
                 required_spammable = Some(skill);
+            } else if skill.spammable && skill.bonuses.is_none() && skill.execute.is_some() {
+                if required_finisher.is_some() {
+                    logger::error(
+                        "At most 1 finisher skill can be required (spammable with execute and no bonuses)",
+                    );
+                    std::process::exit(1);
+                }
+                required_finisher = Some(skill);
             } else {
                 required_non_spammable.push(skill);
             }
@@ -181,6 +193,11 @@ impl BuildOptimizer {
             &skills_service,
             &mut skill_names,
         );
+        let mut finisher_skills = Self::generate_finisher_skills(
+            &skill_line_combinations,
+            &skills_service,
+            &mut skill_names,
+        );
         let mut non_spammable_skills = Self::generate_non_spammable_skills(
             &skill_line_combinations,
             &skills_service,
@@ -194,6 +211,17 @@ impl BuildOptimizer {
         if required_spammable.is_some() {
             let req = required_spammable.unwrap();
             for pool in &mut spammable_skills {
+                if pool.iter().any(|s| s.name == req.name) {
+                    *pool = vec![req];
+                } else {
+                    pool.clear();
+                }
+            }
+        }
+
+        if required_finisher.is_some() {
+            let req = required_finisher.unwrap();
+            for pool in &mut finisher_skills {
                 if pool.iter().any(|s| s.name == req.name) {
                     *pool = vec![req];
                 } else {
@@ -230,8 +258,10 @@ impl BuildOptimizer {
         let total_possible_build_count = Self::calculate_total_build_count(
             &champion_point_combinations,
             &spammable_skills,
+            &finisher_skills,
             &non_spammable_skills,
             required_non_spammable.len(),
+            required_finisher.is_some(),
         );
 
         let optimizer = Self {
@@ -246,9 +276,11 @@ impl BuildOptimizer {
             skill_names,
             parallelism,
             required_non_spammable,
+            required_finisher,
             champion_point_combinations,
             champion_point_original,
             spammable_skills,
+            finisher_skills,
             non_spammable_skills,
             passive_bonuses_list,
             passive_original,
@@ -463,7 +495,33 @@ impl BuildOptimizer {
                         let skills: Vec<_> = skills_service
                             .get_skills_by_skill_line(*skill_line)
                             .into_iter()
-                            .filter(|s| s.spammable && s.bonuses.is_none())
+                            .filter(|s| s.spammable && s.bonuses.is_none() && s.execute.is_none())
+                            .collect();
+                        for skill in &skills {
+                            skill_names.insert(skill.name.clone());
+                        }
+                        skills
+                    })
+                    .collect()
+            })
+            .collect()
+    }
+
+    fn generate_finisher_skills(
+        skill_line_combinations: &[Vec<SkillLineName>],
+        skills_service: &SkillsService,
+        skill_names: &mut HashSet<String>,
+    ) -> Vec<Vec<&'static SkillData>> {
+        skill_line_combinations
+            .iter()
+            .map(|skill_line_combination| {
+                skill_line_combination
+                    .iter()
+                    .flat_map(|skill_line| {
+                        let skills: Vec<_> = skills_service
+                            .get_skills_by_skill_line(*skill_line)
+                            .into_iter()
+                            .filter(|s| s.spammable && s.bonuses.is_none() && s.execute.is_some())
                             .collect();
                         for skill in &skills {
                             skill_names.insert(skill.name.clone());
@@ -653,16 +711,37 @@ impl BuildOptimizer {
     fn calculate_total_build_count(
         champion_point_combinations: &[PreSplitBonuses],
         spammable_skills: &[Vec<&'static SkillData>],
+        finisher_skills: &[Vec<&'static SkillData>],
         non_spammable_skills: &[Vec<&'static SkillData>],
         required_non_spammable_count: usize,
+        has_required_finisher: bool,
     ) -> u64 {
-        let free_slots = BUILD_CONSTRAINTS.skill_count - 1 - required_non_spammable_count;
+        let base_free_slots = BUILD_CONSTRAINTS.skill_count - 1 - required_non_spammable_count;
         let skill_combinations_count: u64 = spammable_skills
             .iter()
+            .zip(finisher_skills.iter())
             .zip(non_spammable_skills.iter())
-            .map(|(spammable, non_spammable)| {
-                spammable.len() as u64
-                    * combinatorics::count_combinations(non_spammable.len(), free_slots)
+            .map(|((spammable, finishers), non_spammable)| {
+                let mut count = 0u64;
+                let spam_count = spammable.len() as u64;
+                if has_required_finisher {
+                    // Only with-finisher builds (required finisher uses 1 slot)
+                    let free = base_free_slots - 1;
+                    count += spam_count
+                        * combinatorics::count_combinations(non_spammable.len(), free);
+                } else {
+                    // Without finisher: full free slots
+                    count += spam_count
+                        * combinatorics::count_combinations(non_spammable.len(), base_free_slots);
+                    // With each finisher: 1 fewer free slot
+                    if base_free_slots > 0 {
+                        let free = base_free_slots - 1;
+                        count += spam_count
+                            * finishers.len() as u64
+                            * combinatorics::count_combinations(non_spammable.len(), free);
+                    }
+                }
+                count
             })
             .sum();
 
@@ -746,11 +825,14 @@ impl BuildOptimizer {
         let best_candidates: Option<TopN> = pool.install(|| {
             work_units
                 .par_iter()
-                .map(|&(sl_idx, spam_idx)| {
+                .map(|&(sl_idx, spam_idx, fin_opt)| {
                     let (passive_pre_resolved, passive_ability_count, passive_alt) =
                         &self.passive_bonuses_list[sl_idx];
                     let spammable_skill = self.spammable_skills[sl_idx][spam_idx];
+                    let finisher_skill: Option<&'static SkillData> =
+                        fin_opt.map(|fi| self.finisher_skills[sl_idx][fi]);
                     let non_spammable = &self.non_spammable_skills[sl_idx];
+                    let has_finisher = finisher_skill.is_some();
 
                     let mut top_n = TopN::new(TOP_N_CAPACITY);
 
@@ -792,7 +874,9 @@ impl BuildOptimizer {
                     };
 
                     let req_count = self.required_non_spammable.len();
-                    let non_spam_count = BUILD_CONSTRAINTS.skill_count - 1;
+                    let non_spam_count = BUILD_CONSTRAINTS.skill_count
+                        - 1
+                        - has_finisher as usize;
                     let free_slots = non_spam_count - req_count;
 
                     if self.champion_point_combinations.len() > 1 {
@@ -820,11 +904,14 @@ impl BuildOptimizer {
                         );
 
                         while let Some(variable) = combo_iter.next() {
-                            // Build full combo: [required..., variable..., spammable]
+                            // Build full combo: [required..., variable..., finisher?, spammable]
                             let mut combo: SmallVec<[&'static SkillData; 10]> =
                                 SmallVec::new();
                             combo.extend_from_slice(&self.required_non_spammable);
                             combo.extend_from_slice(&variable);
+                            if let Some(fin) = finisher_skill {
+                                combo.push(fin);
+                            }
                             combo.push(spammable_skill);
 
                             let first_changed =
@@ -935,11 +1022,14 @@ impl BuildOptimizer {
                         );
 
                         while let Some(variable) = combo_iter.next() {
-                            // Build full combo: [required..., variable..., spammable]
+                            // Build full combo: [required..., variable..., finisher?, spammable]
                             let mut combo: SmallVec<[&'static SkillData; 10]> =
                                 SmallVec::new();
                             combo.extend_from_slice(&self.required_non_spammable);
                             combo.extend_from_slice(&variable);
+                            if let Some(fin) = finisher_skill {
+                                combo.push(fin);
+                            }
                             combo.push(spammable_skill);
 
                             let first_changed =
@@ -1023,13 +1113,23 @@ impl BuildOptimizer {
         }
     }
 
-    /// Pre-collect lightweight work unit indices: (skill_line_idx, spammable_idx).
+    /// Pre-collect lightweight work unit indices: (skill_line_idx, spammable_idx, Option<finisher_idx>).
     /// Skills are outermost; each work unit iterates all CP combos internally.
-    fn collect_work_units(&self) -> Vec<(usize, usize)> {
+    fn collect_work_units(&self) -> Vec<(usize, usize, Option<usize>)> {
         let mut units = Vec::new();
         for sl_idx in 0..self.spammable_skills.len() {
             for spam_idx in 0..self.spammable_skills[sl_idx].len() {
-                units.push((sl_idx, spam_idx));
+                if self.required_finisher.is_some() {
+                    // Required finisher: only generate with-finisher work units
+                    units.push((sl_idx, spam_idx, Some(0)));
+                } else {
+                    // No finisher: 9 non-spammable slots
+                    units.push((sl_idx, spam_idx, None));
+                    // With each finisher: 8 non-spammable slots
+                    for fin_idx in 0..self.finisher_skills[sl_idx].len() {
+                        units.push((sl_idx, spam_idx, Some(fin_idx)));
+                    }
+                }
             }
         }
         units

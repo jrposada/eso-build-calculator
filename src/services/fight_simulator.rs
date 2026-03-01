@@ -516,11 +516,17 @@ impl FightSimulator {
             return Action::BarSwap;
         }
 
-        // Priority 8: Current bar spammable or channeled filler
-        if let Some(idx) = current_skills
-            .iter()
-            .position(|s| s.spammable || s.channel_time.is_some())
-        {
+        // Priority 8a: Non-execute spammable or channeled filler
+        if let Some(idx) = current_skills.iter().position(|s| {
+            (s.spammable || s.channel_time.is_some()) && s.execute.is_none()
+        }) {
+            return Action::CastSkill(idx);
+        }
+
+        // Priority 8b: Execute spammable as fallback (above threshold, base damage only)
+        if let Some(idx) = current_skills.iter().position(|s| {
+            s.spammable && s.execute.is_some()
+        }) {
             return Action::CastSkill(idx);
         }
 

@@ -974,7 +974,9 @@ impl Build {
             .iter()
             .enumerate()
             .map(|(i, (skill, tooltip, effective))| {
-                let type_str = if skill.spammable {
+                let type_str = if skill.spammable && skill.execute.is_some() {
+                    format!("{} **", skill.mechanic())
+                } else if skill.spammable {
                     format!("{} *", skill.mechanic())
                 } else {
                     skill.mechanic().to_string()
@@ -1004,7 +1006,7 @@ impl Build {
                     table::ColumnDefinition::new("Damage", 10).align_right(),
                     table::ColumnDefinition::new("Eff. Damage", 12).align_right(),
                 ],
-                footer: Some("*Spammable skill".to_string()),
+                footer: Some("*Spammable skill  **Finisher skill".to_string()),
             },
         )
     }
