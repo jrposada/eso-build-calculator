@@ -17,7 +17,11 @@ pub fn display_simulation_result(
         "Fight Simulation Results".to_string(),
         divider.clone(),
         format!("Target:           21M HP Trial Dummy"),
-        format!("Fight Duration:   {:.1}s", result.fight_duration),
+        format!(
+            "Fight Duration:   {}:{:05.2}",
+            (result.fight_duration as u64) / 60,
+            result.fight_duration % 60.0
+        ),
         format!(
             "Total Damage:     {}",
             format::format_number(result.total_damage as u64)
