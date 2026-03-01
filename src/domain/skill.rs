@@ -106,17 +106,40 @@ impl SkillData {
 
         let mut total_damage_per_cast = 0.0;
 
+        let use_average = enemy_health.is_none();
         let ctx = ResolveContext::default();
         let applicable: Vec<_> = bonuses
             .iter()
             .filter(|b| {
                 b.skill_line_filter.map_or(true, |sl| sl == self.skill_line)
                     && match b.execute_threshold {
-                        Some(threshold) => enemy_health.map_or(false, |h| h <= threshold),
+                        Some(threshold) => {
+                            if use_average {
+                                true // included, weighted by threshold below
+                            } else {
+                                enemy_health.map_or(false, |h| h <= threshold)
+                            }
+                        }
                         None => true,
                     }
             })
-            .map(|b| b.resolve(&ctx))
+            .map(|b| {
+                let bv = b.resolve(&ctx);
+                let weighted_value = if use_average {
+                    if let Some(threshold) = b.execute_threshold {
+                        bv.value * threshold
+                    } else {
+                        bv.value
+                    }
+                } else {
+                    bv.value
+                };
+                super::bonus_value::BonusValue {
+                    name: bv.name,
+                    target: bv.target,
+                    value: weighted_value,
+                }
+            })
             .collect();
 
         if let Some(damage) = &self.damage {
@@ -129,13 +152,16 @@ impl SkillData {
                         .sum();
 
                     let hit_value = hit.effective_value(max_stat, max_power);
+                    let hit_dmg = hit_value * (1.0 + modifier);
 
                     if let Some(threshold) = hit.execute_threshold {
-                        if enemy_health.map_or(false, |h| h < threshold) {
-                            total_damage_per_cast += hit_value * (1.0 + modifier);
+                        if use_average {
+                            total_damage_per_cast += hit_dmg * threshold;
+                        } else if enemy_health.map_or(false, |h| h < threshold) {
+                            total_damage_per_cast += hit_dmg;
                         }
                     } else {
-                        total_damage_per_cast += hit_value * (1.0 + modifier);
+                        total_damage_per_cast += hit_dmg;
                     }
                 }
             }
@@ -171,7 +197,9 @@ impl SkillData {
         }
 
         if let Some(execute) = &self.execute {
-            if let Some(health) = enemy_health {
+            if use_average {
+                total_damage_per_cast *= execute.average_multiplier();
+            } else if let Some(health) = enemy_health {
                 total_damage_per_cast *= execute.calculate_multiplier(health);
             }
         }
@@ -199,14 +227,32 @@ impl SkillData {
 
         let mut total_damage_per_cast = 0.0;
 
+        let use_average = enemy_health.is_none();
         // Inline filter: avoid collecting into a Vec per skill
         let skill_line = self.skill_line;
         let is_applicable = |b: &ResolvedBonus| -> bool {
             b.skill_line_filter.map_or(true, |sl| sl == skill_line)
                 && match b.execute_threshold {
-                    Some(threshold) => enemy_health.map_or(false, |h| h <= threshold),
+                    Some(threshold) => {
+                        if use_average {
+                            true
+                        } else {
+                            enemy_health.map_or(false, |h| h <= threshold)
+                        }
+                    }
                     None => true,
                 }
+        };
+        let weighted_value = |b: &ResolvedBonus| -> f64 {
+            if use_average {
+                if let Some(threshold) = b.execute_threshold {
+                    b.value * threshold
+                } else {
+                    b.value
+                }
+            } else {
+                b.value
+            }
         };
 
         if let Some(damage) = &self.damage {
@@ -215,17 +261,20 @@ impl SkillData {
                     let modifier: f64 = bonuses
                         .iter()
                         .filter(|b| is_applicable(b) && hit.flags.matches_bonus_target(b.target))
-                        .map(|b| b.value)
+                        .map(|b| weighted_value(b))
                         .sum();
 
                     let hit_value = hit.effective_value(max_stat, max_power);
+                    let hit_dmg = hit_value * (1.0 + modifier);
 
                     if let Some(threshold) = hit.execute_threshold {
-                        if enemy_health.map_or(false, |h| h < threshold) {
-                            total_damage_per_cast += hit_value * (1.0 + modifier);
+                        if use_average {
+                            total_damage_per_cast += hit_dmg * threshold;
+                        } else if enemy_health.map_or(false, |h| h < threshold) {
+                            total_damage_per_cast += hit_dmg;
                         }
                     } else {
-                        total_damage_per_cast += hit_value * (1.0 + modifier);
+                        total_damage_per_cast += hit_dmg;
                     }
                 }
             }
@@ -235,7 +284,7 @@ impl SkillData {
                     let modifier: f64 = bonuses
                         .iter()
                         .filter(|b| is_applicable(b) && dot.flags.matches_bonus_target(b.target))
-                        .map(|b| b.value)
+                        .map(|b| weighted_value(b))
                         .sum();
 
                     let dot_value = dot.effective_value(max_stat, max_power);
@@ -261,7 +310,9 @@ impl SkillData {
         }
 
         if let Some(execute) = &self.execute {
-            if let Some(health) = enemy_health {
+            if use_average {
+                total_damage_per_cast *= execute.average_multiplier();
+            } else if let Some(health) = enemy_health {
                 total_damage_per_cast *= execute.calculate_multiplier(health);
             }
         }

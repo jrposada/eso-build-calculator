@@ -135,9 +135,11 @@ impl FightSimulator {
                     // Compute buffed context from current active buffs
                     let buffed = self.compute_buffed_context(&state.active_buffs);
 
+                    let health_pct = state.remaining_hp / self.target_hp;
+
                     // 1. Light attack damage (uses current buffs)
                     let la_data = light_attack_for_weapon(current_weapon);
-                    let la_modifier = self.compute_modifier_for_flags(la_data.flags, None)
+                    let la_modifier = self.compute_modifier_for_flags(la_data.flags, None, health_pct)
                         + self.compute_buff_modifier_for_flags(la_data.flags, &state.active_buffs);
                     let la_dmg = la_data.calculate_damage(
                         la_modifier,
@@ -159,14 +161,14 @@ impl FightSimulator {
                     let hit_dmg = if let Some(threshold) = skill.proc_light_attacks {
                         let counter = state.proc_counters.get(&skill.name).copied().unwrap_or(0);
                         if counter >= threshold {
-                            let dmg = self.calc_skill_hits(skill, &buffed, &state.active_buffs);
+                            let dmg = self.calc_skill_hits(skill, &buffed, &state.active_buffs, health_pct);
                             state.proc_counters.insert(skill.name.clone(), 0);
                             dmg
                         } else {
                             0.0
                         }
                     } else {
-                        self.calc_skill_hits(skill, &buffed, &state.active_buffs)
+                        self.calc_skill_hits(skill, &buffed, &state.active_buffs, health_pct)
                     };
                     state.remaining_hp -= hit_dmg;
 
@@ -186,11 +188,11 @@ impl FightSimulator {
                                 let total_ticks = (dot.duration / interval).floor() as i32;
                                 let delay = dot.delay.unwrap_or(0.0);
 
-                                // Snapshot modifier at cast time
+                                // Snapshot modifier at cast time (includes execute bonuses if currently in range)
                                 let snapshotted_modifier = if dot.ignores_modifier.unwrap_or(false) {
                                     0.0
                                 } else {
-                                    self.compute_modifier_for_flags(dot.flags, Some(skill.skill_line))
+                                    self.compute_modifier_for_flags(dot.flags, Some(skill.skill_line), health_pct)
                                         + self.compute_buff_modifier_for_flags(dot.flags, &state.active_buffs)
                                 };
 
@@ -477,6 +479,8 @@ impl FightSimulator {
         current_skills: &[&'static SkillData],
         other_skills: &[&'static SkillData],
     ) -> Action {
+        let health_pct = state.remaining_hp / self.target_hp;
+
         // Priority 1: Current bar expired DoTs/buffs — recast
         if let Some(idx) = self.find_expired_dot_skill(state, current_skills) {
             return Action::CastSkill(idx);
@@ -502,7 +506,17 @@ impl FightSimulator {
             return Action::BarSwap;
         }
 
-        // Priority 6: Current bar spammable or channeled filler
+        // Priority 6: Finisher on current bar when in execute range
+        if let Some(idx) = self.find_execute_filler(current_skills, health_pct) {
+            return Action::CastSkill(idx);
+        }
+
+        // Priority 7: Finisher on other bar when in execute range — swap
+        if self.other_bar_has_execute_filler(other_skills, health_pct) {
+            return Action::BarSwap;
+        }
+
+        // Priority 8: Current bar spammable or channeled filler
         if let Some(idx) = current_skills
             .iter()
             .position(|s| s.spammable || s.channel_time.is_some())
@@ -510,7 +524,7 @@ impl FightSimulator {
             return Action::CastSkill(idx);
         }
 
-        // Priority 7: Any skill with damage on current bar (exclude unready proc skills)
+        // Priority 9: Any skill with damage on current bar (exclude unready proc skills)
         if let Some(idx) = current_skills.iter().position(|s| {
             s.damage.is_some() && !self.is_unready_proc(state, s)
         }) {
@@ -684,26 +698,66 @@ impl FightSimulator {
         skill.calculate_damage_per_cast(&self.resolved_bonuses, &self.effective_stats, None)
     }
 
+    /// Find a finisher skill on the current bar whose execute threshold the enemy is below.
+    /// If multiple finishers qualify, pick the one with highest expected damage at current health.
+    fn find_execute_filler(
+        &self,
+        skills: &[&'static SkillData],
+        health_pct: f64,
+    ) -> Option<usize> {
+        let mut best: Option<(usize, f64)> = None;
+        for (idx, skill) in skills.iter().enumerate() {
+            if let Some(execute) = &skill.execute {
+                if health_pct < execute.threshold {
+                    let mult = execute.calculate_multiplier(health_pct);
+                    if best.map_or(true, |(_, best_mult)| mult > best_mult) {
+                        best = Some((idx, mult));
+                    }
+                }
+            }
+        }
+        best.map(|(idx, _)| idx)
+    }
+
+    /// Check if the other bar has a finisher skill whose execute threshold the enemy is below.
+    fn other_bar_has_execute_filler(
+        &self,
+        other_skills: &[&'static SkillData],
+        health_pct: f64,
+    ) -> bool {
+        other_skills.iter().any(|skill| {
+            skill.execute.as_ref().is_some_and(|e| health_pct < e.threshold)
+        })
+    }
+
     fn calc_skill_hits(
         &self,
         skill: &SkillData,
         buffed: &BuffedContext,
         active_buffs: &[ActiveBuff],
+        health_pct: f64,
     ) -> f64 {
         let mut total = 0.0;
 
         if let Some(damage) = &skill.damage {
             if let Some(hits) = &damage.hits {
                 for hit in hits {
-                    if hit.execute_threshold.is_some() {
-                        continue;
+                    if let Some(threshold) = hit.execute_threshold {
+                        if health_pct >= threshold {
+                            continue;
+                        }
                     }
                     let modifier = self.compute_modifier_for_flags(
                         hit.flags,
                         Some(skill.skill_line),
+                        health_pct,
                     ) + self.compute_buff_modifier_for_flags(hit.flags, active_buffs);
                     let base = hit.effective_value(buffed.max_stat, buffed.max_power);
-                    total += base * (1.0 + modifier) * buffed.armor_factor * buffed.crit_mult;
+                    let mut dmg = base * (1.0 + modifier) * buffed.armor_factor * buffed.crit_mult;
+                    if let Some(execute) = &skill.execute {
+                        dmg *= execute.calculate_multiplier(health_pct);
+                    }
+                    total += dmg;
                 }
             }
         }
@@ -715,6 +769,7 @@ impl FightSimulator {
         &self,
         flags: DamageFlags,
         skill_line: Option<SkillLineName>,
+        health_pct: f64,
     ) -> f64 {
         let ctx = ResolveContext::new(self.effective_stats.clone());
         self.resolved_bonuses
@@ -722,7 +777,7 @@ impl FightSimulator {
             .filter(|b| {
                 b.skill_line_filter
                     .map_or(true, |sl| skill_line.map_or(false, |s| s == sl))
-                    && b.execute_threshold.is_none()
+                    && b.execute_threshold.map_or(true, |t| health_pct < t)
             })
             .map(|b| {
                 let bv = b.resolve(&ctx);

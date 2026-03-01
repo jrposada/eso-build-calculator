@@ -21,26 +21,33 @@ pub(crate) struct ModifierLookup {
 
 impl ModifierLookup {
     /// Build lookup from bonuses, including only global bonuses
-    /// (no skill_line_filter, no execute_threshold). Filtered bonuses
-    /// must be collected and handled separately by the caller.
+    /// (no skill_line_filter). Execute-threshold bonuses are included
+    /// weighted by their threshold (proportion of fight time they are active).
+    /// Filtered bonuses (with skill_line_filter) must be collected and handled
+    /// separately by the caller.
     pub fn new(bonuses: &[ResolvedBonus]) -> Self {
         let mut damage_sum = 0.0;
         let mut bit_sums = [0.0; 12];
 
         for b in bonuses {
-            if b.skill_line_filter.is_some() || b.execute_threshold.is_some() {
+            if b.skill_line_filter.is_some() {
                 continue;
             }
+            let value = if let Some(threshold) = b.execute_threshold {
+                b.value * threshold
+            } else {
+                b.value
+            };
             match b.target {
-                BonusTarget::Damage | BonusTarget::EnemyDamageTaken => damage_sum += b.value,
-                BonusTarget::PhysicalDamage => bit_sums[1] += b.value,
-                BonusTarget::FlameDamage => bit_sums[2] += b.value,
-                BonusTarget::FrostDamage => bit_sums[3] += b.value,
-                BonusTarget::ShockDamage => bit_sums[4] += b.value,
-                BonusTarget::SingleDamage => bit_sums[8] += b.value,
-                BonusTarget::AoeDamage => bit_sums[9] += b.value,
-                BonusTarget::DirectDamage => bit_sums[10] += b.value,
-                BonusTarget::DotDamage => bit_sums[11] += b.value,
+                BonusTarget::Damage | BonusTarget::EnemyDamageTaken => damage_sum += value,
+                BonusTarget::PhysicalDamage => bit_sums[1] += value,
+                BonusTarget::FlameDamage => bit_sums[2] += value,
+                BonusTarget::FrostDamage => bit_sums[3] += value,
+                BonusTarget::ShockDamage => bit_sums[4] += value,
+                BonusTarget::SingleDamage => bit_sums[8] += value,
+                BonusTarget::AoeDamage => bit_sums[9] += value,
+                BonusTarget::DirectDamage => bit_sums[10] += value,
+                BonusTarget::DotDamage => bit_sums[11] += value,
                 _ => {}
             }
         }
@@ -282,8 +289,18 @@ impl Build {
         let lookup = ModifierLookup::new(&resolved);
         let filtered: SmallVec<[ResolvedBonus; 4]> = resolved
             .iter()
-            .filter(|b| b.skill_line_filter.is_some() && b.execute_threshold.is_none())
-            .copied()
+            .filter(|b| b.skill_line_filter.is_some())
+            .map(|b| {
+                if let Some(threshold) = b.execute_threshold {
+                    ResolvedBonus {
+                        value: b.value * threshold,
+                        execute_threshold: None,
+                        ..*b
+                    }
+                } else {
+                    *b
+                }
+            })
             .collect();
 
         let max_stat = effective_stats.max_stat();
@@ -300,6 +317,9 @@ impl Build {
     }
 
     /// Compute raw damage for a single skill (before armor_factor * crit_mult).
+    /// Execute-threshold hits are included weighted by their threshold (proportion
+    /// of fight time they are active). Skill-level execute average multiplier is
+    /// applied to the total.
     #[inline]
     pub(crate) fn single_skill_damage(skill: &SkillData, ctx: &EvalContext) -> f64 {
         let skill_line = skill.skill_line;
@@ -308,13 +328,15 @@ impl Build {
         if let Some(damage) = &skill.damage {
             if let Some(hits) = &damage.hits {
                 for hit in hits {
-                    if hit.execute_threshold.is_some() {
-                        continue;
-                    }
                     let modifier = ctx.lookup.modifier_for(hit.flags)
                         + Self::filtered_modifier(&ctx.filtered, skill_line, hit.flags);
                     let hit_value = hit.effective_value(ctx.max_stat, ctx.max_power);
-                    skill_damage += hit_value * (1.0 + modifier);
+                    let hit_dmg = hit_value * (1.0 + modifier);
+                    if let Some(threshold) = hit.execute_threshold {
+                        skill_damage += hit_dmg * threshold;
+                    } else {
+                        skill_damage += hit_dmg;
+                    }
                 }
             }
 
@@ -343,6 +365,10 @@ impl Build {
                     }
                 }
             }
+        }
+
+        if let Some(execute) = &skill.execute {
+            skill_damage *= execute.average_multiplier();
         }
 
         skill_damage
@@ -433,8 +459,18 @@ impl Build {
         let passive_lookup = ModifierLookup::new(&passive_resolved);
         let passive_filtered: SmallVec<[ResolvedBonus; 4]> = passive_resolved
             .iter()
-            .filter(|b| b.skill_line_filter.is_some() && b.execute_threshold.is_none())
-            .copied()
+            .filter(|b| b.skill_line_filter.is_some())
+            .map(|b| {
+                if let Some(threshold) = b.execute_threshold {
+                    ResolvedBonus {
+                        value: b.value * threshold,
+                        execute_threshold: None,
+                        ..*b
+                    }
+                } else {
+                    *b
+                }
+            })
             .collect();
 
         let mut hit_mods: SmallVec<[SmallVec<[f64; 4]>; 10]> = SmallVec::new();
@@ -545,8 +581,18 @@ impl Build {
         let lookup = ModifierLookup::new(&cp_resolved);
         let filtered: SmallVec<[ResolvedBonus; 4]> = cp_resolved
             .iter()
-            .filter(|b| b.skill_line_filter.is_some() && b.execute_threshold.is_none())
-            .copied()
+            .filter(|b| b.skill_line_filter.is_some())
+            .map(|b| {
+                if let Some(threshold) = b.execute_threshold {
+                    ResolvedBonus {
+                        value: b.value * threshold,
+                        execute_threshold: None,
+                        ..*b
+                    }
+                } else {
+                    *b
+                }
+            })
             .collect();
 
         let max_stat = effective_stats.max_stat();
@@ -563,6 +609,8 @@ impl Build {
     }
 
     /// Compute raw damage for a single skill using cached passive mods + CP eval context.
+    /// Execute-threshold hits are included weighted by their threshold.
+    /// Skill-level execute average multiplier is applied to the total.
     #[inline]
     pub(crate) fn single_skill_damage_cached(
         skill: &SkillData,
@@ -576,15 +624,17 @@ impl Build {
         if let Some(damage) = &skill.damage {
             if let Some(hits) = &damage.hits {
                 for (hit_idx, hit) in hits.iter().enumerate() {
-                    if hit.execute_threshold.is_some() {
-                        continue;
-                    }
                     let cp_modifier = cp_ctx.lookup.modifier_for(hit.flags)
                         + Self::filtered_modifier(&cp_ctx.filtered, skill_line, hit.flags);
                     let total_modifier =
                         passive_ctx.hit_mods[skill_idx][hit_idx] + cp_modifier;
                     let hit_value = hit.effective_value(cp_ctx.max_stat, cp_ctx.max_power);
-                    skill_damage += hit_value * (1.0 + total_modifier);
+                    let hit_dmg = hit_value * (1.0 + total_modifier);
+                    if let Some(threshold) = hit.execute_threshold {
+                        skill_damage += hit_dmg * threshold;
+                    } else {
+                        skill_damage += hit_dmg;
+                    }
                 }
             }
 
@@ -615,6 +665,10 @@ impl Build {
                     }
                 }
             }
+        }
+
+        if let Some(execute) = &skill.execute {
+            skill_damage *= execute.average_multiplier();
         }
 
         skill_damage
@@ -664,8 +718,18 @@ impl Build {
         let lookup = ModifierLookup::new(&passive_resolved);
         let filtered: SmallVec<[ResolvedBonus; 4]> = passive_resolved
             .iter()
-            .filter(|b| b.skill_line_filter.is_some() && b.execute_threshold.is_none())
-            .copied()
+            .filter(|b| b.skill_line_filter.is_some())
+            .map(|b| {
+                if let Some(threshold) = b.execute_threshold {
+                    ResolvedBonus {
+                        value: b.value * threshold,
+                        execute_threshold: None,
+                        ..*b
+                    }
+                } else {
+                    *b
+                }
+            })
             .collect();
         (lookup, filtered)
     }

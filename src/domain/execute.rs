@@ -30,6 +30,18 @@ impl ExecuteData {
         }
     }
 
+    /// Returns the fight-average execute multiplier, assuming uniform time
+    /// spent across the enemy health range (100% → 0%).
+    ///
+    /// - **Flat**: `1 + threshold * multiplier` (full bonus below threshold)
+    /// - **Linear**: `1 + threshold * multiplier / 2` (linearly increasing bonus)
+    pub fn average_multiplier(&self) -> f64 {
+        match self.scaling {
+            ExecuteScaling::Flat => 1.0 + self.threshold * self.multiplier,
+            ExecuteScaling::Linear => 1.0 + self.threshold * self.multiplier / 2.0,
+        }
+    }
+
     /// Calculate the damage multiplier based on enemy health percentage
     ///
     /// Returns 1.0 if enemy is above threshold, otherwise returns the execute multiplier
@@ -50,6 +62,22 @@ impl ExecuteData {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_flat_average_multiplier() {
+        // Assassin's Blade: 3.0 multiplier, 25% threshold, Flat
+        // 1 + 0.25 * 3.0 = 1.75
+        let execute = ExecuteData::new(3.0, 0.25, ExecuteScaling::Flat);
+        assert_eq!(execute.average_multiplier(), 1.75);
+    }
+
+    #[test]
+    fn test_linear_average_multiplier() {
+        // Killer's Blade: 4.0 multiplier, 50% threshold, Linear
+        // 1 + 0.50 * 4.0 / 2 = 2.0
+        let execute = ExecuteData::new(4.0, 0.50, ExecuteScaling::Linear);
+        assert_eq!(execute.average_multiplier(), 2.0);
+    }
 
     #[test]
     fn test_flat_execute_above_threshold() {
