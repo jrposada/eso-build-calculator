@@ -28,6 +28,8 @@ pub struct BuildOptimizerOptions {
     pub forced_morphs: Vec<String>,
     pub parallelism: u8,
     pub max_pool_size: Option<usize>,
+    pub set_bonuses: Vec<BonusData>,
+    pub set_names: Vec<String>,
 }
 
 /// Three-way split of bonuses for the optimizer fast path:
@@ -65,6 +67,10 @@ pub struct BuildOptimizer {
     /// Original passive BonusData for final Build reconstruction
     passive_original: Vec<Vec<BonusData>>,
     total_possible_build_count: u64,
+    /// Original set BonusData for final Build reconstruction
+    set_bonuses: Vec<BonusData>,
+    /// Set names for display/export
+    set_names: Vec<String>,
 }
 
 // Constructor
@@ -252,8 +258,29 @@ impl BuildOptimizer {
         let (passive_bonuses_list, passive_original) =
             Self::generate_passive_bonuses(&skill_line_combinations, verbose);
 
-        let (champion_point_names, champion_point_combinations, champion_point_original) =
+        let (champion_point_names, mut champion_point_combinations, champion_point_original) =
             Self::generate_champion_point_combinations(&required_champion_points, verbose);
+
+        // Merge fixed set bonuses into CP combo pre_resolved buckets
+        // (set bonuses are always BonusTrigger::Passive → always pre_resolved)
+        let set_bonuses = options.set_bonuses;
+        let set_names = options.set_names;
+        if !set_bonuses.is_empty() {
+            let (set_pre, set_ability, set_alt) = Self::three_way_split(set_bonuses.clone());
+            for (pre_resolved, ability_count, alt) in &mut champion_point_combinations {
+                pre_resolved.extend_from_slice(&set_pre);
+                ability_count.extend_from_slice(&set_ability);
+                alt.extend_from_slice(&set_alt);
+            }
+            if verbose {
+                logger::dim(&format!(
+                    "Merged {} set bonuses ({}) into {} CP combinations",
+                    set_bonuses.len(),
+                    set_names.join(", "),
+                    champion_point_combinations.len()
+                ));
+            }
+        }
 
         let total_possible_build_count = Self::calculate_total_build_count(
             &champion_point_combinations,
@@ -285,6 +312,8 @@ impl BuildOptimizer {
             passive_bonuses_list,
             passive_original,
             total_possible_build_count,
+            set_bonuses,
+            set_names,
         };
 
         logger::log(&optimizer.to_string());
@@ -1105,8 +1134,8 @@ impl BuildOptimizer {
                         c.skills.to_vec(),
                         cp_bonuses,
                         passive_bonuses,
-                        &[],
-                        Vec::new(),
+                        &self.set_bonuses,
+                        self.set_names.clone(),
                         self.character_stats.clone(),
                     )
                 })

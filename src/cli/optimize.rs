@@ -7,16 +7,18 @@ use std::time::Instant;
 use rayon::prelude::*;
 
 use super::build_config::BuildConfig;
-use super::parsers::{parse_champion_point, parse_class_name, parse_skill, parse_weapon_skill_line};
+use super::parsers::{
+    parse_champion_point, parse_class_name, parse_set, parse_skill, parse_weapon_skill_line,
+};
 use super::simulation_display::display_simulation_result;
 use crate::domain::{
-    CharacterStats, ClassName, SimulationResult, SkillData, SkillLineName, WeaponType,
-    ATTRIBUTE_POINTS_BONUS, BUILD_CONSTRAINTS,
+    BonusData, Build, CharacterStats, ClassName, SetData, SimulationResult, SkillData,
+    SkillLineName, WeaponType, ATTRIBUTE_POINTS_BONUS, BUILD_CONSTRAINTS,
 };
 use crate::infrastructure::{format, logger};
 use crate::services::{
     generate_distributions, infer_weapons, BarDistribution, BuildOptimizer, BuildOptimizerOptions,
-    FightSimulator,
+    FightSimulator, SetOptimizer, SetOptimizerOptions,
 };
 use clap::Args;
 
@@ -74,6 +76,26 @@ pub struct OptimizeArgs {
     /// Bar 2 weapon type for fight simulation (e.g., inferno-staff, bow)
     #[arg(long, value_parser = WeaponType::parse)]
     pub bar2_weapon: Option<WeaponType>,
+
+    /// Normal/arena 5pc sets to include (comma-separated, max 2)
+    #[arg(long, value_delimiter = ',', value_parser = parse_set)]
+    pub sets: Option<Vec<&'static SetData>>,
+
+    /// Monster 2pc sets to include (comma-separated, max 2)
+    #[arg(long, value_delimiter = ',', value_parser = parse_set)]
+    pub monster_sets: Option<Vec<&'static SetData>>,
+
+    /// Mythic 1pc set to include
+    #[arg(long, value_parser = parse_set)]
+    pub mythic: Option<&'static SetData>,
+
+    /// Enable Phase 2 set optimization (find best sets from all available)
+    #[arg(long)]
+    pub optimize_sets: bool,
+
+    /// Number of top-K set candidates per slot for Phase 2 (default: 10)
+    #[arg(long, default_value = "10")]
+    pub set_candidates: usize,
 }
 
 impl OptimizeArgs {
@@ -122,12 +144,29 @@ impl OptimizeArgs {
             }
         }
 
+        // Validate set counts
+        if let Some(sets) = &self.sets {
+            if sets.len() > 2 {
+                logger::error("Maximum 2 normal/arena sets allowed");
+                std::process::exit(1);
+            }
+        }
+        if let Some(monster) = &self.monster_sets {
+            if monster.len() > 2 {
+                logger::error("Maximum 2 monster sets allowed");
+                std::process::exit(1);
+            }
+        }
+
         let mut character_stats = CharacterStats::default();
         if self.magicka {
             character_stats.max_magicka += ATTRIBUTE_POINTS_BONUS;
         } else if self.stamina {
             character_stats.max_stamina += ATTRIBUTE_POINTS_BONUS;
         }
+
+        // Resolve fixed set bonuses
+        let (set_bonuses, set_names) = self.resolve_set_bonuses();
 
         logger::info("Finding optimal build...");
 
@@ -144,6 +183,8 @@ impl OptimizeArgs {
                 .parallelism
                 .unwrap_or_else(|| (num_cpus::get() / 2).max(1) as u8),
             max_pool_size: self.max_pool_size,
+            set_bonuses,
+            set_names,
         });
 
         let start = Instant::now();
@@ -156,20 +197,81 @@ impl OptimizeArgs {
         }
 
         // Display top-1 build by damage-per-cast
-        let best_build = &builds[0];
-        logger::info(&best_build.to_string());
+        logger::info(&builds[0].to_string());
         logger::info(&format!("Optimization completed in {:.2?}", elapsed));
+
+        // --- Phase 2: Set Optimization ---
+        let builds = if self.optimize_sets {
+            logger::info("Phase 2: Optimizing gear sets...");
+            let parallelism = self
+                .parallelism
+                .unwrap_or_else(|| (num_cpus::get() / 2).max(1) as u8);
+            let set_result = SetOptimizer::optimize(
+                &builds,
+                &SetOptimizerOptions {
+                    top_k: self.set_candidates,
+                    pinned_normal: self.sets.clone().unwrap_or_default(),
+                    pinned_monster: self.monster_sets.clone().unwrap_or_default(),
+                    pinned_mythic: self.mythic,
+                    parallelism,
+                    verbose: self.verbose,
+                },
+            );
+            if let Some(result) = set_result {
+                let source = &builds[result.build_idx];
+                let best_with_sets = Build::new(
+                    source.skills().to_vec(),
+                    source.cp_bonuses(),
+                    source.passive_bonuses(),
+                    &result.set_bonuses,
+                    result.set_names,
+                    source.character_stats().clone(),
+                );
+                logger::info(&best_with_sets.to_string());
+                vec![best_with_sets]
+            } else {
+                logger::warn("Set optimization found no valid loadout.");
+                builds
+            }
+        } else {
+            builds
+        };
 
         // --- Fight simulation on top candidates ---
         let sim_result = self.run_simulation(&builds);
 
         // Use the build selected by simulation (if any), otherwise fall back to DPC-best
+        let best_build = &builds[0];
         let export_build = sim_result
             .as_ref()
             .map(|(build_idx, _, _)| &builds[*build_idx])
             .unwrap_or(best_build);
         let sim_data = sim_result.as_ref().map(|(_, dist, result)| (dist, result));
         Self::prompt_export(export_build, self.bar1_weapon, self.bar2_weapon, sim_data);
+    }
+
+    fn resolve_set_bonuses(&self) -> (Vec<BonusData>, Vec<String>) {
+        let mut active_sets: Vec<&'static SetData> = Vec::new();
+        if let Some(s) = &self.sets {
+            active_sets.extend(s.iter());
+        }
+        if let Some(m) = &self.monster_sets {
+            active_sets.extend(m.iter());
+        }
+        if let Some(m) = &self.mythic {
+            active_sets.push(m);
+        }
+
+        let mut set_bonuses: Vec<BonusData> = Vec::new();
+        let mut set_names: Vec<String> = Vec::new();
+        for set in &active_sets {
+            let piece_count = set.set_type.max_pieces();
+            let bonuses = set.bonuses_at(piece_count);
+            set_bonuses.extend(bonuses.into_iter().cloned());
+            set_names.push(set.name.clone());
+        }
+
+        (set_bonuses, set_names)
     }
 
     fn run_simulation(

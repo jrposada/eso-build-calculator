@@ -102,6 +102,8 @@ pub(crate) struct EvalContext {
 pub struct Build {
     skills: Vec<&'static SkillData>,
     resolved_bonuses: Vec<BonusData>,
+    cp_bonuses: Vec<BonusData>,
+    passive_bonuses: Vec<BonusData>,
     character_stats: CharacterStats,
     effective_stats: CharacterStats,
     set_names: Vec<String>,
@@ -161,6 +163,8 @@ impl Build {
         Self {
             skills,
             resolved_bonuses,
+            cp_bonuses: cp_bonuses.to_vec(),
+            passive_bonuses: passive_bonuses.to_vec(),
             character_stats,
             effective_stats,
             set_names,
@@ -816,6 +820,18 @@ impl Build {
     /// Get set names for export
     pub fn set_names(&self) -> &[String] {
         &self.set_names
+    }
+
+    pub fn cp_bonuses(&self) -> &[BonusData] {
+        &self.cp_bonuses
+    }
+
+    pub fn passive_bonuses(&self) -> &[BonusData] {
+        &self.passive_bonuses
+    }
+
+    pub fn character_stats(&self) -> &CharacterStats {
+        &self.character_stats
     }
 
     /// Get champion point names for export
