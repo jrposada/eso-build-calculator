@@ -1,8 +1,8 @@
 use super::build_config::BuildConfig;
-use super::parsers::{parse_champion_point, parse_skill};
+use super::parsers::{parse_champion_point, parse_set, parse_skill};
 use crate::domain::{
-    BonusData, Build, CharacterStats, SkillData, SkillLineName, WeaponType, ATTRIBUTE_POINTS_BONUS,
-    BUILD_CONSTRAINTS,
+    BonusData, Build, CharacterStats, SetData, SkillData, SkillLineName, WeaponType,
+    ATTRIBUTE_POINTS_BONUS, BUILD_CONSTRAINTS,
 };
 use super::simulation_display::display_simulation_result;
 use crate::infrastructure::logger;
@@ -26,7 +26,7 @@ pub struct CalculateArgs {
     pub champion_points: Option<Vec<BonusData>>,
 
     /// Path to build configuration file (exported from optimize)
-    #[arg(short = 'f', long, conflicts_with_all = ["skills", "champion_points"])]
+    #[arg(short = 'f', long, conflicts_with_all = ["skills", "champion_points", "sets", "monster_sets", "mythic"])]
     pub file: Option<PathBuf>,
 
     /// Allocate 64 attribute points to magicka
@@ -44,15 +44,27 @@ pub struct CalculateArgs {
     /// Bar 2 weapon type (e.g., inferno-staff, bow)
     #[arg(long, value_parser = WeaponType::parse)]
     pub bar2_weapon: Option<WeaponType>,
+
+    /// Normal 5pc sets (comma-separated, max 2)
+    #[arg(long, value_delimiter = ',', value_parser = parse_set, conflicts_with = "file")]
+    pub sets: Option<Vec<&'static SetData>>,
+
+    /// Monster sets (comma-separated, max 2)
+    #[arg(long, value_delimiter = ',', value_parser = parse_set, conflicts_with = "file")]
+    pub monster_sets: Option<Vec<&'static SetData>>,
+
+    /// Mythic item (max 1)
+    #[arg(long, value_parser = parse_set, conflicts_with = "file")]
+    pub mythic: Option<&'static SetData>,
 }
 
 impl CalculateArgs {
     pub fn run(&self) {
-        let (skills, champion_points, file_weapons) = if let Some(path) = &self.file {
+        let (skills, champion_points, file_weapons, file_sets) = if let Some(path) = &self.file {
             self.load_from_file(path)
         } else {
             let (s, cp) = self.get_from_args();
-            (s, cp, (None, None))
+            (s, cp, (None, None), Vec::new())
         };
 
         // Validate skill count
@@ -88,6 +100,32 @@ impl CalculateArgs {
             .flat_map(|p| p.bonuses.iter().cloned())
             .collect();
 
+        // Collect set bonuses
+        let active_sets: Vec<&'static SetData> = if file_sets.is_empty() {
+            let mut sets: Vec<&'static SetData> = Vec::new();
+            if let Some(s) = &self.sets {
+                sets.extend(s.iter());
+            }
+            if let Some(m) = &self.monster_sets {
+                sets.extend(m.iter());
+            }
+            if let Some(m) = &self.mythic {
+                sets.push(m);
+            }
+            sets
+        } else {
+            file_sets
+        };
+
+        let mut set_bonuses: Vec<BonusData> = Vec::new();
+        let mut set_names: Vec<String> = Vec::new();
+        for set in &active_sets {
+            let piece_count = set.set_type.max_pieces();
+            let bonuses = set.bonuses_at(piece_count);
+            set_bonuses.extend(bonuses.into_iter().cloned());
+            set_names.push(set.name.clone());
+        }
+
         let mut stats = CharacterStats::default();
         if self.magicka {
             stats.max_magicka += ATTRIBUTE_POINTS_BONUS;
@@ -96,7 +134,14 @@ impl CalculateArgs {
         }
 
         // Create the build (for stats resolution and display)
-        let build = Build::new(skills.clone(), &champion_points, &passive_bonuses, stats);
+        let build = Build::new(
+            skills.clone(),
+            &champion_points,
+            &passive_bonuses,
+            &set_bonuses,
+            set_names,
+            stats,
+        );
 
         if !skills.iter().any(|s| s.spammable) {
             logger::warn("This build has no spammable skill. Every rotation needs at least one instant-cast filler.");
@@ -189,6 +234,7 @@ impl CalculateArgs {
         Vec<&'static SkillData>,
         Vec<BonusData>,
         (Option<WeaponType>, Option<WeaponType>),
+        Vec<&'static SetData>,
     ) {
         let content = fs::read_to_string(path).unwrap_or_else(|e| {
             logger::error(&format!("Failed to read file '{}': {}", path.display(), e));
@@ -231,6 +277,17 @@ impl CalculateArgs {
             .as_ref()
             .and_then(|w| WeaponType::parse(w).ok());
 
-        (skills, champion_points, (bar1, bar2))
+        let sets: Vec<&'static SetData> = config
+            .sets
+            .iter()
+            .map(|name| {
+                parse_set(name).unwrap_or_else(|e| {
+                    logger::error(&e);
+                    std::process::exit(1);
+                })
+            })
+            .collect();
+
+        (skills, champion_points, (bar1, bar2), sets)
     }
 }

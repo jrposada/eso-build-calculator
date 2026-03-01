@@ -336,6 +336,7 @@ impl OptimizeArgs {
         let config = BuildConfig {
             skills: build.skill_names(),
             champion_points: build.champion_point_names(),
+            sets: build.set_names().to_vec(),
             bar1_weapon: bar1_weapon.map(|w| w.to_string()),
             bar2_weapon: bar2_weapon.map(|w| w.to_string()),
             metadata,

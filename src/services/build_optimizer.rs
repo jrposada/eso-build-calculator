@@ -1105,6 +1105,8 @@ impl BuildOptimizer {
                         c.skills.to_vec(),
                         cp_bonuses,
                         passive_bonuses,
+                        &[],
+                        Vec::new(),
                         self.character_stats.clone(),
                     )
                 })

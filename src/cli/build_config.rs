@@ -13,6 +13,8 @@ pub struct BuildMetadata {
 pub struct BuildConfig {
     pub skills: Vec<String>,
     pub champion_points: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub sets: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bar1_weapon: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]

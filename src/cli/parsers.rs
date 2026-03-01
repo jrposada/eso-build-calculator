@@ -1,6 +1,7 @@
 use crate::data::bonuses::CHAMPION_POINTS;
+use crate::data::sets::ALL_SETS;
 use crate::data::skills::ALL_SKILLS;
-use crate::domain::{BonusData, ClassName, SkillData, SkillLineName};
+use crate::domain::{BonusData, ClassName, SetData, SkillData, SkillLineName};
 
 pub fn parse_class_name(s: &str) -> Result<ClassName, String> {
     let s = s.trim();
@@ -46,6 +47,24 @@ pub fn parse_champion_point(s: &str) -> Result<BonusData, String> {
                 "Invalid champion point '{}'. Valid options: backstabber, biting-aura, deadly-aim, \
                 exploiter, fighting-finesse, master-at-arms, thaumaturge",
                 s
+            )
+        })
+}
+
+pub fn parse_set(s: &str) -> Result<&'static SetData, String> {
+    let s = s.trim();
+    let normalized = s.to_lowercase().replace('-', " ");
+
+    ALL_SETS
+        .iter()
+        .find(|set| set.name.to_lowercase().replace('-', " ") == normalized)
+        .copied()
+        .ok_or_else(|| {
+            let names: Vec<_> = ALL_SETS.iter().map(|s| s.name.as_str()).collect();
+            format!(
+                "Invalid set '{}'. Valid options: {}",
+                s,
+                names.join(", ")
             )
         })
 }

@@ -104,6 +104,7 @@ pub struct Build {
     resolved_bonuses: Vec<BonusData>,
     character_stats: CharacterStats,
     effective_stats: CharacterStats,
+    set_names: Vec<String>,
     pub total_damage_per_cast: f64,
 }
 
@@ -113,6 +114,8 @@ impl Build {
         skills: Vec<&'static SkillData>,
         cp_bonuses: &[BonusData],
         passive_bonuses: &[BonusData],
+        set_bonuses: &[BonusData],
+        set_names: Vec<String>,
         character_stats: CharacterStats,
     ) -> Self {
         // FIXME: some passives are only active while on that bar,
@@ -120,7 +123,7 @@ impl Build {
 
         let mut simple_bonuses: Vec<BonusData> = Vec::new();
         let mut alt_bonuses: Vec<BonusData> = Vec::new();
-        for bonus in cp_bonuses.iter().chain(passive_bonuses.iter()).cloned() {
+        for bonus in cp_bonuses.iter().chain(passive_bonuses.iter()).chain(set_bonuses.iter()).cloned() {
             if bonus.has_alternative() {
                 alt_bonuses.push(bonus);
             } else {
@@ -160,6 +163,7 @@ impl Build {
             resolved_bonuses,
             character_stats,
             effective_stats,
+            set_names,
             total_damage_per_cast,
         }
     }
@@ -809,6 +813,11 @@ impl Build {
         &self.resolved_bonuses
     }
 
+    /// Get set names for export
+    pub fn set_names(&self) -> &[String] {
+        &self.set_names
+    }
+
     /// Get champion point names for export
     pub fn champion_point_names(&self) -> Vec<String> {
         self.resolved_bonuses
@@ -951,12 +960,18 @@ impl Build {
             .collect();
         champion_point_names.sort();
 
-        vec![
+        let mut lines = vec![
             format!("Classes: {}", class_names.join(", ")),
             format!("Class Skill Lines: {}", class_skill_lines.join(", ")),
             format!("Weapon Skill Lines: {}", weapon_skill_lines.join(", ")),
             format!("Champion Points: {}", champion_point_names.join(", ")),
-        ]
+        ];
+
+        if !self.set_names.is_empty() {
+            lines.push(format!("Sets: {}", self.set_names.join(", ")));
+        }
+
+        lines
     }
 
     fn fmt_skills_table(&self) -> String {
