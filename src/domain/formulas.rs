@@ -152,12 +152,23 @@ pub fn effective_damage_contribution(
         BonusTarget::CriticalDamage => value * stats.critical_chance(),
 
         // Flat weapon/spell damage → relative increase to base power
-        BonusTarget::WeaponAndSpellDamageFlat => {
+        BonusTarget::WeaponAndSpellDamageFlat
+        | BonusTarget::WeaponDamageFlat
+        | BonusTarget::SpellDamageFlat => {
             let base = stats.max_power();
             if base <= 0.0 {
                 return 0.0;
             }
             value / base
+        }
+
+        // Flat max resource → convert to damage equivalent via resource_to_damage_bonus
+        BonusTarget::MaxMagickaFlat | BonusTarget::MaxStaminaFlat => {
+            let base = stats.max_power();
+            if base <= 0.0 {
+                return 0.0;
+            }
+            resource_to_damage_bonus(value) / base
         }
 
         // Penetration → relative improvement in armor damage factor

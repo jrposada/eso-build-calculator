@@ -9,6 +9,7 @@ pub enum BonusSource {
     Passive,
     Skill,
     Buff,
+    GearSet,
 }
 
 impl fmt::Display for BonusSource {
@@ -19,6 +20,7 @@ impl fmt::Display for BonusSource {
             BonusSource::Passive => "Passive",
             BonusSource::Skill => "Skill",
             BonusSource::Buff => "Buff",
+            BonusSource::GearSet => "Gear Set",
         };
         write!(f, "{}", s)
     }

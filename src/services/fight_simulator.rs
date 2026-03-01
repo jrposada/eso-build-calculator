@@ -275,6 +275,18 @@ impl FightSimulator {
                     stats.weapon_damage += buff.value;
                     stats.spell_damage += buff.value;
                 }
+                BonusTarget::WeaponDamageFlat => {
+                    stats.weapon_damage += buff.value;
+                }
+                BonusTarget::SpellDamageFlat => {
+                    stats.spell_damage += buff.value;
+                }
+                BonusTarget::MaxMagickaFlat => {
+                    stats.max_magicka += buff.value;
+                }
+                BonusTarget::MaxStaminaFlat => {
+                    stats.max_stamina += buff.value;
+                }
                 BonusTarget::CriticalDamage => {
                     stats.critical_damage += buff.value;
                 }

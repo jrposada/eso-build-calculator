@@ -22,7 +22,9 @@ pub enum BonusTarget {
     HeavyAttackDamage,
     LightAttackDamage,
     MaxMagicka,
+    MaxMagickaFlat,
     MaxStamina,
+    MaxStaminaFlat,
     OffBalanceDamage,
     PhysicalAndSpellPenetration,
     PhysicalDamage,
@@ -31,12 +33,14 @@ pub enum BonusTarget {
     SingleDamage,
     SpellCriticalRating,
     SpellDamage,
+    SpellDamageFlat,
     StatusEffectChance,
     StatusEffectDamage,
     WeaponAndSpellDamageFlat,
     WeaponAndSpellDamageMultiplier,
     WeaponCriticalRating,
     WeaponDamage,
+    WeaponDamageFlat,
 }
 
 impl fmt::Display for BonusTarget {
@@ -60,7 +64,9 @@ impl fmt::Display for BonusTarget {
             BonusTarget::HeavyAttackDamage => "Heavy Attack Damage",
             BonusTarget::LightAttackDamage => "Light Attack Damage",
             BonusTarget::MaxMagicka => "Max Magicka",
+            BonusTarget::MaxMagickaFlat => "Max Magicka (Flat)",
             BonusTarget::MaxStamina => "Max Stamina",
+            BonusTarget::MaxStaminaFlat => "Max Stamina (Flat)",
             BonusTarget::OffBalanceDamage => "Off Balance Damage",
             BonusTarget::PhysicalAndSpellPenetration => "Phys & Spell Penetration",
             BonusTarget::PhysicalDamage => "Physical Damage",
@@ -69,12 +75,14 @@ impl fmt::Display for BonusTarget {
             BonusTarget::SingleDamage => "Single Target Damage",
             BonusTarget::SpellCriticalRating => "Spell Critical Rating",
             BonusTarget::SpellDamage => "Spell Damage",
+            BonusTarget::SpellDamageFlat => "Spell Damage (Flat)",
             BonusTarget::StatusEffectChance => "Status Effect Chance",
             BonusTarget::StatusEffectDamage => "Status Effect Damage",
             BonusTarget::WeaponAndSpellDamageFlat => "Wpn & Spell Damage (Flat)",
             BonusTarget::WeaponAndSpellDamageMultiplier => "Wpn & Spell Damage (Mult)",
             BonusTarget::WeaponCriticalRating => "Weapon Critical Rating",
             BonusTarget::WeaponDamage => "Weapon Damage",
+            BonusTarget::WeaponDamageFlat => "Weapon Damage (Flat)",
         };
         write!(f, "{}", s)
     }

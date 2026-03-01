@@ -180,6 +180,18 @@ impl Build {
                     stats.weapon_damage += bonus_value.value * bonus_multiplier;
                     stats.spell_damage += bonus_value.value * bonus_multiplier;
                 }
+                BonusTarget::WeaponDamageFlat => {
+                    stats.weapon_damage += bonus_value.value * bonus_multiplier;
+                }
+                BonusTarget::SpellDamageFlat => {
+                    stats.spell_damage += bonus_value.value * bonus_multiplier;
+                }
+                BonusTarget::MaxMagickaFlat => {
+                    stats.max_magicka += bonus_value.value * bonus_multiplier;
+                }
+                BonusTarget::MaxStaminaFlat => {
+                    stats.max_stamina += bonus_value.value * bonus_multiplier;
+                }
                 BonusTarget::CriticalDamage => {
                     stats.critical_damage += bonus_value.value * bonus_multiplier;
                 }
@@ -211,6 +223,18 @@ impl Build {
             BonusTarget::WeaponAndSpellDamageFlat => {
                 stats.weapon_damage += value;
                 stats.spell_damage += value;
+            }
+            BonusTarget::WeaponDamageFlat => {
+                stats.weapon_damage += value;
+            }
+            BonusTarget::SpellDamageFlat => {
+                stats.spell_damage += value;
+            }
+            BonusTarget::MaxMagickaFlat => {
+                stats.max_magicka += value;
+            }
+            BonusTarget::MaxStaminaFlat => {
+                stats.max_stamina += value;
             }
             BonusTarget::CriticalDamage => {
                 stats.critical_damage += value;
