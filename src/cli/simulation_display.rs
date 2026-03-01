@@ -6,6 +6,7 @@ pub fn display_simulation_result(
     result: &SimulationResult,
     dist: &BarDistribution,
     total_distributions: usize,
+    set_names: &[(String, u8)],
 ) {
     let divider = "-".repeat(73);
 
@@ -42,6 +43,14 @@ pub fn display_simulation_result(
             bar2_names.join(", ")
         ),
     ];
+
+    if !set_names.is_empty() {
+        let formatted: Vec<String> = set_names
+            .iter()
+            .map(|(name, pieces)| format!("{} ({}pc)", name, pieces))
+            .collect();
+        lines.push(format!("Sets:          {}", formatted.join(", ")));
+    }
 
     // Damage breakdown table
     let mut breakdown_data: Vec<Vec<String>> = Vec::new();

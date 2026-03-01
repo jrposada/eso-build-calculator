@@ -29,7 +29,7 @@ pub struct BuildOptimizerOptions {
     pub parallelism: u8,
     pub max_pool_size: Option<usize>,
     pub set_bonuses: Vec<BonusData>,
-    pub set_names: Vec<String>,
+    pub set_names: Vec<(String, u8)>,
 }
 
 /// Three-way split of bonuses for the optimizer fast path:
@@ -69,8 +69,8 @@ pub struct BuildOptimizer {
     total_possible_build_count: u64,
     /// Original set BonusData for final Build reconstruction
     set_bonuses: Vec<BonusData>,
-    /// Set names for display/export
-    set_names: Vec<String>,
+    /// Set names and piece counts for display/export
+    set_names: Vec<(String, u8)>,
 }
 
 // Constructor
@@ -276,7 +276,7 @@ impl BuildOptimizer {
                 logger::dim(&format!(
                     "Merged {} set bonuses ({}) into {} CP combinations",
                     set_bonuses.len(),
-                    set_names.join(", "),
+                    set_names.iter().map(|(n, p)| format!("{} ({}pc)", n, p)).collect::<Vec<_>>().join(", "),
                     champion_point_combinations.len()
                 ));
             }

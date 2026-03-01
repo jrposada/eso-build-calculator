@@ -106,7 +106,7 @@ pub struct Build {
     passive_bonuses: Vec<BonusData>,
     character_stats: CharacterStats,
     effective_stats: CharacterStats,
-    set_names: Vec<String>,
+    set_names: Vec<(String, u8)>,
     pub total_damage_per_cast: f64,
 }
 
@@ -117,7 +117,7 @@ impl Build {
         cp_bonuses: &[BonusData],
         passive_bonuses: &[BonusData],
         set_bonuses: &[BonusData],
-        set_names: Vec<String>,
+        set_names: Vec<(String, u8)>,
         character_stats: CharacterStats,
     ) -> Self {
         // FIXME: some passives are only active while on that bar,
@@ -817,8 +817,8 @@ impl Build {
         &self.resolved_bonuses
     }
 
-    /// Get set names for export
-    pub fn set_names(&self) -> &[String] {
+    /// Get set names and piece counts
+    pub fn set_names(&self) -> &[(String, u8)] {
         &self.set_names
     }
 
@@ -984,7 +984,12 @@ impl Build {
         ];
 
         if !self.set_names.is_empty() {
-            lines.push(format!("Sets: {}", self.set_names.join(", ")));
+            let formatted: Vec<String> = self
+                .set_names
+                .iter()
+                .map(|(name, pieces)| format!("{} ({}pc)", name, pieces))
+                .collect();
+            lines.push(format!("Sets: {}", formatted.join(", ")));
         }
 
         lines

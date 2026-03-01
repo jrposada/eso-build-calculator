@@ -18,7 +18,7 @@ pub struct SetOptimizerOptions {
 pub struct SetOptimizerResult {
     pub build_idx: usize,
     pub set_bonuses: Vec<BonusData>,
-    pub set_names: Vec<String>,
+    pub set_names: Vec<(String, u8)>,
     pub damage: f64,
 }
 
@@ -188,7 +188,7 @@ impl SetOptimizer {
         struct LoadoutCandidate {
             build_idx: usize,
             set_bonuses: Vec<BonusData>,
-            set_names: Vec<String>,
+            set_names: Vec<(String, u8)>,
             damage: f64,
         }
 
@@ -285,7 +285,7 @@ impl SetOptimizer {
                                             .into_iter()
                                             .cloned(),
                                     );
-                                    loadout_names.push(s.name.clone());
+                                    loadout_names.push((s.name.clone(), s.set_type.max_pieces()));
                                 }
                                 for &s in pinned_monster.iter() {
                                     loadout_bonuses.extend(
@@ -293,7 +293,7 @@ impl SetOptimizer {
                                             .into_iter()
                                             .cloned(),
                                     );
-                                    loadout_names.push(s.name.clone());
+                                    loadout_names.push((s.name.clone(), s.set_type.max_pieces()));
                                 }
                                 if let Some(s) = pinned_mythic {
                                     loadout_bonuses.extend(
@@ -301,7 +301,7 @@ impl SetOptimizer {
                                             .into_iter()
                                             .cloned(),
                                     );
-                                    loadout_names.push(s.name.clone());
+                                    loadout_names.push((s.name.clone(), s.set_type.max_pieces()));
                                 }
 
                                 // Add variable sets
@@ -311,7 +311,7 @@ impl SetOptimizer {
                                             .into_iter()
                                             .cloned(),
                                     );
-                                    loadout_names.push(s.name.clone());
+                                    loadout_names.push((s.name.clone(), s.set_type.max_pieces()));
                                 }
                                 if let Some(s) = var_monster {
                                     loadout_bonuses.extend(
@@ -319,7 +319,7 @@ impl SetOptimizer {
                                             .into_iter()
                                             .cloned(),
                                     );
-                                    loadout_names.push(s.name.clone());
+                                    loadout_names.push((s.name.clone(), s.set_type.max_pieces()));
                                 }
                                 if let Some(s) = var_mythic {
                                     loadout_bonuses.extend(
@@ -327,7 +327,7 @@ impl SetOptimizer {
                                             .into_iter()
                                             .cloned(),
                                     );
-                                    loadout_names.push(s.name.clone());
+                                    loadout_names.push((s.name.clone(), s.set_type.max_pieces()));
                                 }
 
                                 let b = Build::new(
@@ -477,7 +477,7 @@ mod tests {
 
         let result = result.expect("Should find a loadout with pinned normal set");
         assert!(
-            result.set_names.contains(&"Mother's Sorrow".to_string()),
+            result.set_names.iter().any(|(name, _)| name == "Mother's Sorrow"),
             "Pinned set should appear in result: {:?}",
             result.set_names
         );
@@ -502,9 +502,7 @@ mod tests {
 
         let result = result.expect("Should find a loadout with pinned mythic");
         assert!(
-            result
-                .set_names
-                .contains(&"Harpooner's Wading Kilt".to_string()),
+            result.set_names.iter().any(|(name, _)| name == "Harpooner's Wading Kilt"),
             "Pinned mythic should appear in result: {:?}",
             result.set_names
         );
@@ -558,11 +556,9 @@ mod tests {
 
         let result = result.expect("Should find a loadout with all pinned");
         // When all slots are pinned, the result should contain exactly those sets
-        assert!(result.set_names.contains(&"Mother's Sorrow".to_string()));
-        assert!(result.set_names.contains(&"Law of Julianos".to_string()));
-        assert!(result.set_names.contains(&"Zaan".to_string()));
-        assert!(result
-            .set_names
-            .contains(&"Harpooner's Wading Kilt".to_string()));
+        assert!(result.set_names.iter().any(|(name, _)| name == "Mother's Sorrow"));
+        assert!(result.set_names.iter().any(|(name, _)| name == "Law of Julianos"));
+        assert!(result.set_names.iter().any(|(name, _)| name == "Zaan"));
+        assert!(result.set_names.iter().any(|(name, _)| name == "Harpooner's Wading Kilt"));
     }
 }

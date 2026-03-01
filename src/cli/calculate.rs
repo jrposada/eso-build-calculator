@@ -118,12 +118,12 @@ impl CalculateArgs {
         };
 
         let mut set_bonuses: Vec<BonusData> = Vec::new();
-        let mut set_names: Vec<String> = Vec::new();
+        let mut set_names: Vec<(String, u8)> = Vec::new();
         for set in &active_sets {
             let piece_count = set.set_type.max_pieces();
             let bonuses = set.bonuses_at(piece_count);
             set_bonuses.extend(bonuses.into_iter().cloned());
-            set_names.push(set.name.clone());
+            set_names.push((set.name.clone(), piece_count));
         }
 
         let mut stats = CharacterStats::default();
@@ -209,7 +209,7 @@ impl CalculateArgs {
 
         if let Some((best_idx, best_result)) = results.first() {
             let best_dist = &distributions[*best_idx];
-            display_simulation_result(best_result, best_dist, distributions.len());
+            display_simulation_result(best_result, best_dist, distributions.len(), build.set_names());
         }
     }
 

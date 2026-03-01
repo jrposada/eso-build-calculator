@@ -19,16 +19,17 @@ fn get_set(name: &str) -> &'static SetData {
         .unwrap_or_else(|| panic!("Set '{}' not found", name))
 }
 
-fn resolve_set_bonuses(sets: &[&'static SetData]) -> (Vec<BonusData>, Vec<String>) {
+fn resolve_set_bonuses(sets: &[&'static SetData]) -> (Vec<BonusData>, Vec<(String, u8)>) {
     let mut bonuses = Vec::new();
     let mut names = Vec::new();
     for set in sets {
+        let pieces = set.set_type.max_pieces();
         bonuses.extend(
-            set.bonuses_at(set.set_type.max_pieces())
+            set.bonuses_at(pieces)
                 .into_iter()
                 .cloned(),
         );
-        names.push(set.name.clone());
+        names.push((set.name.clone(), pieces));
     }
     (bonuses, names)
 }
@@ -180,7 +181,7 @@ fn optimizer_with_fixed_sets_increases_damage() {
     let julianos = get_set("Law of Julianos");
     let (set_bonuses, set_names) = resolve_set_bonuses(&[mothers, julianos]);
 
-    let make_optimizer = |bonuses: Vec<BonusData>, names: Vec<String>| {
+    let make_optimizer = |bonuses: Vec<BonusData>, names: Vec<(String, u8)>| {
         BuildOptimizer::new(BuildOptimizerOptions {
             character_stats: CharacterStats::default(),
             verbose: false,
@@ -222,12 +223,12 @@ fn optimizer_with_fixed_sets_increases_damage() {
     // Set names should appear in the output build
     let result_set_names = builds_with_sets[0].set_names();
     assert!(
-        result_set_names.contains(&"Mother's Sorrow".to_string()),
+        result_set_names.iter().any(|(name, _)| name == "Mother's Sorrow"),
         "Mother's Sorrow should be in build set_names: {:?}",
         result_set_names
     );
     assert!(
-        result_set_names.contains(&"Law of Julianos".to_string()),
+        result_set_names.iter().any(|(name, _)| name == "Law of Julianos"),
         "Law of Julianos should be in build set_names: {:?}",
         result_set_names
     );
@@ -242,7 +243,7 @@ fn optimizer_with_fixed_sets_same_skills() {
     let mothers = get_set("Mother's Sorrow");
     let (set_bonuses, set_names) = resolve_set_bonuses(&[mothers]);
 
-    let make_optimizer = |bonuses: Vec<BonusData>, names: Vec<String>| {
+    let make_optimizer = |bonuses: Vec<BonusData>, names: Vec<(String, u8)>| {
         BuildOptimizer::new(BuildOptimizerOptions {
             character_stats: CharacterStats::default(),
             verbose: false,

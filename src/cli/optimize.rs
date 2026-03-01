@@ -250,7 +250,7 @@ impl OptimizeArgs {
         Self::prompt_export(export_build, self.bar1_weapon, self.bar2_weapon, sim_data);
     }
 
-    fn resolve_set_bonuses(&self) -> (Vec<BonusData>, Vec<String>) {
+    fn resolve_set_bonuses(&self) -> (Vec<BonusData>, Vec<(String, u8)>) {
         let mut active_sets: Vec<&'static SetData> = Vec::new();
         if let Some(s) = &self.sets {
             active_sets.extend(s.iter());
@@ -263,12 +263,12 @@ impl OptimizeArgs {
         }
 
         let mut set_bonuses: Vec<BonusData> = Vec::new();
-        let mut set_names: Vec<String> = Vec::new();
+        let mut set_names: Vec<(String, u8)> = Vec::new();
         for set in &active_sets {
             let piece_count = set.set_type.max_pieces();
             let bonuses = set.bonuses_at(piece_count);
             set_bonuses.extend(bonuses.into_iter().cloned());
-            set_names.push(set.name.clone());
+            set_names.push((set.name.clone(), piece_count));
         }
 
         (set_bonuses, set_names)
@@ -394,7 +394,7 @@ impl OptimizeArgs {
                 logger::info(&builds[best_build_idx].to_string());
             }
             let best_dist = &distributions[best_dist_idx];
-            display_simulation_result(&result, best_dist, distributions.len());
+            display_simulation_result(&result, best_dist, distributions.len(), builds[best_build_idx].set_names());
             logger::info(&format!("Simulation completed in {:.2?}", sim_elapsed));
             return Some((best_build_idx, best_dist.clone(), result));
         }
@@ -438,7 +438,7 @@ impl OptimizeArgs {
         let config = BuildConfig {
             skills: build.skill_names(),
             champion_points: build.champion_point_names(),
-            sets: build.set_names().to_vec(),
+            sets: build.set_names().iter().map(|(name, _)| name.clone()).collect(),
             bar1_weapon: bar1_weapon.map(|w| w.to_string()),
             bar2_weapon: bar2_weapon.map(|w| w.to_string()),
             metadata,
