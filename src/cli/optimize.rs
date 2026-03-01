@@ -1,16 +1,22 @@
 use std::fs;
 use std::io::{self, Write};
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 use std::time::Instant;
+
+use rayon::prelude::*;
 
 use super::build_config::BuildConfig;
 use super::parsers::{parse_champion_point, parse_class_name, parse_skill, parse_weapon_skill_line};
 use super::simulation_display::display_simulation_result;
-use crate::domain::{CharacterStats, SkillData, WeaponType, ATTRIBUTE_POINTS_BONUS, BUILD_CONSTRAINTS};
-use crate::domain::{ClassName, SkillLineName};
-use crate::infrastructure::logger;
+use crate::domain::{
+    CharacterStats, ClassName, SimulationResult, SkillData, SkillLineName, WeaponType,
+    ATTRIBUTE_POINTS_BONUS, BUILD_CONSTRAINTS,
+};
+use crate::infrastructure::{format, logger};
 use crate::services::{
-    generate_distributions, infer_weapons, BuildOptimizer, BuildOptimizerOptions, FightSimulator,
+    generate_distributions, infer_weapons, BarDistribution, BuildOptimizer, BuildOptimizerOptions,
+    FightSimulator,
 };
 use clap::Args;
 
@@ -190,39 +196,84 @@ impl OptimizeArgs {
 
         let sim_start = Instant::now();
 
-        let mut best_dps = f64::NEG_INFINITY;
-        let mut best_build_idx = 0;
-        let mut best_dist_idx = 0;
-        let mut best_result = None;
-        let mut best_distributions = None;
-
-        for (build_idx, build) in builds.iter().enumerate() {
-            let skills = build.skills();
-            let distributions = generate_distributions(skills, bar1_weapon, bar2_weapon);
-
-            if distributions.is_empty() {
-                continue;
-            }
-
-            let effective_stats = build.effective_stats();
-            let resolved_bonuses = build.resolved_bonuses();
-            let simulator = FightSimulator::new(effective_stats, resolved_bonuses);
-
-            for (dist_idx, dist) in distributions.iter().enumerate() {
-                let result = simulator.simulate(dist);
-                if result.dps > best_dps {
-                    best_dps = result.dps;
-                    best_build_idx = build_idx;
-                    best_dist_idx = dist_idx;
-                    best_result = Some(result);
-                    best_distributions = Some(distributions.clone());
+        // Pre-compute work items: (build_idx, simulator, distributions)
+        let work: Vec<(usize, FightSimulator, Vec<BarDistribution>)> = builds
+            .iter()
+            .enumerate()
+            .filter_map(|(build_idx, build)| {
+                let distributions =
+                    generate_distributions(build.skills(), bar1_weapon, bar2_weapon);
+                if distributions.is_empty() {
+                    return None;
                 }
-            }
-        }
+                let simulator =
+                    FightSimulator::new(build.effective_stats(), build.resolved_bonuses());
+                Some((build_idx, simulator, distributions))
+            })
+            .collect();
+
+        let total_sims: usize = work.iter().map(|(_, _, d)| d.len()).sum();
+        let completed = AtomicUsize::new(0);
+        let best_dps_bits = AtomicU64::new(f64::NEG_INFINITY.to_bits());
+
+        let results: Vec<_> = work
+            .par_iter()
+            .filter_map(|(build_idx, simulator, distributions)| {
+                let mut local_best: Option<(usize, SimulationResult)> = None;
+                for (dist_idx, dist) in distributions.iter().enumerate() {
+                    let result = simulator.simulate(dist);
+                    if local_best.as_ref().map_or(true, |(_, r)| result.dps > r.dps) {
+                        local_best = Some((dist_idx, result));
+                    }
+
+                    let done = completed.fetch_add(1, Ordering::Relaxed) + 1;
+
+                    // Update shared best DPS via CAS loop
+                    if let Some((_, ref best)) = local_best {
+                        let new_bits = best.dps.to_bits();
+                        let mut current = best_dps_bits.load(Ordering::Relaxed);
+                        loop {
+                            if f64::from_bits(current) >= best.dps {
+                                break;
+                            }
+                            match best_dps_bits.compare_exchange_weak(
+                                current,
+                                new_bits,
+                                Ordering::Relaxed,
+                                Ordering::Relaxed,
+                            ) {
+                                Ok(_) => break,
+                                Err(actual) => current = actual,
+                            }
+                        }
+                    }
+
+                    if done % 10 == 0 || done == total_sims {
+                        let best = f64::from_bits(best_dps_bits.load(Ordering::Relaxed));
+                        let best_str = if best > 0.0 {
+                            format::format_number(best as u64)
+                        } else {
+                            "---".to_string()
+                        };
+                        logger::progress(&format!(
+                            "Simulating: {}/{} | Best DPS: {}",
+                            done, total_sims, best_str
+                        ));
+                    }
+                }
+                local_best.map(|(dist_idx, result)| {
+                    (*build_idx, dist_idx, distributions.clone(), result)
+                })
+            })
+            .collect();
 
         let sim_elapsed = sim_start.elapsed();
 
-        if let (Some(result), Some(distributions)) = (best_result, best_distributions) {
+        // Find global best from parallel results
+        if let Some((best_build_idx, best_dist_idx, distributions, result)) = results
+            .into_iter()
+            .max_by(|(_, _, _, a), (_, _, _, b)| a.dps.partial_cmp(&b.dps).unwrap())
+        {
             if best_build_idx > 0 {
                 logger::info(&format!(
                     "Simulation selected build #{} (of {} candidates) as best DPS.",
