@@ -275,7 +275,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             MAJOR_SAVAGERY
                 .clone()
                 .with_trigger(BonusTrigger::AbilitySlotted),
-        ]),
+        ])
+        .with_proc_light_attacks(4),
         // Merciless Resolve: Major Prophecy + Major Savagery while slotted, 50% heal on proc
         SkillData::new(
             "Merciless Resolve",
@@ -296,7 +297,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             MAJOR_SAVAGERY
                 .clone()
                 .with_trigger(BonusTrigger::AbilitySlotted),
-        ]),
+        ])
+        .with_proc_light_attacks(4),
         // Relentless Focus: Major Prophecy + Major Savagery while slotted, 4 stacks to proc
         SkillData::new(
             "Relentless Focus",
@@ -317,7 +319,8 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             MAJOR_SAVAGERY
                 .clone()
                 .with_trigger(BonusTrigger::AbilitySlotted),
-        ]),
+        ])
+        .with_proc_light_attacks(4),
         // === SHADOW ===
         // Ultimate - Consuming Darkness line
         SkillData::new(

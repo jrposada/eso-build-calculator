@@ -24,6 +24,8 @@ pub struct SkillData {
     pub spammable: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cooldown: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub proc_light_attacks: Option<u32>,
 }
 
 // Builder
@@ -47,6 +49,7 @@ impl SkillData {
             bonuses: None,
             spammable: false,
             cooldown: None,
+            proc_light_attacks: None,
         }
     }
 
@@ -82,6 +85,11 @@ impl SkillData {
 
     pub fn with_cooldown(mut self, cooldown: f64) -> Self {
         self.cooldown = Some(cooldown);
+        self
+    }
+
+    pub fn with_proc_light_attacks(mut self, count: u32) -> Self {
+        self.proc_light_attacks = Some(count);
         self
     }
 }

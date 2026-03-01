@@ -22,6 +22,8 @@ struct SimState {
     active_bar: ActiveBar,
     active_effects: Vec<ActiveEffect>,
     gcd_ready: f64,
+    // Proc tracking: skill name -> accumulated light attack count
+    proc_counters: HashMap<String, u32>,
     // Tracking
     skill_damage: HashMap<String, (f64, u32)>,
     la_damage: f64,
@@ -62,12 +64,26 @@ impl FightSimulator {
         let max_stat = self.effective_stats.max_stat();
         let max_power = self.effective_stats.max_power();
 
+        // Initialize proc counters for all proc skills on both bars
+        let mut proc_counters = HashMap::new();
+        for skill in distribution
+            .bar1
+            .skills
+            .iter()
+            .chain(distribution.bar2.skills.iter())
+        {
+            if skill.proc_light_attacks.is_some() {
+                proc_counters.entry(skill.name.clone()).or_insert(0);
+            }
+        }
+
         let mut state = SimState {
             time: 0.0,
             remaining_hp: self.target_hp,
             active_bar: ActiveBar::Bar1,
             active_effects: Vec::new(),
             gcd_ready: 0.0,
+            proc_counters,
             skill_damage: HashMap::new(),
             la_damage: 0.0,
             la_count: 0,
@@ -115,8 +131,24 @@ impl FightSimulator {
                     state.la_damage += la_dmg;
                     state.la_count += 1;
 
-                    // 2. Skill hit damage (instant portion)
-                    let hit_dmg = self.calc_skill_hits(skill);
+                    // Increment all proc counters on every light attack
+                    for counter in state.proc_counters.values_mut() {
+                        *counter += 1;
+                    }
+
+                    // 2. Skill hit damage (instant portion), gated by proc requirement
+                    let hit_dmg = if let Some(threshold) = skill.proc_light_attacks {
+                        let counter = state.proc_counters.get(&skill.name).copied().unwrap_or(0);
+                        if counter >= threshold {
+                            let dmg = self.calc_skill_hits(skill);
+                            state.proc_counters.insert(skill.name.clone(), 0);
+                            dmg
+                        } else {
+                            0.0
+                        }
+                    } else {
+                        self.calc_skill_hits(skill)
+                    };
                     state.remaining_hp -= hit_dmg;
 
                     let entry = state
@@ -280,7 +312,17 @@ impl FightSimulator {
             return Action::BarSwap;
         }
 
-        // Priority 4: Current bar spammable or channeled filler
+        // Priority 4: Ready proc skill on current bar — fire
+        if let Some(idx) = self.find_ready_proc_skill(state, current_skills) {
+            return Action::CastSkill(idx);
+        }
+
+        // Priority 5: Ready proc skill on other bar — swap
+        if self.other_bar_has_ready_proc(state, other_skills) {
+            return Action::BarSwap;
+        }
+
+        // Priority 6: Current bar spammable or channeled filler
         if let Some(idx) = current_skills
             .iter()
             .position(|s| s.spammable || s.channel_time.is_some())
@@ -288,8 +330,10 @@ impl FightSimulator {
             return Action::CastSkill(idx);
         }
 
-        // Priority 5: Any skill with damage on current bar
-        if let Some(idx) = current_skills.iter().position(|s| s.damage.is_some()) {
+        // Priority 7: Any skill with damage on current bar (exclude unready proc skills)
+        if let Some(idx) = current_skills.iter().position(|s| {
+            s.damage.is_some() && !self.is_unready_proc(state, s)
+        }) {
             return Action::CastSkill(idx);
         }
 
@@ -382,6 +426,10 @@ impl FightSimulator {
         if skill.channel_time.is_some() {
             return false;
         }
+        // Proc skills are handled by the proc priority system, not as DoTs/buffs
+        if skill.proc_light_attacks.is_some() {
+            return false;
+        }
         let has_dot = skill
             .damage
             .as_ref()
@@ -392,6 +440,45 @@ impl FightSimulator {
             .as_ref()
             .is_some_and(|bonuses| bonuses.iter().any(|b| b.duration.is_some()));
         has_dot || has_buff
+    }
+
+    fn find_ready_proc_skill(
+        &self,
+        state: &SimState,
+        skills: &[&'static SkillData],
+    ) -> Option<usize> {
+        skills.iter().position(|s| {
+            if let Some(threshold) = s.proc_light_attacks {
+                let counter = state.proc_counters.get(&s.name).copied().unwrap_or(0);
+                counter >= threshold
+            } else {
+                false
+            }
+        })
+    }
+
+    fn other_bar_has_ready_proc(
+        &self,
+        state: &SimState,
+        other_skills: &[&'static SkillData],
+    ) -> bool {
+        other_skills.iter().any(|s| {
+            if let Some(threshold) = s.proc_light_attacks {
+                let counter = state.proc_counters.get(&s.name).copied().unwrap_or(0);
+                counter >= threshold
+            } else {
+                false
+            }
+        })
+    }
+
+    fn is_unready_proc(&self, state: &SimState, skill: &SkillData) -> bool {
+        if let Some(threshold) = skill.proc_light_attacks {
+            let counter = state.proc_counters.get(&skill.name).copied().unwrap_or(0);
+            counter < threshold
+        } else {
+            false
+        }
     }
 
     fn estimate_skill_dpc(&self, skill: &SkillData) -> f64 {
