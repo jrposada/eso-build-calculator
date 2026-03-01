@@ -24,6 +24,7 @@ pub struct BuildOptimizerOptions {
     pub required_class_names: Vec<ClassName>,
     pub required_weapon_skill_lines: Vec<SkillLineName>,
     pub required_champion_points: Vec<BonusData>,
+    pub required_skills: Vec<&'static SkillData>,
     pub forced_morphs: Vec<String>,
     pub parallelism: u8,
     pub max_pool_size: Option<usize>,
@@ -43,8 +44,12 @@ pub struct BuildOptimizer {
     weapon_skill_line_names: HashSet<SkillLineName>,
     required_champion_points: Vec<String>,
     champion_point_names: HashSet<String>,
+    required_skill_names: Vec<String>,
     skill_names: HashSet<String>,
     parallelism: u8,
+
+    /// Required non-spammable skills prepended to every combination
+    required_non_spammable: Vec<&'static SkillData>,
 
     /// Pre-split champion point combinations: (pre_resolved, ability_count, alt)
     champion_point_combinations: Vec<PreSplitBonuses>,
@@ -64,14 +69,68 @@ impl BuildOptimizer {
     pub fn new(options: BuildOptimizerOptions) -> Self {
         let verbose = options.verbose;
         let parallelism = options.parallelism;
-        let required_class_names = options.required_class_names;
-        let required_weapon_skill_lines = options.required_weapon_skill_lines;
+        let mut required_class_names = options.required_class_names;
+        let mut required_weapon_skill_lines = options.required_weapon_skill_lines;
         let required_champion_points: Vec<String> = options
             .required_champion_points
             .iter()
             .map(|cp| cp.name.clone())
             .collect();
         let pure_class = options.pure_class;
+
+        // Auto-infer constraints from required skills
+        let mut forced_morphs = options.forced_morphs.clone();
+        for skill in &options.required_skills {
+            // Auto-force morph so morph selection picks the correct morph
+            if !forced_morphs.contains(&skill.name) {
+                forced_morphs.push(skill.name.clone());
+            }
+
+            let sl = skill.skill_line;
+            if sl.is_weapon() {
+                if !required_weapon_skill_lines.contains(&sl) {
+                    required_weapon_skill_lines.push(sl);
+                }
+            } else if !sl.is_guild() {
+                // Class skill line
+                let class = sl.get_class();
+                if let Some(pure) = pure_class {
+                    if class != pure {
+                        logger::error(&format!(
+                            "Required skill '{}' is from class {} but --pure {} was specified",
+                            skill.name, class, pure
+                        ));
+                        std::process::exit(1);
+                    }
+                }
+                if !required_class_names.contains(&class) {
+                    required_class_names.push(class);
+                }
+            }
+        }
+
+        // Classify required skills into spammable vs non-spammable
+        let mut required_spammable: Option<&'static SkillData> = None;
+        let mut required_non_spammable: Vec<&'static SkillData> = Vec::new();
+        let required_skill_names: Vec<String> = options
+            .required_skills
+            .iter()
+            .map(|s| s.name.clone())
+            .collect();
+
+        for skill in &options.required_skills {
+            if skill.spammable && skill.bonuses.is_none() {
+                if required_spammable.is_some() {
+                    logger::error(
+                        "At most 1 pure spammable skill can be required (spammable with no bonuses)",
+                    );
+                    std::process::exit(1);
+                }
+                required_spammable = Some(skill);
+            } else {
+                required_non_spammable.push(skill);
+            }
+        }
 
         if verbose {
             logger::dim(&format!(
@@ -81,9 +140,7 @@ impl BuildOptimizer {
         }
 
         let skills_service = SkillsService::new(SkillsServiceOptions::default())
-            .with_morph_selection(MorphSelectionOptions {
-                forced_morphs: options.forced_morphs.clone(),
-            })
+            .with_morph_selection(MorphSelectionOptions { forced_morphs })
             .with_filter(SkillsFilter {
                 exclude_ultimates: true,
                 exclude_non_damaging: true, // TODO: only exclude if no buff
@@ -119,12 +176,12 @@ impl BuildOptimizer {
         }
 
         let mut skill_names: HashSet<String> = HashSet::new();
-        let spammable_skills = Self::generate_spammable_skills(
+        let mut spammable_skills = Self::generate_spammable_skills(
             &skill_line_combinations,
             &skills_service,
             &mut skill_names,
         );
-        let non_spammable_skills = Self::generate_non_spammable_skills(
+        let mut non_spammable_skills = Self::generate_non_spammable_skills(
             &skill_line_combinations,
             &skills_service,
             &mut skill_names,
@@ -132,6 +189,29 @@ impl BuildOptimizer {
             &options.character_stats,
             verbose,
         );
+
+        // Filter pools based on required skills
+        if required_spammable.is_some() {
+            let req = required_spammable.unwrap();
+            for pool in &mut spammable_skills {
+                if pool.iter().any(|s| s.name == req.name) {
+                    *pool = vec![req];
+                } else {
+                    pool.clear();
+                }
+            }
+        }
+
+        // Remove required non-spammable skills from the variable pool
+        if !required_non_spammable.is_empty() {
+            let req_names: HashSet<&str> = required_non_spammable
+                .iter()
+                .map(|s| s.name.as_str())
+                .collect();
+            for pool in &mut non_spammable_skills {
+                pool.retain(|s| !req_names.contains(s.name.as_str()));
+            }
+        }
 
         let has_any_spammable = spammable_skills.iter().any(|skills| !skills.is_empty());
         if !has_any_spammable {
@@ -151,6 +231,7 @@ impl BuildOptimizer {
             &champion_point_combinations,
             &spammable_skills,
             &non_spammable_skills,
+            required_non_spammable.len(),
         );
 
         let optimizer = Self {
@@ -161,8 +242,10 @@ impl BuildOptimizer {
             weapon_skill_line_names,
             required_champion_points,
             champion_point_names,
+            required_skill_names,
             skill_names,
             parallelism,
+            required_non_spammable,
             champion_point_combinations,
             champion_point_original,
             spammable_skills,
@@ -571,16 +654,15 @@ impl BuildOptimizer {
         champion_point_combinations: &[PreSplitBonuses],
         spammable_skills: &[Vec<&'static SkillData>],
         non_spammable_skills: &[Vec<&'static SkillData>],
+        required_non_spammable_count: usize,
     ) -> u64 {
+        let free_slots = BUILD_CONSTRAINTS.skill_count - 1 - required_non_spammable_count;
         let skill_combinations_count: u64 = spammable_skills
             .iter()
             .zip(non_spammable_skills.iter())
             .map(|(spammable, non_spammable)| {
                 spammable.len() as u64
-                    * combinatorics::count_combinations(
-                        non_spammable.len(),
-                        BUILD_CONSTRAINTS.skill_count - 1,
-                    )
+                    * combinatorics::count_combinations(non_spammable.len(), free_slots)
             })
             .sum();
 
@@ -671,10 +753,13 @@ impl BuildOptimizer {
                         }
                     };
 
+                    let req_count = self.required_non_spammable.len();
+                    let non_spam_count = BUILD_CONSTRAINTS.skill_count - 1;
+                    let free_slots = non_spam_count - req_count;
+
                     if self.champion_point_combinations.len() > 1 {
                         // Multiple CP combos: incremental evaluation with cached passive context
                         let num_cp = self.champion_point_combinations.len();
-                        let non_spam_count = BUILD_CONSTRAINTS.skill_count - 1;
 
                         // Passive lookup is constant for this work unit
                         let (passive_lookup, passive_filtered) =
@@ -693,12 +778,19 @@ impl BuildOptimizer {
 
                         let mut combo_iter = combinatorics::CombinationIterator::new(
                             non_spammable,
-                            non_spam_count,
+                            free_slots,
                         );
 
-                        while let Some(mut combo) = combo_iter.next() {
+                        while let Some(variable) = combo_iter.next() {
+                            // Build full combo: [required..., variable..., spammable]
+                            let mut combo: SmallVec<[&'static SkillData; 10]> =
+                                SmallVec::new();
+                            combo.extend_from_slice(&self.required_non_spammable);
+                            combo.extend_from_slice(&variable);
                             combo.push(spammable_skill);
-                            let first_changed = combo_iter.first_changed();
+
+                            let first_changed =
+                                req_count + combo_iter.first_changed();
 
                             let can_incr = passive_ctx.is_some()
                                 && (first_changed..non_spam_count).all(|i| {
@@ -791,7 +883,6 @@ impl BuildOptimizer {
                         // Single CP combo: direct path with incremental evaluation
                         let (cp_pre_resolved, cp_ability_count, cp_alt) =
                             &self.champion_point_combinations[0];
-                        let non_spam_count = BUILD_CONSTRAINTS.skill_count - 1;
 
                         // Incremental state
                         let mut eval_ctx = None;
@@ -802,12 +893,19 @@ impl BuildOptimizer {
 
                         let mut combo_iter = combinatorics::CombinationIterator::new(
                             non_spammable,
-                            non_spam_count,
+                            free_slots,
                         );
 
-                        while let Some(mut combo) = combo_iter.next() {
+                        while let Some(variable) = combo_iter.next() {
+                            // Build full combo: [required..., variable..., spammable]
+                            let mut combo: SmallVec<[&'static SkillData; 10]> =
+                                SmallVec::new();
+                            combo.extend_from_slice(&self.required_non_spammable);
+                            combo.extend_from_slice(&variable);
                             combo.push(spammable_skill);
-                            let first_changed = combo_iter.first_changed();
+
+                            let first_changed =
+                                req_count + combo_iter.first_changed();
 
                             let can_incr = eval_ctx.is_some()
                                 && (first_changed..non_spam_count).all(|i| {
@@ -946,6 +1044,7 @@ impl BuildOptimizer {
         let required_weapons_str = Self::fmt_sorted_list(self.required_weapon_skill_lines.iter());
         let used_cp_str = Self::fmt_sorted_list(self.champion_point_names.iter());
         let required_cp_str = Self::fmt_sorted_list(self.required_champion_points.iter());
+        let required_skills_str = Self::fmt_sorted_list(self.required_skill_names.iter());
 
         let name_width = [
             &used_classes_str,
@@ -954,6 +1053,7 @@ impl BuildOptimizer {
             &required_weapons_str,
             &used_cp_str,
             &required_cp_str,
+            &required_skills_str,
         ]
         .iter()
         .map(|s| s.len())
@@ -968,6 +1068,7 @@ impl BuildOptimizer {
             vec!["Required Weapons".to_string(), required_weapons_str],
             vec!["Used Champion Points".to_string(), used_cp_str],
             vec!["Required Champion Points".to_string(), required_cp_str],
+            vec!["Required Skills".to_string(), required_skills_str],
             vec![
                 "Used Skills".to_string(),
                 self.skill_names.len().to_string(),

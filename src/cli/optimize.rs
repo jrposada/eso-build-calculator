@@ -4,8 +4,8 @@ use std::path::PathBuf;
 use std::time::Instant;
 
 use super::build_config::BuildConfig;
-use super::parsers::{parse_champion_point, parse_class_name, parse_weapon_skill_line};
-use crate::domain::{CharacterStats, ATTRIBUTE_POINTS_BONUS, BUILD_CONSTRAINTS};
+use super::parsers::{parse_champion_point, parse_class_name, parse_skill, parse_weapon_skill_line};
+use crate::domain::{CharacterStats, SkillData, ATTRIBUTE_POINTS_BONUS, BUILD_CONSTRAINTS};
 use crate::domain::{ClassName, SkillLineName};
 use crate::infrastructure::logger;
 use crate::services::{BuildOptimizer, BuildOptimizerOptions};
@@ -29,6 +29,10 @@ pub struct OptimizeArgs {
     /// Require these champion points (comma-separated)
     #[arg(long = "cp", value_delimiter = ',', value_parser = parse_champion_point)]
     pub champion_points: Option<Vec<crate::domain::BonusData>>,
+
+    /// Require these skills in every build (comma-separated skill names)
+    #[arg(short = 's', long, value_delimiter = ',', value_parser = parse_skill)]
+    pub skills: Option<Vec<&'static SkillData>>,
 
     /// Force specific morph selections (comma-separated morph names)
     #[arg(short = 'm', long, value_delimiter = ',')]
@@ -79,6 +83,17 @@ impl OptimizeArgs {
             }
         }
 
+        // Validate required skills count
+        if let Some(skills) = &self.skills {
+            if skills.len() > BUILD_CONSTRAINTS.skill_count {
+                logger::error(&format!(
+                    "Maximum {} required skills allowed",
+                    BUILD_CONSTRAINTS.skill_count
+                ));
+                std::process::exit(1);
+            }
+        }
+
         // Validate champion point count
         if let Some(cp) = &self.champion_points {
             if cp.len() > BUILD_CONSTRAINTS.champion_point_count {
@@ -106,6 +121,7 @@ impl OptimizeArgs {
             required_class_names: self.classes.clone().unwrap_or_default(),
             required_weapon_skill_lines: self.weapons.clone().unwrap_or_default(),
             required_champion_points: self.champion_points.clone().unwrap_or_default(),
+            required_skills: self.skills.clone().unwrap_or_default(),
             forced_morphs: self.morphs.clone().unwrap_or_default(),
             parallelism: self
                 .parallelism
