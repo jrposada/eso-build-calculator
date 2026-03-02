@@ -240,10 +240,11 @@ impl FightSimulator {
 
                     // 1. Light attack damage (uses current buffs)
                     let la_data = light_attack_for_weapon(current_weapon);
-                    let la_modifier = self.compute_modifier_for_flags(la_data.flags, None, health_pct)
-                        + self.compute_buff_modifier_for_flags(la_data.flags, &state.active_buffs);
+                    let (la_done_base, la_taken_base) = self.compute_modifier_for_flags(la_data.flags, None, health_pct);
+                    let (la_done_buff, la_taken_buff) = self.compute_buff_modifier_for_flags(la_data.flags, &state.active_buffs);
                     let la_dmg = la_data.calculate_damage(
-                        la_modifier,
+                        la_done_base + la_done_buff,
+                        la_taken_base + la_taken_buff,
                         buffed.max_stat,
                         buffed.max_power,
                         buffed.armor_factor,
@@ -290,11 +291,12 @@ impl FightSimulator {
                                 let delay = dot.delay.unwrap_or(0.0);
 
                                 // Snapshot modifier at cast time (includes execute bonuses if currently in range)
-                                let snapshotted_modifier = if dot.ignores_modifier.unwrap_or(false) {
-                                    0.0
+                                let (snapshotted_done, snapshotted_taken) = if dot.ignores_modifier.unwrap_or(false) {
+                                    (0.0, 0.0)
                                 } else {
-                                    self.compute_modifier_for_flags(dot.flags, Some(skill.skill_line), health_pct)
-                                        + self.compute_buff_modifier_for_flags(dot.flags, &state.active_buffs)
+                                    let (done_base, taken_base) = self.compute_modifier_for_flags(dot.flags, Some(skill.skill_line), health_pct);
+                                    let (done_buff, taken_buff) = self.compute_buff_modifier_for_flags(dot.flags, &state.active_buffs);
+                                    (done_base + done_buff, taken_base + taken_buff)
                                 };
 
                                 // Remove existing effect from same skill
@@ -316,7 +318,8 @@ impl FightSimulator {
                                     increase_per_tick: dot.increase_per_tick.unwrap_or(0.0),
                                     flat_increase_per_tick: dot.flat_increase_per_tick.unwrap_or(0.0),
                                     ignores_modifier: dot.ignores_modifier.unwrap_or(false),
-                                    snapshotted_modifier,
+                                    snapshotted_done_modifier: snapshotted_done,
+                                    snapshotted_taken_modifier: snapshotted_taken,
                                     snapshotted_armor_factor: buffed.armor_factor,
                                     snapshotted_crit_mult: buffed.crit_mult,
                                 });
@@ -387,16 +390,22 @@ impl FightSimulator {
     }
 
     /// Sum damage modifier values from active buffs matching given DamageFlags.
+    /// Returns (damage_done, enemy_damage_taken) as separate additive layers.
     fn compute_buff_modifier_for_flags(
         &self,
         flags: DamageFlags,
         active_buffs: &[ActiveBuff],
-    ) -> f64 {
-        active_buffs
-            .iter()
-            .filter(|b| flags.matches_bonus_target(b.target))
-            .map(|b| b.value)
-            .sum()
+    ) -> (f64, f64) {
+        let mut done = 0.0;
+        let mut taken = 0.0;
+        for b in active_buffs {
+            if b.target == BonusTarget::EnemyDamageTaken {
+                taken += b.value;
+            } else if flags.matches_bonus_target(b.target) {
+                done += b.value;
+            }
+        }
+        (done, taken)
     }
 
     /// Register permanent buffs from AbilitySlotted bonuses on all skills.
@@ -506,10 +515,14 @@ impl FightSimulator {
                 let tick_damage = effect.base_value * pct_mult + flat_inc;
 
                 let final_damage = if effect.ignores_modifier {
-                    tick_damage * effect.snapshotted_armor_factor * effect.snapshotted_crit_mult
+                    tick_damage
+                        * (1.0 + effect.snapshotted_taken_modifier)
+                        * effect.snapshotted_armor_factor
+                        * effect.snapshotted_crit_mult
                 } else {
                     tick_damage
-                        * (1.0 + effect.snapshotted_modifier)
+                        * (1.0 + effect.snapshotted_done_modifier)
+                        * (1.0 + effect.snapshotted_taken_modifier)
                         * effect.snapshotted_armor_factor
                         * effect.snapshotted_crit_mult
                 };
@@ -820,13 +833,18 @@ impl FightSimulator {
                             continue;
                         }
                     }
-                    let modifier = self.compute_modifier_for_flags(
+                    let (done_base, taken_base) = self.compute_modifier_for_flags(
                         hit.flags,
                         Some(skill.skill_line),
                         health_pct,
-                    ) + self.compute_buff_modifier_for_flags(hit.flags, active_buffs);
+                    );
+                    let (done_buff, taken_buff) = self.compute_buff_modifier_for_flags(hit.flags, active_buffs);
                     let base = hit.effective_value(buffed.max_stat, buffed.max_power);
-                    let mut dmg = base * (1.0 + modifier) * buffed.armor_factor * buffed.crit_mult;
+                    let mut dmg = base
+                        * (1.0 + done_base + done_buff)
+                        * (1.0 + taken_base + taken_buff)
+                        * buffed.armor_factor
+                        * buffed.crit_mult;
                     if let Some(execute) = &skill.execute {
                         dmg *= execute.calculate_multiplier(health_pct);
                     }
@@ -838,28 +856,33 @@ impl FightSimulator {
         total
     }
 
+    /// Sum damage modifier values from resolved bonuses matching given DamageFlags.
+    /// Returns (damage_done, enemy_damage_taken) as separate additive layers.
     fn compute_modifier_for_flags(
         &self,
         flags: DamageFlags,
         skill_line: Option<SkillLineName>,
         health_pct: f64,
-    ) -> f64 {
+    ) -> (f64, f64) {
         let ctx = ResolveContext::new(self.effective_stats.clone());
-        self.resolved_bonuses
-            .iter()
-            .filter(|b| {
-                b.skill_line_filter
-                    .map_or(true, |sl| skill_line.map_or(false, |s| s == sl))
-                    && b.execute_threshold.map_or(true, |t| health_pct < t)
-            })
-            .map(|b| {
-                let bv = b.resolve(&ctx);
-                if flags.matches_bonus_target(bv.target) {
-                    bv.value
-                } else {
-                    0.0
-                }
-            })
-            .sum()
+        let mut done = 0.0;
+        let mut taken = 0.0;
+        for b in &self.resolved_bonuses {
+            if !b.skill_line_filter
+                .map_or(true, |sl| skill_line.map_or(false, |s| s == sl))
+            {
+                continue;
+            }
+            if !b.execute_threshold.map_or(true, |t| health_pct < t) {
+                continue;
+            }
+            let bv = b.resolve(&ctx);
+            if bv.target == BonusTarget::EnemyDamageTaken {
+                taken += bv.value;
+            } else if flags.matches_bonus_target(bv.target) {
+                done += bv.value;
+            }
+        }
+        (done, taken)
     }
 }

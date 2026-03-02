@@ -1,6 +1,7 @@
 use super::{
-    formulas, BonusData, CharacterStats, ClassName, DamageFlags, ExecuteData, ExecuteScaling,
-    ResolvedBonus, ResolveContext, Resource, SkillDamage, SkillLineName, SkillMechanic,
+    formulas, BonusData, BonusTarget, CharacterStats, ClassName, DamageFlags, ExecuteData,
+    ExecuteScaling, ResolvedBonus, ResolveContext, Resource, SkillDamage, SkillLineName,
+    SkillMechanic,
 };
 use serde::{Deserialize, Serialize};
 
@@ -142,6 +143,13 @@ impl SkillData {
             })
             .collect();
 
+        // EnemyDamageTaken is a separate multiplicative layer (global, not flag-dependent)
+        let enemy_damage_taken: f64 = applicable
+            .iter()
+            .filter(|bv| bv.target == BonusTarget::EnemyDamageTaken)
+            .map(|bv| bv.value)
+            .sum();
+
         if let Some(damage) = &self.damage {
             if let Some(hits) = &damage.hits {
                 for hit in hits {
@@ -207,7 +215,7 @@ impl SkillData {
         let armor_factor = formulas::armor_damage_factor(stats.target_armor, stats.penetration);
         let crit_mult = formulas::critical_multiplier(stats.critical_chance(), stats.critical_damage);
 
-        total_damage_per_cast * armor_factor * crit_mult
+        total_damage_per_cast * armor_factor * crit_mult * (1.0 + enemy_damage_taken)
     }
 
     /// Fast damage calculation using pre-resolved lightweight bonuses.
@@ -254,6 +262,13 @@ impl SkillData {
                 b.value
             }
         };
+
+        // EnemyDamageTaken is a separate multiplicative layer (global, not flag-dependent)
+        let enemy_damage_taken: f64 = bonuses
+            .iter()
+            .filter(|b| is_applicable(b) && b.target == BonusTarget::EnemyDamageTaken)
+            .map(|b| weighted_value(b))
+            .sum();
 
         if let Some(damage) = &self.damage {
             if let Some(hits) = &damage.hits {
@@ -317,7 +332,7 @@ impl SkillData {
             }
         }
 
-        total_damage_per_cast * armor_factor * crit_mult
+        total_damage_per_cast * armor_factor * crit_mult * (1.0 + enemy_damage_taken)
     }
 
     pub fn mechanic(&self) -> SkillMechanic {

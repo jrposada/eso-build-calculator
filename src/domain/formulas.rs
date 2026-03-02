@@ -3,6 +3,7 @@
 //! This module contains all the mathematical formulas used to convert
 //! between different ESO attribute representations (ratings to percentages, etc.)
 
+use super::character_stats::{MAX_CRITICAL_CHANCE, MAX_CRITICAL_DAMAGE};
 use super::{BonusTarget, CharacterStats};
 
 // ==================== CONSTANTS ====================
@@ -30,6 +31,7 @@ pub fn crit_rating_to_chance(crit_rating: f64) -> f64 {
 
 /// Converts critical rating to bonus critical chance (excludes base 10%)
 /// This is the additional crit chance provided by the rating alone.
+#[cfg(test)]
 fn crit_rating_to_bonus_chance(crit_rating: f64) -> f64 {
     crit_rating / MAX_CRIT_VALUE_CP160
 }
@@ -91,28 +93,27 @@ pub fn armor_damage_factor(target_armor: f64, penetration: f64) -> f64 {
 
 /// Calculate final damage combining all factors.
 ///
-/// Formula:
-/// modified_damage = base_damage * (1 + modifier_sum)
-/// armor_factor = 1 - (effective_armor / (effective_armor + 3300))
-/// crit_multiplier = 1 + (crit_chance * (crit_damage - 1))
-/// final_damage = modified_damage * armor_factor * crit_multiplier
+/// ESO post-U35 damage formula uses two separate multiplicative modifier layers:
+///   final = base * (1 + damage_done_sum) * (1 + damage_taken_sum) * armor_factor * crit_mult
 ///
 /// # Arguments
-/// * `base_damage` - Raw damage from skill (tooltip or coefficient-calculated)
-/// * `modifier_sum` - Sum of all applicable damage modifiers (e.g., 0.15 for +15%)
+/// * `base_damage` - Raw damage from skill (coefficient-calculated)
+/// * `damage_done_sum` - Sum of damage-done modifiers (Damage, DirectDamage, FlameDamage, etc.)
+/// * `damage_taken_sum` - Sum of enemy-damage-taken modifiers (EnemyDamageTaken)
 /// * `target_armor` - Target's armor value
 /// * `penetration` - Character's armor penetration
 /// * `crit_chance` - Critical strike chance (0.0 - 1.0)
 /// * `crit_damage` - Critical damage multiplier (e.g., 1.75 for 75% bonus)
 pub fn calculate_final_damage(
     base_damage: f64,
-    modifier_sum: f64,
+    damage_done_sum: f64,
+    damage_taken_sum: f64,
     target_armor: f64,
     penetration: f64,
     crit_chance: f64,
     crit_damage: f64,
 ) -> f64 {
-    let modified_damage = base_damage * (1.0 + modifier_sum);
+    let modified_damage = base_damage * (1.0 + damage_done_sum) * (1.0 + damage_taken_sum);
     let armor_factor = armor_damage_factor(target_armor, penetration);
     let crit_mult = critical_multiplier(crit_chance, crit_damage);
     modified_damage * armor_factor * crit_mult
@@ -124,7 +125,6 @@ pub fn calculate_final_damage(
 ///
 /// Returns an approximate relative damage increase (e.g., 0.05 for ~5% more damage).
 /// Used to compare alternative bonus values and pick the best one.
-/// TODO: review, make sure caps are taken into consideration
 pub fn effective_damage_contribution(
     target: BonusTarget,
     value: f64,
@@ -143,13 +143,28 @@ pub fn effective_damage_contribution(
         | BonusTarget::PhysicalDamage
         | BonusTarget::EnemyDamageTaken => value,
 
-        // Crit rating → crit chance → scales with crit damage bonus
+        // Crit rating → crit chance → scales with crit damage bonus (capped at 100%)
         BonusTarget::CriticalRating => {
-            crit_rating_to_bonus_chance(value) * (stats.critical_damage - 1.0)
+            let current_chance = stats.critical_chance();
+            let new_chance = crit_rating_to_chance(stats.critical_rating + value)
+                .min(MAX_CRITICAL_CHANCE);
+            let marginal_chance = new_chance - current_chance;
+            if marginal_chance <= 0.0 {
+                return 0.0;
+            }
+            marginal_chance * (stats.critical_damage - 1.0)
         }
 
-        // Crit damage → scales with crit chance
-        BonusTarget::CriticalDamage => value * stats.critical_chance(),
+        // Crit damage → scales with crit chance (capped at 125% bonus / 2.25 total)
+        BonusTarget::CriticalDamage => {
+            let clamped_value = (stats.critical_damage + value)
+                .min(MAX_CRITICAL_DAMAGE)
+                - stats.critical_damage;
+            if clamped_value <= 0.0 {
+                return 0.0;
+            }
+            clamped_value * stats.critical_chance()
+        }
 
         // Flat weapon/spell damage → relative increase to base power
         BonusTarget::WeaponAndSpellDamageFlat
@@ -172,13 +187,65 @@ pub fn effective_damage_contribution(
         }
 
         // Penetration → relative improvement in armor damage factor
-        BonusTarget::PhysicalAndSpellPenetration => {
+        BonusTarget::PhysicalAndSpellPenetration
+        | BonusTarget::EnemyResistanceReduction => {
             let old_factor = armor_damage_factor(stats.target_armor, stats.penetration);
             if old_factor <= 0.0 {
                 return 0.0;
             }
             let new_factor = armor_damage_factor(stats.target_armor, stats.penetration + value);
             (new_factor - old_factor) / old_factor
+        }
+
+        // Weapon/Spell crit rating — same as generic CriticalRating
+        BonusTarget::WeaponCriticalRating | BonusTarget::SpellCriticalRating => {
+            let current_chance = stats.critical_chance();
+            let new_chance = crit_rating_to_chance(stats.critical_rating + value)
+                .min(MAX_CRITICAL_CHANCE);
+            let marginal_chance = new_chance - current_chance;
+            if marginal_chance <= 0.0 {
+                return 0.0;
+            }
+            marginal_chance * (stats.critical_damage - 1.0)
+        }
+
+        // Percentage max resource → resource-to-damage scaled
+        BonusTarget::MaxMagicka => {
+            let base = stats.max_power();
+            if base <= 0.0 {
+                return 0.0;
+            }
+            resource_to_damage_bonus(stats.max_magicka * value) / base
+        }
+        BonusTarget::MaxStamina => {
+            let base = stats.max_power();
+            if base <= 0.0 {
+                return 0.0;
+            }
+            resource_to_damage_bonus(stats.max_stamina * value) / base
+        }
+
+        // Percentage weapon/spell damage → relative power increase
+        BonusTarget::WeaponDamage => {
+            let base = stats.max_power();
+            if base <= 0.0 {
+                return 0.0;
+            }
+            (stats.weapon_damage * value) / base
+        }
+        BonusTarget::SpellDamage => {
+            let base = stats.max_power();
+            if base <= 0.0 {
+                return 0.0;
+            }
+            (stats.spell_damage * value) / base
+        }
+        BonusTarget::WeaponAndSpellDamageMultiplier => {
+            let base = stats.max_power();
+            if base <= 0.0 {
+                return 0.0;
+            }
+            (stats.max_power() * value) / base
         }
 
         // Unsupported targets — no damage contribution estimate
@@ -463,7 +530,7 @@ mod tests {
     #[test]
     fn test_calculate_final_damage_basic() {
         // Simple case: 1000 base, no modifiers, no armor, no crit
-        let damage = calculate_final_damage(1000.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+        let damage = calculate_final_damage(1000.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
         assert!(
             (damage - 1000.0).abs() < 0.01,
             "Expected 1000 damage, got {}",
@@ -473,8 +540,8 @@ mod tests {
 
     #[test]
     fn test_calculate_final_damage_with_modifiers() {
-        // 1000 base, 15% modifier, no armor, no crit
-        let damage = calculate_final_damage(1000.0, 0.15, 0.0, 0.0, 0.0, 1.0);
+        // 1000 base, 15% damage done, no damage taken, no armor, no crit
+        let damage = calculate_final_damage(1000.0, 0.15, 0.0, 0.0, 0.0, 0.0, 1.0);
         assert!(
             (damage - 1150.0).abs() < 0.01,
             "Expected 1150 damage with 15% modifier, got {}",
@@ -483,14 +550,30 @@ mod tests {
     }
 
     #[test]
+    fn test_calculate_final_damage_two_layers() {
+        // 1000 base, 20% damage done, 30% damage taken
+        // Correct: 1000 * 1.2 * 1.3 = 1560 (multiplicative)
+        // Wrong (old): 1000 * 1.5 = 1500 (additive)
+        let damage = calculate_final_damage(1000.0, 0.20, 0.30, 0.0, 0.0, 0.0, 1.0);
+        let expected = 1000.0 * 1.2 * 1.3;
+        assert!(
+            (damage - expected).abs() < 0.01,
+            "Expected {} damage, got {}",
+            expected,
+            damage
+        );
+    }
+
+    #[test]
     fn test_calculate_final_damage_full_calculation() {
         // Realistic scenario:
-        // 10000 base, 20% modifier, 18200 armor, 18200 pen (full pen), 60% crit, 1.75 crit damage
-        // modified = 10000 * 1.2 = 12000
+        // 10000 base, 20% damage done, 0% damage taken, 18200 armor, 18200 pen (full pen),
+        // 60% crit, 1.75 crit damage
+        // modified = 10000 * 1.2 * 1.0 = 12000
         // armor_factor = 1.0 (full penetration)
         // crit_mult = 1 + (0.6 * 0.75) = 1.45
         // final = 12000 * 1.0 * 1.45 = 17400
-        let damage = calculate_final_damage(10000.0, 0.20, 18200.0, 18200.0, 0.60, 1.75);
+        let damage = calculate_final_damage(10000.0, 0.20, 0.0, 18200.0, 18200.0, 0.60, 1.75);
         let expected = 10000.0 * 1.2 * 1.45;
         assert!(
             (damage - expected).abs() < 0.01,
@@ -605,6 +688,53 @@ mod tests {
         assert!(
             result.abs() < 0.0001,
             "Expected 0.0 for unsupported target, got {}",
+            result
+        );
+    }
+
+    #[test]
+    fn test_edc_crit_rating_at_cap_returns_zero() {
+        // Stats already at 100% crit chance — adding more rating gives 0
+        let stats = CharacterStats::default()
+            .with_critical_rating(MAX_CRIT_VALUE_CP160) // 100% total crit
+            .with_critical_damage(2.0);
+        let result = effective_damage_contribution(BonusTarget::CriticalRating, 1314.0, &stats);
+        assert!(
+            result.abs() < 0.0001,
+            "Expected 0.0 at crit cap, got {}",
+            result
+        );
+    }
+
+    #[test]
+    fn test_edc_crit_damage_at_cap_returns_zero() {
+        // Stats already at 2.25 crit damage cap — adding more gives 0
+        let stats = CharacterStats::default()
+            .with_critical_rating(10956.0)
+            .with_critical_damage(MAX_CRITICAL_DAMAGE);
+        let result = effective_damage_contribution(BonusTarget::CriticalDamage, 0.10, &stats);
+        assert!(
+            result.abs() < 0.0001,
+            "Expected 0.0 at crit damage cap, got {}",
+            result
+        );
+    }
+
+    #[test]
+    fn test_edc_crit_rating_partial_cap() {
+        // Near crit cap: only partial benefit from added rating
+        let stats = CharacterStats::default()
+            .with_critical_rating(19_000.0) // ~96.7% total crit
+            .with_critical_damage(2.0);
+        // Adding 5000 rating would push to 100%+ but caps at 100%
+        let result = effective_damage_contribution(BonusTarget::CriticalRating, 5000.0, &stats);
+        let current_chance = stats.critical_chance();
+        let marginal = MAX_CRITICAL_CHANCE - current_chance; // only get to 100%
+        let expected = marginal * (2.0 - 1.0);
+        assert!(
+            (result - expected).abs() < 0.001,
+            "Expected {}, got {}",
+            expected,
             result
         );
     }

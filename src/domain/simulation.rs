@@ -41,8 +41,10 @@ pub struct ActiveEffect {
     pub increase_per_tick: f64,
     pub flat_increase_per_tick: f64,
     pub ignores_modifier: bool,
-    /// Modifier sum snapshotted at cast time (DoT ticks use this, not current buffs)
-    pub snapshotted_modifier: f64,
+    /// Damage-done modifier sum snapshotted at cast time (DoT ticks use this, not current buffs)
+    pub snapshotted_done_modifier: f64,
+    /// EnemyDamageTaken modifier sum snapshotted at cast time (separate multiplicative layer)
+    pub snapshotted_taken_modifier: f64,
     /// Armor damage factor snapshotted at cast time
     pub snapshotted_armor_factor: f64,
     /// Critical multiplier snapshotted at cast time

@@ -16,6 +16,8 @@ use std::collections::{HashMap, HashSet};
 ///   DirectDamage → bit 10, DotDamage → bit 11
 pub(crate) struct ModifierLookup {
     damage_sum: f64,
+    /// EnemyDamageTaken is a separate multiplicative layer in ESO's damage formula.
+    enemy_damage_taken_sum: f64,
     bit_sums: [f64; 12],
 }
 
@@ -27,6 +29,7 @@ impl ModifierLookup {
     /// separately by the caller.
     pub fn new(bonuses: &[ResolvedBonus]) -> Self {
         let mut damage_sum = 0.0;
+        let mut enemy_damage_taken_sum = 0.0;
         let mut bit_sums = [0.0; 12];
 
         for b in bonuses {
@@ -39,7 +42,8 @@ impl ModifierLookup {
                 b.value
             };
             match b.target {
-                BonusTarget::Damage | BonusTarget::EnemyDamageTaken => damage_sum += value,
+                BonusTarget::Damage => damage_sum += value,
+                BonusTarget::EnemyDamageTaken => enemy_damage_taken_sum += value,
                 BonusTarget::PhysicalDamage => bit_sums[1] += value,
                 BonusTarget::FlameDamage => bit_sums[2] += value,
                 BonusTarget::FrostDamage => bit_sums[3] += value,
@@ -54,11 +58,19 @@ impl ModifierLookup {
 
         Self {
             damage_sum,
+            enemy_damage_taken_sum,
             bit_sums,
         }
     }
 
-    /// Look up the total modifier sum for a given DamageFlags pattern.
+    /// Sum of EnemyDamageTaken bonuses (separate multiplicative layer).
+    #[inline(always)]
+    pub fn enemy_damage_taken(&self) -> f64 {
+        self.enemy_damage_taken_sum
+    }
+
+    /// Look up the total damage-done modifier sum for a given DamageFlags pattern.
+    /// Does NOT include EnemyDamageTaken (separate multiplicative layer).
     #[inline(always)]
     pub fn modifier_for(&self, flags: DamageFlags) -> f64 {
         let bits = flags.bits();
@@ -81,10 +93,12 @@ impl ModifierLookup {
 pub struct CachedPassiveContext {
     /// character_stats + passive stat bonuses (unclamped, CP stats added on top per eval)
     pub base_stats: CharacterStats,
-    /// Per skill, per hit: cached passive modifier sum
+    /// Per skill, per hit: cached passive modifier sum (damage-done only)
     pub hit_mods: SmallVec<[SmallVec<[f64; 4]>; 10]>,
-    /// Per skill, per dot: cached passive modifier sum
+    /// Per skill, per dot: cached passive modifier sum (damage-done only)
     pub dot_mods: SmallVec<[SmallVec<[f64; 4]>; 10]>,
+    /// Sum of EnemyDamageTaken from passive bonuses (separate multiplicative layer)
+    pub enemy_damage_taken: f64,
 }
 
 /// Pre-computed evaluation context: values constant across skills for a given
@@ -92,6 +106,8 @@ pub struct CachedPassiveContext {
 pub(crate) struct EvalContext {
     pub armor_factor: f64,
     pub crit_mult: f64,
+    /// Multiplier for EnemyDamageTaken from this context's bonuses.
+    pub enemy_damage_taken: f64,
     pub max_stat: f64,
     pub max_power: f64,
     pub lookup: ModifierLookup,
@@ -416,9 +432,12 @@ impl Build {
         let max_stat = effective_stats.max_stat();
         let max_power = effective_stats.max_power();
 
+        let enemy_damage_taken = lookup.enemy_damage_taken();
+
         EvalContext {
             armor_factor,
             crit_mult,
+            enemy_damage_taken,
             max_stat,
             max_power,
             lookup,
@@ -509,7 +528,7 @@ impl Build {
         for skill in skills {
             total += Self::single_skill_damage(skill, &ctx);
         }
-        total * ctx.armor_factor * ctx.crit_mult
+        total * ctx.armor_factor * ctx.crit_mult * (1.0 + ctx.enemy_damage_taken)
     }
 
     /// Sum modifier values from filtered bonuses (those with skill_line_filter)
@@ -622,10 +641,13 @@ impl Build {
             dot_mods.push(skill_dot_mods);
         }
 
+        let enemy_damage_taken = passive_lookup.enemy_damage_taken();
+
         CachedPassiveContext {
             base_stats,
             hit_mods,
             dot_mods,
+            enemy_damage_taken,
         }
     }
 
@@ -712,12 +734,14 @@ impl Build {
             })
             .collect();
 
+        let enemy_damage_taken = lookup.enemy_damage_taken();
         let max_stat = effective_stats.max_stat();
         let max_power = effective_stats.max_power();
 
         EvalContext {
             armor_factor,
             crit_mult,
+            enemy_damage_taken,
             max_stat,
             max_power,
             lookup,
@@ -807,7 +831,8 @@ impl Build {
         for (i, skill) in skills.iter().enumerate() {
             total += Self::single_skill_damage_cached(skill, i, passive_ctx, &cp_ctx);
         }
-        total * cp_ctx.armor_factor * cp_ctx.crit_mult
+        let enemy_damage_taken = passive_ctx.enemy_damage_taken + cp_ctx.enemy_damage_taken;
+        total * cp_ctx.armor_factor * cp_ctx.crit_mult * (1.0 + enemy_damage_taken)
     }
 
     /// Build passive modifier lookup (constant within a work unit).

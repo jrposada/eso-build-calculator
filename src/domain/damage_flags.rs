@@ -28,6 +28,9 @@ bitflags! {
         const MELEE   = 0b0001_0000_0000_0000;
         const RANGED  = 0b0010_0000_0000_0000;
         const CHANNEL = 0b0100_0000_0000_0000;
+
+        // Source (bit 15)
+        const LIGHT_ATTACK = 0b1000_0000_0000_0000;
     }
 }
 
@@ -47,9 +50,10 @@ impl DamageFlags {
             BonusTarget::FrostDamage => self.contains(DamageFlags::FROST),
             BonusTarget::ShockDamage => self.contains(DamageFlags::SHOCK),
             BonusTarget::PhysicalDamage => self.contains(DamageFlags::PHYSICAL),
-            BonusTarget::LightAttackDamage => self.contains(DamageFlags::DIRECT),
+            BonusTarget::LightAttackDamage => self.contains(DamageFlags::LIGHT_ATTACK),
             BonusTarget::Damage => true,
-            BonusTarget::EnemyDamageTaken => true,
+            // EnemyDamageTaken is a separate multiplicative layer and must NOT
+            // be matched here. It is handled explicitly by callers.
             _ => false,
         }
     }

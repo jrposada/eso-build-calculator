@@ -242,6 +242,8 @@ const ARMOR_INFUSED_ENCHANT_BONUS: f64 = 0.12; // +12% enchant per piece
 const JEWELRY_INFUSED_ENCHANT_BONUS: f64 = 0.60; // +60% enchant effect
 const JEWELRY_ROBUST_STAMINA: f64 = 877.0; // per piece
 const JEWELRY_ARCANE_MAGICKA: f64 = 877.0; // per piece
+const BLOODTHIRSTY_MAX_PER_PIECE: f64 = 350.0; // +350 WD/SD per piece at 0% HP
+const BLOODTHIRSTY_THRESHOLD: f64 = 0.90; // Scales below 90% enemy HP
 const WEAPON_NIRNHONED_BONUS: f64 = 0.15; // +15% of weapon base as W/SD
 const WEAPON_PRECISE_CRIT_RATING: f64 = 1_117.0;
 const WEAPON_SHARPENED_PENETRATION: f64 = 3_276.0;
@@ -323,13 +325,23 @@ impl GearConfig {
 
         // 6. Jewelry trait bonus (if not Infused, which was handled above)
         match self.jewelry_trait {
+            JewelryTrait::Bloodthirsty => {
+                // Bloodthirsty: up to +350 WD/SD per piece, scaling linearly below 90% HP.
+                // Fight-average: 90% of fight below threshold, average bonus = max/2,
+                // so avg = 0.90 * (max / 2) per piece.
+                let avg_per_piece = BLOODTHIRSTY_THRESHOLD
+                    * (BLOODTHIRSTY_MAX_PER_PIECE / 2.0);
+                let total = avg_per_piece * JEWELRY_PIECE_COUNT;
+                stats.weapon_damage += total;
+                stats.spell_damage += total;
+            }
             JewelryTrait::Robust => {
                 stats.max_stamina += JEWELRY_ROBUST_STAMINA * JEWELRY_PIECE_COUNT;
             }
             JewelryTrait::Arcane => {
                 stats.max_magicka += JEWELRY_ARCANE_MAGICKA * JEWELRY_PIECE_COUNT;
             }
-            _ => {} // Bloodthirsty handled as execute bonus elsewhere, others not modeled
+            _ => {} // Other traits not modeled for DPS
         }
 
         // 7. Mundus stone (amplified by Divines)
