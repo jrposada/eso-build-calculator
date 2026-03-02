@@ -24,6 +24,8 @@ pub struct FightSimulator {
     pub bar2_enchant: Option<WeaponEnchant>,
     /// Set proc effects from equipped gear sets
     pub set_procs: Vec<SetProcEffect>,
+    /// Average resource percentage (0-100) for resource-scaling set procs
+    pub avg_resource_pct: f64,
 }
 
 struct SimState {
@@ -94,11 +96,17 @@ impl FightSimulator {
             bar1_enchant: None,
             bar2_enchant: None,
             set_procs: Vec::new(),
+            avg_resource_pct: 50.0,
         }
     }
 
     pub fn with_set_procs(mut self, procs: Vec<SetProcEffect>) -> Self {
         self.set_procs = procs;
+        self
+    }
+
+    pub fn with_avg_resource_pct(mut self, pct: f64) -> Self {
+        self.avg_resource_pct = pct;
         self
     }
 
@@ -256,6 +264,36 @@ impl FightSimulator {
 
         // Register permanent AbilitySlotted buffs from all skills on both bars
         self.register_ability_slotted_buffs(&mut state, distribution);
+
+        // Register static buffs from ResourceScalingBuff set procs
+        for proc in &self.set_procs {
+            if let SetProcAction::ResourceScalingBuff {
+                target,
+                max_value,
+                threshold_pct,
+            } = &proc.action
+            {
+                let buff_value = match threshold_pct {
+                    Some(t) => {
+                        if self.avg_resource_pct < *t {
+                            *max_value
+                        } else {
+                            0.0
+                        }
+                    }
+                    None => max_value * (1.0 - self.avg_resource_pct / 100.0),
+                };
+                if buff_value > 0.0 {
+                    state.active_buffs.push(ActiveBuff {
+                        name: proc.name.clone(),
+                        source_skill_name: "Set Proc".to_string(),
+                        remaining_duration: None, // permanent
+                        target: *target,
+                        value: buff_value,
+                    });
+                }
+            }
+        }
 
         // Safety: prevent infinite loops
         let max_iterations = 1_000_000;
@@ -1274,6 +1312,9 @@ impl FightSimulator {
                 }
                 SetProcAction::FlatLightAttackBonus { .. } => {
                     // Handled at init time via flat_la_bonus field
+                }
+                SetProcAction::ResourceScalingBuff { .. } => {
+                    // Handled at init time as a static buff
                 }
             }
         }

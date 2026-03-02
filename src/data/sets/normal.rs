@@ -222,7 +222,37 @@ pub static NORMAL_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                     BonusTrigger::Passive,
                     BonusValue::new("Offensive Penetration", BonusTarget::PhysicalAndSpellPenetration, 1487.0),
                 )],
-        ),
+        )
+        .with_proc_effects(5, vec![
+            SetProcEffect {
+                name: "Ansuul's Storm Bolt".to_string(),
+                trigger: SetProcTrigger::OnLightAttack,
+                action: SetProcAction::DamageProc {
+                    hit_damage: 1471.0,
+                    hit_flags: DamageFlags::SHOCK | DamageFlags::SINGLE_TARGET | DamageFlags::DIRECT,
+                    dot_total_damage: 0.0,
+                    dot_duration: 0.0,
+                    dot_flags: DamageFlags::empty(),
+                },
+                cooldown: 0.0,
+            },
+            SetProcEffect {
+                name: "Ansuul's Fury".to_string(),
+                trigger: SetProcTrigger::OnLightAttack,
+                action: SetProcAction::StackingBuff {
+                    per_stack_target: Some(BonusTarget::CriticalDamage),
+                    per_stack_value: 0.05,
+                    max_stacks: 4,
+                    stack_duration: 5.0,
+                    stack_cooldown: 0.0,
+                    at_max_buff_name: String::new(),
+                    at_max_buff_target: BonusTarget::CriticalDamage,
+                    at_max_buff_value: 0.0,
+                    at_max_buff_duration: 0.0,
+                },
+                cooldown: 0.0,
+            },
+        ]),
         SetData::new("Apocryphal Inspiration", SetType::Normal)
         .with_threshold(
             2,
@@ -582,7 +612,17 @@ pub static NORMAL_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                     BonusTrigger::Passive,
                     BonusValue::new("Critical Chance", BonusTarget::CriticalRating, 657.0),
                 )],
-        ),
+        )
+        .with_proc_effects(5, vec![SetProcEffect {
+            name: "Bahsei's Mania".to_string(),
+            trigger: SetProcTrigger::OnDealDamage,
+            action: SetProcAction::ResourceScalingBuff {
+                target: BonusTarget::Damage,
+                max_value: 0.15,
+                threshold_pct: None,
+            },
+            cooldown: 0.0,
+        }]),
         SetData::new("Bani's Torment", SetType::Normal)
         .with_threshold(
             4,
@@ -1305,7 +1345,17 @@ pub static NORMAL_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                     BonusTrigger::Passive,
                     BonusValue::new("Weapon and Spell Damage", BonusTarget::WeaponAndSpellDamageFlat, 129.0),
                 )],
-        ),
+        )
+        .with_proc_effects(5, vec![SetProcEffect {
+            name: "Coral Riptide Minor Force".to_string(),
+            trigger: SetProcTrigger::OnDealDamage,
+            action: SetProcAction::ResourceScalingBuff {
+                target: BonusTarget::CriticalDamage,
+                max_value: 0.10,
+                threshold_pct: Some(50.0),
+            },
+            cooldown: 0.0,
+        }]),
         SetData::new("Corpseburster", SetType::Normal)
         .with_threshold(
             2,
@@ -4772,7 +4822,37 @@ pub static NORMAL_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                     BonusTrigger::Passive,
                     BonusValue::new("Critical Chance", BonusTarget::CriticalRating, 657.0),
                 )],
-        ),
+        )
+        .with_proc_effects(5, vec![
+            SetProcEffect {
+                name: "Perfected Ansuul's Storm Bolt".to_string(),
+                trigger: SetProcTrigger::OnLightAttack,
+                action: SetProcAction::DamageProc {
+                    hit_damage: 1471.0,
+                    hit_flags: DamageFlags::SHOCK | DamageFlags::SINGLE_TARGET | DamageFlags::DIRECT,
+                    dot_total_damage: 0.0,
+                    dot_duration: 0.0,
+                    dot_flags: DamageFlags::empty(),
+                },
+                cooldown: 0.0,
+            },
+            SetProcEffect {
+                name: "Perfected Ansuul's Fury".to_string(),
+                trigger: SetProcTrigger::OnLightAttack,
+                action: SetProcAction::StackingBuff {
+                    per_stack_target: Some(BonusTarget::CriticalDamage),
+                    per_stack_value: 0.05,
+                    max_stacks: 4,
+                    stack_duration: 5.0,
+                    stack_cooldown: 0.0,
+                    at_max_buff_name: String::new(),
+                    at_max_buff_target: BonusTarget::CriticalDamage,
+                    at_max_buff_value: 0.0,
+                    at_max_buff_duration: 0.0,
+                },
+                cooldown: 0.0,
+            },
+        ]),
         SetData::new("Perfected Arms of Relequen", SetType::Normal)
         .with_threshold(
             2,
@@ -4805,7 +4885,17 @@ pub static NORMAL_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                     BonusTrigger::Passive,
                     BonusValue::new("Weapon and Spell Damage", BonusTarget::WeaponAndSpellDamageFlat, 129.0),
                 )],
-        ),
+        )
+        .with_proc_effects(5, vec![SetProcEffect {
+            name: "Perfected Bahsei's Mania".to_string(),
+            trigger: SetProcTrigger::OnDealDamage,
+            action: SetProcAction::ResourceScalingBuff {
+                target: BonusTarget::Damage,
+                max_value: 0.15,
+                threshold_pct: None,
+            },
+            cooldown: 0.0,
+        }]),
         SetData::new("Perfected Chaotic Whirlwind", SetType::Normal),
         SetData::new("Perfected Claw of Yolnahkriin", SetType::Normal),
         SetData::new("Perfected Concentrated Force", SetType::Normal),
@@ -4818,7 +4908,17 @@ pub static NORMAL_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                     BonusTrigger::Passive,
                     BonusValue::new("Critical Chance", BonusTarget::CriticalRating, 657.0),
                 )],
-        ),
+        )
+        .with_proc_effects(5, vec![SetProcEffect {
+            name: "Perfected Coral Riptide Minor Force".to_string(),
+            trigger: SetProcTrigger::OnDealDamage,
+            action: SetProcAction::ResourceScalingBuff {
+                target: BonusTarget::CriticalDamage,
+                max_value: 0.10,
+                threshold_pct: Some(50.0),
+            },
+            cooldown: 0.0,
+        }]),
         SetData::new("Perfected Defensive Position", SetType::Normal),
         SetData::new("Perfected Disciplined Slash", SetType::Normal),
         SetData::new("Perfected Dolorous Arena", SetType::Normal),
@@ -4981,7 +5081,19 @@ pub static NORMAL_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                     BonusTrigger::Passive,
                     BonusValue::new("Weapon and Spell Damage", BonusTarget::WeaponAndSpellDamageFlat, 129.0),
                 )],
-        ),
+        )
+        .with_proc_effects(5, vec![SetProcEffect {
+            name: "Perfected Whorl of the Depths".to_string(),
+            trigger: SetProcTrigger::OnDirectDamage,
+            action: SetProcAction::DamageProc {
+                hit_damage: 1025.0,
+                hit_flags: DamageFlags::FROST | DamageFlags::AOE | DamageFlags::DIRECT,
+                dot_total_damage: 7175.0,
+                dot_duration: 6.0,
+                dot_flags: DamageFlags::FROST | DamageFlags::AOE | DamageFlags::DOT,
+            },
+            cooldown: 6.0,
+        }]),
         SetData::new("Perfected Xoryn's Masterpiece", SetType::Normal)
         .with_threshold(
             2,
@@ -8796,7 +8908,19 @@ pub static NORMAL_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                     BonusTrigger::Passive,
                     BonusValue::new("Weapon and Spell Damage", BonusTarget::WeaponAndSpellDamageFlat, 129.0),
                 )],
-        ),
+        )
+        .with_proc_effects(5, vec![SetProcEffect {
+            name: "Whorl of the Depths".to_string(),
+            trigger: SetProcTrigger::OnDirectDamage,
+            action: SetProcAction::DamageProc {
+                hit_damage: 1025.0,
+                hit_flags: DamageFlags::FROST | DamageFlags::AOE | DamageFlags::DIRECT,
+                dot_total_damage: 7175.0,
+                dot_duration: 6.0,
+                dot_flags: DamageFlags::FROST | DamageFlags::AOE | DamageFlags::DOT,
+            },
+            cooldown: 6.0,
+        }]),
         SetData::new("Widowmaker", SetType::Normal)
         .with_threshold(
             2,

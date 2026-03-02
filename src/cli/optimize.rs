@@ -143,6 +143,10 @@ pub struct OptimizeArgs {
     #[arg(long, default_value = "3")]
     pub armor_types: u8,
 
+    /// Average resource percentage for resource-scaling sets like Bahsei's (0-100, default 50)
+    #[arg(long, default_value = "50")]
+    pub avg_resource_pct: f64,
+
     /// Override computed max stamina
     #[arg(long)]
     pub max_stamina: Option<f64>,
@@ -567,7 +571,8 @@ impl OptimizeArgs {
                 let simulator =
                     FightSimulator::new(build.effective_stats(), build.resolved_bonuses(), suppressed)
                         .with_enchants(bar1_enchant, bar2_enchant)
-                        .with_set_procs(proc_effects);
+                        .with_set_procs(proc_effects)
+                        .with_avg_resource_pct(self.avg_resource_pct);
                 Some((build_idx, simulator, distributions))
             })
             .collect();
@@ -630,7 +635,7 @@ impl OptimizeArgs {
         let sim_elapsed = sim_start.elapsed();
 
         // Find global best from parallel results
-        if let Some((best_build_idx, best_dist_idx, distributions, result)) = results
+        if let Some((best_build_idx, best_dist_idx, distributions, mut result)) = results
             .into_iter()
             .max_by(|(_, _, _, a), (_, _, _, b)| a.dps.partial_cmp(&b.dps).unwrap())
         {
@@ -642,10 +647,93 @@ impl OptimizeArgs {
                 ));
                 logger::info(&builds[best_build_idx].to_string());
             }
-            let best_dist = &distributions[best_dist_idx];
-            display_simulation_result(&result, best_dist, distributions.len(), builds[best_build_idx].set_names());
+            let best_dist = distributions[best_dist_idx].clone();
+
+            // ── Enchant optimization sweep ──
+            let bar1_pinned = self.bar1_enchant.is_some();
+            let bar2_pinned = self.bar2_enchant.is_some();
+            let mut winning_bar1 = self.bar1_enchant.unwrap_or(WeaponEnchant::Flame);
+            let mut winning_bar2 = self.bar2_enchant.unwrap_or(WeaponEnchant::Flame);
+
+            if !bar1_pinned || !bar2_pinned {
+                let all_enchants = [
+                    WeaponEnchant::Flame,
+                    WeaponEnchant::Poison,
+                    WeaponEnchant::Shock,
+                    WeaponEnchant::Berserker,
+                ];
+                let bar1_candidates: Vec<WeaponEnchant> = if bar1_pinned {
+                    vec![winning_bar1]
+                } else {
+                    all_enchants.to_vec()
+                };
+                let bar2_candidates: Vec<WeaponEnchant> = if bar2_pinned {
+                    vec![winning_bar2]
+                } else {
+                    all_enchants.to_vec()
+                };
+
+                let build = &builds[best_build_idx];
+                let mut suppressed = if self.no_trial {
+                    std::collections::HashSet::new()
+                } else {
+                    TRIAL_BUFF_NAMES.clone()
+                };
+                let potion = self.potion.unwrap_or(Potion::WeaponPower);
+                for bonus in potion.bonuses() {
+                    suppressed.insert(bonus.name.clone());
+                }
+                let proc_effects: Vec<SetProcEffect> = build
+                    .set_names()
+                    .iter()
+                    .flat_map(|(name, _)| {
+                        ALL_SETS
+                            .iter()
+                            .filter(move |s| s.name == *name)
+                            .flat_map(|s| {
+                                s.proc_effects_at(s.set_type.max_pieces())
+                                    .into_iter()
+                                    .cloned()
+                            })
+                    })
+                    .collect();
+
+                let combo_count = bar1_candidates.len() * bar2_candidates.len();
+                let mut best_enchant_dps = result.dps;
+
+                for &e1 in &bar1_candidates {
+                    for &e2 in &bar2_candidates {
+                        if e1 == winning_bar1 && e2 == winning_bar2 {
+                            continue; // already tested
+                        }
+                        let sim = FightSimulator::new(
+                            build.effective_stats(),
+                            build.resolved_bonuses(),
+                            suppressed.clone(),
+                        )
+                        .with_enchants(Some(e1), Some(e2))
+                        .with_set_procs(proc_effects.clone())
+                        .with_avg_resource_pct(self.avg_resource_pct);
+
+                        let r = sim.simulate(&best_dist);
+                        if r.dps > best_enchant_dps {
+                            best_enchant_dps = r.dps;
+                            winning_bar1 = e1;
+                            winning_bar2 = e2;
+                            result = r;
+                        }
+                    }
+                }
+
+                logger::success(&format!(
+                    "Best enchants: Bar1={}, Bar2={} (optimized from {} combos)",
+                    winning_bar1, winning_bar2, combo_count
+                ));
+            }
+
+            display_simulation_result(&result, &best_dist, distributions.len(), builds[best_build_idx].set_names());
             logger::info(&format!("Simulation completed in {:.2?}", sim_elapsed));
-            return Some((best_build_idx, best_dist.clone(), result));
+            return Some((best_build_idx, best_dist, result));
         }
 
         None

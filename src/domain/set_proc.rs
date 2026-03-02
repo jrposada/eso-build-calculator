@@ -43,6 +43,14 @@ pub enum SetProcAction {
     FlatLightAttackBonus {
         value: f64,
     },
+    /// Resource-scaling buff (e.g. Bahsei's Mania, Coral Riptide)
+    /// Linear (threshold_pct=None): bonus = max_value * (1 - avg_resource_pct/100)
+    /// Threshold (threshold_pct=Some(t)): bonus = max_value if avg_resource_pct < t, else 0
+    ResourceScalingBuff {
+        target: BonusTarget,
+        max_value: f64,
+        threshold_pct: Option<f64>,
+    },
 }
 
 #[derive(Debug, Clone)]
@@ -81,6 +89,23 @@ impl SetProcEffect {
                 80_000.0 * at_max_buff_value * 0.8
             }
             SetProcAction::FlatLightAttackBonus { value } => value * modifier_estimate,
+            SetProcAction::ResourceScalingBuff {
+                max_value,
+                threshold_pct,
+                ..
+            } => {
+                let uptime = match threshold_pct {
+                    Some(t) => {
+                        if 50.0 < *t {
+                            0.8
+                        } else {
+                            0.5
+                        }
+                    }
+                    None => 0.5, // linear scaling at ~50% resource
+                };
+                80_000.0 * max_value * uptime
+            }
         }
     }
 }

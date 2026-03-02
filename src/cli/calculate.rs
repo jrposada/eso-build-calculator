@@ -109,6 +109,10 @@ pub struct CalculateArgs {
     #[arg(long, default_value = "3")]
     pub armor_types: u8,
 
+    /// Average resource percentage for resource-scaling sets like Bahsei's (0-100, default 50)
+    #[arg(long, default_value = "50")]
+    pub avg_resource_pct: f64,
+
     /// Override computed max stamina
     #[arg(long, conflicts_with = "file")]
     pub max_stamina: Option<f64>,
@@ -344,7 +348,8 @@ impl CalculateArgs {
         let bar2_enchant = self.bar2_enchant.or(Some(WeaponEnchant::Flame));
         let simulator = FightSimulator::new(effective_stats, resolved_bonuses, suppressed)
             .with_enchants(bar1_enchant, bar2_enchant)
-            .with_set_procs(set_proc_effects);
+            .with_set_procs(set_proc_effects)
+            .with_avg_resource_pct(self.avg_resource_pct);
 
         if self.verbose {
             let buffed = simulator.compute_buffed_stats(&distributions[0]);
