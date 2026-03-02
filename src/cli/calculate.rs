@@ -2,10 +2,11 @@ use super::build_config::BuildConfig;
 use super::parsers::{parse_champion_point, parse_set, parse_skill};
 use crate::data::bonuses::{TRIAL_BUFF_NAMES, TRIAL_DUMMY_BUFFS};
 use crate::data::passives::armor::armor_passives;
+use crate::data::passives::undaunted_mettle_bonuses;
 use crate::domain::{
     ArmorTrait, ArmorWeight, AttributeChoice, BonusData, Build, CharacterStats, Food, GearConfig,
-    JewelryTrait, MundusStone, Potion, Race, SetData, SkillData, SkillLineName, WeaponEnchant,
-    WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
+    JewelryTrait, MundusStone, Potion, Race, SetData, SetProcEffect, SkillData, SkillLineName,
+    WeaponEnchant, WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
 };
 use super::simulation_display::display_simulation_result;
 use crate::infrastructure::{format, logger, table, table::ColumnDefinition};
@@ -103,6 +104,10 @@ pub struct CalculateArgs {
     /// Bar 2 weapon enchant (flame, poison, shock, berserker; defaults to flame)
     #[arg(long, value_parser = WeaponEnchant::parse)]
     pub bar2_enchant: Option<WeaponEnchant>,
+
+    /// Number of distinct armor weights worn (1-3, defaults to 3 for 5/1/1 builds)
+    #[arg(long, default_value = "3")]
+    pub armor_types: u8,
 
     /// Override computed max stamina
     #[arg(long, conflicts_with = "file")]
@@ -222,6 +227,9 @@ impl CalculateArgs {
         let armor_weight = self.armor_weight.unwrap_or(ArmorWeight::Medium);
         passive_bonuses.extend(armor_passives(armor_weight));
 
+        // Add Undaunted Mettle bonuses based on armor types worn
+        passive_bonuses.extend(undaunted_mettle_bonuses(self.armor_types));
+
         // Add potion bonuses (default: weapon-power)
         let potion = self.potion.unwrap_or(Potion::WeaponPower);
         passive_bonuses.extend(potion.bonuses());
@@ -245,10 +253,16 @@ impl CalculateArgs {
 
         let mut set_bonuses: Vec<BonusData> = Vec::new();
         let mut set_names: Vec<(String, u8)> = Vec::new();
+        let mut set_proc_effects: Vec<SetProcEffect> = Vec::new();
         for set in &active_sets {
             let piece_count = set.set_type.max_pieces();
             let bonuses = set.bonuses_at(piece_count);
             set_bonuses.extend(bonuses.into_iter().cloned());
+            set_proc_effects.extend(
+                set.proc_effects_at(piece_count)
+                    .into_iter()
+                    .cloned(),
+            );
             set_names.push((set.name.clone(), piece_count));
         }
 
@@ -329,7 +343,8 @@ impl CalculateArgs {
         let bar1_enchant = self.bar1_enchant.or(Some(WeaponEnchant::Flame));
         let bar2_enchant = self.bar2_enchant.or(Some(WeaponEnchant::Flame));
         let simulator = FightSimulator::new(effective_stats, resolved_bonuses, suppressed)
-            .with_enchants(bar1_enchant, bar2_enchant);
+            .with_enchants(bar1_enchant, bar2_enchant)
+            .with_set_procs(set_proc_effects);
 
         if self.verbose {
             let buffed = simulator.compute_buffed_stats(&distributions[0]);

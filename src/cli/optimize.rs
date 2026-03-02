@@ -13,10 +13,12 @@ use super::parsers::{
 use super::simulation_display::display_simulation_result;
 use crate::data::bonuses::{TRIAL_BUFF_NAMES, TRIAL_DUMMY_BUFFS};
 use crate::data::passives::armor::armor_passives;
+use crate::data::passives::undaunted_mettle_bonuses;
+use crate::data::sets::ALL_SETS;
 use crate::domain::{
     ArmorTrait, ArmorWeight, AttributeChoice, BonusData, Build, ClassName, Food, GearConfig,
-    JewelryTrait, MundusStone, Potion, Race, SetData, SimulationResult, SkillData, SkillLineName,
-    WeaponEnchant, WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
+    JewelryTrait, MundusStone, Potion, Race, SetData, SetProcEffect, SimulationResult, SkillData,
+    SkillLineName, WeaponEnchant, WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
 };
 use crate::infrastructure::{format, logger};
 use crate::services::{
@@ -137,6 +139,10 @@ pub struct OptimizeArgs {
     #[arg(long, value_parser = WeaponEnchant::parse)]
     pub bar2_enchant: Option<WeaponEnchant>,
 
+    /// Number of distinct armor weights worn (1-3, defaults to 3 for 5/1/1 builds)
+    #[arg(long, default_value = "3")]
+    pub armor_types: u8,
+
     /// Override computed max stamina
     #[arg(long)]
     pub max_stamina: Option<f64>,
@@ -209,7 +215,7 @@ impl OptimizeArgs {
         let baseline_stats = character_stats.clone();
 
         // Resolve pinned set bonuses for Phase 0
-        let (set_bonuses, set_names) = self.resolve_set_bonuses();
+        let (set_bonuses, set_names, _set_proc_effects) = self.resolve_set_bonuses();
 
         // Resolve trial dummy buffs
         let extra_bonuses = if self.no_trial {
@@ -222,6 +228,7 @@ impl OptimizeArgs {
         let armor_weight = self.armor_weight.unwrap_or(ArmorWeight::Medium);
         let potion = self.potion.unwrap_or(Potion::WeaponPower);
         let mut armor_passive_bonuses = armor_passives(armor_weight);
+        armor_passive_bonuses.extend(undaunted_mettle_bonuses(self.armor_types));
         armor_passive_bonuses.extend(potion.bonuses());
 
         // ── Phase 0: BuildOptimizer with baseline stats ──
@@ -312,7 +319,7 @@ impl OptimizeArgs {
             if stats_differ_significantly(&baseline_stats, &new_stats, 0.05) {
                 logger::info("Phase 2: Gear stats changed >5%, re-running build optimizer...");
 
-                let (set_bonuses, set_names) = self.resolve_set_bonuses();
+                let (set_bonuses, set_names, _set_proc_effects) = self.resolve_set_bonuses();
                 let rerun_optimizer = BuildOptimizer::new(BuildOptimizerOptions {
                     character_stats: new_stats,
                     verbose: self.verbose,
@@ -457,7 +464,7 @@ impl OptimizeArgs {
         }
     }
 
-    fn resolve_set_bonuses(&self) -> (Vec<BonusData>, Vec<(String, u8)>) {
+    fn resolve_set_bonuses(&self) -> (Vec<BonusData>, Vec<(String, u8)>, Vec<SetProcEffect>) {
         let mut active_sets: Vec<&'static SetData> = Vec::new();
         if let Some(s) = &self.sets {
             active_sets.extend(s.iter());
@@ -471,14 +478,20 @@ impl OptimizeArgs {
 
         let mut set_bonuses: Vec<BonusData> = Vec::new();
         let mut set_names: Vec<(String, u8)> = Vec::new();
+        let mut set_proc_effects: Vec<SetProcEffect> = Vec::new();
         for set in &active_sets {
             let piece_count = set.set_type.max_pieces();
             let bonuses = set.bonuses_at(piece_count);
             set_bonuses.extend(bonuses.into_iter().cloned());
+            set_proc_effects.extend(
+                set.proc_effects_at(piece_count)
+                    .into_iter()
+                    .cloned(),
+            );
             set_names.push((set.name.clone(), piece_count));
         }
 
-        (set_bonuses, set_names)
+        (set_bonuses, set_names, set_proc_effects)
     }
 
     fn run_simulation(
@@ -536,9 +549,25 @@ impl OptimizeArgs {
                 }
                 let bar1_enchant = self.bar1_enchant.or(Some(WeaponEnchant::Flame));
                 let bar2_enchant = self.bar2_enchant.or(Some(WeaponEnchant::Flame));
+                // Collect proc effects from the build's equipped sets
+                let proc_effects: Vec<SetProcEffect> = build
+                    .set_names()
+                    .iter()
+                    .flat_map(|(name, _)| {
+                        ALL_SETS
+                            .iter()
+                            .filter(move |s| s.name == *name)
+                            .flat_map(|s| {
+                                s.proc_effects_at(s.set_type.max_pieces())
+                                    .into_iter()
+                                    .cloned()
+                            })
+                    })
+                    .collect();
                 let simulator =
                     FightSimulator::new(build.effective_stats(), build.resolved_bonuses(), suppressed)
-                        .with_enchants(bar1_enchant, bar2_enchant);
+                        .with_enchants(bar1_enchant, bar2_enchant)
+                        .with_set_procs(proc_effects);
                 Some((build_idx, simulator, distributions))
             })
             .collect();

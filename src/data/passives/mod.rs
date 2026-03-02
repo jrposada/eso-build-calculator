@@ -14,7 +14,7 @@ use once_cell::sync::Lazy;
 
 pub use arcanist::ARCANIST_PASSIVES;
 pub use dragonknight::DRAGONKNIGHT_PASSIVES;
-pub use guild::GUILD_PASSIVES;
+pub use guild::{GUILD_PASSIVES, undaunted_mettle_bonuses};
 pub use necromancer::NECROMANCER_PASSIVES;
 pub use nightblade::NIGHTBLADE_PASSIVES;
 pub use sorcerer::SORCERER_PASSIVES;

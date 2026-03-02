@@ -3,8 +3,8 @@ use crate::domain::simulation::{BAR_SWAP_DELAY, GCD, TRIAL_DUMMY_HP};
 use crate::domain::weapon_enchant::WeaponEnchant;
 use crate::domain::{
     ActiveBar, ActiveBuff, ActiveEffect, BonusData, BonusTarget, BonusTrigger, BuffUptime,
-    CharacterStats, DamageFlags, ResolveContext, SimulationResult, SkillBreakdown, SkillData,
-    SkillLineName,
+    CharacterStats, DamageCoefficients, DamageFlags, ResolveContext, SetProcAction, SetProcEffect,
+    SetProcTrigger, SimulationResult, SkillBreakdown, SkillData, SkillLineName,
 };
 use std::collections::{HashMap, HashSet};
 
@@ -22,6 +22,8 @@ pub struct FightSimulator {
     /// Weapon enchants for each bar (None = no enchant modeled)
     pub bar1_enchant: Option<WeaponEnchant>,
     pub bar2_enchant: Option<WeaponEnchant>,
+    /// Set proc effects from equipped gear sets
+    pub set_procs: Vec<SetProcEffect>,
 }
 
 struct SimState {
@@ -45,6 +47,12 @@ struct SimState {
     // Weapon enchant damage tracking
     enchant_damage: f64,
     enchant_proc_count: u32,
+    // Set proc state
+    set_proc_cooldowns: HashMap<String, f64>,
+    set_proc_stacks: HashMap<String, (u32, f64)>,
+    set_proc_damage: HashMap<String, (f64, u32)>,
+    // Flat LA bonus from set procs (summed once at init)
+    flat_la_bonus: f64,
 }
 
 /// Pre-computed stats with active buffs applied.
@@ -85,7 +93,13 @@ impl FightSimulator {
             suppressed_buff_names,
             bar1_enchant: None,
             bar2_enchant: None,
+            set_procs: Vec::new(),
         }
+    }
+
+    pub fn with_set_procs(mut self, procs: Vec<SetProcEffect>) -> Self {
+        self.set_procs = procs;
+        self
     }
 
     pub fn with_enchants(
@@ -208,6 +222,16 @@ impl FightSimulator {
             }
         }
 
+        // Compute flat LA bonus from set procs
+        let flat_la_bonus: f64 = self
+            .set_procs
+            .iter()
+            .filter_map(|p| match &p.action {
+                SetProcAction::FlatLightAttackBonus { value } => Some(value),
+                _ => None,
+            })
+            .sum();
+
         let mut state = SimState {
             time: 0.0,
             remaining_hp: self.target_hp,
@@ -224,6 +248,10 @@ impl FightSimulator {
             enchant_ready: 0.0,
             enchant_damage: 0.0,
             enchant_proc_count: 0,
+            set_proc_cooldowns: HashMap::new(),
+            set_proc_stacks: HashMap::new(),
+            set_proc_damage: HashMap::new(),
+            flat_la_bonus,
         };
 
         // Register permanent AbilitySlotted buffs from all skills on both bars
@@ -270,7 +298,7 @@ impl FightSimulator {
                     let la_data = light_attack_for_weapon(current_weapon);
                     let (la_done_base, la_taken_base) = self.compute_modifier_for_flags(la_data.flags, None, health_pct);
                     let (la_done_buff, la_taken_buff) = self.compute_buff_modifier_for_flags(la_data.flags, &state.active_buffs);
-                    let la_dmg = la_data.calculate_damage(
+                    let mut la_dmg = la_data.calculate_damage(
                         la_done_base + la_done_buff,
                         la_taken_base + la_taken_buff,
                         buffed.max_stat,
@@ -278,6 +306,14 @@ impl FightSimulator {
                         buffed.armor_factor,
                         buffed.crit_mult,
                     );
+                    // Add flat LA bonus from set procs (applied with same modifiers)
+                    if state.flat_la_bonus > 0.0 {
+                        la_dmg += state.flat_la_bonus
+                            * (1.0 + la_done_base + la_done_buff)
+                            * (1.0 + la_taken_base + la_taken_buff)
+                            * buffed.armor_factor
+                            * buffed.crit_mult;
+                    }
                     state.remaining_hp -= la_dmg;
                     state.la_damage += la_dmg;
                     state.la_count += 1;
@@ -342,6 +378,9 @@ impl FightSimulator {
                         }
                     }
 
+                    // 1c. Set proc triggers: OnLightAttack
+                    self.process_set_procs(SetProcTrigger::OnLightAttack, &buffed, &mut state, health_pct);
+
                     // 2. Skill hit damage (instant portion), gated by proc requirement
                     let hit_dmg = if let Some(threshold) = skill.proc_light_attacks {
                         let counter = state.proc_counters.get(&skill.name).copied().unwrap_or(0);
@@ -363,6 +402,11 @@ impl FightSimulator {
                         .or_insert((0.0, 0));
                     entry.0 += hit_dmg;
                     entry.1 += 1;
+
+                    // 2b. Set proc triggers: OnDirectDamage (after skill hit)
+                    if hit_dmg > 0.0 {
+                        self.process_set_procs(SetProcTrigger::OnDirectDamage, &buffed, &mut state, health_pct);
+                    }
 
                     // 3. Register/refresh DoTs as active effects (snapshot at cast time)
                     if let Some(damage) = &skill.damage {
@@ -410,6 +454,9 @@ impl FightSimulator {
                         }
                     }
 
+                    // 3b. Set proc triggers: OnDealDamage (after all damage)
+                    self.process_set_procs(SetProcTrigger::OnDealDamage, &buffed, &mut state, health_pct);
+
                     // 4. Register/refresh Cast buffs from skill bonuses
                     self.register_cast_buffs(&mut state, skill);
 
@@ -444,6 +491,17 @@ impl FightSimulator {
                 damage: state.enchant_damage,
                 cast_count: state.enchant_proc_count,
             });
+        }
+
+        // Add set proc damage entries
+        for (name, (damage, count)) in &state.set_proc_damage {
+            if *damage > 0.0 {
+                skill_breakdown.push(SkillBreakdown {
+                    skill_name: name.clone(),
+                    damage: *damage,
+                    cast_count: *count,
+                });
+            }
         }
 
         skill_breakdown.sort_by(|a, b| b.damage.partial_cmp(&a.damage).unwrap());
@@ -978,6 +1036,247 @@ impl FightSimulator {
         }
 
         total
+    }
+
+    /// Process all set procs that match the given trigger.
+    fn process_set_procs(
+        &self,
+        trigger: SetProcTrigger,
+        buffed: &BuffedContext,
+        state: &mut SimState,
+        health_pct: f64,
+    ) {
+        // Collect matching procs (avoid borrow conflict with state)
+        let matching: Vec<(usize, &SetProcEffect)> = self
+            .set_procs
+            .iter()
+            .enumerate()
+            .filter(|(_, p)| p.trigger == trigger)
+            .collect();
+
+        for (_idx, proc) in matching {
+            // Check cooldown
+            let ready_time = state
+                .set_proc_cooldowns
+                .get(&proc.name)
+                .copied()
+                .unwrap_or(0.0);
+            if proc.cooldown > 0.0 && state.time < ready_time {
+                continue;
+            }
+
+            match &proc.action {
+                SetProcAction::DamageProc {
+                    hit_damage,
+                    hit_flags,
+                    dot_total_damage,
+                    dot_duration,
+                    dot_flags,
+                } => {
+                    // Calculate hit damage
+                    let (done_base, taken_base) =
+                        self.compute_modifier_for_flags(*hit_flags, None, health_pct);
+                    let (done_buff, taken_buff) =
+                        self.compute_buff_modifier_for_flags(*hit_flags, &state.active_buffs);
+                    let dmg = hit_damage
+                        * (1.0 + done_base + done_buff)
+                        * (1.0 + taken_base + taken_buff)
+                        * buffed.armor_factor
+                        * buffed.crit_mult;
+                    state.remaining_hp -= dmg;
+
+                    let entry = state
+                        .set_proc_damage
+                        .entry(proc.name.clone())
+                        .or_insert((0.0, 0));
+                    entry.0 += dmg;
+                    entry.1 += 1;
+
+                    // Register follow-up DoT if present
+                    if *dot_total_damage > 0.0 && *dot_duration > 0.0 {
+                        let (dot_done_base, dot_taken_base) =
+                            self.compute_modifier_for_flags(*dot_flags, None, health_pct);
+                        let (dot_done_buff, dot_taken_buff) =
+                            self.compute_buff_modifier_for_flags(*dot_flags, &state.active_buffs);
+
+                        // Remove existing DoT from same proc
+                        let dot_source = format!("{} DoT", proc.name);
+                        state
+                            .active_effects
+                            .retain(|e| e.source_skill_name != dot_source);
+
+                        state.active_effects.push(ActiveEffect {
+                            source_skill_name: dot_source,
+                            remaining_duration: *dot_duration,
+                            next_tick_in: *dot_duration,
+                            tick_interval: *dot_duration,
+                            tick_count: 0,
+                            total_ticks: 1,
+                            base_value: *dot_total_damage,
+                            flags: *dot_flags,
+                            coefficients: DamageCoefficients::new(0.0, 0.0),
+                            increase_per_tick: 0.0,
+                            flat_increase_per_tick: 0.0,
+                            ignores_modifier: false,
+                            snapshotted_done_modifier: dot_done_base + dot_done_buff,
+                            snapshotted_taken_modifier: dot_taken_base + dot_taken_buff,
+                            snapshotted_armor_factor: buffed.armor_factor,
+                            snapshotted_crit_mult: buffed.crit_mult,
+                        });
+                    }
+
+                    // Set cooldown
+                    if proc.cooldown > 0.0 {
+                        state
+                            .set_proc_cooldowns
+                            .insert(proc.name.clone(), state.time + proc.cooldown);
+                    }
+                }
+                SetProcAction::StackingDot {
+                    damage_per_stack_per_tick,
+                    tick_interval,
+                    max_stacks,
+                    stack_duration,
+                    stack_cooldown,
+                    flags,
+                } => {
+                    // Check stack cooldown
+                    let (current_stacks, last_stack_time) = state
+                        .set_proc_stacks
+                        .get(&proc.name)
+                        .copied()
+                        .unwrap_or((0, -100.0));
+
+                    if *stack_cooldown > 0.0 && state.time - last_stack_time < *stack_cooldown {
+                        continue;
+                    }
+
+                    let new_stacks = (current_stacks + 1).min(*max_stacks);
+                    state
+                        .set_proc_stacks
+                        .insert(proc.name.clone(), (new_stacks, state.time));
+
+                    // Snapshot modifiers
+                    let (done_base, taken_base) =
+                        self.compute_modifier_for_flags(*flags, None, health_pct);
+                    let (done_buff, taken_buff) =
+                        self.compute_buff_modifier_for_flags(*flags, &state.active_buffs);
+
+                    // Update existing effect in-place (preserve tick timer) or create new
+                    if let Some(existing) = state
+                        .active_effects
+                        .iter_mut()
+                        .find(|e| e.source_skill_name == proc.name)
+                    {
+                        // Refresh duration and update base_value for new stack count
+                        existing.remaining_duration = *stack_duration;
+                        existing.base_value = *damage_per_stack_per_tick * new_stacks as f64;
+                        let new_total = (*stack_duration / *tick_interval).floor() as i32;
+                        existing.total_ticks = existing.tick_count + new_total;
+                        // Re-snapshot modifiers on stack refresh
+                        existing.snapshotted_done_modifier = done_base + done_buff;
+                        existing.snapshotted_taken_modifier = taken_base + taken_buff;
+                        existing.snapshotted_armor_factor = buffed.armor_factor;
+                        existing.snapshotted_crit_mult = buffed.crit_mult;
+                    } else {
+                        let total_ticks = (*stack_duration / *tick_interval).floor() as i32;
+                        state.active_effects.push(ActiveEffect {
+                            source_skill_name: proc.name.clone(),
+                            remaining_duration: *stack_duration,
+                            next_tick_in: *tick_interval,
+                            tick_interval: *tick_interval,
+                            tick_count: 0,
+                            total_ticks,
+                            base_value: *damage_per_stack_per_tick * new_stacks as f64,
+                            flags: *flags,
+                            coefficients: DamageCoefficients::new(0.0, 0.0),
+                            increase_per_tick: 0.0,
+                            flat_increase_per_tick: 0.0,
+                            ignores_modifier: false,
+                            snapshotted_done_modifier: done_base + done_buff,
+                            snapshotted_taken_modifier: taken_base + taken_buff,
+                            snapshotted_armor_factor: buffed.armor_factor,
+                            snapshotted_crit_mult: buffed.crit_mult,
+                        });
+                    }
+                }
+                SetProcAction::StackingBuff {
+                    per_stack_target,
+                    per_stack_value,
+                    max_stacks,
+                    stack_duration,
+                    stack_cooldown,
+                    at_max_buff_name,
+                    at_max_buff_target,
+                    at_max_buff_value,
+                    at_max_buff_duration,
+                } => {
+                    // Check stack cooldown
+                    let (current_stacks, last_stack_time) = state
+                        .set_proc_stacks
+                        .get(&proc.name)
+                        .copied()
+                        .unwrap_or((0, -100.0));
+
+                    if *stack_cooldown > 0.0 && state.time - last_stack_time < *stack_cooldown {
+                        continue;
+                    }
+
+                    let new_stacks = (current_stacks + 1).min(*max_stacks);
+                    state
+                        .set_proc_stacks
+                        .insert(proc.name.clone(), (new_stacks, state.time));
+
+                    // Apply per-stack buff if applicable
+                    if let Some(target) = per_stack_target {
+                        let buff_name = format!("{} Stacks", proc.name);
+                        let total_value = *per_stack_value * new_stacks as f64;
+                        // Skip if suppressed externally
+                        if !self.suppressed_buff_names.contains(&buff_name) {
+                            if let Some(existing) =
+                                state.active_buffs.iter_mut().find(|b| b.name == buff_name)
+                            {
+                                existing.value = total_value;
+                                existing.remaining_duration = Some(*stack_duration);
+                            } else {
+                                state.active_buffs.push(ActiveBuff {
+                                    name: buff_name,
+                                    source_skill_name: proc.name.clone(),
+                                    remaining_duration: Some(*stack_duration),
+                                    target: *target,
+                                    value: total_value,
+                                });
+                            }
+                        }
+                    }
+
+                    // Apply max-stack reward buff
+                    if new_stacks >= *max_stacks {
+                        if !self.suppressed_buff_names.contains(at_max_buff_name) {
+                            if let Some(existing) = state
+                                .active_buffs
+                                .iter_mut()
+                                .find(|b| b.name == *at_max_buff_name)
+                            {
+                                existing.remaining_duration = Some(*at_max_buff_duration);
+                                existing.value = *at_max_buff_value;
+                            } else {
+                                state.active_buffs.push(ActiveBuff {
+                                    name: at_max_buff_name.clone(),
+                                    source_skill_name: proc.name.clone(),
+                                    remaining_duration: Some(*at_max_buff_duration),
+                                    target: *at_max_buff_target,
+                                    value: *at_max_buff_value,
+                                });
+                            }
+                        }
+                    }
+                }
+                SetProcAction::FlatLightAttackBonus { .. } => {
+                    // Handled at init time via flat_la_bonus field
+                }
+            }
+        }
     }
 
     /// Sum damage modifier values from resolved bonuses matching given DamageFlags.

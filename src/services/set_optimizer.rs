@@ -130,8 +130,9 @@ impl SetOptimizer {
 
                     let score_set = |set: &'static SetData| -> f64 {
                         let mut bonuses = pinned_bonuses.clone();
+                        let pc = set.set_type.max_pieces();
                         bonuses.extend(
-                            set.bonuses_at(set.set_type.max_pieces())
+                            set.bonuses_at(pc)
                                 .into_iter()
                                 .cloned(),
                         );
@@ -145,7 +146,14 @@ impl SetOptimizer {
                             extra,
                         );
                         scored_count.fetch_add(1, Ordering::Relaxed);
-                        b.total_damage_per_cast - baseline_damage
+                        let stat_delta = b.total_damage_per_cast - baseline_damage;
+                        // Add estimated proc DPS contribution
+                        let proc_dps: f64 = set
+                            .proc_effects_at(pc)
+                            .iter()
+                            .map(|p| p.estimated_dps())
+                            .sum();
+                        stat_delta + proc_dps
                     };
 
                     let mut normal_scores: Vec<(&'static SetData, f64)> = available_normals
@@ -343,7 +351,21 @@ impl SetOptimizer {
                                     stats.clone(),
                                     extra,
                                 );
-                                let damage = b.total_damage_per_cast;
+                                // Add estimated proc DPS from all sets in this loadout
+                                let proc_dps: f64 = loadout_names
+                                    .iter()
+                                    .flat_map(|(name, _)| {
+                                        ALL_SETS
+                                            .iter()
+                                            .filter(move |s| s.name == *name)
+                                            .flat_map(|s| {
+                                                s.proc_effects_at(s.set_type.max_pieces())
+                                                    .into_iter()
+                                                    .map(|p| p.estimated_dps())
+                                            })
+                                    })
+                                    .sum();
+                                let damage = b.total_damage_per_cast + proc_dps;
 
                                 evaluated_count.fetch_add(1, Ordering::Relaxed);
                                 let _ = best_damage_bits

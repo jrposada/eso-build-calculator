@@ -107,7 +107,7 @@ pub static EMPOWER: Lazy<BonusData> = Lazy::new(|| {
         "Empower",
         BonusSource::Buff,
         BonusTrigger::Cast,
-        BonusValue::new("Empower", BonusTarget::HeavyAttackDamage, 0.70),
+        BonusValue::new("Empower", BonusTarget::LightAttackDamage, 0.80),
     )
     .with_duration(10.0)
 });

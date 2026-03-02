@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 use super::BonusData;
+use super::set_proc::SetProcEffect;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -40,6 +41,7 @@ impl fmt::Display for SetType {
 pub struct SetBonusThreshold {
     pub piece_count: u8,
     pub bonuses: Vec<BonusData>,
+    pub proc_effects: Vec<SetProcEffect>,
 }
 
 #[derive(Debug, Clone)]
@@ -62,7 +64,21 @@ impl SetData {
         self.thresholds.push(SetBonusThreshold {
             piece_count,
             bonuses,
+            proc_effects: Vec::new(),
         });
+        self
+    }
+
+    pub fn with_proc_effects(mut self, piece_count: u8, effects: Vec<SetProcEffect>) -> Self {
+        if let Some(threshold) = self.thresholds.iter_mut().find(|t| t.piece_count == piece_count) {
+            threshold.proc_effects = effects;
+        } else {
+            self.thresholds.push(SetBonusThreshold {
+                piece_count,
+                bonuses: Vec::new(),
+                proc_effects: effects,
+            });
+        }
         self
     }
 
@@ -73,6 +89,15 @@ impl SetData {
             .iter()
             .filter(|t| t.piece_count <= piece_count)
             .flat_map(|t| t.bonuses.iter())
+            .collect()
+    }
+
+    /// Returns cumulative proc effects at the given piece count.
+    pub fn proc_effects_at(&self, piece_count: u8) -> Vec<&SetProcEffect> {
+        self.thresholds
+            .iter()
+            .filter(|t| t.piece_count <= piece_count)
+            .flat_map(|t| t.proc_effects.iter())
             .collect()
     }
 }
