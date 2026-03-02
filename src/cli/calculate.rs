@@ -26,7 +26,7 @@ pub struct CalculateArgs {
     pub champion_points: Option<Vec<BonusData>>,
 
     /// Path to build configuration file (exported from optimize)
-    #[arg(short = 'f', long, conflicts_with_all = ["skills", "champion_points", "sets", "monster_sets", "mythic"])]
+    #[arg(short = 'f', long, conflicts_with_all = ["skills", "champion_points", "sets", "monster_sets", "mythic", "magicka", "stamina", "bar1_weapon", "bar2_weapon"])]
     pub file: Option<PathBuf>,
 
     /// Allocate 64 attribute points to magicka
@@ -60,12 +60,20 @@ pub struct CalculateArgs {
 
 impl CalculateArgs {
     pub fn run(&self) {
-        let (skills, champion_points, file_weapons, file_sets) = if let Some(path) = &self.file {
-            self.load_from_file(path)
-        } else {
-            let (s, cp) = self.get_from_args();
-            (s, cp, (None, None), Vec::new())
-        };
+        let (skills, champion_points, file_weapons, file_sets, stats) =
+            if let Some(path) = &self.file {
+                let (s, cp, w, sets, character_stats) = self.load_from_file(path);
+                (s, cp, w, sets, character_stats)
+            } else {
+                let (s, cp) = self.get_from_args();
+                let mut stats = CharacterStats::default();
+                if self.magicka {
+                    stats.max_magicka += ATTRIBUTE_POINTS_BONUS;
+                } else if self.stamina {
+                    stats.max_stamina += ATTRIBUTE_POINTS_BONUS;
+                }
+                (s, cp, (None, None), Vec::new(), stats)
+            };
 
         // Validate skill count
         if skills.len() != BUILD_CONSTRAINTS.skill_count {
@@ -124,13 +132,6 @@ impl CalculateArgs {
             let bonuses = set.bonuses_at(piece_count);
             set_bonuses.extend(bonuses.into_iter().cloned());
             set_names.push((set.name.clone(), piece_count));
-        }
-
-        let mut stats = CharacterStats::default();
-        if self.magicka {
-            stats.max_magicka += ATTRIBUTE_POINTS_BONUS;
-        } else if self.stamina {
-            stats.max_stamina += ATTRIBUTE_POINTS_BONUS;
         }
 
         // Create the build (for stats resolution and display)
@@ -235,6 +236,7 @@ impl CalculateArgs {
         Vec<BonusData>,
         (Option<WeaponType>, Option<WeaponType>),
         Vec<&'static SetData>,
+        CharacterStats,
     ) {
         let content = fs::read_to_string(path).unwrap_or_else(|e| {
             logger::error(&format!("Failed to read file '{}': {}", path.display(), e));
@@ -288,6 +290,6 @@ impl CalculateArgs {
             })
             .collect();
 
-        (skills, champion_points, (bar1, bar2), sets)
+        (skills, champion_points, (bar1, bar2), sets, config.character_stats)
     }
 }

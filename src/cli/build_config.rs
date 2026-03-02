@@ -1,3 +1,4 @@
+use crate::domain::CharacterStats;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -19,6 +20,8 @@ pub struct BuildConfig {
     pub bar1_weapon: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bar2_weapon: Option<String>,
+    #[serde(default)]
+    pub character_stats: CharacterStats,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<BuildMetadata>,
 }
