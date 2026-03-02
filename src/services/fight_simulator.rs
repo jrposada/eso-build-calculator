@@ -1,8 +1,9 @@
 use crate::data::light_attacks::light_attack_for_weapon;
 use crate::domain::simulation::{BAR_SWAP_DELAY, GCD, TRIAL_DUMMY_HP};
 use crate::domain::{
-    ActiveBar, ActiveBuff, ActiveEffect, BonusData, BonusTarget, BonusTrigger, CharacterStats,
-    DamageFlags, ResolveContext, SimulationResult, SkillBreakdown, SkillData, SkillLineName,
+    ActiveBar, ActiveBuff, ActiveEffect, BonusData, BonusTarget, BonusTrigger, BuffUptime,
+    CharacterStats, DamageFlags, ResolveContext, SimulationResult, SkillBreakdown, SkillData,
+    SkillLineName,
 };
 use std::collections::{HashMap, HashSet};
 
@@ -33,6 +34,8 @@ struct SimState {
     la_damage: f64,
     la_count: u32,
     bar_swap_count: u32,
+    // Buff uptime tracking: buff name -> total seconds active
+    buff_uptimes: HashMap<String, f64>,
 }
 
 /// Pre-computed stats with active buffs applied.
@@ -196,6 +199,7 @@ impl FightSimulator {
             la_damage: 0.0,
             la_count: 0,
             bar_swap_count: 0,
+            buff_uptimes: HashMap::new(),
         };
 
         // Register permanent AbilitySlotted buffs from all skills on both bars
@@ -357,6 +361,27 @@ impl FightSimulator {
 
         let total_damage = self.target_hp - state.remaining_hp.max(0.0);
 
+        let mut buff_uptimes: Vec<BuffUptime> = state
+            .buff_uptimes
+            .into_iter()
+            .map(|(name, time)| BuffUptime {
+                name,
+                uptime: (time / fight_duration).min(1.0),
+                external: false,
+            })
+            .collect();
+
+        // Add 100% uptime for externally-provided buffs (e.g. trial dummy)
+        for name in &self.suppressed_buff_names {
+            buff_uptimes.push(BuffUptime {
+                name: name.clone(),
+                uptime: 1.0,
+                external: true,
+            });
+        }
+
+        buff_uptimes.sort_by(|a, b| a.name.cmp(&b.name));
+
         SimulationResult {
             total_damage,
             fight_duration,
@@ -365,6 +390,7 @@ impl FightSimulator {
             la_damage: state.la_damage,
             la_count: state.la_count,
             bar_swap_count: state.bar_swap_count,
+            buff_uptimes,
         }
     }
 
@@ -489,6 +515,15 @@ impl FightSimulator {
         let dt = target_time - state.time;
         if dt <= 0.0 {
             return;
+        }
+
+        // Accumulate buff uptimes before expiring
+        for buff in &state.active_buffs {
+            let active_time = match buff.remaining_duration {
+                None => dt,                       // permanent — active full dt
+                Some(remaining) => dt.min(remaining), // may expire partway
+            };
+            *state.buff_uptimes.entry(buff.name.clone()).or_insert(0.0) += active_time;
         }
 
         // Expire buffs (before ticking DoTs — DoTs already snapshotted so order doesn't matter)

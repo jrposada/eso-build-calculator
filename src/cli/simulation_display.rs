@@ -130,6 +130,45 @@ pub fn display_simulation_result(
     );
 
     lines.push(breakdown_table);
+
+    // Buff uptimes table
+    let has_external = result.buff_uptimes.iter().any(|b| b.external && b.uptime > 0.0);
+    let uptime_data: Vec<Vec<String>> = result
+        .buff_uptimes
+        .iter()
+        .filter(|b| b.uptime > 0.0)
+        .map(|b| {
+            let name = if b.external {
+                format!("{}*", b.name)
+            } else {
+                b.name.clone()
+            };
+            vec![
+                name,
+                format!("{:.1}%", b.uptime * 100.0),
+            ]
+        })
+        .collect();
+
+    if !uptime_data.is_empty() {
+        let uptime_table = table::table(
+            &uptime_data,
+            table::TableOptions {
+                title: Some("Buff Uptimes".to_string()),
+                columns: vec![
+                    table::ColumnDefinition::new("Name", 36),
+                    table::ColumnDefinition::new("Uptime", 8).align_right(),
+                ],
+                footer: if has_external {
+                    Some("* Provided by trial dummy".to_string())
+                } else {
+                    None
+                },
+            },
+        );
+        lines.push(uptime_table);
+    }
+
     lines.push(format!(
         "Tested {} bar distribution(s). Best shown above.",
         total_distributions

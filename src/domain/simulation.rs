@@ -64,6 +64,16 @@ pub struct ActiveBuff {
     pub value: f64,
 }
 
+/// Buff uptime during a fight simulation.
+#[derive(Debug, Clone)]
+pub struct BuffUptime {
+    pub name: String,
+    /// Fraction of fight duration the buff was active (0.0–1.0)
+    pub uptime: f64,
+    /// Whether this buff is provided externally (e.g. trial dummy)
+    pub external: bool,
+}
+
 /// Results of a fight simulation.
 #[derive(Debug, Clone)]
 pub struct SimulationResult {
@@ -74,6 +84,7 @@ pub struct SimulationResult {
     pub la_damage: f64,
     pub la_count: u32,
     pub bar_swap_count: u32,
+    pub buff_uptimes: Vec<BuffUptime>,
 }
 
 #[derive(Debug, Clone)]

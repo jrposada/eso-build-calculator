@@ -52,7 +52,7 @@ pub use execute::{ExecuteData, ExecuteScaling};
 pub use gear_set::{SetBonusThreshold, SetData, SetType};
 pub use hit_damage::HitDamage;
 pub use light_attack::LightAttackData;
-pub use simulation::{ActiveBar, ActiveBuff, ActiveEffect, SimulationResult, SkillBreakdown};
+pub use simulation::{ActiveBar, ActiveBuff, ActiveEffect, BuffUptime, SimulationResult, SkillBreakdown};
 pub use passive::PassiveData;
 pub use resource::Resource;
 pub use skill::SkillData;
