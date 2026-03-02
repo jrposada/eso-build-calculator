@@ -12,10 +12,11 @@ use super::parsers::{
 };
 use super::simulation_display::display_simulation_result;
 use crate::data::bonuses::{TRIAL_BUFF_NAMES, TRIAL_DUMMY_BUFFS};
+use crate::data::passives::armor::armor_passives;
 use crate::domain::{
-    ArmorTrait, AttributeChoice, BonusData, Build, ClassName, Food, GearConfig, JewelryTrait,
-    MundusStone, Race, SetData, SimulationResult, SkillData, SkillLineName, WeaponTrait,
-    WeaponType, BUILD_CONSTRAINTS,
+    ArmorTrait, ArmorWeight, AttributeChoice, BonusData, Build, ClassName, Food, GearConfig,
+    JewelryTrait, MundusStone, Potion, Race, SetData, SimulationResult, SkillData, SkillLineName,
+    WeaponEnchant, WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
 };
 use crate::infrastructure::{format, logger};
 use crate::services::{
@@ -120,6 +121,22 @@ pub struct OptimizeArgs {
     #[arg(long, value_parser = WeaponTrait::parse)]
     pub weapon_trait: Option<WeaponTrait>,
 
+    /// Armor weight for armor passives (medium, light, heavy; defaults to medium)
+    #[arg(long, value_parser = ArmorWeight::parse)]
+    pub armor_weight: Option<ArmorWeight>,
+
+    /// Potion buff (weapon-power, spell-power; defaults to weapon-power)
+    #[arg(long, value_parser = Potion::parse)]
+    pub potion: Option<Potion>,
+
+    /// Bar 1 weapon enchant (flame, poison, shock, berserker; defaults to flame)
+    #[arg(long, value_parser = WeaponEnchant::parse)]
+    pub bar1_enchant: Option<WeaponEnchant>,
+
+    /// Bar 2 weapon enchant (flame, poison, shock, berserker; defaults to flame)
+    #[arg(long, value_parser = WeaponEnchant::parse)]
+    pub bar2_enchant: Option<WeaponEnchant>,
+
     /// Override computed max stamina
     #[arg(long)]
     pub max_stamina: Option<f64>,
@@ -176,6 +193,7 @@ impl OptimizeArgs {
             jewelry_trait: self.jewelry_trait.unwrap_or(JewelryTrait::Bloodthirsty),
             weapon_trait: self.weapon_trait.unwrap_or(WeaponTrait::Nirnhoned),
             attributes: pinned_attributes.unwrap_or(AttributeChoice::Stamina),
+            armor_weight: self.armor_weight.unwrap_or(ArmorWeight::Medium),
         };
 
         let mut character_stats = baseline_gear.compute_stats(self.bar1_weapon);
@@ -200,6 +218,12 @@ impl OptimizeArgs {
             TRIAL_DUMMY_BUFFS.clone()
         };
 
+        // Resolve armor passives and potion bonuses
+        let armor_weight = self.armor_weight.unwrap_or(ArmorWeight::Medium);
+        let potion = self.potion.unwrap_or(Potion::WeaponPower);
+        let mut armor_passive_bonuses = armor_passives(armor_weight);
+        armor_passive_bonuses.extend(potion.bonuses());
+
         // ── Phase 0: BuildOptimizer with baseline stats ──
         logger::info("Phase 0: Finding optimal skill/CP build...");
 
@@ -217,6 +241,7 @@ impl OptimizeArgs {
             set_bonuses,
             set_names,
             extra_bonuses: extra_bonuses.clone(),
+            armor_passive_bonuses: armor_passive_bonuses.clone(),
         });
 
         let start = Instant::now();
@@ -302,6 +327,7 @@ impl OptimizeArgs {
                     set_bonuses,
                     set_names,
                     extra_bonuses: extra_bonuses.clone(),
+                    armor_passive_bonuses: armor_passive_bonuses.clone(),
                 });
 
                 let rerun_start = Instant::now();
@@ -498,13 +524,21 @@ impl OptimizeArgs {
                 if distributions.is_empty() {
                     return None;
                 }
-                let suppressed = if self.no_trial {
+                let mut suppressed = if self.no_trial {
                     std::collections::HashSet::new()
                 } else {
                     TRIAL_BUFF_NAMES.clone()
                 };
+                // Suppress potion buff names to prevent double-counting with skill buffs
+                let potion = self.potion.unwrap_or(Potion::WeaponPower);
+                for bonus in potion.bonuses() {
+                    suppressed.insert(bonus.name.clone());
+                }
+                let bar1_enchant = self.bar1_enchant.or(Some(WeaponEnchant::Flame));
+                let bar2_enchant = self.bar2_enchant.or(Some(WeaponEnchant::Flame));
                 let simulator =
-                    FightSimulator::new(build.effective_stats(), build.resolved_bonuses(), suppressed);
+                    FightSimulator::new(build.effective_stats(), build.resolved_bonuses(), suppressed)
+                        .with_enchants(bar1_enchant, bar2_enchant);
                 Some((build_idx, simulator, distributions))
             })
             .collect();

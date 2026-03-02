@@ -1,10 +1,11 @@
 use super::build_config::BuildConfig;
 use super::parsers::{parse_champion_point, parse_set, parse_skill};
 use crate::data::bonuses::{TRIAL_BUFF_NAMES, TRIAL_DUMMY_BUFFS};
+use crate::data::passives::armor::armor_passives;
 use crate::domain::{
-    ArmorTrait, AttributeChoice, BonusData, Build, CharacterStats, Food, GearConfig, JewelryTrait,
-    MundusStone, Race, SetData, SkillData, SkillLineName, WeaponTrait, WeaponType,
-    BUILD_CONSTRAINTS,
+    ArmorTrait, ArmorWeight, AttributeChoice, BonusData, Build, CharacterStats, Food, GearConfig,
+    JewelryTrait, MundusStone, Potion, Race, SetData, SkillData, SkillLineName, WeaponEnchant,
+    WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
 };
 use super::simulation_display::display_simulation_result;
 use crate::infrastructure::{format, logger, table, table::ColumnDefinition};
@@ -87,6 +88,22 @@ pub struct CalculateArgs {
     #[arg(long, value_parser = WeaponTrait::parse)]
     pub weapon_trait: Option<WeaponTrait>,
 
+    /// Armor weight for armor passives (medium, light, heavy; defaults to medium)
+    #[arg(long, value_parser = ArmorWeight::parse)]
+    pub armor_weight: Option<ArmorWeight>,
+
+    /// Potion buff (weapon-power, spell-power; defaults to weapon-power)
+    #[arg(long, value_parser = Potion::parse)]
+    pub potion: Option<Potion>,
+
+    /// Bar 1 weapon enchant (flame, poison, shock, berserker; defaults to flame)
+    #[arg(long, value_parser = WeaponEnchant::parse)]
+    pub bar1_enchant: Option<WeaponEnchant>,
+
+    /// Bar 2 weapon enchant (flame, poison, shock, berserker; defaults to flame)
+    #[arg(long, value_parser = WeaponEnchant::parse)]
+    pub bar2_enchant: Option<WeaponEnchant>,
+
     /// Override computed max stamina
     #[arg(long, conflicts_with = "file")]
     pub max_stamina: Option<f64>,
@@ -141,6 +158,7 @@ impl CalculateArgs {
                     jewelry_trait: self.jewelry_trait.unwrap_or(JewelryTrait::Bloodthirsty),
                     weapon_trait: self.weapon_trait.unwrap_or(WeaponTrait::Nirnhoned),
                     attributes,
+                    armor_weight: self.armor_weight.unwrap_or(ArmorWeight::Medium),
                 };
                 let mut stats = gear.compute_stats(self.bar1_weapon);
 
@@ -194,11 +212,19 @@ impl CalculateArgs {
 
         // Get passives from the skill lines
         let passives_service = PassivesService::new(PassivesServiceOptions::default());
-        let passive_bonuses: Vec<BonusData> = skill_lines
+        let mut passive_bonuses: Vec<BonusData> = skill_lines
             .iter()
             .flat_map(|sl| passives_service.get_passives_by_skill_line(*sl))
             .flat_map(|p| p.bonuses.iter().cloned())
             .collect();
+
+        // Add armor passives based on armor weight
+        let armor_weight = self.armor_weight.unwrap_or(ArmorWeight::Medium);
+        passive_bonuses.extend(armor_passives(armor_weight));
+
+        // Add potion bonuses (default: weapon-power)
+        let potion = self.potion.unwrap_or(Potion::WeaponPower);
+        passive_bonuses.extend(potion.bonuses());
 
         // Collect set bonuses
         let active_sets: Vec<&'static SetData> = if file_sets.is_empty() {
@@ -291,12 +317,19 @@ impl CalculateArgs {
         let effective_stats = build.effective_stats();
         let resolved_bonuses = build.resolved_bonuses();
 
-        let suppressed = if use_trial {
+        let mut suppressed = if use_trial {
             TRIAL_BUFF_NAMES.clone()
         } else {
             HashSet::new()
         };
-        let simulator = FightSimulator::new(effective_stats, resolved_bonuses, suppressed);
+        // Suppress potion buff names to prevent double-counting with skill buffs
+        for bonus in potion.bonuses() {
+            suppressed.insert(bonus.name.clone());
+        }
+        let bar1_enchant = self.bar1_enchant.or(Some(WeaponEnchant::Flame));
+        let bar2_enchant = self.bar2_enchant.or(Some(WeaponEnchant::Flame));
+        let simulator = FightSimulator::new(effective_stats, resolved_bonuses, suppressed)
+            .with_enchants(bar1_enchant, bar2_enchant);
 
         if self.verbose {
             let buffed = simulator.compute_buffed_stats(&distributions[0]);

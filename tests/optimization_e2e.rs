@@ -59,6 +59,7 @@ fn nightblade_bow_2h_all_cp_forced() {
         set_bonuses: vec![],
         set_names: vec![],
         extra_bonuses: vec![],
+        armor_passive_bonuses: vec![],
     });
 
     let builds = optimizer.find_optimal_build();
@@ -126,6 +127,7 @@ fn nightblade_bow_2h_one_cp_forced() {
         set_bonuses: vec![],
         set_names: vec![],
         extra_bonuses: vec![],
+        armor_passive_bonuses: vec![],
     });
 
     let builds = optimizer.find_optimal_build();
@@ -203,6 +205,7 @@ fn optimizer_with_fixed_sets_increases_damage() {
             set_bonuses: bonuses,
             set_names: names,
             extra_bonuses: vec![],
+            armor_passive_bonuses: vec![],
         })
     };
 
@@ -266,6 +269,7 @@ fn optimizer_with_fixed_sets_same_skills() {
             set_bonuses: bonuses,
             set_names: names,
             extra_bonuses: vec![],
+            armor_passive_bonuses: vec![],
         })
     };
 

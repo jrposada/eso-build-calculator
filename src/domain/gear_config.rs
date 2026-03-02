@@ -8,6 +8,38 @@ use super::race::Race;
 use super::weapon_type::WeaponType;
 use super::CharacterStats;
 
+/// Armor weight determines which armor passives apply.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum ArmorWeight {
+    Medium,
+    Light,
+    Heavy,
+}
+
+impl ArmorWeight {
+    pub fn parse(s: &str) -> Result<ArmorWeight, String> {
+        match s.to_lowercase().as_str() {
+            "medium" => Ok(ArmorWeight::Medium),
+            "light" => Ok(ArmorWeight::Light),
+            "heavy" => Ok(ArmorWeight::Heavy),
+            _ => Err(format!(
+                "Unknown armor weight '{}'. Valid: medium, light, heavy",
+                s
+            )),
+        }
+    }
+}
+
+impl fmt::Display for ArmorWeight {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ArmorWeight::Medium => write!(f, "Medium"),
+            ArmorWeight::Light => write!(f, "Light"),
+            ArmorWeight::Heavy => write!(f, "Heavy"),
+        }
+    }
+}
+
 /// Armor trait applied to all 7 armor pieces.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ArmorTrait {
@@ -208,6 +240,7 @@ pub struct GearConfig {
     pub jewelry_trait: JewelryTrait,
     pub weapon_trait: WeaponTrait,
     pub attributes: AttributeChoice,
+    pub armor_weight: ArmorWeight,
 }
 
 impl Default for GearConfig {
@@ -220,6 +253,7 @@ impl Default for GearConfig {
             jewelry_trait: JewelryTrait::Bloodthirsty,
             weapon_trait: WeaponTrait::Nirnhoned,
             attributes: AttributeChoice::None,
+            armor_weight: ArmorWeight::Medium,
         }
     }
 }

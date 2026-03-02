@@ -19,6 +19,7 @@ pub mod hit_damage;
 pub mod light_attack;
 pub mod mundus;
 pub mod passive;
+pub mod potion;
 pub mod race;
 pub mod resource;
 pub mod skill;
@@ -27,6 +28,7 @@ pub mod skill_damage;
 pub mod skill_line_name;
 pub mod skill_mechanic;
 pub mod status_effect;
+pub mod weapon_enchant;
 pub mod weapon_type;
 
 pub use bonus::{BonusData, ResolveContext};
@@ -40,7 +42,7 @@ pub use character_stats::{CharacterStats, ATTRIBUTE_POINTS_BONUS};
 pub use class_name::ClassName;
 pub use food::{Food, DPS_FOODS};
 pub use gear_config::{
-    ArmorTrait, AttributeChoice, GearConfig, JewelryTrait, WeaponTrait,
+    ArmorTrait, ArmorWeight, AttributeChoice, GearConfig, JewelryTrait, WeaponTrait,
     DPS_ARMOR_TRAITS, DPS_ATTRIBUTES, DPS_JEWELRY_TRAITS, DPS_WEAPON_TRAITS,
 };
 pub use mundus::{MundusStone, DPS_MUNDUS_STONES};
@@ -54,9 +56,11 @@ pub use hit_damage::HitDamage;
 pub use light_attack::LightAttackData;
 pub use simulation::{ActiveBar, ActiveBuff, ActiveEffect, BuffUptime, SimulationResult, SkillBreakdown};
 pub use passive::PassiveData;
+pub use potion::Potion;
 pub use resource::Resource;
 pub use skill::SkillData;
 pub use skill_damage::SkillDamage;
 pub use skill_line_name::SkillLineName;
 pub use skill_mechanic::SkillMechanic;
+pub use weapon_enchant::WeaponEnchant;
 pub use weapon_type::WeaponType;

@@ -1,4 +1,5 @@
 pub mod arcanist;
+pub mod armor;
 pub mod dragonknight;
 pub mod guild;
 pub mod necromancer;

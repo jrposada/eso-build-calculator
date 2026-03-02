@@ -434,6 +434,7 @@ mod tests {
             set_bonuses: vec![],
             set_names: vec![],
             extra_bonuses: vec![],
+            armor_passive_bonuses: vec![],
         });
         optimizer.find_optimal_build()
     }

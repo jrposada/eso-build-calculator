@@ -31,6 +31,7 @@ pub struct BuildOptimizerOptions {
     pub set_bonuses: Vec<BonusData>,
     pub set_names: Vec<(String, u8)>,
     pub extra_bonuses: Vec<BonusData>,
+    pub armor_passive_bonuses: Vec<BonusData>,
 }
 
 /// Three-way split of bonuses for the optimizer fast path:
@@ -261,8 +262,22 @@ impl BuildOptimizer {
         // Collect extra bonus names to suppress duplicate passives
         let extra_bonus_names: HashSet<String> = options.extra_bonuses.iter().map(|b| b.name.clone()).collect();
 
-        let (passive_bonuses_list, passive_original) =
+        let (mut passive_bonuses_list, mut passive_original) =
             Self::generate_passive_bonuses(&skill_line_combinations, &extra_bonus_names, verbose);
+
+        // Merge armor passives into every passive combination
+        if !options.armor_passive_bonuses.is_empty() {
+            let (armor_pre, armor_ability, armor_alt) =
+                Self::three_way_split(options.armor_passive_bonuses.clone());
+            for (pre_resolved, ability_count, alt) in &mut passive_bonuses_list {
+                pre_resolved.extend_from_slice(&armor_pre);
+                ability_count.extend_from_slice(&armor_ability);
+                alt.extend_from_slice(&armor_alt);
+            }
+            for orig in &mut passive_original {
+                orig.extend(options.armor_passive_bonuses.clone());
+            }
+        }
 
         let (champion_point_names, mut champion_point_combinations, champion_point_original) =
             Self::generate_champion_point_combinations(&required_champion_points, verbose);

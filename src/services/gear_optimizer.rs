@@ -1,8 +1,7 @@
 use crate::domain::{
     ArmorTrait, AttributeChoice, Build, CharacterStats, Food, GearConfig, JewelryTrait,
-    MundusStone, Race, WeaponTrait, WeaponType,
-    DPS_ARMOR_TRAITS, DPS_ATTRIBUTES, DPS_FOODS, DPS_JEWELRY_TRAITS, DPS_MUNDUS_STONES,
-    DPS_RACES, DPS_WEAPON_TRAITS,
+    MundusStone, Race, WeaponTrait, WeaponType, DPS_ARMOR_TRAITS, DPS_ATTRIBUTES, DPS_FOODS,
+    DPS_JEWELRY_TRAITS, DPS_MUNDUS_STONES, DPS_RACES, DPS_WEAPON_TRAITS,
 };
 use crate::infrastructure::logger;
 
@@ -289,6 +288,7 @@ impl GearOptimizer {
                                 jewelry_trait: jewelry,
                                 weapon_trait: weapon,
                                 attributes: attr,
+                                armor_weight: baseline.armor_weight,
                             };
                             let dpc = score(&gear);
                             if dpc > best_dpc {

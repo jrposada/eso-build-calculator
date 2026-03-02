@@ -1,5 +1,6 @@
 use crate::data::light_attacks::light_attack_for_weapon;
 use crate::domain::simulation::{BAR_SWAP_DELAY, GCD, TRIAL_DUMMY_HP};
+use crate::domain::weapon_enchant::WeaponEnchant;
 use crate::domain::{
     ActiveBar, ActiveBuff, ActiveEffect, BonusData, BonusTarget, BonusTrigger, BuffUptime,
     CharacterStats, DamageFlags, ResolveContext, SimulationResult, SkillBreakdown, SkillData,
@@ -18,6 +19,9 @@ pub struct FightSimulator {
     /// Buff names already provided externally (e.g. trial dummy).
     /// Prevents the simulator from double-counting when a skill provides the same buff.
     suppressed_buff_names: HashSet<String>,
+    /// Weapon enchants for each bar (None = no enchant modeled)
+    pub bar1_enchant: Option<WeaponEnchant>,
+    pub bar2_enchant: Option<WeaponEnchant>,
 }
 
 struct SimState {
@@ -36,6 +40,11 @@ struct SimState {
     bar_swap_count: u32,
     // Buff uptime tracking: buff name -> total seconds active
     buff_uptimes: HashMap<String, f64>,
+    // Weapon enchant cooldown: time when enchant can next proc
+    enchant_ready: f64,
+    // Weapon enchant damage tracking
+    enchant_damage: f64,
+    enchant_proc_count: u32,
 }
 
 /// Pre-computed stats with active buffs applied.
@@ -74,7 +83,19 @@ impl FightSimulator {
             armor_factor,
             crit_mult,
             suppressed_buff_names,
+            bar1_enchant: None,
+            bar2_enchant: None,
         }
+    }
+
+    pub fn with_enchants(
+        mut self,
+        bar1_enchant: Option<WeaponEnchant>,
+        bar2_enchant: Option<WeaponEnchant>,
+    ) -> Self {
+        self.bar1_enchant = bar1_enchant;
+        self.bar2_enchant = bar2_enchant;
+        self
     }
 
     /// Compute character stats with all AbilitySlotted buffs applied (self-buffed stats).
@@ -200,6 +221,9 @@ impl FightSimulator {
             la_count: 0,
             bar_swap_count: 0,
             buff_uptimes: HashMap::new(),
+            enchant_ready: 0.0,
+            enchant_damage: 0.0,
+            enchant_proc_count: 0,
         };
 
         // Register permanent AbilitySlotted buffs from all skills on both bars
@@ -261,6 +285,61 @@ impl FightSimulator {
                     // Increment all proc counters on every light attack
                     for counter in state.proc_counters.values_mut() {
                         *counter += 1;
+                    }
+
+                    // 1b. Weapon enchant proc (triggered by light attack)
+                    if state.time >= state.enchant_ready {
+                        let enchant = match state.active_bar {
+                            ActiveBar::Bar1 => self.bar1_enchant,
+                            ActiveBar::Bar2 => self.bar2_enchant,
+                        };
+                        if let Some(enchant) = enchant {
+                            let base_dmg = enchant.base_damage();
+                            if base_dmg > 0.0 {
+                                let flags = enchant.damage_flags();
+                                let (done_base, taken_base) = self.compute_modifier_for_flags(flags, None, health_pct);
+                                let (done_buff, taken_buff) = self.compute_buff_modifier_for_flags(flags, &state.active_buffs);
+                                let enchant_dmg = base_dmg
+                                    * (1.0 + done_base + done_buff)
+                                    * (1.0 + taken_base + taken_buff)
+                                    * buffed.armor_factor
+                                    * buffed.crit_mult;
+                                state.remaining_hp -= enchant_dmg;
+                                state.enchant_damage += enchant_dmg;
+                                state.enchant_proc_count += 1;
+                            }
+
+                            // Register status effect as active DoT
+                            if let Some(status) = enchant.status_effect() {
+                                let tick_value = status.total_damage;
+                                let (done_base, taken_base) = self.compute_modifier_for_flags(status.flags, None, health_pct);
+                                let (done_buff, taken_buff) = self.compute_buff_modifier_for_flags(status.flags, &state.active_buffs);
+
+                                // Remove existing status effect of same type
+                                state.active_effects.retain(|e| e.source_skill_name != status.name);
+
+                                state.active_effects.push(ActiveEffect {
+                                    source_skill_name: status.name.to_string(),
+                                    remaining_duration: status.duration,
+                                    next_tick_in: status.duration,
+                                    tick_interval: status.duration,
+                                    tick_count: 0,
+                                    total_ticks: 1,
+                                    base_value: tick_value,
+                                    flags: status.flags,
+                                    coefficients: crate::domain::DamageCoefficients::new(0.0, 0.0),
+                                    increase_per_tick: 0.0,
+                                    flat_increase_per_tick: 0.0,
+                                    ignores_modifier: false,
+                                    snapshotted_done_modifier: done_base + done_buff,
+                                    snapshotted_taken_modifier: taken_base + taken_buff,
+                                    snapshotted_armor_factor: buffed.armor_factor,
+                                    snapshotted_crit_mult: buffed.crit_mult,
+                                });
+                            }
+
+                            state.enchant_ready = state.time + enchant.cooldown();
+                        }
                     }
 
                     // 2. Skill hit damage (instant portion), gated by proc requirement
@@ -357,6 +436,16 @@ impl FightSimulator {
                 cast_count: count,
             })
             .collect();
+
+        // Add weapon enchant damage as a breakdown entry
+        if state.enchant_damage > 0.0 {
+            skill_breakdown.push(SkillBreakdown {
+                skill_name: "Weapon Enchant".to_string(),
+                damage: state.enchant_damage,
+                cast_count: state.enchant_proc_count,
+            });
+        }
+
         skill_breakdown.sort_by(|a, b| b.damage.partial_cmp(&a.damage).unwrap());
 
         let total_damage = self.target_hp - state.remaining_hp.max(0.0);

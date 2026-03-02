@@ -3639,7 +3639,7 @@ pub static NORMAL_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                     "Leviathan 5pc",
                     BonusSource::GearSet,
                     BonusTrigger::Passive,
-                    BonusValue::new("Critical Chance", BonusTarget::CriticalRating, 1528.0),
+                    BonusValue::new("Critical Chance", BonusTarget::CriticalRating, 3541.0),
                 )],
         ),
         SetData::new("Light Speaker", SetType::Normal)
