@@ -65,7 +65,7 @@ fn nightblade_bow_2h_all_cp_forced() {
     let build = &builds[0];
 
     assert_eq!(
-        build.total_damage_per_cast as u64, 14_173,
+        build.total_damage_per_cast as u64, 15_330,
         "Total damage changed — optimization may have introduced a regression"
     );
 
@@ -81,7 +81,7 @@ fn nightblade_bow_2h_all_cp_forced() {
         "Scalding Rune",
         "Carve",
         "Merciless Resolve",
-        "Lotus Fan",
+        "Structured Entropy",
         "Concealed Weapon",
     ];
     for expected in &expected_skills {
@@ -131,7 +131,7 @@ fn nightblade_bow_2h_one_cp_forced() {
     let build = &builds[0];
 
     assert_eq!(
-        build.total_damage_per_cast as u64, 14_326,
+        build.total_damage_per_cast as u64, 15_606,
         "Total damage changed — optimization may have introduced a regression"
     );
 
@@ -147,7 +147,7 @@ fn nightblade_bow_2h_one_cp_forced() {
         "Scalding Rune",
         "Carve",
         "Merciless Resolve",
-        "Lotus Fan",
+        "Structured Entropy",
         "Concealed Weapon",
     ];
     for expected in &expected_skills {

@@ -179,38 +179,25 @@ impl Build {
     ) -> CharacterStats {
         let mut stats = base_stats.clone();
         let ctx = ResolveContext::new(base_stats.clone());
+        // Pass 1: flat bonuses
         for bonus in bonuses {
             let bonus_value = bonus.resolve(&ctx);
             let bonus_multiplier = Self::bonus_multiplier(bonus, skills);
-            // Bonus value has to be multiply according to trigger. If trigger is
-            match bonus_value.target {
-                BonusTarget::WeaponAndSpellDamageFlat => {
-                    stats.weapon_damage += bonus_value.value * bonus_multiplier;
-                    stats.spell_damage += bonus_value.value * bonus_multiplier;
-                }
-                BonusTarget::WeaponDamageFlat => {
-                    stats.weapon_damage += bonus_value.value * bonus_multiplier;
-                }
-                BonusTarget::SpellDamageFlat => {
-                    stats.spell_damage += bonus_value.value * bonus_multiplier;
-                }
-                BonusTarget::MaxMagickaFlat => {
-                    stats.max_magicka += bonus_value.value * bonus_multiplier;
-                }
-                BonusTarget::MaxStaminaFlat => {
-                    stats.max_stamina += bonus_value.value * bonus_multiplier;
-                }
-                BonusTarget::CriticalDamage => {
-                    stats.critical_damage += bonus_value.value * bonus_multiplier;
-                }
-                BonusTarget::CriticalRating => {
-                    stats.critical_rating += bonus_value.value * bonus_multiplier;
-                }
-                BonusTarget::PhysicalAndSpellPenetration => {
-                    stats.penetration += bonus_value.value * bonus_multiplier;
-                }
-                _ => {}
-            }
+            Self::apply_flat_stat_bonus(
+                &mut stats,
+                bonus_value.target,
+                bonus_value.value * bonus_multiplier,
+            );
+        }
+        // Pass 2: percentage bonuses (applied on top of base + flat)
+        for bonus in bonuses {
+            let bonus_value = bonus.resolve(&ctx);
+            let bonus_multiplier = Self::bonus_multiplier(bonus, skills);
+            Self::apply_pct_stat_bonus(
+                &mut stats,
+                bonus_value.target,
+                bonus_value.value * bonus_multiplier,
+            );
         }
         stats.clamp_caps();
         stats
@@ -226,7 +213,7 @@ impl Build {
         }
     }
 
-    fn apply_stat_bonus(stats: &mut CharacterStats, target: BonusTarget, value: f64) {
+    fn apply_flat_stat_bonus(stats: &mut CharacterStats, target: BonusTarget, value: f64) {
         match target {
             BonusTarget::WeaponAndSpellDamageFlat => {
                 stats.weapon_damage += value;
@@ -250,10 +237,67 @@ impl Build {
             BonusTarget::CriticalRating => {
                 stats.critical_rating += value;
             }
+            BonusTarget::WeaponCriticalRating | BonusTarget::SpellCriticalRating => {
+                stats.critical_rating += value;
+            }
             BonusTarget::PhysicalAndSpellPenetration => {
                 stats.penetration += value;
             }
+            BonusTarget::EnemyResistanceReduction => {
+                stats.penetration += value;
+            }
             _ => {}
+        }
+    }
+
+    fn apply_pct_stat_bonus(stats: &mut CharacterStats, target: BonusTarget, value: f64) {
+        match target {
+            BonusTarget::MaxMagicka => {
+                stats.max_magicka *= 1.0 + value;
+            }
+            BonusTarget::MaxStamina => {
+                stats.max_stamina *= 1.0 + value;
+            }
+            BonusTarget::WeaponDamage => {
+                stats.weapon_damage *= 1.0 + value;
+            }
+            BonusTarget::SpellDamage => {
+                stats.spell_damage *= 1.0 + value;
+            }
+            BonusTarget::WeaponAndSpellDamageMultiplier => {
+                stats.weapon_damage *= 1.0 + value;
+                stats.spell_damage *= 1.0 + value;
+            }
+            _ => {}
+        }
+    }
+
+    fn is_pct_stat_bonus(target: BonusTarget) -> bool {
+        matches!(
+            target,
+            BonusTarget::MaxMagicka
+                | BonusTarget::MaxStamina
+                | BonusTarget::WeaponDamage
+                | BonusTarget::SpellDamage
+                | BonusTarget::WeaponAndSpellDamageMultiplier
+        )
+    }
+
+    fn apply_or_defer(
+        stats: &mut CharacterStats,
+        deferred: &mut SmallVec<[(BonusTarget, f64); 8]>,
+        target: BonusTarget,
+        value: f64,
+    ) {
+        Self::apply_flat_stat_bonus(stats, target, value);
+        if Self::is_pct_stat_bonus(target) {
+            deferred.push((target, value));
+        }
+    }
+
+    fn apply_deferred_pct(stats: &mut CharacterStats, deferred: &[(BonusTarget, f64)]) {
+        for &(target, value) in deferred {
+            Self::apply_pct_stat_bonus(stats, target, value);
         }
     }
 
@@ -274,10 +318,12 @@ impl Build {
         let mut intermediate_stats = character_stats.clone();
         let mut effective_stats = character_stats.clone();
         let mut resolved: SmallVec<[ResolvedBonus; 24]> = SmallVec::new();
+        let mut deferred_intermediate: SmallVec<[(BonusTarget, f64); 8]> = SmallVec::new();
+        let mut deferred_effective: SmallVec<[(BonusTarget, f64); 8]> = SmallVec::new();
 
         for rb in cp_pre_resolved.iter().chain(passive_pre_resolved.iter()) {
-            Self::apply_stat_bonus(&mut intermediate_stats, rb.target, rb.value);
-            Self::apply_stat_bonus(&mut effective_stats, rb.target, rb.value);
+            Self::apply_or_defer(&mut intermediate_stats, &mut deferred_intermediate, rb.target, rb.value);
+            Self::apply_or_defer(&mut effective_stats, &mut deferred_effective, rb.target, rb.value);
             resolved.push(*rb);
         }
 
@@ -285,8 +331,8 @@ impl Build {
             let bv = bonus.resolve_ref(&default_ctx);
             let multiplier = Self::bonus_multiplier(bonus, skills);
             let applied = bv.value * multiplier;
-            Self::apply_stat_bonus(&mut intermediate_stats, bv.target, applied);
-            Self::apply_stat_bonus(&mut effective_stats, bv.target, applied);
+            Self::apply_or_defer(&mut intermediate_stats, &mut deferred_intermediate, bv.target, applied);
+            Self::apply_or_defer(&mut effective_stats, &mut deferred_effective, bv.target, applied);
             resolved.push(ResolvedBonus {
                 target: bv.target,
                 value: bv.value,
@@ -294,6 +340,7 @@ impl Build {
                 execute_threshold: bonus.execute_threshold,
             });
         }
+        Self::apply_deferred_pct(&mut intermediate_stats, &deferred_intermediate);
         intermediate_stats.clamp_caps();
 
         let resolve_ctx = ResolveContext::new(intermediate_stats);
@@ -301,7 +348,8 @@ impl Build {
         for bonus in cp_alt.iter().chain(passive_alt.iter()) {
             let chosen = bonus.resolve_ref(&resolve_ctx);
             let multiplier = Self::bonus_multiplier(bonus, skills);
-            Self::apply_stat_bonus(&mut effective_stats, chosen.target, chosen.value * multiplier);
+            let applied = chosen.value * multiplier;
+            Self::apply_or_defer(&mut effective_stats, &mut deferred_effective, chosen.target, applied);
             resolved.push(ResolvedBonus {
                 target: chosen.target,
                 value: chosen.value,
@@ -309,6 +357,7 @@ impl Build {
                 execute_threshold: bonus.execute_threshold,
             });
         }
+        Self::apply_deferred_pct(&mut effective_stats, &deferred_effective);
         effective_stats.clamp_caps();
 
         let armor_factor =
@@ -463,12 +512,13 @@ impl Build {
     ) -> CachedPassiveContext {
         let default_ctx = ResolveContext::default();
         let mut base_stats = character_stats.clone();
+        let mut deferred: SmallVec<[(BonusTarget, f64); 8]> = SmallVec::new();
 
         // Build passive resolved list and apply stat bonuses
         let mut passive_resolved: SmallVec<[ResolvedBonus; 16]> = SmallVec::new();
 
         for rb in passive_pre_resolved {
-            Self::apply_stat_bonus(&mut base_stats, rb.target, rb.value);
+            Self::apply_or_defer(&mut base_stats, &mut deferred, rb.target, rb.value);
             passive_resolved.push(*rb);
         }
 
@@ -476,7 +526,7 @@ impl Build {
             let bv = bonus.resolve_ref(&default_ctx);
             let multiplier = Self::bonus_multiplier(bonus, skills);
             let applied = bv.value * multiplier;
-            Self::apply_stat_bonus(&mut base_stats, bv.target, applied);
+            Self::apply_or_defer(&mut base_stats, &mut deferred, bv.target, applied);
             passive_resolved.push(ResolvedBonus {
                 target: bv.target,
                 value: bv.value,
@@ -484,6 +534,7 @@ impl Build {
                 execute_threshold: bonus.execute_threshold,
             });
         }
+        Self::apply_deferred_pct(&mut base_stats, &deferred);
 
         // Pre-compute per-skill, per-component modifier sums from passive bonuses
         // using the lookup table. Filtered bonuses (with skill_line_filter) are added
@@ -564,10 +615,12 @@ impl Build {
         let mut intermediate_stats = passive_ctx.base_stats.clone();
         let mut effective_stats = passive_ctx.base_stats.clone();
         let mut cp_resolved: SmallVec<[ResolvedBonus; 8]> = SmallVec::new();
+        let mut deferred_intermediate: SmallVec<[(BonusTarget, f64); 8]> = SmallVec::new();
+        let mut deferred_effective: SmallVec<[(BonusTarget, f64); 8]> = SmallVec::new();
 
         for rb in cp_pre_resolved {
-            Self::apply_stat_bonus(&mut intermediate_stats, rb.target, rb.value);
-            Self::apply_stat_bonus(&mut effective_stats, rb.target, rb.value);
+            Self::apply_or_defer(&mut intermediate_stats, &mut deferred_intermediate, rb.target, rb.value);
+            Self::apply_or_defer(&mut effective_stats, &mut deferred_effective, rb.target, rb.value);
             cp_resolved.push(*rb);
         }
 
@@ -575,8 +628,8 @@ impl Build {
             let bv = bonus.resolve_ref(&default_ctx);
             let multiplier = Self::bonus_multiplier(bonus, skills);
             let applied = bv.value * multiplier;
-            Self::apply_stat_bonus(&mut intermediate_stats, bv.target, applied);
-            Self::apply_stat_bonus(&mut effective_stats, bv.target, applied);
+            Self::apply_or_defer(&mut intermediate_stats, &mut deferred_intermediate, bv.target, applied);
+            Self::apply_or_defer(&mut effective_stats, &mut deferred_effective, bv.target, applied);
             cp_resolved.push(ResolvedBonus {
                 target: bv.target,
                 value: bv.value,
@@ -584,6 +637,7 @@ impl Build {
                 execute_threshold: bonus.execute_threshold,
             });
         }
+        Self::apply_deferred_pct(&mut intermediate_stats, &deferred_intermediate);
         intermediate_stats.clamp_caps();
 
         let resolve_ctx = ResolveContext::new(intermediate_stats);
@@ -591,7 +645,8 @@ impl Build {
         for bonus in cp_alt.iter().chain(passive_alt.iter()) {
             let chosen = bonus.resolve_ref(&resolve_ctx);
             let multiplier = Self::bonus_multiplier(bonus, skills);
-            Self::apply_stat_bonus(&mut effective_stats, chosen.target, chosen.value * multiplier);
+            let applied = chosen.value * multiplier;
+            Self::apply_or_defer(&mut effective_stats, &mut deferred_effective, chosen.target, applied);
             cp_resolved.push(ResolvedBonus {
                 target: chosen.target,
                 value: chosen.value,
@@ -599,6 +654,7 @@ impl Build {
                 execute_threshold: bonus.execute_threshold,
             });
         }
+        Self::apply_deferred_pct(&mut effective_stats, &deferred_effective);
         effective_stats.clamp_caps();
 
         let armor_factor = super::formulas::armor_damage_factor(
@@ -1093,6 +1149,10 @@ impl Build {
                 | BonusTarget::HeavyAttackDamage
                 | BonusTarget::OffBalanceDamage
                 | BonusTarget::WeaponAndSpellDamageMultiplier
+                | BonusTarget::MaxMagicka
+                | BonusTarget::MaxStamina
+                | BonusTarget::WeaponDamage
+                | BonusTarget::SpellDamage
                 | BonusTarget::DurationSkillLineMultiplier => {
                     format!("{:.1}%", value * 100.0)
                 }
