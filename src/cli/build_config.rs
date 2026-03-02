@@ -23,5 +23,17 @@ pub struct BuildConfig {
     #[serde(default)]
     pub character_stats: CharacterStats,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub race: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mundus: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub food: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub armor_trait: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub jewelry_trait: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub weapon_trait: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<BuildMetadata>,
 }

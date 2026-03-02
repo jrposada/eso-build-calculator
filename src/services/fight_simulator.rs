@@ -69,6 +69,99 @@ impl FightSimulator {
         }
     }
 
+    /// Compute character stats with all AbilitySlotted buffs applied (self-buffed stats).
+    pub fn compute_buffed_stats(&self, distribution: &BarDistribution) -> CharacterStats {
+        let mut buffs: Vec<ActiveBuff> = Vec::new();
+
+        for skill in distribution
+            .bar1
+            .skills
+            .iter()
+            .chain(distribution.bar2.skills.iter())
+        {
+            if let Some(bonuses) = &skill.bonuses {
+                let ctx = ResolveContext::new(self.effective_stats.clone());
+                for bonus in bonuses {
+                    if bonus.trigger != BonusTrigger::AbilitySlotted {
+                        continue;
+                    }
+                    let bv = bonus.resolve(&ctx);
+                    if !buffs.iter().any(|b| b.name == bv.name) {
+                        buffs.push(ActiveBuff {
+                            name: bv.name,
+                            source_skill_name: skill.name.clone(),
+                            remaining_duration: None,
+                            target: bv.target,
+                            value: bv.value,
+                        });
+                    }
+                }
+            }
+        }
+
+        self.apply_buffs_to_stats(&buffs)
+    }
+
+    /// Apply a set of buffs to effective_stats and return the resulting CharacterStats.
+    fn apply_buffs_to_stats(&self, active_buffs: &[ActiveBuff]) -> CharacterStats {
+        let mut stats = self.effective_stats.clone();
+
+        // Pass 1: flat stat buffs
+        for buff in active_buffs {
+            match buff.target {
+                BonusTarget::WeaponAndSpellDamageFlat => {
+                    stats.weapon_damage += buff.value;
+                    stats.spell_damage += buff.value;
+                }
+                BonusTarget::WeaponDamageFlat => {
+                    stats.weapon_damage += buff.value;
+                }
+                BonusTarget::SpellDamageFlat => {
+                    stats.spell_damage += buff.value;
+                }
+                BonusTarget::MaxMagickaFlat => {
+                    stats.max_magicka += buff.value;
+                }
+                BonusTarget::MaxStaminaFlat => {
+                    stats.max_stamina += buff.value;
+                }
+                BonusTarget::CriticalDamage => {
+                    stats.critical_damage += buff.value;
+                }
+                BonusTarget::CriticalRating
+                | BonusTarget::WeaponCriticalRating
+                | BonusTarget::SpellCriticalRating => {
+                    stats.critical_rating += buff.value;
+                }
+                BonusTarget::PhysicalAndSpellPenetration
+                | BonusTarget::EnemyResistanceReduction => {
+                    stats.penetration += buff.value;
+                }
+                _ => {}
+            }
+        }
+
+        // Pass 2: percentage multipliers after flats
+        for buff in active_buffs {
+            match buff.target {
+                BonusTarget::WeaponDamage => {
+                    stats.weapon_damage *= 1.0 + buff.value;
+                }
+                BonusTarget::SpellDamage => {
+                    stats.spell_damage *= 1.0 + buff.value;
+                }
+                BonusTarget::WeaponAndSpellDamageMultiplier => {
+                    stats.weapon_damage *= 1.0 + buff.value;
+                    stats.spell_damage *= 1.0 + buff.value;
+                }
+                _ => {}
+            }
+        }
+
+        stats.clamp_caps();
+        stats
+    }
+
     pub fn simulate(&self, distribution: &BarDistribution) -> SimulationResult {
         // Initialize proc counters for all proc skills on both bars
         let mut proc_counters = HashMap::new();
@@ -266,61 +359,7 @@ impl FightSimulator {
 
     /// Compute a BuffedContext by applying active buff stat bonuses on top of base effective_stats.
     fn compute_buffed_context(&self, active_buffs: &[ActiveBuff]) -> BuffedContext {
-        let mut stats = self.effective_stats.clone();
-
-        // Pass 1: apply flat stat buffs
-        for buff in active_buffs {
-            match buff.target {
-                BonusTarget::WeaponAndSpellDamageFlat => {
-                    stats.weapon_damage += buff.value;
-                    stats.spell_damage += buff.value;
-                }
-                BonusTarget::WeaponDamageFlat => {
-                    stats.weapon_damage += buff.value;
-                }
-                BonusTarget::SpellDamageFlat => {
-                    stats.spell_damage += buff.value;
-                }
-                BonusTarget::MaxMagickaFlat => {
-                    stats.max_magicka += buff.value;
-                }
-                BonusTarget::MaxStaminaFlat => {
-                    stats.max_stamina += buff.value;
-                }
-                BonusTarget::CriticalDamage => {
-                    stats.critical_damage += buff.value;
-                }
-                BonusTarget::CriticalRating
-                | BonusTarget::WeaponCriticalRating
-                | BonusTarget::SpellCriticalRating => {
-                    stats.critical_rating += buff.value;
-                }
-                BonusTarget::PhysicalAndSpellPenetration
-                | BonusTarget::EnemyResistanceReduction => {
-                    stats.penetration += buff.value;
-                }
-                _ => {}
-            }
-        }
-
-        // Pass 2: apply percentage multipliers after flats
-        for buff in active_buffs {
-            match buff.target {
-                BonusTarget::WeaponDamage => {
-                    stats.weapon_damage *= 1.0 + buff.value;
-                }
-                BonusTarget::SpellDamage => {
-                    stats.spell_damage *= 1.0 + buff.value;
-                }
-                BonusTarget::WeaponAndSpellDamageMultiplier => {
-                    stats.weapon_damage *= 1.0 + buff.value;
-                    stats.spell_damage *= 1.0 + buff.value;
-                }
-                _ => {}
-            }
-        }
-
-        stats.clamp_caps();
+        let stats = self.apply_buffs_to_stats(active_buffs);
 
         let armor_factor = crate::domain::formulas::armor_damage_factor(
             stats.target_armor,

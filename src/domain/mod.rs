@@ -11,11 +11,15 @@ pub mod damage_coefficients;
 pub mod damage_flags;
 pub mod dot_damage;
 pub mod execute;
+pub mod food;
 pub mod formulas;
+pub mod gear_config;
 pub mod gear_set;
 pub mod hit_damage;
 pub mod light_attack;
+pub mod mundus;
 pub mod passive;
+pub mod race;
 pub mod resource;
 pub mod skill;
 pub mod simulation;
@@ -34,6 +38,13 @@ pub use build::{Build, CachedPassiveContext};
 pub use build_constrains::BUILD_CONSTRAINTS;
 pub use character_stats::{CharacterStats, ATTRIBUTE_POINTS_BONUS};
 pub use class_name::ClassName;
+pub use food::{Food, DPS_FOODS};
+pub use gear_config::{
+    ArmorTrait, AttributeChoice, GearConfig, JewelryTrait, WeaponTrait,
+    DPS_ARMOR_TRAITS, DPS_ATTRIBUTES, DPS_JEWELRY_TRAITS, DPS_WEAPON_TRAITS,
+};
+pub use mundus::{MundusStone, DPS_MUNDUS_STONES};
+pub use race::{Race, DPS_RACES};
 pub use damage_coefficients::DamageCoefficients;
 pub use damage_flags::DamageFlags;
 pub use dot_damage::DotDamage;

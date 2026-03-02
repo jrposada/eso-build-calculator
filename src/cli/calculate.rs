@@ -1,11 +1,12 @@
 use super::build_config::BuildConfig;
 use super::parsers::{parse_champion_point, parse_set, parse_skill};
 use crate::domain::{
-    BonusData, Build, CharacterStats, SetData, SkillData, SkillLineName, WeaponType,
-    ATTRIBUTE_POINTS_BONUS, BUILD_CONSTRAINTS,
+    ArmorTrait, AttributeChoice, BonusData, Build, CharacterStats, Food, GearConfig, JewelryTrait,
+    MundusStone, Race, SetData, SkillData, SkillLineName, WeaponTrait, WeaponType,
+    BUILD_CONSTRAINTS,
 };
 use super::simulation_display::display_simulation_result;
-use crate::infrastructure::logger;
+use crate::infrastructure::{format, logger, table, table::ColumnDefinition};
 use crate::services::{
     generate_distributions, infer_weapons, FightSimulator, PassivesService, PassivesServiceOptions,
 };
@@ -56,6 +57,58 @@ pub struct CalculateArgs {
     /// Mythic item (max 1)
     #[arg(long, value_parser = parse_set, conflicts_with = "file")]
     pub mythic: Option<&'static SetData>,
+
+    /// Show extra details (buffed character stats)
+    #[arg(short = 'v', long)]
+    pub verbose: bool,
+
+    /// Character race (dark-elf, khajiit, orc, etc.)
+    #[arg(long, value_parser = Race::parse, conflicts_with = "file")]
+    pub race: Option<Race>,
+
+    /// Mundus stone (thief, shadow, warrior, etc.)
+    #[arg(long, value_parser = MundusStone::parse, conflicts_with = "file")]
+    pub mundus: Option<MundusStone>,
+
+    /// Food buff (lava-foot, ghastly-eye, sugar-skulls)
+    #[arg(long, value_parser = Food::parse, conflicts_with = "file")]
+    pub food: Option<Food>,
+
+    /// Armor trait for all 7 pieces (defaults to divines if omitted)
+    #[arg(long, value_parser = ArmorTrait::parse)]
+    pub armor_trait: Option<ArmorTrait>,
+
+    /// Jewelry trait for all 3 pieces (defaults to bloodthirsty if omitted)
+    #[arg(long, value_parser = JewelryTrait::parse)]
+    pub jewelry_trait: Option<JewelryTrait>,
+
+    /// Weapon trait (defaults to nirnhoned if omitted)
+    #[arg(long, value_parser = WeaponTrait::parse)]
+    pub weapon_trait: Option<WeaponTrait>,
+
+    /// Override computed max stamina
+    #[arg(long, conflicts_with = "file")]
+    pub max_stamina: Option<f64>,
+
+    /// Override computed max magicka
+    #[arg(long, conflicts_with = "file")]
+    pub max_magicka: Option<f64>,
+
+    /// Override computed weapon damage
+    #[arg(long, conflicts_with = "file")]
+    pub weapon_damage: Option<f64>,
+
+    /// Override computed spell damage
+    #[arg(long, conflicts_with = "file")]
+    pub spell_damage: Option<f64>,
+
+    /// Override computed critical rating
+    #[arg(long, conflicts_with = "file")]
+    pub critical_rating: Option<f64>,
+
+    /// Override computed penetration
+    #[arg(long, conflicts_with = "file")]
+    pub penetration: Option<f64>,
 }
 
 impl CalculateArgs {
@@ -66,12 +119,34 @@ impl CalculateArgs {
                 (s, cp, w, sets, character_stats)
             } else {
                 let (s, cp) = self.get_from_args();
-                let mut stats = CharacterStats::default();
-                if self.magicka {
-                    stats.max_magicka += ATTRIBUTE_POINTS_BONUS;
+
+                let attributes = if self.magicka {
+                    AttributeChoice::Magicka
                 } else if self.stamina {
-                    stats.max_stamina += ATTRIBUTE_POINTS_BONUS;
-                }
+                    AttributeChoice::Stamina
+                } else {
+                    AttributeChoice::None
+                };
+
+                let gear = GearConfig {
+                    race: self.race,
+                    mundus: self.mundus,
+                    food: self.food,
+                    armor_trait: self.armor_trait.unwrap_or(ArmorTrait::Divines),
+                    jewelry_trait: self.jewelry_trait.unwrap_or(JewelryTrait::Bloodthirsty),
+                    weapon_trait: self.weapon_trait.unwrap_or(WeaponTrait::Nirnhoned),
+                    attributes,
+                };
+                let mut stats = gear.compute_stats(self.bar1_weapon);
+
+                // Apply stat overrides
+                if let Some(v) = self.max_stamina { stats.max_stamina = v; }
+                if let Some(v) = self.max_magicka { stats.max_magicka = v; }
+                if let Some(v) = self.weapon_damage { stats.weapon_damage = v; }
+                if let Some(v) = self.spell_damage { stats.spell_damage = v; }
+                if let Some(v) = self.critical_rating { stats.critical_rating = v; }
+                if let Some(v) = self.penetration { stats.penetration = v; }
+
                 (s, cp, (None, None), Vec::new(), stats)
             };
 
@@ -200,6 +275,11 @@ impl CalculateArgs {
 
         let simulator = FightSimulator::new(effective_stats, resolved_bonuses);
 
+        if self.verbose {
+            let buffed = simulator.compute_buffed_stats(&distributions[0]);
+            logger::trace(&format_buffed_stats(&buffed));
+        }
+
         let mut results: Vec<(usize, crate::domain::SimulationResult)> = distributions
             .iter()
             .enumerate()
@@ -292,4 +372,33 @@ impl CalculateArgs {
 
         (skills, champion_points, (bar1, bar2), sets, config.character_stats)
     }
+}
+
+fn format_buffed_stats(stats: &CharacterStats) -> String {
+    let fmt_stat = |val: f64| format::format_number(val as u64);
+    let fmt_pct = |val: f64| format!("{:.2}%", val * 100.0);
+    let fmt_crit_dmg = |val: f64| format!("{:.2}%", (val - 1.0) * 100.0);
+
+    let data: Vec<Vec<String>> = vec![
+        vec!["Max Magicka".into(), fmt_stat(stats.max_magicka)],
+        vec!["Max Stamina".into(), fmt_stat(stats.max_stamina)],
+        vec!["Weapon Damage".into(), fmt_stat(stats.weapon_damage)],
+        vec!["Spell Damage".into(), fmt_stat(stats.spell_damage)],
+        vec!["Critical Chance".into(), fmt_pct(stats.critical_chance())],
+        vec!["Critical Damage".into(), fmt_crit_dmg(stats.critical_damage)],
+        vec!["Penetration".into(), fmt_stat(stats.penetration)],
+        vec!["Target Armor".into(), fmt_stat(stats.target_armor)],
+    ];
+
+    table(
+        &data,
+        table::TableOptions {
+            title: Some("Buffed Character Stats".into()),
+            columns: vec![
+                ColumnDefinition::new("Stat", 20),
+                ColumnDefinition::new("Value", 12).align_right(),
+            ],
+            footer: None,
+        },
+    )
 }

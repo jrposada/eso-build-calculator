@@ -12,13 +12,15 @@ use super::parsers::{
 };
 use super::simulation_display::display_simulation_result;
 use crate::domain::{
-    BonusData, Build, CharacterStats, ClassName, SetData, SimulationResult, SkillData,
-    SkillLineName, WeaponType, ATTRIBUTE_POINTS_BONUS, BUILD_CONSTRAINTS,
+    ArmorTrait, AttributeChoice, BonusData, Build, ClassName, Food, GearConfig, JewelryTrait,
+    MundusStone, Race, SetData, SimulationResult, SkillData, SkillLineName, WeaponTrait,
+    WeaponType, BUILD_CONSTRAINTS,
 };
 use crate::infrastructure::{format, logger};
 use crate::services::{
     generate_distributions, infer_weapons, BarDistribution, BuildOptimizer, BuildOptimizerOptions,
-    FightSimulator, SetOptimizer, SetOptimizerOptions,
+    FightSimulator, GearOptimizer, GearOptimizerOptions, SetOptimizer, SetOptimizerOptions,
+    stats_differ_significantly,
 };
 use clap::Args;
 
@@ -61,11 +63,11 @@ pub struct OptimizeArgs {
     #[arg(long)]
     pub max_pool_size: Option<usize>,
 
-    /// Allocate 64 attribute points to magicka
+    /// Pin attribute points to magicka (optimized if omitted)
     #[arg(long, conflicts_with = "stamina")]
     pub magicka: bool,
 
-    /// Allocate 64 attribute points to stamina
+    /// Pin attribute points to stamina (optimized if omitted)
     #[arg(long, conflicts_with = "magicka")]
     pub stamina: bool,
 
@@ -77,33 +79,284 @@ pub struct OptimizeArgs {
     #[arg(long, value_parser = WeaponType::parse)]
     pub bar2_weapon: Option<WeaponType>,
 
-    /// Normal/arena 5pc sets to include (comma-separated, max 2)
+    /// Pin normal/arena 5pc sets (comma-separated, max 2)
     #[arg(long, value_delimiter = ',', value_parser = parse_set)]
     pub sets: Option<Vec<&'static SetData>>,
 
-    /// Monster 2pc sets to include (comma-separated, max 2)
+    /// Pin monster 2pc sets (comma-separated, max 2)
     #[arg(long, value_delimiter = ',', value_parser = parse_set)]
     pub monster_sets: Option<Vec<&'static SetData>>,
 
-    /// Mythic 1pc set to include
+    /// Pin mythic 1pc set
     #[arg(long, value_parser = parse_set)]
     pub mythic: Option<&'static SetData>,
-
-    /// Enable Phase 2 set optimization (find best sets from all available)
-    #[arg(long)]
-    pub optimize_sets: bool,
-
-    /// Number of top-K set candidates per slot for Phase 2 (default: 10)
-    #[arg(long, default_value = "10")]
-    pub set_candidates: usize,
 
     /// Export build to this file without prompting
     #[arg(short = 'o', long)]
     pub output: Option<PathBuf>,
+
+    /// Pin character race (dark-elf, khajiit, orc, etc.) — optimized if omitted
+    #[arg(long, value_parser = Race::parse)]
+    pub race: Option<Race>,
+
+    /// Pin mundus stone (thief, shadow, warrior, etc.) — optimized if omitted
+    #[arg(long, value_parser = MundusStone::parse)]
+    pub mundus: Option<MundusStone>,
+
+    /// Pin food buff (lava-foot, ghastly-eye, sugar-skulls) — optimized if omitted
+    #[arg(long, value_parser = Food::parse)]
+    pub food: Option<Food>,
+
+    /// Pin armor trait for all 7 pieces — optimized if omitted
+    #[arg(long, value_parser = ArmorTrait::parse)]
+    pub armor_trait: Option<ArmorTrait>,
+
+    /// Pin jewelry trait for all 3 pieces — optimized if omitted
+    #[arg(long, value_parser = JewelryTrait::parse)]
+    pub jewelry_trait: Option<JewelryTrait>,
+
+    /// Pin weapon trait — optimized if omitted
+    #[arg(long, value_parser = WeaponTrait::parse)]
+    pub weapon_trait: Option<WeaponTrait>,
+
+    /// Override computed max stamina
+    #[arg(long)]
+    pub max_stamina: Option<f64>,
+
+    /// Override computed max magicka
+    #[arg(long)]
+    pub max_magicka: Option<f64>,
+
+    /// Override computed weapon damage
+    #[arg(long)]
+    pub weapon_damage: Option<f64>,
+
+    /// Override computed spell damage
+    #[arg(long)]
+    pub spell_damage: Option<f64>,
+
+    /// Override computed critical rating
+    #[arg(long)]
+    pub critical_rating: Option<f64>,
+
+    /// Override computed penetration
+    #[arg(long)]
+    pub penetration: Option<f64>,
 }
 
 impl OptimizeArgs {
     pub fn run(&self) {
+        self.validate();
+
+        let parallelism = self
+            .parallelism
+            .unwrap_or_else(|| (num_cpus::get() / 2).max(1) as u8);
+
+        // Determine pinned attributes
+        let pinned_attributes = if self.magicka {
+            Some(AttributeChoice::Magicka)
+        } else if self.stamina {
+            Some(AttributeChoice::Stamina)
+        } else {
+            None
+        };
+
+        // ── Build baseline GearConfig for Phase 0 ──
+        // Pinned dimensions use the pinned value; unpinned use sensible defaults.
+        let baseline_gear = GearConfig {
+            race: self.race,      // None if unpinned (naked baseline)
+            mundus: self.mundus,  // None if unpinned
+            food: self.food,      // None if unpinned
+            armor_trait: self.armor_trait.unwrap_or(ArmorTrait::Divines),
+            jewelry_trait: self.jewelry_trait.unwrap_or(JewelryTrait::Bloodthirsty),
+            weapon_trait: self.weapon_trait.unwrap_or(WeaponTrait::Nirnhoned),
+            attributes: pinned_attributes.unwrap_or(AttributeChoice::Stamina),
+        };
+
+        let mut character_stats = baseline_gear.compute_stats(self.bar1_weapon);
+
+        // Apply stat overrides
+        if let Some(v) = self.max_stamina { character_stats.max_stamina = v; }
+        if let Some(v) = self.max_magicka { character_stats.max_magicka = v; }
+        if let Some(v) = self.weapon_damage { character_stats.weapon_damage = v; }
+        if let Some(v) = self.spell_damage { character_stats.spell_damage = v; }
+        if let Some(v) = self.critical_rating { character_stats.critical_rating = v; }
+        if let Some(v) = self.penetration { character_stats.penetration = v; }
+
+        let baseline_stats = character_stats.clone();
+
+        // Resolve pinned set bonuses for Phase 0
+        let (set_bonuses, set_names) = self.resolve_set_bonuses();
+
+        // ── Phase 0: BuildOptimizer with baseline stats ──
+        logger::info("Phase 0: Finding optimal skill/CP build...");
+
+        let optimizer = BuildOptimizer::new(BuildOptimizerOptions {
+            character_stats,
+            verbose: self.verbose,
+            pure_class: self.pure,
+            required_class_names: self.classes.clone().unwrap_or_default(),
+            required_weapon_skill_lines: self.weapons.clone().unwrap_or_default(),
+            required_champion_points: self.champion_points.clone().unwrap_or_default(),
+            required_skills: self.skills.clone().unwrap_or_default(),
+            forced_morphs: self.morphs.clone().unwrap_or_default(),
+            parallelism,
+            max_pool_size: self.max_pool_size,
+            set_bonuses,
+            set_names,
+        });
+
+        let start = Instant::now();
+        let mut builds = optimizer.find_optimal_build();
+        let elapsed = start.elapsed();
+
+        if builds.is_empty() {
+            logger::error("No valid build found with the given constraints.");
+            std::process::exit(1);
+        }
+
+        logger::info(&builds[0].to_string());
+        logger::info(&format!("Phase 0 completed in {:.2?}", elapsed));
+
+        // ── Phase 1: Gear Optimization ──
+        let gear_options = GearOptimizerOptions {
+            pinned_race: self.race,
+            pinned_mundus: self.mundus,
+            pinned_food: self.food,
+            pinned_armor_trait: self.armor_trait,
+            pinned_jewelry_trait: self.jewelry_trait,
+            pinned_weapon_trait: self.weapon_trait,
+            pinned_attributes,
+            bar1_weapon: self.bar1_weapon,
+            top_k: 3,
+            verbose: self.verbose,
+        };
+
+        let winning_gear = if gear_options.all_pinned() {
+            if self.verbose {
+                logger::dim("Phase 1: All gear dimensions pinned, skipping gear optimization.");
+            }
+            None
+        } else {
+            logger::info("Phase 1: Optimizing gear (race, mundus, food, traits)...");
+            let gear_start = Instant::now();
+            let result = GearOptimizer::optimize(&builds, &gear_options, &baseline_gear);
+            let gear_elapsed = gear_start.elapsed();
+
+            // Display winning gear
+            let g = &result.gear_config;
+            logger::success(&format!(
+                "Best gear: Race={}, Mundus={}, Food={}, Armor={}, Jewelry={}, Weapon={}, Attributes={}",
+                g.race.map_or("None".to_string(), |r| r.to_string()),
+                g.mundus.map_or("None".to_string(), |m| m.to_string()),
+                g.food.map_or("None".to_string(), |f| f.to_string()),
+                g.armor_trait,
+                g.jewelry_trait,
+                g.weapon_trait,
+                g.attributes,
+            ));
+            logger::info(&format!("Phase 1 completed in {:.2?}", gear_elapsed));
+            Some(result)
+        };
+
+        // ── Phase 2: Conditional BuildOptimizer re-run ──
+        if let Some(ref gear_result) = winning_gear {
+            let mut new_stats = gear_result.character_stats.clone();
+
+            // Re-apply stat overrides on top of winning gear stats
+            if let Some(v) = self.max_stamina { new_stats.max_stamina = v; }
+            if let Some(v) = self.max_magicka { new_stats.max_magicka = v; }
+            if let Some(v) = self.weapon_damage { new_stats.weapon_damage = v; }
+            if let Some(v) = self.spell_damage { new_stats.spell_damage = v; }
+            if let Some(v) = self.critical_rating { new_stats.critical_rating = v; }
+            if let Some(v) = self.penetration { new_stats.penetration = v; }
+
+            if stats_differ_significantly(&baseline_stats, &new_stats, 0.05) {
+                logger::info("Phase 2: Gear stats changed >5%, re-running build optimizer...");
+
+                let (set_bonuses, set_names) = self.resolve_set_bonuses();
+                let rerun_optimizer = BuildOptimizer::new(BuildOptimizerOptions {
+                    character_stats: new_stats,
+                    verbose: self.verbose,
+                    pure_class: self.pure,
+                    required_class_names: self.classes.clone().unwrap_or_default(),
+                    required_weapon_skill_lines: self.weapons.clone().unwrap_or_default(),
+                    required_champion_points: self.champion_points.clone().unwrap_or_default(),
+                    required_skills: self.skills.clone().unwrap_or_default(),
+                    forced_morphs: self.morphs.clone().unwrap_or_default(),
+                    parallelism,
+                    max_pool_size: self.max_pool_size,
+                    set_bonuses,
+                    set_names,
+                });
+
+                let rerun_start = Instant::now();
+                let new_builds = rerun_optimizer.find_optimal_build();
+                let rerun_elapsed = rerun_start.elapsed();
+
+                if !new_builds.is_empty() {
+                    logger::info(&new_builds[0].to_string());
+                    logger::info(&format!("Phase 2 completed in {:.2?}", rerun_elapsed));
+                    builds = new_builds;
+                } else {
+                    logger::warn("Phase 2 re-run found no valid builds, keeping Phase 0 results.");
+                }
+            } else if self.verbose {
+                logger::dim("Phase 2: Stats within 5% of baseline, skipping re-run.");
+            }
+        }
+
+        // ── Phase 3: Set Optimization (always runs) ──
+        logger::info("Phase 3: Optimizing gear sets...");
+        let set_result = SetOptimizer::optimize(
+            &builds,
+            &SetOptimizerOptions {
+                top_k: 10,
+                pinned_normal: self.sets.clone().unwrap_or_default(),
+                pinned_monster: self.monster_sets.clone().unwrap_or_default(),
+                pinned_mythic: self.mythic,
+                parallelism,
+                verbose: self.verbose,
+            },
+        );
+        let builds = if let Some(result) = set_result {
+            let source = &builds[result.build_idx];
+            let best_with_sets = Build::new(
+                source.skills().to_vec(),
+                source.cp_bonuses(),
+                source.passive_bonuses(),
+                &result.set_bonuses,
+                result.set_names,
+                source.character_stats().clone(),
+            );
+            logger::info(&best_with_sets.to_string());
+            vec![best_with_sets]
+        } else {
+            logger::warn("Set optimization found no valid loadout.");
+            builds
+        };
+
+        // ── Phase 4: Fight Simulation ──
+        let sim_result = self.run_simulation(&builds);
+
+        // Use the build selected by simulation (if any), otherwise fall back to DPC-best
+        let best_build = &builds[0];
+        let export_build = sim_result
+            .as_ref()
+            .map(|(build_idx, _, _)| &builds[*build_idx])
+            .unwrap_or(best_build);
+        let sim_data = sim_result.as_ref().map(|(_, dist, result)| (dist, result));
+
+        // Export with gear info
+        let gear_config = winning_gear.as_ref().map(|g| &g.gear_config);
+        if let Some(path) = &self.output {
+            Self::export_to_file(export_build, self.bar1_weapon, self.bar2_weapon, sim_data, gear_config, path);
+        } else {
+            Self::prompt_export(export_build, self.bar1_weapon, self.bar2_weapon, sim_data, gear_config);
+        }
+    }
+
+    fn validate(&self) {
         // Validate class count
         if let Some(classes) = &self.classes {
             if classes.len() > BUILD_CONSTRAINTS.class_skill_line_count {
@@ -161,101 +414,6 @@ impl OptimizeArgs {
                 std::process::exit(1);
             }
         }
-
-        let mut character_stats = CharacterStats::default();
-        if self.magicka {
-            character_stats.max_magicka += ATTRIBUTE_POINTS_BONUS;
-        } else if self.stamina {
-            character_stats.max_stamina += ATTRIBUTE_POINTS_BONUS;
-        }
-
-        // Resolve fixed set bonuses
-        let (set_bonuses, set_names) = self.resolve_set_bonuses();
-
-        logger::info("Finding optimal build...");
-
-        let optimizer = BuildOptimizer::new(BuildOptimizerOptions {
-            character_stats,
-            verbose: self.verbose,
-            pure_class: self.pure,
-            required_class_names: self.classes.clone().unwrap_or_default(),
-            required_weapon_skill_lines: self.weapons.clone().unwrap_or_default(),
-            required_champion_points: self.champion_points.clone().unwrap_or_default(),
-            required_skills: self.skills.clone().unwrap_or_default(),
-            forced_morphs: self.morphs.clone().unwrap_or_default(),
-            parallelism: self
-                .parallelism
-                .unwrap_or_else(|| (num_cpus::get() / 2).max(1) as u8),
-            max_pool_size: self.max_pool_size,
-            set_bonuses,
-            set_names,
-        });
-
-        let start = Instant::now();
-        let builds = optimizer.find_optimal_build();
-        let elapsed = start.elapsed();
-
-        if builds.is_empty() {
-            logger::error("No valid build found with the given constraints.");
-            std::process::exit(1);
-        }
-
-        // Display top-1 build by damage-per-cast
-        logger::info(&builds[0].to_string());
-        logger::info(&format!("Optimization completed in {:.2?}", elapsed));
-
-        // --- Phase 2: Set Optimization ---
-        let builds = if self.optimize_sets {
-            logger::info("Phase 2: Optimizing gear sets...");
-            let parallelism = self
-                .parallelism
-                .unwrap_or_else(|| (num_cpus::get() / 2).max(1) as u8);
-            let set_result = SetOptimizer::optimize(
-                &builds,
-                &SetOptimizerOptions {
-                    top_k: self.set_candidates,
-                    pinned_normal: self.sets.clone().unwrap_or_default(),
-                    pinned_monster: self.monster_sets.clone().unwrap_or_default(),
-                    pinned_mythic: self.mythic,
-                    parallelism,
-                    verbose: self.verbose,
-                },
-            );
-            if let Some(result) = set_result {
-                let source = &builds[result.build_idx];
-                let best_with_sets = Build::new(
-                    source.skills().to_vec(),
-                    source.cp_bonuses(),
-                    source.passive_bonuses(),
-                    &result.set_bonuses,
-                    result.set_names,
-                    source.character_stats().clone(),
-                );
-                logger::info(&best_with_sets.to_string());
-                vec![best_with_sets]
-            } else {
-                logger::warn("Set optimization found no valid loadout.");
-                builds
-            }
-        } else {
-            builds
-        };
-
-        // --- Fight simulation on top candidates ---
-        let sim_result = self.run_simulation(&builds);
-
-        // Use the build selected by simulation (if any), otherwise fall back to DPC-best
-        let best_build = &builds[0];
-        let export_build = sim_result
-            .as_ref()
-            .map(|(build_idx, _, _)| &builds[*build_idx])
-            .unwrap_or(best_build);
-        let sim_data = sim_result.as_ref().map(|(_, dist, result)| (dist, result));
-        if let Some(path) = &self.output {
-            Self::export_to_file(export_build, self.bar1_weapon, self.bar2_weapon, sim_data, path);
-        } else {
-            Self::prompt_export(export_build, self.bar1_weapon, self.bar2_weapon, sim_data);
-        }
     }
 
     fn resolve_set_bonuses(&self) -> (Vec<BonusData>, Vec<(String, u8)>) {
@@ -307,7 +465,7 @@ impl OptimizeArgs {
         };
 
         logger::info(&format!(
-            "Running fight simulation on top {} candidates (Bar1: {}, Bar2: {})...",
+            "Phase 4: Running fight simulation on top {} candidates (Bar1: {}, Bar2: {})...",
             builds.len(),
             bar1_weapon,
             bar2_weapon
@@ -415,6 +573,7 @@ impl OptimizeArgs {
         bar1_weapon: Option<WeaponType>,
         bar2_weapon: Option<WeaponType>,
         simulation: Option<(&BarDistribution, &SimulationResult)>,
+        gear_config: Option<&GearConfig>,
     ) {
         // Show prompt with greyed-out default value "no"
         print!("\nExport build to file? [path/no]: \x1b[90mn\x1b[0m");
@@ -433,7 +592,7 @@ impl OptimizeArgs {
         }
 
         let path = PathBuf::from(input);
-        Self::export_to_file(build, bar1_weapon, bar2_weapon, simulation, &path);
+        Self::export_to_file(build, bar1_weapon, bar2_weapon, simulation, gear_config, &path);
     }
 
     fn export_to_file(
@@ -441,6 +600,7 @@ impl OptimizeArgs {
         bar1_weapon: Option<WeaponType>,
         bar2_weapon: Option<WeaponType>,
         simulation: Option<(&BarDistribution, &SimulationResult)>,
+        gear_config: Option<&GearConfig>,
         path: &PathBuf,
     ) {
         let metadata = simulation.map(|(dist, result)| {
@@ -460,6 +620,12 @@ impl OptimizeArgs {
             bar1_weapon: bar1_weapon.map(|w| w.to_string()),
             bar2_weapon: bar2_weapon.map(|w| w.to_string()),
             character_stats: build.character_stats().clone(),
+            race: gear_config.and_then(|g| g.race.map(|r| r.to_string())),
+            mundus: gear_config.and_then(|g| g.mundus.map(|m| m.to_string())),
+            food: gear_config.and_then(|g| g.food.map(|f| f.to_string())),
+            armor_trait: gear_config.map(|g| g.armor_trait.to_string()),
+            jewelry_trait: gear_config.map(|g| g.jewelry_trait.to_string()),
+            weapon_trait: gear_config.map(|g| g.weapon_trait.to_string()),
             metadata,
         };
 

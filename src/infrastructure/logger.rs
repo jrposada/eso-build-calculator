@@ -91,6 +91,16 @@ pub fn success(message: &str) {
     println!("{}", message.green());
 }
 
+/// Log a trace message (gray, for verbose output)
+pub fn trace(message: &str) {
+    if is_quiet() {
+        return;
+    }
+    let _lock = STDOUT_LOCK.lock().unwrap();
+    clear_progress();
+    println!("{}", message.dimmed());
+}
+
 /// Log a dim message (gray)
 pub fn dim(message: &str) {
     if is_quiet() {
