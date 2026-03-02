@@ -96,6 +96,10 @@ pub struct OptimizeArgs {
     /// Number of top-K set candidates per slot for Phase 2 (default: 10)
     #[arg(long, default_value = "10")]
     pub set_candidates: usize,
+
+    /// Export build to this file without prompting
+    #[arg(short = 'o', long)]
+    pub output: Option<PathBuf>,
 }
 
 impl OptimizeArgs {
@@ -247,7 +251,11 @@ impl OptimizeArgs {
             .map(|(build_idx, _, _)| &builds[*build_idx])
             .unwrap_or(best_build);
         let sim_data = sim_result.as_ref().map(|(_, dist, result)| (dist, result));
-        Self::prompt_export(export_build, self.bar1_weapon, self.bar2_weapon, sim_data);
+        if let Some(path) = &self.output {
+            Self::export_to_file(export_build, self.bar1_weapon, self.bar2_weapon, sim_data, path);
+        } else {
+            Self::prompt_export(export_build, self.bar1_weapon, self.bar2_weapon, sim_data);
+        }
     }
 
     fn resolve_set_bonuses(&self) -> (Vec<BonusData>, Vec<(String, u8)>) {
@@ -424,6 +432,17 @@ impl OptimizeArgs {
             return;
         }
 
+        let path = PathBuf::from(input);
+        Self::export_to_file(build, bar1_weapon, bar2_weapon, simulation, &path);
+    }
+
+    fn export_to_file(
+        build: &crate::domain::Build,
+        bar1_weapon: Option<WeaponType>,
+        bar2_weapon: Option<WeaponType>,
+        simulation: Option<(&BarDistribution, &SimulationResult)>,
+        path: &PathBuf,
+    ) {
         let metadata = simulation.map(|(dist, result)| {
             super::build_config::BuildMetadata {
                 dps: result.dps,
@@ -434,18 +453,18 @@ impl OptimizeArgs {
             }
         });
 
-        let path = PathBuf::from(input);
         let config = BuildConfig {
             skills: build.skill_names(),
             champion_points: build.champion_point_names(),
             sets: build.set_names().iter().map(|(name, _)| name.clone()).collect(),
             bar1_weapon: bar1_weapon.map(|w| w.to_string()),
             bar2_weapon: bar2_weapon.map(|w| w.to_string()),
+            character_stats: build.character_stats().clone(),
             metadata,
         };
 
         match serde_json::to_string_pretty(&config) {
-            Ok(json) => match fs::write(&path, json) {
+            Ok(json) => match fs::write(path, json) {
                 Ok(_) => logger::info(&format!("Build exported to {}", path.display())),
                 Err(e) => logger::error(&format!("Failed to write file: {}", e)),
             },
