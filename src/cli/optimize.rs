@@ -11,6 +11,7 @@ use super::parsers::{
     parse_champion_point, parse_class_name, parse_set, parse_skill, parse_weapon_skill_line,
 };
 use super::simulation_display::display_simulation_result;
+use crate::data::bonuses::{TRIAL_BUFF_NAMES, TRIAL_DUMMY_BUFFS};
 use crate::domain::{
     ArmorTrait, AttributeChoice, BonusData, Build, ClassName, Food, GearConfig, JewelryTrait,
     MundusStone, Race, SetData, SimulationResult, SkillData, SkillLineName, WeaponTrait,
@@ -142,6 +143,10 @@ pub struct OptimizeArgs {
     /// Override computed penetration
     #[arg(long)]
     pub penetration: Option<f64>,
+
+    /// Disable trial dummy buffs/debuffs (enabled by default)
+    #[arg(long = "no-trial")]
+    pub no_trial: bool,
 }
 
 impl OptimizeArgs {
@@ -188,6 +193,13 @@ impl OptimizeArgs {
         // Resolve pinned set bonuses for Phase 0
         let (set_bonuses, set_names) = self.resolve_set_bonuses();
 
+        // Resolve trial dummy buffs
+        let extra_bonuses = if self.no_trial {
+            Vec::new()
+        } else {
+            TRIAL_DUMMY_BUFFS.clone()
+        };
+
         // ── Phase 0: BuildOptimizer with baseline stats ──
         logger::info("Phase 0: Finding optimal skill/CP build...");
 
@@ -204,6 +216,7 @@ impl OptimizeArgs {
             max_pool_size: self.max_pool_size,
             set_bonuses,
             set_names,
+            extra_bonuses: extra_bonuses.clone(),
         });
 
         let start = Instant::now();
@@ -288,6 +301,7 @@ impl OptimizeArgs {
                     max_pool_size: self.max_pool_size,
                     set_bonuses,
                     set_names,
+                    extra_bonuses: extra_bonuses.clone(),
                 });
 
                 let rerun_start = Instant::now();
@@ -321,13 +335,14 @@ impl OptimizeArgs {
         );
         let builds = if let Some(result) = set_result {
             let source = &builds[result.build_idx];
-            let best_with_sets = Build::new(
+            let best_with_sets = Build::new_with_extra(
                 source.skills().to_vec(),
                 source.cp_bonuses(),
                 source.passive_bonuses(),
                 &result.set_bonuses,
                 result.set_names,
                 source.character_stats().clone(),
+                &extra_bonuses,
             );
             logger::info(&best_with_sets.to_string());
             vec![best_with_sets]
@@ -350,9 +365,9 @@ impl OptimizeArgs {
         // Export with gear info
         let gear_config = winning_gear.as_ref().map(|g| &g.gear_config);
         if let Some(path) = &self.output {
-            Self::export_to_file(export_build, self.bar1_weapon, self.bar2_weapon, sim_data, gear_config, path);
+            Self::export_to_file(export_build, self.bar1_weapon, self.bar2_weapon, sim_data, gear_config, !self.no_trial, path);
         } else {
-            Self::prompt_export(export_build, self.bar1_weapon, self.bar2_weapon, sim_data, gear_config);
+            Self::prompt_export(export_build, self.bar1_weapon, self.bar2_weapon, sim_data, gear_config, !self.no_trial);
         }
     }
 
@@ -483,8 +498,13 @@ impl OptimizeArgs {
                 if distributions.is_empty() {
                     return None;
                 }
+                let suppressed = if self.no_trial {
+                    std::collections::HashSet::new()
+                } else {
+                    TRIAL_BUFF_NAMES.clone()
+                };
                 let simulator =
-                    FightSimulator::new(build.effective_stats(), build.resolved_bonuses());
+                    FightSimulator::new(build.effective_stats(), build.resolved_bonuses(), suppressed);
                 Some((build_idx, simulator, distributions))
             })
             .collect();
@@ -574,6 +594,7 @@ impl OptimizeArgs {
         bar2_weapon: Option<WeaponType>,
         simulation: Option<(&BarDistribution, &SimulationResult)>,
         gear_config: Option<&GearConfig>,
+        trial: bool,
     ) {
         // Show prompt with greyed-out default value "no"
         print!("\nExport build to file? [path/no]: \x1b[90mn\x1b[0m");
@@ -592,7 +613,7 @@ impl OptimizeArgs {
         }
 
         let path = PathBuf::from(input);
-        Self::export_to_file(build, bar1_weapon, bar2_weapon, simulation, gear_config, &path);
+        Self::export_to_file(build, bar1_weapon, bar2_weapon, simulation, gear_config, trial, &path);
     }
 
     fn export_to_file(
@@ -601,6 +622,7 @@ impl OptimizeArgs {
         bar2_weapon: Option<WeaponType>,
         simulation: Option<(&BarDistribution, &SimulationResult)>,
         gear_config: Option<&GearConfig>,
+        trial: bool,
         path: &PathBuf,
     ) {
         let metadata = simulation.map(|(dist, result)| {
@@ -626,6 +648,7 @@ impl OptimizeArgs {
             armor_trait: gear_config.map(|g| g.armor_trait.to_string()),
             jewelry_trait: gear_config.map(|g| g.jewelry_trait.to_string()),
             weapon_trait: gear_config.map(|g| g.weapon_trait.to_string()),
+            trial,
             metadata,
         };
 

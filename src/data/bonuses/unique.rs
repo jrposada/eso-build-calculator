@@ -17,7 +17,7 @@ pub static MINOR_BERSERK: Lazy<BonusData> = Lazy::new(|| {
         "Minor Berserk",
         BonusSource::Buff,
         BonusTrigger::Cast,
-        BonusValue::new("Minor Berserk", BonusTarget::Damage, 0.5),
+        BonusValue::new("Minor Berserk", BonusTarget::Damage, 0.05),
     )
     .with_duration(20.0)
 });

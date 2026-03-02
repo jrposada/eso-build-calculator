@@ -10,6 +10,10 @@ pub struct BuildMetadata {
     pub bar2_skills: Vec<String>,
 }
 
+fn default_true() -> bool {
+    true
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BuildConfig {
     pub skills: Vec<String>,
@@ -34,6 +38,8 @@ pub struct BuildConfig {
     pub jewelry_trait: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub weapon_trait: Option<String>,
+    #[serde(default = "default_true")]
+    pub trial: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<BuildMetadata>,
 }

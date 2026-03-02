@@ -1,7 +1,9 @@
 pub mod champion_points;
+pub mod trial_buffs;
 pub mod unique;
 
 pub use champion_points::CHAMPION_POINTS;
+pub use trial_buffs::{TRIAL_BUFF_NAMES, TRIAL_DUMMY_BUFFS};
 pub use unique::{
     EMPOWER, MAJOR_BERSERK, MAJOR_BREACH, MAJOR_BRUTALITY, MAJOR_PROPHECY, MAJOR_SAVAGERY,
     MAJOR_SORCERY, MAJOR_VULNERABILITY, MINOR_BERSERK, MINOR_BREACH, MINOR_BRUTALITY,

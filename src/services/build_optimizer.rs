@@ -30,6 +30,7 @@ pub struct BuildOptimizerOptions {
     pub max_pool_size: Option<usize>,
     pub set_bonuses: Vec<BonusData>,
     pub set_names: Vec<(String, u8)>,
+    pub extra_bonuses: Vec<BonusData>,
 }
 
 /// Three-way split of bonuses for the optimizer fast path:
@@ -71,6 +72,8 @@ pub struct BuildOptimizer {
     set_bonuses: Vec<BonusData>,
     /// Set names and piece counts for display/export
     set_names: Vec<(String, u8)>,
+    /// Extra bonuses (e.g. trial dummy buffs) for final Build reconstruction
+    extra_bonuses: Vec<BonusData>,
 }
 
 // Constructor
@@ -255,8 +258,11 @@ impl BuildOptimizer {
             std::process::exit(1);
         }
 
+        // Collect extra bonus names to suppress duplicate passives
+        let extra_bonus_names: HashSet<String> = options.extra_bonuses.iter().map(|b| b.name.clone()).collect();
+
         let (passive_bonuses_list, passive_original) =
-            Self::generate_passive_bonuses(&skill_line_combinations, verbose);
+            Self::generate_passive_bonuses(&skill_line_combinations, &extra_bonus_names, verbose);
 
         let (champion_point_names, mut champion_point_combinations, champion_point_original) =
             Self::generate_champion_point_combinations(&required_champion_points, verbose);
@@ -277,6 +283,24 @@ impl BuildOptimizer {
                     "Merged {} set bonuses ({}) into {} CP combinations",
                     set_bonuses.len(),
                     set_names.iter().map(|(n, p)| format!("{} ({}pc)", n, p)).collect::<Vec<_>>().join(", "),
+                    champion_point_combinations.len()
+                ));
+            }
+        }
+
+        // Merge extra bonuses (e.g. trial dummy buffs) into CP combo buckets
+        let extra_bonuses = options.extra_bonuses;
+        if !extra_bonuses.is_empty() {
+            let (extra_pre, extra_ability, extra_alt) = Self::three_way_split(extra_bonuses.clone());
+            for (pre_resolved, ability_count, alt) in &mut champion_point_combinations {
+                pre_resolved.extend_from_slice(&extra_pre);
+                ability_count.extend_from_slice(&extra_ability);
+                alt.extend_from_slice(&extra_alt);
+            }
+            if verbose {
+                logger::dim(&format!(
+                    "Merged {} extra bonuses (trial buffs) into {} CP combinations",
+                    extra_bonuses.len(),
                     champion_point_combinations.len()
                 ));
             }
@@ -314,6 +338,7 @@ impl BuildOptimizer {
             total_possible_build_count,
             set_bonuses,
             set_names,
+            extra_bonuses,
         };
 
         logger::log(&optimizer.to_string());
@@ -701,6 +726,7 @@ impl BuildOptimizer {
 
     fn generate_passive_bonuses(
         skill_line_combinations: &[Vec<SkillLineName>],
+        suppressed_names: &HashSet<String>,
         verbose: bool,
     ) -> (Vec<PreSplitBonuses>, Vec<Vec<BonusData>>) {
         let all_used_skill_lines: HashSet<SkillLineName> =
@@ -718,6 +744,7 @@ impl BuildOptimizer {
                     .iter()
                     .flat_map(|sl| passives_service.get_passives_by_skill_line(*sl))
                     .flat_map(|passive| passive.bonuses.iter().cloned())
+                    .filter(|b| !suppressed_names.contains(&b.name))
                     .collect()
             })
             .collect();
@@ -1130,13 +1157,14 @@ impl BuildOptimizer {
                     let cp_bonuses = &self.champion_point_original[c.cp_idx];
                     let passive_bonuses = &self.passive_original[c.sl_idx];
 
-                    Build::new(
+                    Build::new_with_extra(
                         c.skills.to_vec(),
                         cp_bonuses,
                         passive_bonuses,
                         &self.set_bonuses,
                         self.set_names.clone(),
                         self.character_stats.clone(),
+                        &self.extra_bonuses,
                     )
                 })
                 .collect(),

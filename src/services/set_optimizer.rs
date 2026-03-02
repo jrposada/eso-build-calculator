@@ -112,17 +112,19 @@ impl SetOptimizer {
                 .map(|build| {
                     let cp = build.cp_bonuses();
                     let passive = build.passive_bonuses();
+                    let extra = build.extra_bonuses();
                     let stats = build.character_stats();
                     let skills = build.skills().to_vec();
 
                     // Baseline: build with only pinned sets
-                    let baseline = Build::new(
+                    let baseline = Build::new_with_extra(
                         skills.clone(),
                         cp,
                         passive,
                         &pinned_bonuses,
                         Vec::new(),
                         stats.clone(),
+                        extra,
                     );
                     let baseline_damage = baseline.total_damage_per_cast;
 
@@ -133,13 +135,14 @@ impl SetOptimizer {
                                 .into_iter()
                                 .cloned(),
                         );
-                        let b = Build::new(
+                        let b = Build::new_with_extra(
                             skills.clone(),
                             cp,
                             passive,
                             &bonuses,
                             Vec::new(),
                             stats.clone(),
+                            extra,
                         );
                         scored_count.fetch_add(1, Ordering::Relaxed);
                         b.total_damage_per_cast - baseline_damage
@@ -199,6 +202,7 @@ impl SetOptimizer {
                 .map(|(build_idx, build)| {
                     let cp = build.cp_bonuses();
                     let passive = build.passive_bonuses();
+                    let extra = build.extra_bonuses();
                     let stats = build.character_stats();
                     let skills = build.skills().to_vec();
 
@@ -330,13 +334,14 @@ impl SetOptimizer {
                                     loadout_names.push((s.name.clone(), s.set_type.max_pieces()));
                                 }
 
-                                let b = Build::new(
+                                let b = Build::new_with_extra(
                                     skills.clone(),
                                     cp,
                                     passive,
                                     &loadout_bonuses,
                                     loadout_names.clone(),
                                     stats.clone(),
+                                    extra,
                                 );
                                 let damage = b.total_damage_per_cast;
 
@@ -428,6 +433,7 @@ mod tests {
             max_pool_size: None,
             set_bonuses: vec![],
             set_names: vec![],
+            extra_bonuses: vec![],
         });
         optimizer.find_optimal_build()
     }

@@ -54,13 +54,14 @@ impl GearOptimizer {
         // Helper: evaluate a GearConfig by building a new Build and returning DPC
         let score = |gear: &GearConfig| -> f64 {
             let stats = gear.compute_stats(options.bar1_weapon);
-            let build = Build::new(
+            let build = Build::new_with_extra(
                 rep.skills().to_vec(),
                 rep.cp_bonuses(),
                 rep.passive_bonuses(),
                 &[], // no set bonuses during gear optimization
                 Vec::new(),
                 stats,
+                rep.extra_bonuses(),
             );
             build.total_damage_per_cast
         };

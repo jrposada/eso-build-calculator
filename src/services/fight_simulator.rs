@@ -4,7 +4,7 @@ use crate::domain::{
     ActiveBar, ActiveBuff, ActiveEffect, BonusData, BonusTarget, BonusTrigger, CharacterStats,
     DamageFlags, ResolveContext, SimulationResult, SkillBreakdown, SkillData, SkillLineName,
 };
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use super::bar_distribution::BarDistribution;
 
@@ -14,6 +14,9 @@ pub struct FightSimulator {
     pub resolved_bonuses: Vec<BonusData>,
     pub armor_factor: f64,
     pub crit_mult: f64,
+    /// Buff names already provided externally (e.g. trial dummy).
+    /// Prevents the simulator from double-counting when a skill provides the same buff.
+    suppressed_buff_names: HashSet<String>,
 }
 
 struct SimState {
@@ -50,6 +53,7 @@ impl FightSimulator {
     pub fn new(
         effective_stats: &CharacterStats,
         resolved_bonuses: &[BonusData],
+        suppressed_buff_names: HashSet<String>,
     ) -> Self {
         let armor_factor = crate::domain::formulas::armor_damage_factor(
             effective_stats.target_armor,
@@ -66,6 +70,7 @@ impl FightSimulator {
             resolved_bonuses: resolved_bonuses.to_vec(),
             armor_factor,
             crit_mult,
+            suppressed_buff_names,
         }
     }
 
@@ -86,6 +91,9 @@ impl FightSimulator {
                         continue;
                     }
                     let bv = bonus.resolve(&ctx);
+                    if self.suppressed_buff_names.contains(&bv.name) {
+                        continue;
+                    }
                     if !buffs.iter().any(|b| b.name == bv.name) {
                         buffs.push(ActiveBuff {
                             name: bv.name,
@@ -410,6 +418,10 @@ impl FightSimulator {
                         continue;
                     }
                     let bv = bonus.resolve(&ctx);
+                    // Skip buffs already provided externally (e.g. trial dummy)
+                    if self.suppressed_buff_names.contains(&bv.name) {
+                        continue;
+                    }
                     // Deduplicate by bonus name
                     if !state.active_buffs.iter().any(|b| b.name == bv.name) {
                         state.active_buffs.push(ActiveBuff {
@@ -438,6 +450,10 @@ impl FightSimulator {
                     None => continue, // Cast buffs without duration are ignored
                 };
                 let bv = bonus.resolve(&ctx);
+                // Skip buffs already provided externally (e.g. trial dummy)
+                if self.suppressed_buff_names.contains(&bv.name) {
+                    continue;
+                }
                 // Refresh existing buff or add new one
                 if let Some(existing) = state.active_buffs.iter_mut().find(|b| b.name == bv.name) {
                     existing.remaining_duration = Some(duration);

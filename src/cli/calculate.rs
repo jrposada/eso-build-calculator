@@ -1,5 +1,6 @@
 use super::build_config::BuildConfig;
 use super::parsers::{parse_champion_point, parse_set, parse_skill};
+use crate::data::bonuses::{TRIAL_BUFF_NAMES, TRIAL_DUMMY_BUFFS};
 use crate::domain::{
     ArmorTrait, AttributeChoice, BonusData, Build, CharacterStats, Food, GearConfig, JewelryTrait,
     MundusStone, Race, SetData, SkillData, SkillLineName, WeaponTrait, WeaponType,
@@ -109,14 +110,18 @@ pub struct CalculateArgs {
     /// Override computed penetration
     #[arg(long, conflicts_with = "file")]
     pub penetration: Option<f64>,
+
+    /// Disable trial dummy buffs/debuffs (enabled by default)
+    #[arg(long = "no-trial")]
+    pub no_trial: bool,
 }
 
 impl CalculateArgs {
     pub fn run(&self) {
-        let (skills, champion_points, file_weapons, file_sets, stats) =
+        let (skills, champion_points, file_weapons, file_sets, stats, file_trial) =
             if let Some(path) = &self.file {
-                let (s, cp, w, sets, character_stats) = self.load_from_file(path);
-                (s, cp, w, sets, character_stats)
+                let (s, cp, w, sets, character_stats, trial) = self.load_from_file(path);
+                (s, cp, w, sets, character_stats, Some(trial))
             } else {
                 let (s, cp) = self.get_from_args();
 
@@ -147,8 +152,20 @@ impl CalculateArgs {
                 if let Some(v) = self.critical_rating { stats.critical_rating = v; }
                 if let Some(v) = self.penetration { stats.penetration = v; }
 
-                (s, cp, (None, None), Vec::new(), stats)
+                (s, cp, (None, None), Vec::new(), stats, None)
             };
+
+        // Trial buffs: --no-trial overrides file config; file config defaults to true
+        let use_trial = if self.no_trial {
+            false
+        } else {
+            file_trial.unwrap_or(true)
+        };
+        let extra_bonuses: Vec<BonusData> = if use_trial {
+            TRIAL_DUMMY_BUFFS.clone()
+        } else {
+            Vec::new()
+        };
 
         // Validate skill count
         if skills.len() != BUILD_CONSTRAINTS.skill_count {
@@ -210,13 +227,14 @@ impl CalculateArgs {
         }
 
         // Create the build (for stats resolution and display)
-        let build = Build::new(
+        let build = Build::new_with_extra(
             skills.clone(),
             &champion_points,
             &passive_bonuses,
             &set_bonuses,
             set_names,
             stats,
+            &extra_bonuses,
         );
 
         if !skills.iter().any(|s| s.spammable) {
@@ -273,7 +291,12 @@ impl CalculateArgs {
         let effective_stats = build.effective_stats();
         let resolved_bonuses = build.resolved_bonuses();
 
-        let simulator = FightSimulator::new(effective_stats, resolved_bonuses);
+        let suppressed = if use_trial {
+            TRIAL_BUFF_NAMES.clone()
+        } else {
+            HashSet::new()
+        };
+        let simulator = FightSimulator::new(effective_stats, resolved_bonuses, suppressed);
 
         if self.verbose {
             let buffed = simulator.compute_buffed_stats(&distributions[0]);
@@ -317,6 +340,7 @@ impl CalculateArgs {
         (Option<WeaponType>, Option<WeaponType>),
         Vec<&'static SetData>,
         CharacterStats,
+        bool,
     ) {
         let content = fs::read_to_string(path).unwrap_or_else(|e| {
             logger::error(&format!("Failed to read file '{}': {}", path.display(), e));
@@ -370,7 +394,7 @@ impl CalculateArgs {
             })
             .collect();
 
-        (skills, champion_points, (bar1, bar2), sets, config.character_stats)
+        (skills, champion_points, (bar1, bar2), sets, config.character_stats, config.trial)
     }
 }
 

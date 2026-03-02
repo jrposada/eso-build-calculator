@@ -104,6 +104,7 @@ pub struct Build {
     resolved_bonuses: Vec<BonusData>,
     cp_bonuses: Vec<BonusData>,
     passive_bonuses: Vec<BonusData>,
+    extra_bonuses: Vec<BonusData>,
     character_stats: CharacterStats,
     effective_stats: CharacterStats,
     set_names: Vec<(String, u8)>,
@@ -120,12 +121,39 @@ impl Build {
         set_names: Vec<(String, u8)>,
         character_stats: CharacterStats,
     ) -> Self {
+        Self::new_with_extra(skills, cp_bonuses, passive_bonuses, set_bonuses, set_names, character_stats, &[])
+    }
+
+    pub fn new_with_extra(
+        skills: Vec<&'static SkillData>,
+        cp_bonuses: &[BonusData],
+        passive_bonuses: &[BonusData],
+        set_bonuses: &[BonusData],
+        set_names: Vec<(String, u8)>,
+        character_stats: CharacterStats,
+        extra_bonuses: &[BonusData],
+    ) -> Self {
         // FIXME: some passives are only active while on that bar,
         // do we wanna apply combination here too?
 
+        // Collect extra bonus names to suppress duplicates from other sources.
+        // In a trial environment the dummy provides buffs like Minor Berserk;
+        // if a class passive also grants it, only the trial version should apply.
+        let extra_names: HashSet<&str> = extra_bonuses.iter().map(|b| b.name.as_str()).collect();
+
         let mut simple_bonuses: Vec<BonusData> = Vec::new();
         let mut alt_bonuses: Vec<BonusData> = Vec::new();
-        for bonus in cp_bonuses.iter().chain(passive_bonuses.iter()).chain(set_bonuses.iter()).cloned() {
+        for bonus in cp_bonuses.iter().chain(passive_bonuses.iter()).chain(set_bonuses.iter()) {
+            if !extra_names.is_empty() && extra_names.contains(bonus.name.as_str()) {
+                continue; // suppressed by extra bonus with the same name
+            }
+            if bonus.has_alternative() {
+                alt_bonuses.push(bonus.clone());
+            } else {
+                simple_bonuses.push(bonus.clone());
+            }
+        }
+        for bonus in extra_bonuses.iter().cloned() {
             if bonus.has_alternative() {
                 alt_bonuses.push(bonus);
             } else {
@@ -165,6 +193,7 @@ impl Build {
             resolved_bonuses,
             cp_bonuses: cp_bonuses.to_vec(),
             passive_bonuses: passive_bonuses.to_vec(),
+            extra_bonuses: extra_bonuses.to_vec(),
             character_stats,
             effective_stats,
             set_names,
@@ -884,6 +913,10 @@ impl Build {
 
     pub fn passive_bonuses(&self) -> &[BonusData] {
         &self.passive_bonuses
+    }
+
+    pub fn extra_bonuses(&self) -> &[BonusData] {
+        &self.extra_bonuses
     }
 
     pub fn character_stats(&self) -> &CharacterStats {
