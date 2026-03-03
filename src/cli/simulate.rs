@@ -18,9 +18,9 @@ use std::collections::HashSet;
 use std::fs;
 use std::path::PathBuf;
 
-/// Calculate total damage for a specific build configuration
+/// Run a discrete-event fight simulation for a specific build configuration
 #[derive(Args, Debug)]
-pub struct CalculateArgs {
+pub struct SimulateArgs {
     /// 10 skills (comma-separated skill names)
     #[arg(short = 's', long, value_delimiter = ',', value_parser = parse_skill, conflicts_with = "file")]
     pub skills: Option<Vec<&'static SkillData>>,
@@ -142,7 +142,7 @@ pub struct CalculateArgs {
     pub no_trial: bool,
 }
 
-impl CalculateArgs {
+impl SimulateArgs {
     pub fn run(&self) {
         let (skills, champion_points, file_weapons, file_sets, stats, file_config) =
             if let Some(path) = &self.file {
