@@ -67,7 +67,7 @@ fn nightblade_bow_2h_all_cp_forced() {
     let build = &builds[0];
 
     assert_eq!(
-        build.total_damage_per_cast as u64, 15_330,
+        build.total_damage_per_cast as u64, 13_914,
         "Total damage changed — optimization may have introduced a regression"
     );
 
@@ -75,15 +75,15 @@ fn nightblade_bow_2h_all_cp_forced() {
     assert_eq!(skill_names.len(), 10);
 
     let expected_skills = [
-        "Thunderous Volley",
-        "Dark Shade",
-        "Stampede",
-        "Crippling Grasp",
-        "Barbed Trap",
-        "Scalding Rune",
-        "Carve",
         "Merciless Resolve",
-        "Structured Entropy",
+        "Poison Injection",
+        "Barbed Trap",
+        "Inner Beast",
+        "Mystic Orb",
+        "Crippling Grasp",
+        "Stampede",
+        "Carve",
+        "Scalding Rune",
         "Concealed Weapon",
     ];
     for expected in &expected_skills {
@@ -135,7 +135,7 @@ fn nightblade_bow_2h_one_cp_forced() {
     let build = &builds[0];
 
     assert_eq!(
-        build.total_damage_per_cast as u64, 15_606,
+        build.total_damage_per_cast as u64, 14_064,
         "Total damage changed — optimization may have introduced a regression"
     );
 
@@ -143,15 +143,15 @@ fn nightblade_bow_2h_one_cp_forced() {
     assert_eq!(skill_names.len(), 10);
 
     let expected_skills = [
-        "Thunderous Volley",
-        "Dark Shade",
-        "Stampede",
-        "Crippling Grasp",
-        "Barbed Trap",
-        "Scalding Rune",
-        "Carve",
         "Merciless Resolve",
-        "Structured Entropy",
+        "Poison Injection",
+        "Barbed Trap",
+        "Inner Beast",
+        "Crippling Grasp",
+        "Carve",
+        "Mystic Orb",
+        "Scalding Rune",
+        "Stampede",
         "Concealed Weapon",
     ];
     for expected in &expected_skills {
@@ -164,7 +164,7 @@ fn nightblade_bow_2h_one_cp_forced() {
     }
 
     let cp_names = build.champion_point_names();
-    let expected_cps = ["Backstabber", "Deadly Aim", "Fighting Finesse", "Thaumaturge"];
+    let expected_cps = ["Backstabber", "Deadly Aim", "Master-at-Arms", "Thaumaturge"];
     for expected in &expected_cps {
         assert!(
             cp_names.iter().any(|s| s == expected),

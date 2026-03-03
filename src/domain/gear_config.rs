@@ -4,7 +4,7 @@ use std::fmt;
 use super::character_stats::ATTRIBUTE_POINTS_BONUS;
 use super::food::Food;
 use super::mundus::MundusStone;
-use super::race::Race;
+use crate::data::skill_trees::race::Race;
 use super::weapon_type::WeaponType;
 use super::CharacterStats;
 

@@ -1,7 +1,7 @@
-use serde::{Deserialize, Serialize};
 use std::fmt;
 
 use super::CharacterStats;
+pub use crate::data::skill_trees::race::Race;
 
 /// All races for gear optimization.
 pub const DPS_RACES: &[Race] = &[
