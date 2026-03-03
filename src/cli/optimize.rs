@@ -33,11 +33,11 @@ pub struct OptimizeArgs {
     #[arg(short = 'v', long)]
     pub verbose: bool,
 
-    /// Pin character race (dark-elf, khajiit, orc, etc.) - optimized if omitted
+    /// Pin character race (dark-elf, khajiit, orc, etc.)
     #[arg(long, value_parser = Race::parse)]
     pub race: Option<Race>,
 
-    /// Pin at least 1 skill line from these class (comma-separated) -
+    /// Pin at least 1 skill line from these class (comma-separated)
     #[arg(short = 'c', long, value_delimiter = ',', value_parser = parse_class_name)]
     pub class: Option<Vec<ClassName>>,
 
@@ -51,14 +51,6 @@ pub struct OptimizeArgs {
     #[arg(short = 'w', long, value_delimiter = ',', value_parser = parse_weapon)]
     pub weapon: Option<Vec<WeaponType>>,
 
-    /// Require these champion points (comma-separated)
-    #[arg(long = "cp", value_delimiter = ',', value_parser = parse_champion_point)]
-    pub champion_point: Option<Vec<crate::domain::BonusData>>,
-
-    /// Require these skills in every build (comma-separated skill names)
-    #[arg(short = 's', long, value_delimiter = ',', value_parser = parse_skill)]
-    pub skill: Option<Vec<&'static SkillData>>,
-
     /// Pin attribute points to magicka (optimized if omitted)
     #[arg(long, conflicts_with = "stamina")]
     pub magicka: bool,
@@ -66,6 +58,14 @@ pub struct OptimizeArgs {
     /// Pin attribute points to stamina (optimized if omitted)
     #[arg(long, conflicts_with = "magicka")]
     pub stamina: bool,
+
+    /// Require these skills in every build (comma-separated skill names)
+    #[arg(short = 's', long, value_delimiter = ',', value_parser = parse_skill)]
+    pub skill: Option<Vec<&'static SkillData>>,
+
+    /// Require these champion points (comma-separated)
+    #[arg(long = "cp", value_delimiter = ',', value_parser = parse_champion_point)]
+    pub champion_point: Option<Vec<crate::domain::BonusData>>,
 
     /// Pin gear sets (comma-separated). Auto-grouped by type: max 2 normal/arena, 2 monster, 1 mythic.
     #[arg(long, value_delimiter = ',', value_parser = parse_set)]
@@ -114,30 +114,6 @@ pub struct OptimizeArgs {
     /// Average resource percentage for resource-scaling sets like Bahsei's (0-100, default 50)
     #[arg(long, default_value = "50")]
     pub avg_resource_pct: f64,
-
-    /// Override computed max stamina
-    #[arg(long)]
-    pub max_stamina: Option<f64>,
-
-    /// Override computed max magicka
-    #[arg(long)]
-    pub max_magicka: Option<f64>,
-
-    /// Override computed weapon damage
-    #[arg(long)]
-    pub weapon_damage: Option<f64>,
-
-    /// Override computed spell damage
-    #[arg(long)]
-    pub spell_damage: Option<f64>,
-
-    /// Override computed critical rating
-    #[arg(long)]
-    pub critical_rating: Option<f64>,
-
-    /// Override computed penetration
-    #[arg(long)]
-    pub penetration: Option<f64>,
 
     /// Disable trial dummy buffs/debuffs (enabled by default)
     #[arg(long = "no-trial")]
@@ -206,28 +182,7 @@ impl OptimizeArgs {
             _ => (None, None),
         };
 
-        let mut character_stats = baseline_gear.compute_stats(bar1_weapon);
-
-        // Apply stat overrides
-        if let Some(v) = self.max_stamina {
-            character_stats.max_stamina = v;
-        }
-        if let Some(v) = self.max_magicka {
-            character_stats.max_magicka = v;
-        }
-        if let Some(v) = self.weapon_damage {
-            character_stats.weapon_damage = v;
-        }
-        if let Some(v) = self.spell_damage {
-            character_stats.spell_damage = v;
-        }
-        if let Some(v) = self.critical_rating {
-            character_stats.critical_rating = v;
-        }
-        if let Some(v) = self.penetration {
-            character_stats.penetration = v;
-        }
-
+        let character_stats = baseline_gear.compute_stats(bar1_weapon);
         let baseline_stats = character_stats.clone();
 
         // Resolve pinned set bonuses for Phase 0
@@ -325,27 +280,7 @@ impl OptimizeArgs {
 
         // ── Phase 2: Conditional BuildOptimizer re-run ──
         if let Some(ref gear_result) = winning_gear {
-            let mut new_stats = gear_result.character_stats.clone();
-
-            // Re-apply stat overrides on top of winning gear stats
-            if let Some(v) = self.max_stamina {
-                new_stats.max_stamina = v;
-            }
-            if let Some(v) = self.max_magicka {
-                new_stats.max_magicka = v;
-            }
-            if let Some(v) = self.weapon_damage {
-                new_stats.weapon_damage = v;
-            }
-            if let Some(v) = self.spell_damage {
-                new_stats.spell_damage = v;
-            }
-            if let Some(v) = self.critical_rating {
-                new_stats.critical_rating = v;
-            }
-            if let Some(v) = self.penetration {
-                new_stats.penetration = v;
-            }
+            let new_stats = gear_result.character_stats.clone();
 
             if stats_differ_significantly(&baseline_stats, &new_stats, 0.05) {
                 logger::info("Phase 2: Gear stats changed >5%, re-running build optimizer...");
