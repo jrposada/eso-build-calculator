@@ -5,7 +5,6 @@ use once_cell::sync::Lazy;
 
 pub static TEMPLAR_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
     vec![
-        // === AEDRIC SPEAR ===
         PassiveData::new(
             "Piercing Spear",
             ClassName::Templar,
@@ -16,7 +15,8 @@ pub static TEMPLAR_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 BonusTrigger::AbilitySlotted,
                 BonusValue::new("Piercing Spear", BonusTarget::CriticalDamage, 0.12),
             )],
-        ),
+        )
+            .with_skill_id(44046),
         PassiveData::new(
             "Spear Wall",
             ClassName::Templar,
@@ -26,15 +26,16 @@ pub static TEMPLAR_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                     .clone()
                     .with_trigger(BonusTrigger::SkillLineSkillCast)
                     .with_duration(6.0),
-                // Minor Protection
             ],
-        ),
+        )
+            .with_skill_id(44721),
         PassiveData::new(
             "Burning Light",
             ClassName::Templar,
             SkillLineName::AedricSpear,
             vec![], // TODO: To complex, stacks + consume for trigger damage
-        ),
+        )
+            .with_skill_id(44730),
         PassiveData::new(
             "Balanced Warrior",
             ClassName::Templar,
@@ -49,22 +50,24 @@ pub static TEMPLAR_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                         BonusTarget::WeaponAndSpellDamageMultiplier,
                         0.06,
                     ),
-                ), // Armor increase
+                ),
             ],
-        ),
-        // === DAWN'S WRATH ===
+        )
+            .with_skill_id(44732),
         PassiveData::new(
             "Enduring Rays",
             ClassName::Templar,
             SkillLineName::DawnsWrath,
             vec![], // TODO: duration increase to specific skills
-        ),
+        )
+            .with_skill_id(45214),
         PassiveData::new(
             "Prism",
             ClassName::Templar,
             SkillLineName::DawnsWrath,
             vec![], // TODO: generates 3 ultimate
-        ),
+        )
+            .with_skill_id(45216),
         PassiveData::new(
             "Illuminate",
             ClassName::Templar,
@@ -72,37 +75,43 @@ pub static TEMPLAR_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             vec![MINOR_SORCERY
                 .clone()
                 .with_trigger(BonusTrigger::SkillLineSkillCast)],
-        ),
+        )
+            .with_skill_id(45215),
         PassiveData::new(
             "Restoring Spirit",
             ClassName::Templar,
             SkillLineName::DawnsWrath,
-            vec![], // Cost reduction
-        ),
-        // === RESTORING LIGHT ===
+            vec![],
+        )
+            .with_skill_id(45212),
         PassiveData::new(
             "Mending",
             ClassName::Templar,
             SkillLineName::RestoringLight,
-            vec![], // Increase healing done
-        ),
+            vec![],
+        )
+            .with_skill_id(45206),
         PassiveData::new(
             "Sacred Ground",
             ClassName::Templar,
             SkillLineName::RestoringLight,
-            vec![], // Minor mending
-        ),
+            vec![],
+        )
+            .with_skill_id(45207),
         PassiveData::new(
             "Light Weaver",
             ClassName::Templar,
             SkillLineName::RestoringLight,
             vec![], // TODO: Ult generation and other
-        ),
+        )
+            .with_skill_id(45208),
         PassiveData::new(
             "Master Ritualist",
             ClassName::Templar,
             SkillLineName::RestoringLight,
-            vec![], // Other
-        ),
+            vec![],
+        )
+            .with_skill_id(45202),
     ]
 });
+

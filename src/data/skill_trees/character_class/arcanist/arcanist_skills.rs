@@ -7,8 +7,6 @@ use once_cell::sync::Lazy;
 
 pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
     vec![
-        // === HERALD OF THE TOME ===
-        // Ultimate - The Unblinking Eye line
         SkillData::new(
             "The Unblinking Eye",
             "The Unblinking Eye",
@@ -16,6 +14,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             Resource::Ultimate,
         )
+            .with_skill_id(40189791)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(6.0, DamageFlags::magic_aoe(), 0.048, 0.504).with_interval(0.5),
         ])),
@@ -26,6 +25,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             Resource::Ultimate,
         )
+            .with_skill_id(40189867)
         .with_damage(SkillDamage::new().with_dots(vec![DotDamage::new(
             6.0,
             DamageFlags::magic_aoe(),
@@ -41,10 +41,10 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             Resource::Ultimate,
         )
+            .with_skill_id(40189837)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(8.0, DamageFlags::magic_single(), 0.049584, 0.520632).with_interval(0.5),
         ])),
-        // Runeblades line
         SkillData::new(
             "Runeblades",
             "Runeblades",
@@ -52,6 +52,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
+            .with_skill_id(40185794)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::magic_single(),
             0.03,
@@ -65,6 +66,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
+            .with_skill_id(40182977)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::magic_aoe(),
             0.03099,
@@ -78,13 +80,13 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
+            .with_skill_id(40185803)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::magic_single(),
             0.03099,
             0.325395,
         )]))
         .with_spammable(),
-        // Fatecarver line
         SkillData::new(
             "Fatecarver",
             "Fatecarver",
@@ -92,6 +94,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
+            .with_skill_id(40185805)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(4.0, DamageFlags::magic_aoe(), 0.03785, 0.397425).with_interval(0.3),
         ]))
@@ -103,6 +106,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
+            .with_skill_id(40183122)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(4.0, DamageFlags::magic_aoe(), 0.039099, 0.41054).with_interval(0.3),
         ]))
@@ -114,12 +118,11 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
+            .with_skill_id(40186366)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(4.0, DamageFlags::magic_aoe(), 0.039099, 0.41054).with_interval(0.3),
         ]))
         .with_channel_time(4.0),
-        // Abyssal Impact line
-        // Immobilizes for 3s, applies Abyssal Ink for 20s (5% increased damage to marked enemies)
         SkillData::new(
             "Abyssal Impact",
             "Abyssal Impact",
@@ -127,6 +130,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             Resource::Stamina,
         )
+            .with_skill_id(40185817)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::physical_aoe(),
             0.08625,
@@ -140,7 +144,6 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             BonusValue::new("Abyssal Ink", BonusTarget::EnemyDamageTaken, 0.05),
         )
         .with_duration(20.0)]),
-        // Heals for 1000 Health on hit
         SkillData::new(
             "Cephaliarch's Flail",
             "Abyssal Impact",
@@ -148,6 +151,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             Resource::Stamina,
         )
+            .with_skill_id(40183006)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::physical_aoe(),
             0.08625,
@@ -161,7 +165,6 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             BonusValue::new("Abyssal Ink", BonusTarget::EnemyDamageTaken, 0.05),
         )
         .with_duration(20.0)]),
-        // Converts to Frost/Magicka, damage to Ink targets increases 2% per Crux
         SkillData::new(
             "Tentacular Dread",
             "Abyssal Impact",
@@ -169,6 +172,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
+            .with_skill_id(40185823)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::frost_aoe(),
             0.08625,
@@ -182,8 +186,6 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             BonusValue::new("Abyssal Ink", BonusTarget::EnemyDamageTaken, 0.05),
         )
         .with_duration(20.0)]),
-        // Tome-Bearer's Inspiration line
-        // While slotted: Major Brutality (+20% Weapon Damage) and Major Sorcery (+20% Spell Damage)
         SkillData::new(
             "Tome-Bearer's Inspiration",
             "Tome-Bearer's Inspiration",
@@ -191,6 +193,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
+            .with_skill_id(40186452)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(20.0, DamageFlags::magic_single(), 0.05, 0.525).with_interval(5.0),
         ]))
@@ -202,8 +205,6 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 .clone()
                 .with_trigger(BonusTrigger::AbilitySlotted),
         ]),
-        // While slotted: Major Brutality (+20% Weapon Damage) and Major Sorcery (+20% Spell Damage)
-        // Pulses every 3 seconds instead of 5
         SkillData::new(
             "Inspired Scholarship",
             "Tome-Bearer's Inspiration",
@@ -211,6 +212,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
+            .with_skill_id(40185842)
         .with_damage(SkillDamage::new().with_dots(vec![DotDamage::new(
             20.0,
             DamageFlags::magic_single(),
@@ -226,8 +228,6 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 .clone()
                 .with_trigger(BonusTrigger::AbilitySlotted),
         ]),
-        // While slotted: Major Brutality (+20% Weapon Damage) and Major Sorcery (+20% Spell Damage)
-        // Restores 600 Magicka and Stamina on hit
         SkillData::new(
             "Recuperative Treatise",
             "Tome-Bearer's Inspiration",
@@ -235,6 +235,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
+            .with_skill_id(40183047)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(20.0, DamageFlags::magic_single(), 0.05165, 0.54235).with_interval(5.0),
         ]))
@@ -246,7 +247,6 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 .clone()
                 .with_trigger(BonusTrigger::AbilitySlotted),
         ]),
-        // The Imperfect Ring line
         SkillData::new(
             "The Imperfect Ring",
             "The Imperfect Ring",
@@ -254,6 +254,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
+            .with_skill_id(40185836)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(20.0, DamageFlags::magic_single(), 0.018182, 0.19091).with_interval(2.0),
         ])),
@@ -264,6 +265,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
+            .with_skill_id(40182988)
         .with_damage(
             SkillDamage::new()
                 .with_hits(vec![HitDamage::new(
@@ -287,33 +289,34 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
+            .with_skill_id(40185839)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(18.0, DamageFlags::magic_single(), 0.02066, 0.21693).with_interval(2.0),
         ])),
-        // === SOLDIER OF APOCRYPHA ===
-        // Ultimate - Gibbering Shield line (mostly no damage)
         SkillData::new(
             "Gibbering Shield",
             "Gibbering Shield",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Ultimate,
-        ),
+        )
+            .with_skill_id(40183676),
         SkillData::new(
             "Gibbering Shelter",
             "Gibbering Shield",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Ultimate,
-        ),
+        )
+            .with_skill_id(40192380),
         SkillData::new(
             "Sanctum of the Abyssal Sea",
             "Gibbering Shield",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Ultimate,
-        ),
-        // Runic Jolt line
+        )
+            .with_skill_id(40192372),
         SkillData::new(
             "Runic Jolt",
             "Runic Jolt",
@@ -321,6 +324,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
         )
+            .with_skill_id(40183165)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::magic_single(),
             0.05,
@@ -334,13 +338,13 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
         )
+            .with_skill_id(40186531)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::magic_single(),
             0.05165,
             0.542325,
         )]))
         .with_spammable(),
-        // Converts to Physical/Stamina, steals 2200 Armor from enemy
         SkillData::new(
             "Runic Sunder",
             "Runic Jolt",
@@ -348,6 +352,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::SoldierOfApocrypha,
             Resource::Stamina,
         )
+            .with_skill_id(40183430)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::physical_single(),
             0.05165,
@@ -365,30 +370,30 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ),
         )
         .with_duration(15.0)]),
-        // Runespite Ward line (no damage modeled)
         SkillData::new(
             "Runespite Ward",
             "Runespite Ward",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(40185894),
         SkillData::new(
             "Impervious Runeward",
             "Runespite Ward",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(40183241),
         SkillData::new(
             "Spiteward of the Lucid Mind",
             "Runespite Ward",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
-        ),
-        // Fatewoven Armor line (no damage)
-        // Major Resolve 20s, applies Minor Breach 6s when taking damage
+        )
+            .with_skill_id(40185901),
         SkillData::new(
             "Fatewoven Armor",
             "Fatewoven Armor",
@@ -396,8 +401,8 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
         )
+            .with_skill_id(40183648)
         .with_bonuses(vec![MINOR_BREACH.clone().with_duration(6.0)]),
-        // Major Resolve 30s, Minor Breach 6s when damaged, generates Crux when hit (5s cooldown)
         SkillData::new(
             "Cruxweaver Armor",
             "Fatewoven Armor",
@@ -405,8 +410,8 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
         )
+            .with_skill_id(40185908)
         .with_bonuses(vec![MINOR_BREACH.clone().with_duration(6.0)]),
-        // 5% Block Mitigation + Major Resolve 20s, Minor Breach 6s when damaged
         SkillData::new(
             "Unbreakable Fate",
             "Fatewoven Armor",
@@ -414,97 +419,104 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
         )
+            .with_skill_id(40186477)
         .with_bonuses(vec![MINOR_BREACH.clone().with_duration(6.0)]),
-        // Runic Defense line (no damage)
         SkillData::new(
             "Runic Defense",
             "Runic Defense",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(40185912),
         SkillData::new(
             "Runeguard of Freedom",
             "Runic Defense",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(40186489),
         SkillData::new(
             "Runeguard of Still Waters",
             "Runic Defense",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
-        ),
-        // Rune of Eldritch Horror line (no damage)
+        )
+            .with_skill_id(40183401),
         SkillData::new(
             "Rune of Eldritch Horror",
             "Rune of Eldritch Horror",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(40185918),
         SkillData::new(
             "Rune of Uncanny Adoration",
             "Rune of Eldritch Horror",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(40185921),
         SkillData::new(
             "Rune of the Colorless Pool",
             "Rune of Eldritch Horror",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
-        ),
-        // === CURATIVE RUNEFORMS === (mostly heals, no damage)
-        // Ultimate - Vitalizing Glyphic line (no damage)
+        )
+            .with_skill_id(40183267),
         SkillData::new(
             "Vitalizing Glyphic",
             "Vitalizing Glyphic",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Ultimate,
-        ),
+        )
+            .with_skill_id(40183709),
         SkillData::new(
             "Glyphic of the Tides",
             "Vitalizing Glyphic",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Ultimate,
-        ),
+        )
+            .with_skill_id(40193794),
         SkillData::new(
             "Resonating Glyphic",
             "Vitalizing Glyphic",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Ultimate,
-        ),
-        // Runemend line (no damage)
+        )
+            .with_skill_id(40193558),
         SkillData::new(
             "Runemend",
             "Runemend",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(40183261),
         SkillData::new(
             "Audacious Runemend",
             "Runemend",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(40186191),
         SkillData::new(
             "Evolving Runemend",
             "Runemend",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
-        ),
-        // Remedy Cascade line (no damage)
+        )
+            .with_skill_id(40186189),
         SkillData::new(
             "Remedy Cascade",
             "Remedy Cascade",
@@ -512,6 +524,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
         )
+            .with_skill_id(40183537)
         .with_channel_time(4.5),
         SkillData::new(
             "Cascading Fortune",
@@ -520,6 +533,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
         )
+            .with_skill_id(40186193)
         .with_channel_time(4.5),
         SkillData::new(
             "Curative Surge",
@@ -528,52 +542,56 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
         )
+            .with_skill_id(40186200)
         .with_channel_time(4.5),
-        // Chakram Shields line (no damage)
         SkillData::new(
             "Chakram Shields",
             "Chakram Shields",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(40183447),
         SkillData::new(
             "Chakram of Destiny",
             "Chakram Shields",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(40186207),
         SkillData::new(
             "Tidal Chakram",
             "Chakram Shields",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
-        ),
-        // Arcanist's Domain line (no damage)
+        )
+            .with_skill_id(40186209),
         SkillData::new(
             "Arcanist's Domain",
             "Arcanist's Domain",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(40183555),
         SkillData::new(
             "Reconstructive Domain",
             "Arcanist's Domain",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(40186234),
         SkillData::new(
             "Zenas' Empowering Disc",
             "Arcanist's Domain",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
-        ),
-        // Apocryphal Gate line (no damage)
+        )
+            .with_skill_id(40186229),
         SkillData::new(
             "Apocryphal Gate",
             "Apocryphal Gate",
@@ -587,7 +605,8 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(40186211),
         SkillData::new(
             "Passage Between Worlds",
             "Apocryphal Gate",
@@ -597,3 +616,4 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         ),
     ]
 });
+

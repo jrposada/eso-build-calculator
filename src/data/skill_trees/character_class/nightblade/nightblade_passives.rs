@@ -5,7 +5,6 @@ use once_cell::sync::Lazy;
 
 pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
     vec![
-        // === ASSASSINATION ===
         PassiveData::new(
             "Master Assassin",
             ClassName::Nightblade,
@@ -16,13 +15,15 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 BonusTrigger::Flanking,
                 BonusValue::new("Master Assassin", BonusTarget::CriticalRating, 1448.0),
             )],
-        ),
+        )
+            .with_skill_id(45038),
         PassiveData::new(
             "Executioner",
             ClassName::Nightblade,
             SkillLineName::Assassination,
             vec![], // TODO: Restore 1000 Magicka and Stamina when enemy dies within 2s of being damaged
-        ),
+        )
+            .with_skill_id(45048),
         PassiveData::new(
             "Pressure Points",
             ClassName::Nightblade,
@@ -34,7 +35,8 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 BonusValue::new("Pressure Points", BonusTarget::CriticalRating, 548.0),
             )
             .with_skill_line_filter(SkillLineName::Assassination)],
-        ),
+        )
+            .with_skill_id(45053),
         PassiveData::new(
             "Hemorrhage",
             ClassName::Nightblade,
@@ -50,26 +52,29 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                     .clone()
                     .with_trigger(BonusTrigger::CriticalDamageDealt),
             ],
-        ),
-        // === SHADOW ===
+        )
+            .with_skill_id(45060),
         PassiveData::new(
             "Refreshing Shadows",
             ClassName::Nightblade,
             SkillLineName::Shadow,
-            vec![], // Increase resource recovery 15%
-        ),
+            vec![],
+        )
+            .with_skill_id(45103),
         PassiveData::new(
             "Shadow Barrier",
             ClassName::Nightblade,
             SkillLineName::Shadow,
-            vec![], // Mayor resolve 12 secs
-        ),
+            vec![],
+        )
+            .with_skill_id(45071),
         PassiveData::new(
             "Dark Vigor",
             ClassName::Nightblade,
             SkillLineName::Shadow,
-            vec![], // Increase max health
-        ),
+            vec![],
+        )
+            .with_skill_id(45084),
         PassiveData::new(
             "Dark Veil",
             ClassName::Nightblade,
@@ -80,14 +85,15 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 BonusTrigger::Passive,
                 BonusValue::new("Dark Veil", BonusTarget::DurationSkillLineFlat, 2.0),
             )],
-        ),
-        // === SIPHONING ===
+        )
+            .with_skill_id(45115),
         PassiveData::new(
             "Catalyst",
             ClassName::Nightblade,
             SkillLineName::Siphoning,
             vec![], // TODO: Ultimate gain on potion
-        ),
+        )
+            .with_skill_id(45135),
         PassiveData::new(
             "Magicka Flood",
             ClassName::Nightblade,
@@ -106,18 +112,22 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                     BonusValue::new("Magicka Flood (Magicka)", BonusTarget::MaxMagicka, 0.06),
                 ),
             ],
-        ),
+        )
+            .with_skill_id(45150),
         PassiveData::new(
             "Soul Siphoner",
             ClassName::Nightblade,
             SkillLineName::Siphoning,
-            vec![], // Increase healing
-        ),
+            vec![],
+        )
+            .with_skill_id(45155),
         PassiveData::new(
             "Transfer",
             ClassName::Nightblade,
             SkillLineName::Siphoning,
             vec![], //  TODO: Generate 2 ultimate
-        ),
+        )
+            .with_skill_id(45145),
     ]
 });
+

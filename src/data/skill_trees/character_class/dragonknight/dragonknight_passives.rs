@@ -5,7 +5,6 @@ use once_cell::sync::Lazy;
 
 pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
     vec![
-        // === ARDENT FLAME ===
         PassiveData::new(
             "Combustion",
             ClassName::Dragonknight,
@@ -33,7 +32,8 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 )
                 .with_cooldown(3.0),
             ],
-        ),
+        )
+            .with_skill_id(45011),
         PassiveData::new(
             "Warmth",
             ClassName::Dragonknight,
@@ -45,13 +45,15 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 BonusValue::new("Warmth", BonusTarget::AoeDamage, 0.06),
             )
             .with_duration(3.0)],
-        ),
+        )
+            .with_skill_id(45012),
         PassiveData::new(
             "Searing Heat",
             ClassName::Dragonknight,
             SkillLineName::ArdentFlame,
             vec![], // TODO: Passive effect to specific skills.
-        ),
+        )
+            .with_skill_id(45023),
         PassiveData::new(
             "World in Ruin",
             ClassName::Dragonknight,
@@ -62,33 +64,36 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 BonusTrigger::Passive,
                 BonusValue::new("World in Ruin", BonusTarget::BurningAndPoisonDamage, 0.05),
             )],
-        ),
-        // === DRACONIC POWER ===
+        )
+            .with_skill_id(45029),
         PassiveData::new(
             "Iron Skin",
             ClassName::Dragonknight,
             SkillLineName::DraconicPower,
-            vec![], // Increase blocked damage 10%
-        ),
+            vec![],
+        )
+            .with_skill_id(44922),
         PassiveData::new(
             "Burning Heart",
             ClassName::Dragonknight,
             SkillLineName::DraconicPower,
-            vec![], // Increase healing received 9%
-        ),
+            vec![],
+        )
+            .with_skill_id(44933),
         PassiveData::new(
             "Elder Dragon",
             ClassName::Dragonknight,
             SkillLineName::DraconicPower,
-            vec![], // Increase health recovery
-        ),
+            vec![],
+        )
+            .with_skill_id(44951),
         PassiveData::new(
             "Scaled Armor",
             ClassName::Dragonknight,
             SkillLineName::DraconicPower,
-            vec![], // Increase Physical and Spell Resistance 2974
-        ),
-        // === EARTHEN HEART ===
+            vec![],
+        )
+            .with_skill_id(44953),
         PassiveData::new(
             "Eternal Mountain",
             ClassName::Dragonknight,
@@ -103,13 +108,15 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                     0.2,
                 ),
             )],
-        ),
+        )
+            .with_skill_id(44996),
         PassiveData::new(
             "Battle Roar",
             ClassName::Dragonknight,
             SkillLineName::EarthenHeart,
             vec![], // TODO: To complex, restore resources on ult cast
-        ),
+        )
+            .with_skill_id(44984),
         PassiveData::new(
             "Mountain's Blessing",
             ClassName::Dragonknight,
@@ -121,12 +128,15 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                     .with_cooldown(6.0),
                 // TODO: Generates 3 ultimate
             ],
-        ),
+        )
+            .with_skill_id(45001),
         PassiveData::new(
             "Helping Hands",
             ClassName::Dragonknight,
             SkillLineName::EarthenHeart,
             vec![], // TODO: To complex, restore stamina on skill use with multiple conditions
-        ),
+        )
+            .with_skill_id(45009),
     ]
 });
+

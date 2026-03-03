@@ -4,25 +4,27 @@ use once_cell::sync::Lazy;
 
 pub static WARDEN_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
     vec![
-        // === ANIMAL COMPANIONS ===
         PassiveData::new(
             "Bond With Nature",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
-            vec![], // Heal
-        ),
+            vec![],
+        )
+            .with_skill_id(86065),
         PassiveData::new(
             "Savage Beast",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
             vec![], // TODO: 4 ultimate generation
-        ),
+        )
+            .with_skill_id(86063),
         PassiveData::new(
             "Flourish",
             ClassName::Warden,
             SkillLineName::AnimalCompanions,
-            vec![], // Resource recovery rate
-        ),
+            vec![],
+        )
+            .with_skill_id(86067),
         PassiveData::new(
             "Advanced Species",
             ClassName::Warden,
@@ -34,33 +36,36 @@ pub static WARDEN_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 BonusValue::new("Advanced Species", BonusTarget::CriticalDamage, 0.05),
             )
             .with_skill_line_filter(SkillLineName::AnimalCompanions)],
-        ),
-        // === GREEN BALANCE ===
+        )
+            .with_skill_id(86069),
         PassiveData::new(
             "Accelerated Growth",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            vec![], // Minor Mending
-        ),
+            vec![],
+        )
+            .with_skill_id(85883),
         PassiveData::new(
             "Nature's Gift",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            vec![], // On heal trigger -> restore resource
-        ),
+            vec![],
+        )
+            .with_skill_id(85879),
         PassiveData::new(
             "Emerald Moss",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            vec![], // Increase healing done *5%
-        ),
+            vec![],
+        )
+            .with_skill_id(85877),
         PassiveData::new(
             "Maturation",
             ClassName::Warden,
             SkillLineName::GreenBalance,
-            vec![], // Minor Toughness on heal
-        ),
-        // === WINTER'S EMBRACE ===
+            vec![],
+        )
+            .with_skill_id(85881),
         PassiveData::new(
             "Glacial Presence",
             ClassName::Warden,
@@ -87,19 +92,22 @@ pub static WARDEN_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                     ),
                 ),
             ],
-        ),
+        )
+            .with_skill_id(86192),
         PassiveData::new(
             "Frozen Armor",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            vec![], // Increase resistance
-        ),
+            vec![],
+        )
+            .with_skill_id(86190),
         PassiveData::new(
             "Icy Aura",
             ClassName::Warden,
             SkillLineName::WintersEmbrace,
-            vec![], // Major Maim
-        ),
+            vec![],
+        )
+            .with_skill_id(86194),
         PassiveData::new(
             "Piercing Cold",
             ClassName::Warden,
@@ -111,8 +119,9 @@ pub static WARDEN_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                     BonusTrigger::SkillLineSlotted,
                     BonusValue::new("Piercing Cold", BonusTarget::FrostDamage, 0.15),
                 ),
-                // Increases the amount of damage you block by 8% (not tracked - defensive)
             ],
-        ),
+        )
+            .with_skill_id(86196),
     ]
 });
+

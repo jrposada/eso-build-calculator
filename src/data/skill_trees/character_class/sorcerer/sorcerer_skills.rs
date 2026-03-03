@@ -7,22 +7,22 @@ use once_cell::sync::Lazy;
 
 pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
     vec![
-        // === DARK MAGIC ===
-        // Ultimate - Negate Magic line
         SkillData::new(
             "Negate Magic",
             "Negate Magic",
             ClassName::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Ultimate,
-        ),
+        )
+            .with_skill_id(29844),
         SkillData::new(
             "Absorption Field",
             "Negate Magic",
             ClassName::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Ultimate,
-        ),
+        )
+            .with_skill_id(29881),
         SkillData::new(
             "Suppression Field",
             "Negate Magic",
@@ -30,10 +30,10 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DarkMagic,
             Resource::Ultimate,
         )
+            .with_skill_id(29861)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(12.0, DamageFlags::magic_aoe(), 0.044697, 0.46932).with_interval(1.0),
         ])),
-        // Crystal Shard line
         SkillData::new(
             "Crystal Shard",
             "Crystal Shard",
@@ -41,6 +41,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DarkMagic,
             Resource::Magicka,
         )
+            .with_skill_id(47552)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::magic_single(),
             0.1035,
@@ -54,13 +55,13 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DarkMagic,
             Resource::Magicka,
         )
+            .with_skill_id(47569)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::magic_single(),
             0.106915,
             1.12261,
         )]))
         .with_spammable(),
-        // Crystal Weapon: Reduces enemy armor by 1000 for 5 seconds
         SkillData::new(
             "Crystal Weapon",
             "Crystal Shard",
@@ -68,6 +69,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DarkMagic,
             Resource::Stamina,
         )
+            .with_skill_id(47560)
         .with_damage(SkillDamage::new().with_hits(vec![
             HitDamage::new(DamageFlags::physical_single(), 0.09297, 0.976185),
             HitDamage::new(DamageFlags::physical_single(), 0.037188, 0.390474),
@@ -84,14 +86,14 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ),
         )
         .with_duration(5.0)]),
-        // Encase line
         SkillData::new(
             "Encase",
             "Encase",
             ClassName::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(30087),
         SkillData::new(
             "Shattering Spines",
             "Encase",
@@ -99,6 +101,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DarkMagic,
             Resource::Magicka,
         )
+            .with_skill_id(30095)
         .with_damage(SkillDamage::new().with_hits(vec![
             HitDamage::new(DamageFlags::magic_aoe(), 0.085222, 0.894836).with_delay(4.0),
         ])),
@@ -108,22 +111,24 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Magicka,
-        ),
-        // Rune Prison line
+        )
+            .with_skill_id(30107),
         SkillData::new(
             "Rune Prison",
             "Rune Prison",
             ClassName::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(30162),
         SkillData::new(
             "Defensive Rune",
             "Rune Prison",
             ClassName::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(30194),
         SkillData::new(
             "Rune Cage",
             "Rune Prison",
@@ -131,32 +136,34 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DarkMagic,
             Resource::Magicka,
         )
+            .with_skill_id(30177)
         .with_damage(SkillDamage::new().with_hits(vec![
             HitDamage::new(DamageFlags::magic_single(), 0.077475, 0.813488).with_delay(3.0),
         ])),
-        // Dark Exchange line (no damage)
         SkillData::new(
             "Dark Exchange",
             "Dark Exchange",
             ClassName::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(30012),
         SkillData::new(
             "Dark Conversion",
             "Dark Exchange",
             ClassName::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(30072),
         SkillData::new(
             "Dark Deal",
             "Dark Exchange",
             ClassName::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Magicka,
-        ),
-        // Daedric Mines line
+        )
+            .with_skill_id(30043),
         SkillData::new(
             "Daedric Mines",
             "Daedric Mines",
@@ -164,6 +171,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DarkMagic,
             Resource::Magicka,
         )
+            .with_skill_id(29909)
         .with_damage(SkillDamage::new().with_hits(vec![
             HitDamage::new(DamageFlags::magic_single(), 0.1125, 1.18125).with_delay(3.0),
         ])),
@@ -173,7 +181,8 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(29973),
         SkillData::new(
             "Daedric Tomb",
             "Daedric Mines",
@@ -181,13 +190,12 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DarkMagic,
             Resource::Magicka,
         )
+            .with_skill_id(29939)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::magic_single(),
             0.116213,
             1.22023,
         )])),
-        // === DAEDRIC SUMMONING ===
-        // Ultimate - Summon Storm Atronach line
         SkillData::new(
             "Summon Storm Atronach",
             "Summon Storm Atronach",
@@ -195,6 +203,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DaedricSummoning,
             Resource::Ultimate,
         )
+            .with_skill_id(30538)
         .with_damage(
             SkillDamage::new()
                 .with_hits(vec![HitDamage::new(DamageFlags::shock_aoe(), 0.1, 1.05)])
@@ -213,6 +222,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DaedricSummoning,
             Resource::Ultimate,
         )
+            .with_skill_id(30575)
         .with_damage(
             SkillDamage::new()
                 .with_hits(vec![HitDamage::new(DamageFlags::shock_aoe(), 0.1, 1.05)])
@@ -231,6 +241,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DaedricSummoning,
             Resource::Ultimate,
         )
+            .with_skill_id(30553)
         .with_damage(
             SkillDamage::new()
                 .with_hits(vec![HitDamage::new(DamageFlags::shock_aoe(), 0.1, 1.05)])
@@ -242,7 +253,6 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 )
                 .with_interval(2.0)]),
         ),
-        // Summon Unstable Familiar line
         SkillData::new(
             "Summon Unstable Familiar",
             "Summon Unstable Familiar",
@@ -250,6 +260,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
         )
+            .with_skill_id(30641)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(20.0, DamageFlags::shock_aoe(), 0.018182, 0.19091).with_interval(2.0),
         ])),
@@ -259,7 +270,8 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             ClassName::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(30657),
         SkillData::new(
             "Summon Volatile Familiar",
             "Summon Unstable Familiar",
@@ -267,10 +279,10 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
         )
+            .with_skill_id(30674)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(20.0, DamageFlags::shock_aoe(), 0.018782, 0.19721).with_interval(2.0),
         ])),
-        // Daedric Curse line
         SkillData::new(
             "Daedric Curse",
             "Daedric Curse",
@@ -278,6 +290,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
         )
+            .with_skill_id(30499)
         .with_damage(SkillDamage::new().with_hits(vec![
             HitDamage::new(DamageFlags::magic_aoe(), 0.125, 1.3125).with_delay(6.0),
         ])),
@@ -288,6 +301,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
         )
+            .with_skill_id(30511)
         .with_damage(SkillDamage::new().with_hits(vec![
             HitDamage::new(DamageFlags::magic_aoe(), 0.12913, 1.35581).with_delay(6.0),
         ])),
@@ -298,70 +312,75 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
         )
+            .with_skill_id(30523)
         .with_damage(SkillDamage::new().with_hits(vec![
             HitDamage::new(DamageFlags::magic_aoe(), 0.12913, 1.35581).with_delay(3.5),
             HitDamage::new(DamageFlags::magic_aoe(), 0.12913, 1.35581).with_delay(12.0),
         ])),
-        // Summon Winged Twilight line (no damage)
         SkillData::new(
             "Summon Winged Twilight",
             "Summon Winged Twilight",
             ClassName::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(30587),
         SkillData::new(
             "Summon Twilight Matriarch",
             "Summon Winged Twilight",
             ClassName::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(30626),
         SkillData::new(
             "Summon Twilight Tormentor",
             "Summon Winged Twilight",
             ClassName::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
-        ),
-        // Conjured Ward line (no damage)
+        )
+            .with_skill_id(30598),
         SkillData::new(
             "Conjured Ward",
             "Conjured Ward",
             ClassName::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(30463),
         SkillData::new(
             "Hardened Ward",
             "Conjured Ward",
             ClassName::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(30474),
         SkillData::new(
             "Regenerative Ward",
             "Conjured Ward",
             ClassName::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
-        ),
-        // Bound Armor line
+        )
+            .with_skill_id(30486),
         SkillData::new(
             "Bound Armor",
             "Bound Armor",
             ClassName::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(30418),
         SkillData::new(
             "Bound Aegis",
             "Bound Armor",
             ClassName::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
-        ),
-        // Bound Armaments: While slotted grants Major Prophecy + Major Savagery
+        )
+            .with_skill_id(30445),
         SkillData::new(
             "Bound Armaments",
             "Bound Armor",
@@ -369,6 +388,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DaedricSummoning,
             Resource::Stamina,
         )
+            .with_skill_id(30432)
         .with_damage(SkillDamage::new().with_hits(vec![
             HitDamage::new(DamageFlags::physical_single(), 0.037188, 0.390474),
             HitDamage::new(DamageFlags::physical_single(), 0.037188, 0.390474).with_delay(0.3),
@@ -387,8 +407,6 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 .clone()
                 .with_trigger(BonusTrigger::AbilitySlotted),
         ]),
-        // === STORM CALLING ===
-        // Ultimate - Overload line
         SkillData::new(
             "Overload",
             "Overload",
@@ -396,6 +414,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::StormCalling,
             Resource::Ultimate,
         )
+            .with_skill_id(30354)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::shock_single(),
             0.1,
@@ -408,6 +427,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::StormCalling,
             Resource::Ultimate,
         )
+            .with_skill_id(30381)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::shock_single(),
             0.1033,
@@ -420,13 +440,12 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::StormCalling,
             Resource::Ultimate,
         )
+            .with_skill_id(30366)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::shock_single(),
             0.11363,
             1.19311,
         )])),
-        // Mages' Fury line
-        // Base 870 damage + additional 3195 when enemy drops to ≤20% HP
         SkillData::new(
             "Mages' Fury",
             "Mages' Fury",
@@ -434,6 +453,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
+            .with_skill_id(30319)
         .with_damage(SkillDamage::new().with_hits(vec![
             HitDamage::new(DamageFlags::shock_single(), 0.0375, 0.39375),
             HitDamage::new(DamageFlags::shock_single(), 0.1375, 1.44375)
@@ -447,6 +467,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
+            .with_skill_id(30343)
         .with_damage(SkillDamage::new().with_hits(vec![
             HitDamage::new(DamageFlags::shock_single(), 0.03875, 0.40675),
             HitDamage::new(DamageFlags::shock_single(), 0.142038, 1.49139)
@@ -460,13 +481,13 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
+            .with_skill_id(30331)
         .with_damage(SkillDamage::new().with_hits(vec![
             HitDamage::new(DamageFlags::shock_single(), 0.03875, 0.40675),
             HitDamage::new(DamageFlags::shock_aoe(), 0.142038, 1.49139)
                 .with_execute_threshold(0.20),
         ]))
         .with_spammable(),
-        // Lightning Form line
         SkillData::new(
             "Lightning Form",
             "Lightning Form",
@@ -474,6 +495,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
+            .with_skill_id(30235)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(20.0, DamageFlags::shock_aoe(), 0.02, 0.21).with_interval(2.0),
         ])),
@@ -484,6 +506,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
+            .with_skill_id(30255)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(30.0, DamageFlags::shock_aoe(), 0.02066, 0.21693).with_interval(2.0),
         ])),
@@ -494,6 +517,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::StormCalling,
             Resource::Stamina,
         )
+            .with_skill_id(30244)
         .with_damage(SkillDamage::new().with_dots(vec![DotDamage::new(
             20.0,
             DamageFlags::physical_aoe(),
@@ -502,7 +526,6 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         )
         .with_interval(2.0)
         .with_increase_per_tick(0.12)])),
-        // Lightning Splash line
         SkillData::new(
             "Lightning Splash",
             "Lightning Splash",
@@ -510,6 +533,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
+            .with_skill_id(30269)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(10.0, DamageFlags::shock_aoe(), 0.013333, 0.14).with_interval(1.0),
         ])),
@@ -520,6 +544,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
+            .with_skill_id(30302)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(10.0, DamageFlags::shock_aoe(), 0.017905, 0.188006).with_interval(1.0),
         ])),
@@ -530,10 +555,10 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
+            .with_skill_id(30286)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(15.0, DamageFlags::shock_aoe(), 0.013773, 0.14462).with_interval(1.0),
         ])),
-        // Surge line (no damage, grants Major Brutality + Major Sorcery for 33s)
         SkillData::new(
             "Surge",
             "Surge",
@@ -541,6 +566,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
+            .with_skill_id(30390)
         .with_bonuses(vec![
             MAJOR_BRUTALITY.clone().with_duration(33.0),
             MAJOR_SORCERY.clone().with_duration(33.0),
@@ -552,6 +578,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
+            .with_skill_id(30406)
         .with_bonuses(vec![
             MAJOR_BRUTALITY.clone().with_duration(33.0),
             MAJOR_SORCERY.clone().with_duration(33.0),
@@ -563,25 +590,27 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
+            .with_skill_id(30396)
         .with_bonuses(vec![
             MAJOR_BRUTALITY.clone().with_duration(33.0),
             MAJOR_SORCERY.clone().with_duration(33.0),
         ]),
-        // Bolt Escape line
         SkillData::new(
             "Bolt Escape",
             "Bolt Escape",
             ClassName::Sorcerer,
             SkillLineName::StormCalling,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(30205),
         SkillData::new(
             "Ball of Lightning",
             "Bolt Escape",
             ClassName::Sorcerer,
             SkillLineName::StormCalling,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(30224),
         SkillData::new(
             "Streak",
             "Bolt Escape",
@@ -589,6 +618,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
+            .with_skill_id(30215)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::shock_aoe(),
             0.06198,
@@ -596,3 +626,4 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         )])),
     ]
 });
+

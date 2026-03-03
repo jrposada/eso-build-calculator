@@ -7,8 +7,6 @@ use once_cell::sync::Lazy;
 
 pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
     vec![
-        // === ARDENT FLAME ===
-        // Ultimate - Dragonknight Standard line
         SkillData::new(
             "Dragonknight Standard",
             "Dragonknight Standard",
@@ -16,6 +14,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::ArdentFlame,
             Resource::Ultimate,
         )
+            .with_skill_id(33963)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(16.0, DamageFlags::flame_aoe(), 0.0375, 0.39375).with_interval(1.0),
         ])),
@@ -26,6 +25,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::ArdentFlame,
             Resource::Ultimate,
         )
+            .with_skill_id(33987)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(25.0, DamageFlags::flame_aoe(), 0.038737, 0.406744).with_interval(1.0),
         ])),
@@ -36,10 +36,10 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::ArdentFlame,
             Resource::Ultimate,
         )
+            .with_skill_id(34021)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(16.0, DamageFlags::flame_aoe(), 0.038737, 0.406744).with_interval(1.0),
         ])),
-        // Lava Whip line
         SkillData::new(
             "Lava Whip",
             "Lava Whip",
@@ -47,6 +47,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
+            .with_skill_id(23811)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::flame_single(),
             0.1,
@@ -60,13 +61,13 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
+            .with_skill_id(23924)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::flame_single(),
             0.1033,
             1.08465,
         )]))
         .with_spammable(),
-        // Molten Whip: Too complex - Seething Fury stacks (+20% damage per stack, +100 Weapon/Spell Damage per stack)
         SkillData::new(
             "Molten Whip",
             "Lava Whip",
@@ -74,13 +75,13 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
+            .with_skill_id(23819)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::flame_single(),
             0.1033,
             1.08465,
         )]))
         .with_spammable(),
-        // Searing Strike line
         SkillData::new(
             "Searing Strike",
             "Searing Strike",
@@ -88,6 +89,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
+            .with_skill_id(23886)
         .with_damage(
             SkillDamage::new()
                 .with_hits(vec![HitDamage::new(
@@ -109,6 +111,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
+            .with_skill_id(23898)
         .with_damage(
             SkillDamage::new()
                 .with_hits(vec![HitDamage::new(
@@ -130,6 +133,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::ArdentFlame,
             Resource::Stamina,
         )
+            .with_skill_id(23915)
         .with_damage(
             SkillDamage::new()
                 .with_hits(vec![HitDamage::new(
@@ -146,7 +150,6 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 .with_interval(2.0)
                 .with_increase_per_tick(0.12)]),
         ),
-        // Fiery Breath line
         SkillData::new(
             "Fiery Breath",
             "Fiery Breath",
@@ -154,6 +157,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
+            .with_skill_id(34031)
         .with_damage(
             SkillDamage::new()
                 .with_hits(vec![HitDamage::new(
@@ -168,7 +172,6 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                     0.13125,
                 )]),
         ),
-        // Engulfing Flames: Too complex - enemies take up to 6% more Flame Damage
         SkillData::new(
             "Engulfing Flames",
             "Fiery Breath",
@@ -176,6 +179,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
+            .with_skill_id(34048)
         .with_damage(
             SkillDamage::new()
                 .with_hits(vec![HitDamage::new(
@@ -190,7 +194,6 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                     0.135581,
                 )]),
         ),
-        // Noxious Breath: Major Breach (20s), Poisoned status
         SkillData::new(
             "Noxious Breath",
             "Fiery Breath",
@@ -198,6 +201,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::ArdentFlame,
             Resource::Stamina,
         )
+            .with_skill_id(34039)
         .with_damage(
             SkillDamage::new()
                 .with_hits(vec![HitDamage::new(
@@ -213,7 +217,6 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 )]),
         )
         .with_bonuses(vec![MAJOR_BREACH.clone()]),
-        // Fiery Grip line
         SkillData::new(
             "Fiery Grip",
             "Fiery Grip",
@@ -221,6 +224,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
+            .with_skill_id(23744)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::flame_single(),
             0.06,
@@ -233,6 +237,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
+            .with_skill_id(32229)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::flame_single(),
             0.06198,
@@ -245,13 +250,12 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
+            .with_skill_id(23778)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::flame_single(),
             0.06198,
             0.65079,
         )])),
-        // Inferno line
-        // Inferno: Major Prophecy + Major Savagery while slotted, fireball every 5s
         SkillData::new(
             "Inferno",
             "Inferno",
@@ -259,6 +263,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
+            .with_skill_id(34061)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(15.0, DamageFlags::flame_single(), 0.075, 0.7875).with_interval(5.0),
         ]))
@@ -270,7 +275,6 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 .clone()
                 .with_trigger(BonusTrigger::AbilitySlotted),
         ]),
-        // Cauterize: Major Prophecy + Major Savagery while slotted, heals instead of damages
         SkillData::new(
             "Cauterize",
             "Inferno",
@@ -278,6 +282,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
+            .with_skill_id(34100)
         .with_bonuses(vec![
             MAJOR_PROPHECY
                 .clone()
@@ -286,7 +291,6 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 .clone()
                 .with_trigger(BonusTrigger::AbilitySlotted),
         ]),
-        // Flames of Oblivion: Major Prophecy + Major Savagery while slotted, launches 3 fireballs
         SkillData::new(
             "Flames of Oblivion",
             "Inferno",
@@ -294,6 +298,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
+            .with_skill_id(34080)
         .with_damage(SkillDamage::new().with_dots(vec![DotDamage::new(
             15.0,
             DamageFlags::flame_single(),
@@ -309,8 +314,6 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                 .clone()
                 .with_trigger(BonusTrigger::AbilitySlotted),
         ]),
-        // === DRACONIC POWER ===
-        // Ultimate - Dragon Leap line
         SkillData::new(
             "Dragon Leap",
             "Dragon Leap",
@@ -318,6 +321,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DraconicPower,
             Resource::Ultimate,
         )
+            .with_skill_id(33658)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::physical_aoe(),
             0.1825,
@@ -330,6 +334,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DraconicPower,
             Resource::Ultimate,
         )
+            .with_skill_id(33679)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::flame_aoe(),
             0.188523,
@@ -342,27 +347,28 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DraconicPower,
             Resource::Ultimate,
         )
+            .with_skill_id(33668)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::physical_aoe(),
             0.216801,
             2.27641,
         )])),
-        // Spiked Armor line
         SkillData::new(
             "Spiked Armor",
             "Spiked Armor",
             ClassName::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(23828),
         SkillData::new(
             "Hardened Armor",
             "Spiked Armor",
             ClassName::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
-        ),
-        // Volatile Armor: damage scales with MaxResist, not MaxStat/MaxPower - no standard coefficients
+        )
+            .with_skill_id(23856),
         SkillData::new(
             "Volatile Armor",
             "Spiked Armor",
@@ -370,11 +376,10 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
+            .with_skill_id(23842)
         .with_damage(SkillDamage::new().with_dots(vec![
-            // Non-standard scaling: damage scales with MaxResist, not MaxStat/MaxPower
             DotDamage::new(20.0, DamageFlags::flame_aoe(), 0.0, 0.0),
         ])),
-        // Dark Talons line
         SkillData::new(
             "Dark Talons",
             "Dark Talons",
@@ -382,6 +387,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
+            .with_skill_id(32111)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::flame_aoe(),
             0.075,
@@ -394,6 +400,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
+            .with_skill_id(32123)
         .with_damage(
             SkillDamage::new()
                 .with_hits(vec![HitDamage::new(
@@ -415,56 +422,60 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
+            .with_skill_id(32135)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::flame_aoe(),
             0.077475,
             0.813488,
         )])),
-        // Dragon Blood line (no damage)
         SkillData::new(
             "Dragon Blood",
             "Dragon Blood",
             ClassName::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(33619),
         SkillData::new(
             "Coagulating Blood",
             "Dragon Blood",
             ClassName::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(33646),
         SkillData::new(
             "Green Dragon Blood",
             "Dragon Blood",
             ClassName::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
-        ),
-        // Protective Scale line (no damage)
+        )
+            .with_skill_id(33632),
         SkillData::new(
             "Protective Scale",
             "Protective Scale",
             ClassName::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(33743),
         SkillData::new(
             "Dragon Fire Scale",
             "Protective Scale",
             ClassName::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(33759),
         SkillData::new(
             "Protective Plate",
             "Protective Scale",
             ClassName::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
-        ),
-        // Inhale line
+        )
+            .with_skill_id(33749),
         SkillData::new(
             "Inhale",
             "Inhale",
@@ -472,6 +483,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
+            .with_skill_id(33697)
         .with_damage(SkillDamage::new().with_hits(vec![
             HitDamage::new(DamageFlags::flame_aoe(), 0.0375, 0.39375),
             HitDamage::new(DamageFlags::flame_aoe(), 0.075, 0.7875).with_delay(2.5),
@@ -484,6 +496,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
+            .with_skill_id(33715)
         .with_damage(SkillDamage::new().with_hits(vec![
             HitDamage::new(DamageFlags::flame_aoe(), 0.038737, 0.406744),
             HitDamage::new(DamageFlags::flame_aoe(), 0.096844, 1.01686).with_delay(2.5),
@@ -496,13 +509,12 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
+            .with_skill_id(33732)
         .with_damage(SkillDamage::new().with_hits(vec![
             HitDamage::new(DamageFlags::flame_aoe(), 0.038737, 0.406744),
             HitDamage::new(DamageFlags::flame_aoe(), 0.077475, 0.813488).with_delay(2.5),
         ]))
         .with_channel_time(2.5),
-        // === EARTHEN HEART ===
-        // Ultimate - Magma Armor line
         SkillData::new(
             "Magma Armor",
             "Magma Armor",
@@ -510,6 +522,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::EarthenHeart,
             Resource::Ultimate,
         )
+            .with_skill_id(19982)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(10.0, DamageFlags::flame_aoe(), 0.015, 0.1575).with_interval(1.0),
         ])),
@@ -520,6 +533,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::EarthenHeart,
             Resource::Ultimate,
         )
+            .with_skill_id(33852)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(10.0, DamageFlags::poison_aoe(), 0.015, 0.1575).with_interval(1.0),
         ])),
@@ -530,10 +544,10 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::EarthenHeart,
             Resource::Ultimate,
         )
+            .with_skill_id(33841)
         .with_damage(SkillDamage::new().with_dots(vec![
             DotDamage::new(10.0, DamageFlags::flame_aoe(), 0.015, 0.1575).with_interval(1.0),
         ])),
-        // Stonefist line
         SkillData::new(
             "Stonefist",
             "Stonefist",
@@ -541,6 +555,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::EarthenHeart,
             Resource::Stamina,
         )
+            .with_skill_id(32194)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::physical_aoe(),
             0.1,
@@ -554,12 +569,12 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::EarthenHeart,
             Resource::Magicka,
         )
+            .with_skill_id(32199)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::flame_single(),
             0.02,
             0.21,
         )])),
-        // Stone Giant: Too complex - Stagger stacks (+65 damage taken per stack for 5s)
         SkillData::new(
             "Stone Giant",
             "Stonefist",
@@ -567,14 +582,13 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::EarthenHeart,
             Resource::Stamina,
         )
+            .with_skill_id(32205)
         .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::physical_aoe(),
             0.1033,
             1.08465,
         )]))
         .with_spammable(),
-        // Molten Weapons line (no damage)
-        // Molten Weapons: Major Brutality + Major Sorcery (30s)
         SkillData::new(
             "Molten Weapons",
             "Molten Weapons",
@@ -582,11 +596,11 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::EarthenHeart,
             Resource::Magicka,
         )
+            .with_skill_id(32156)
         .with_bonuses(vec![
             MAJOR_BRUTALITY.clone().with_duration(30.0),
             MAJOR_SORCERY.clone().with_duration(30.0),
         ]),
-        // Igneous Weapons: Major Brutality + Major Sorcery (60s)
         SkillData::new(
             "Igneous Weapons",
             "Molten Weapons",
@@ -594,11 +608,11 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::EarthenHeart,
             Resource::Magicka,
         )
+            .with_skill_id(32166)
         .with_bonuses(vec![
             MAJOR_BRUTALITY.clone().with_duration(60.0),
             MAJOR_SORCERY.clone().with_duration(60.0),
         ]),
-        // Molten Armaments: Major Brutality + Major Sorcery (30s), Empower (30s)
         SkillData::new(
             "Molten Armaments",
             "Molten Weapons",
@@ -606,34 +620,36 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::EarthenHeart,
             Resource::Magicka,
         )
+            .with_skill_id(32173)
         .with_bonuses(vec![
             MAJOR_BRUTALITY.clone().with_duration(30.0),
             MAJOR_SORCERY.clone().with_duration(30.0),
             EMPOWER.clone().with_duration(30.0),
         ]),
-        // Obsidian Shield line (no damage)
         SkillData::new(
             "Obsidian Shield",
             "Obsidian Shield",
             ClassName::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(33866),
         SkillData::new(
             "Fragmented Shield",
             "Obsidian Shield",
             ClassName::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(33881),
         SkillData::new(
             "Igneous Shield",
             "Obsidian Shield",
             ClassName::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Magicka,
-        ),
-        // Petrify line
+        )
+            .with_skill_id(33872),
         SkillData::new(
             "Petrify",
             "Petrify",
@@ -641,6 +657,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::EarthenHeart,
             Resource::Magicka,
         )
+            .with_skill_id(33898)
         .with_damage(SkillDamage::new().with_hits(vec![
             HitDamage::new(DamageFlags::flame_single(), 0.05, 0.525).with_delay(2.5),
         ])),
@@ -651,6 +668,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::EarthenHeart,
             Resource::Magicka,
         )
+            .with_skill_id(33921)
         .with_damage(SkillDamage::new().with_hits(vec![
             HitDamage::new(DamageFlags::flame_single(), 0.05165, 0.542325).with_delay(2.5),
         ])),
@@ -661,24 +679,26 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::EarthenHeart,
             Resource::Magicka,
         )
+            .with_skill_id(33944)
         .with_damage(SkillDamage::new().with_hits(vec![
             HitDamage::new(DamageFlags::flame_single(), 0.05165, 0.542325).with_delay(2.5),
         ])),
-        // Ash Cloud line
         SkillData::new(
             "Ash Cloud",
             "Ash Cloud",
             ClassName::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(33778),
         SkillData::new(
             "Cinder Storm",
             "Ash Cloud",
             ClassName::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Magicka,
-        ),
+        )
+            .with_skill_id(33797),
         SkillData::new(
             "Eruption",
             "Ash Cloud",
@@ -686,6 +706,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             SkillLineName::EarthenHeart,
             Resource::Magicka,
         )
+            .with_skill_id(33816)
         .with_damage(
             SkillDamage::new()
                 .with_hits(vec![HitDamage::new(
@@ -703,3 +724,4 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         ),
     ]
 });
+

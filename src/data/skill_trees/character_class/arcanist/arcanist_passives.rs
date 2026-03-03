@@ -4,7 +4,6 @@ use once_cell::sync::Lazy;
 
 pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
     vec![
-        // === HERALD OF THE TOME ===
         PassiveData::new(
             "Fated Fortune",
             ClassName::Arcanist,
@@ -16,7 +15,8 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 BonusValue::new("Fated Fortune", BonusTarget::CriticalDamage, 0.12),
             )
             .with_duration(7.0)],
-        ),
+        )
+            .with_skill_id(184847),
         PassiveData::new(
             "Harnessed Quintessence",
             ClassName::Arcanist,
@@ -32,9 +32,8 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 ),
             )
             .with_duration(10.0)],
-        ),
-        // +15% Status Effect Damage, +55% Status Effect Chance
-        // Status effects include Burning, Poisoned, Chilled, etc. - complex to model directly
+        )
+            .with_skill_id(184858),
         PassiveData::new(
             "Psychic Lesion",
             ClassName::Arcanist,
@@ -63,7 +62,8 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 )
                 .with_duration(10.0),
             ],
-        ),
+        )
+            .with_skill_id(184873),
         PassiveData::new(
             "Splintered Secrets",
             ClassName::Arcanist,
@@ -79,44 +79,43 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                 ),
             )
             .with_skill_line_filter(SkillLineName::HeraldOfTheTome)],
-        ),
-        // === SOLDIER OF APOCRYPHA ===
-        // +3271 Armor - defensive, not tracked in damage calculations
+        )
+            .with_skill_id(184887),
         PassiveData::new(
             "Aegis of the Unseen",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             vec![],
-        ),
-        // +81 Magicka, Stamina, and Health Recovery - not tracked in damage calculations
+        )
+            .with_skill_id(184923),
         PassiveData::new(
             "Wellspring of the Abyss",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             vec![],
-        ),
-        // Minor Evasion (5% AoE damage reduction) - defensive, not tracked
+        )
+            .with_skill_id(185036),
         PassiveData::new(
             "Circumvented Fate",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             vec![],
-        ),
-        // +4 Ultimate when generating Crux - resource generation, not tracked
+        )
+            .with_skill_id(184932),
         PassiveData::new(
             "Implacable Outcome",
             ClassName::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             vec![],
-        ),
-        // === CURATIVE RUNEFORMS ===
-        // +4% Healing done per Crux - healing, not tracked in damage calculations
+        )
+            .with_skill_id(185058),
         PassiveData::new(
             "Healing Tides",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
             vec![],
-        ),
+        )
+            .with_skill_id(185186),
         PassiveData::new(
             "Hideous Clarity",
             ClassName::Arcanist,
@@ -131,20 +130,22 @@ pub static ARCANIST_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
                     225.0,
                 ),
             )],
-        ),
-        // +18% Magicka and Stamina Recovery - recovery, not tracked
+        )
+            .with_skill_id(185243),
         PassiveData::new(
             "Erudition",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
             vec![],
-        ),
-        // +10% Damage Shield strength - defensive, not tracked
+        )
+            .with_skill_id(185239),
         PassiveData::new(
             "Intricate Runeforms",
             ClassName::Arcanist,
             SkillLineName::CurativeRuneforms,
             vec![],
-        ),
+        )
+            .with_skill_id(185195),
     ]
 });
+
