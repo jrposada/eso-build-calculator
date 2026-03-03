@@ -24,11 +24,7 @@ fn resolve_set_bonuses(sets: &[&'static SetData]) -> (Vec<BonusData>, Vec<(Strin
     let mut names = Vec::new();
     for set in sets {
         let pieces = set.set_type.max_pieces();
-        bonuses.extend(
-            set.bonuses_at(pieces)
-                .into_iter()
-                .cloned(),
-        );
+        bonuses.extend(set.bonuses_at(pieces).into_iter().cloned());
         names.push((set.name.clone(), pieces));
     }
     (bonuses, names)
@@ -229,12 +225,16 @@ fn optimizer_with_fixed_sets_increases_damage() {
     // Set names should appear in the output build
     let result_set_names = builds_with_sets[0].set_names();
     assert!(
-        result_set_names.iter().any(|(name, _)| name == "Mother's Sorrow"),
+        result_set_names
+            .iter()
+            .any(|(name, _)| name == "Mother's Sorrow"),
         "Mother's Sorrow should be in build set_names: {:?}",
         result_set_names
     );
     assert!(
-        result_set_names.iter().any(|(name, _)| name == "Law of Julianos"),
+        result_set_names
+            .iter()
+            .any(|(name, _)| name == "Law of Julianos"),
         "Law of Julianos should be in build set_names: {:?}",
         result_set_names
     );

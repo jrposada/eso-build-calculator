@@ -22,9 +22,9 @@ use crate::domain::{
 };
 use crate::infrastructure::{format, logger};
 use crate::services::{
-    generate_distributions, infer_weapons, BarDistribution, BuildOptimizer, BuildOptimizerOptions,
-    FightSimulator, GearOptimizer, GearOptimizerOptions, SetOptimizer, SetOptimizerOptions,
-    stats_differ_significantly,
+    generate_distributions, infer_weapons, stats_differ_significantly, BarDistribution,
+    BuildOptimizer, BuildOptimizerOptions, FightSimulator, GearOptimizer, GearOptimizerOptions,
+    SetOptimizer, SetOptimizerOptions,
 };
 use clap::Args;
 
@@ -209,9 +209,9 @@ impl OptimizeArgs {
         // ── Build baseline GearConfig for Phase 0 ──
         // Pinned dimensions use the pinned value; unpinned use sensible defaults.
         let baseline_gear = GearConfig {
-            race: self.race,      // None if unpinned (naked baseline)
-            mundus: self.mundus,  // None if unpinned
-            food: self.food,      // None if unpinned
+            race: self.race,     // None if unpinned (naked baseline)
+            mundus: self.mundus, // None if unpinned
+            food: self.food,     // None if unpinned
             armor_trait: self.armor_trait.unwrap_or(ArmorTrait::Divines),
             jewelry_trait: self.jewelry_trait.unwrap_or(JewelryTrait::Bloodthirsty),
             weapon_trait: self.weapon_trait.unwrap_or(WeaponTrait::Nirnhoned),
@@ -222,12 +222,24 @@ impl OptimizeArgs {
         let mut character_stats = baseline_gear.compute_stats(self.bar1_weapon);
 
         // Apply stat overrides
-        if let Some(v) = self.max_stamina { character_stats.max_stamina = v; }
-        if let Some(v) = self.max_magicka { character_stats.max_magicka = v; }
-        if let Some(v) = self.weapon_damage { character_stats.weapon_damage = v; }
-        if let Some(v) = self.spell_damage { character_stats.spell_damage = v; }
-        if let Some(v) = self.critical_rating { character_stats.critical_rating = v; }
-        if let Some(v) = self.penetration { character_stats.penetration = v; }
+        if let Some(v) = self.max_stamina {
+            character_stats.max_stamina = v;
+        }
+        if let Some(v) = self.max_magicka {
+            character_stats.max_magicka = v;
+        }
+        if let Some(v) = self.weapon_damage {
+            character_stats.weapon_damage = v;
+        }
+        if let Some(v) = self.spell_damage {
+            character_stats.spell_damage = v;
+        }
+        if let Some(v) = self.critical_rating {
+            character_stats.critical_rating = v;
+        }
+        if let Some(v) = self.penetration {
+            character_stats.penetration = v;
+        }
 
         let baseline_stats = character_stats.clone();
 
@@ -326,12 +338,24 @@ impl OptimizeArgs {
             let mut new_stats = gear_result.character_stats.clone();
 
             // Re-apply stat overrides on top of winning gear stats
-            if let Some(v) = self.max_stamina { new_stats.max_stamina = v; }
-            if let Some(v) = self.max_magicka { new_stats.max_magicka = v; }
-            if let Some(v) = self.weapon_damage { new_stats.weapon_damage = v; }
-            if let Some(v) = self.spell_damage { new_stats.spell_damage = v; }
-            if let Some(v) = self.critical_rating { new_stats.critical_rating = v; }
-            if let Some(v) = self.penetration { new_stats.penetration = v; }
+            if let Some(v) = self.max_stamina {
+                new_stats.max_stamina = v;
+            }
+            if let Some(v) = self.max_magicka {
+                new_stats.max_magicka = v;
+            }
+            if let Some(v) = self.weapon_damage {
+                new_stats.weapon_damage = v;
+            }
+            if let Some(v) = self.spell_damage {
+                new_stats.spell_damage = v;
+            }
+            if let Some(v) = self.critical_rating {
+                new_stats.critical_rating = v;
+            }
+            if let Some(v) = self.penetration {
+                new_stats.penetration = v;
+            }
 
             if stats_differ_significantly(&baseline_stats, &new_stats, 0.05) {
                 logger::info("Phase 2: Gear stats changed >5%, re-running build optimizer...");
@@ -410,7 +434,9 @@ impl OptimizeArgs {
             .as_ref()
             .map(|(build_idx, _, _, _, _, _)| &builds[*build_idx])
             .unwrap_or(best_build);
-        let sim_data = sim_result.as_ref().map(|(_, dist, result, _, _, _)| (dist, result));
+        let sim_data = sim_result
+            .as_ref()
+            .map(|(_, dist, result, _, _, _)| (dist, result));
         let buffed_stats = sim_result.as_ref().map(|(_, _, _, _, _, stats)| stats);
 
         // Export with gear info (use winning enchants from simulation if available)
@@ -434,9 +460,22 @@ impl OptimizeArgs {
             trial: !self.no_trial,
         };
         if let Some(path) = &self.output {
-            Self::export_to_file(export_build, sim_data, buffed_stats, gear_config, &export_opts, path);
+            Self::export_to_file(
+                export_build,
+                sim_data,
+                buffed_stats,
+                gear_config,
+                &export_opts,
+                path,
+            );
         } else {
-            Self::prompt_export(export_build, sim_data, buffed_stats, gear_config, &export_opts);
+            Self::prompt_export(
+                export_build,
+                sim_data,
+                buffed_stats,
+                gear_config,
+                &export_opts,
+            );
         }
     }
 
@@ -519,11 +558,7 @@ impl OptimizeArgs {
             let piece_count = set.set_type.max_pieces();
             let bonuses = set.bonuses_at(piece_count);
             set_bonuses.extend(bonuses.into_iter().cloned());
-            set_proc_effects.extend(
-                set.proc_effects_at(piece_count)
-                    .into_iter()
-                    .cloned(),
-            );
+            set_proc_effects.extend(set.proc_effects_at(piece_count).into_iter().cloned());
             set_names.push((set.name.clone(), piece_count));
         }
 
@@ -533,7 +568,14 @@ impl OptimizeArgs {
     fn run_simulation(
         &self,
         builds: &[crate::domain::Build],
-    ) -> Option<(usize, BarDistribution, SimulationResult, WeaponEnchant, WeaponEnchant, CharacterStats)> {
+    ) -> Option<(
+        usize,
+        BarDistribution,
+        SimulationResult,
+        WeaponEnchant,
+        WeaponEnchant,
+        CharacterStats,
+    )> {
         // Determine weapon types from CLI args or infer from the top build
         let (bar1_weapon, bar2_weapon) = match (self.bar1_weapon, self.bar2_weapon) {
             (Some(w1), Some(w2)) => (w1, w2),
@@ -600,11 +642,14 @@ impl OptimizeArgs {
                             })
                     })
                     .collect();
-                let simulator =
-                    FightSimulator::new(build.effective_stats(), build.resolved_bonuses(), suppressed)
-                        .with_enchants(bar1_enchant, bar2_enchant)
-                        .with_set_procs(proc_effects)
-                        .with_avg_resource_pct(self.avg_resource_pct);
+                let simulator = FightSimulator::new(
+                    build.effective_stats(),
+                    build.resolved_bonuses(),
+                    suppressed,
+                )
+                .with_enchants(bar1_enchant, bar2_enchant)
+                .with_set_procs(proc_effects)
+                .with_avg_resource_pct(self.avg_resource_pct);
                 Some((build_idx, simulator, distributions))
             })
             .collect();
@@ -619,7 +664,10 @@ impl OptimizeArgs {
                 let mut local_best: Option<(usize, SimulationResult)> = None;
                 for (dist_idx, dist) in distributions.iter().enumerate() {
                     let result = simulator.simulate(dist);
-                    if local_best.as_ref().map_or(true, |(_, r)| result.dps > r.dps) {
+                    if local_best
+                        .as_ref()
+                        .map_or(true, |(_, r)| result.dps > r.dps)
+                    {
                         local_best = Some((dist_idx, result));
                     }
 
@@ -658,9 +706,8 @@ impl OptimizeArgs {
                         ));
                     }
                 }
-                local_best.map(|(dist_idx, result)| {
-                    (*build_idx, dist_idx, distributions.clone(), result)
-                })
+                local_best
+                    .map(|(dist_idx, result)| (*build_idx, dist_idx, distributions.clone(), result))
             })
             .collect();
 
@@ -763,7 +810,12 @@ impl OptimizeArgs {
                 ));
             }
 
-            display_simulation_result(&result, &best_dist, distributions.len(), builds[best_build_idx].set_names());
+            display_simulation_result(
+                &result,
+                &best_dist,
+                distributions.len(),
+                builds[best_build_idx].set_names(),
+            );
             logger::info(&format!("Simulation completed in {:.2?}", sim_elapsed));
 
             // Compute buffed stats for export metadata
@@ -801,7 +853,14 @@ impl OptimizeArgs {
             .with_avg_resource_pct(self.avg_resource_pct);
             let buffed_stats = final_sim.compute_buffed_stats(&best_dist);
 
-            return Some((best_build_idx, best_dist, result, winning_bar1, winning_bar2, buffed_stats));
+            return Some((
+                best_build_idx,
+                best_dist,
+                result,
+                winning_bar1,
+                winning_bar2,
+                buffed_stats,
+            ));
         }
 
         None
@@ -842,21 +901,33 @@ impl OptimizeArgs {
         opts: &ExportOptions,
         path: &PathBuf,
     ) {
-        let metadata = simulation.map(|(dist, result)| {
-            super::build_config::BuildMetadata {
-                dps: result.dps,
-                total_damage: result.total_damage,
-                fight_duration: result.fight_duration,
-                bar1_skills: dist.bar1.skills.iter().map(|s| s.name.to_string()).collect(),
-                bar2_skills: dist.bar2.skills.iter().map(|s| s.name.to_string()).collect(),
-                buffed_stats: buffed_stats.cloned(),
-            }
+        let metadata = simulation.map(|(dist, result)| super::build_config::BuildMetadata {
+            dps: result.dps,
+            total_damage: result.total_damage,
+            fight_duration: result.fight_duration,
+            bar1_skills: dist
+                .bar1
+                .skills
+                .iter()
+                .map(|s| s.name.to_string())
+                .collect(),
+            bar2_skills: dist
+                .bar2
+                .skills
+                .iter()
+                .map(|s| s.name.to_string())
+                .collect(),
+            buffed_stats: buffed_stats.cloned(),
         });
 
         let config = BuildConfig {
             skills: build.skill_names(),
             champion_points: build.champion_point_names(),
-            sets: build.set_names().iter().map(|(name, _)| name.clone()).collect(),
+            sets: build
+                .set_names()
+                .iter()
+                .map(|(name, _)| name.clone())
+                .collect(),
             bar1_weapon: opts.bar1_weapon.map(|w| w.to_string()),
             bar2_weapon: opts.bar2_weapon.map(|w| w.to_string()),
             character_stats: build.character_stats().clone(),

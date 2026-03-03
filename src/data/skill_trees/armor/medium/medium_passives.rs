@@ -19,4 +19,3 @@ pub static MEDIUM_ARMOR_PASSIVES: Lazy<Vec<BonusData>> = Lazy::new(|| {
         .with_skill_id(45564),
     ]
 });
-

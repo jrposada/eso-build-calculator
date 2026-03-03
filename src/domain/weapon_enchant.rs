@@ -45,9 +45,15 @@ impl WeaponEnchant {
     /// DamageFlags for the enchant proc's damage type.
     pub fn damage_flags(&self) -> DamageFlags {
         match self {
-            WeaponEnchant::Flame => DamageFlags::FLAME | DamageFlags::DIRECT | DamageFlags::SINGLE_TARGET,
-            WeaponEnchant::Poison => DamageFlags::PHYSICAL | DamageFlags::DIRECT | DamageFlags::SINGLE_TARGET,
-            WeaponEnchant::Shock => DamageFlags::SHOCK | DamageFlags::DIRECT | DamageFlags::SINGLE_TARGET,
+            WeaponEnchant::Flame => {
+                DamageFlags::FLAME | DamageFlags::DIRECT | DamageFlags::SINGLE_TARGET
+            }
+            WeaponEnchant::Poison => {
+                DamageFlags::PHYSICAL | DamageFlags::DIRECT | DamageFlags::SINGLE_TARGET
+            }
+            WeaponEnchant::Shock => {
+                DamageFlags::SHOCK | DamageFlags::DIRECT | DamageFlags::SINGLE_TARGET
+            }
             WeaponEnchant::Berserker => DamageFlags::empty(),
         }
     }

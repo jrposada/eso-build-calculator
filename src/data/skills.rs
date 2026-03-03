@@ -5,10 +5,8 @@ use super::skill_trees::character_class::{
     arcanist::arcanist_skills::ARCANIST_SKILLS,
     dragonknight::dragonknight_skills::DRAGONKNIGHT_SKILLS,
     necromancer::necromancer_skills::NECROMANCER_SKILLS,
-    nightblade::nightblade_skills::NIGHTBLADE_SKILLS,
-    sorcerer::sorcerer_skills::SORCERER_SKILLS,
-    templar::templar_skills::TEMPLAR_SKILLS,
-    warden::warden_skills::WARDEN_SKILLS,
+    nightblade::nightblade_skills::NIGHTBLADE_SKILLS, sorcerer::sorcerer_skills::SORCERER_SKILLS,
+    templar::templar_skills::TEMPLAR_SKILLS, warden::warden_skills::WARDEN_SKILLS,
 };
 use super::skill_trees::guild::{
     fighters_guild::fighters_guild_skills::FIGHTERS_GUILD_SKILLS,

@@ -11,27 +11,27 @@ pub static PSIJIC_ORDER_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
             SkillLineName::PsijicOrder,
             vec![],
         )
-            .with_skill_id(103811),
+        .with_skill_id(103811),
         PassiveData::new(
             "Concentrated Barrier",
             ClassName::Guild,
             SkillLineName::PsijicOrder,
             vec![],
         )
-            .with_skill_id(103964),
+        .with_skill_id(103964),
         PassiveData::new(
             "Deliberation",
             ClassName::Guild,
             SkillLineName::PsijicOrder,
             vec![],
         )
-            .with_skill_id(103972),
+        .with_skill_id(103972),
         PassiveData::new(
             "Spell Orb",
             ClassName::Guild,
             SkillLineName::PsijicOrder,
             vec![],
         )
-            .with_skill_id(103878),
+        .with_skill_id(103878),
     ]
 });

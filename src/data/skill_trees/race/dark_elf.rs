@@ -1,4 +1,3 @@
-
 use crate::domain::{BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue};
 use once_cell::sync::Lazy;
 
@@ -31,4 +30,3 @@ pub static DARK_ELF_BONUSES: Lazy<Vec<BonusData>> = Lazy::new(|| {
         .with_skill_id(45272),
     ]
 });
-

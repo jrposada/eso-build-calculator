@@ -23,4 +23,3 @@ pub static LIGHT_ARMOR_PASSIVES: Lazy<Vec<BonusData>> = Lazy::new(|| {
         .with_skill_id(45562),
     ]
 });
-

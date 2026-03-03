@@ -32,11 +32,7 @@ impl Potion {
                     "Major Savagery",
                     BonusSource::Buff,
                     BonusTrigger::Passive,
-                    BonusValue::new(
-                        "Major Savagery",
-                        BonusTarget::WeaponCriticalRating,
-                        2629.0,
-                    ),
+                    BonusValue::new("Major Savagery", BonusTarget::WeaponCriticalRating, 2629.0),
                 ),
             ],
             Potion::SpellPower => vec![
@@ -56,11 +52,7 @@ impl Potion {
                     "Major Prophecy",
                     BonusSource::Buff,
                     BonusTrigger::Passive,
-                    BonusValue::new(
-                        "Major Prophecy",
-                        BonusTarget::SpellCriticalRating,
-                        2629.0,
-                    ),
+                    BonusValue::new("Major Prophecy", BonusTarget::SpellCriticalRating, 2629.0),
                 ),
             ],
         }

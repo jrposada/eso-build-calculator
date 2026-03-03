@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-use super::BonusData;
 use super::set_proc::SetProcEffect;
+use super::BonusData;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -77,7 +77,11 @@ impl SetData {
     }
 
     pub fn with_proc_effects(mut self, piece_count: u8, effects: Vec<SetProcEffect>) -> Self {
-        if let Some(threshold) = self.thresholds.iter_mut().find(|t| t.piece_count == piece_count) {
+        if let Some(threshold) = self
+            .thresholds
+            .iter_mut()
+            .find(|t| t.piece_count == piece_count)
+        {
             threshold.proc_effects = effects;
         } else {
             self.thresholds.push(SetBonusThreshold {
@@ -90,7 +94,11 @@ impl SetData {
     }
 
     pub fn add_proc_effects(&mut self, piece_count: u8, effects: Vec<SetProcEffect>) {
-        if let Some(threshold) = self.thresholds.iter_mut().find(|t| t.piece_count == piece_count) {
+        if let Some(threshold) = self
+            .thresholds
+            .iter_mut()
+            .find(|t| t.piece_count == piece_count)
+        {
             threshold.proc_effects = effects;
         } else {
             self.thresholds.push(SetBonusThreshold {
@@ -149,11 +157,7 @@ mod tests {
                     "Test 3pc",
                     BonusSource::GearSet,
                     BonusTrigger::Passive,
-                    BonusValue::new(
-                        "Spell Critical",
-                        BonusTarget::SpellCriticalRating,
-                        657.0,
-                    ),
+                    BonusValue::new("Spell Critical", BonusTarget::SpellCriticalRating, 657.0),
                 )],
             )
             .with_threshold(
@@ -171,11 +175,7 @@ mod tests {
                     "Test 5pc",
                     BonusSource::GearSet,
                     BonusTrigger::Passive,
-                    BonusValue::new(
-                        "Spell Critical",
-                        BonusTarget::SpellCriticalRating,
-                        1528.0,
-                    ),
+                    BonusValue::new("Spell Critical", BonusTarget::SpellCriticalRating, 1528.0),
                 )],
             )
     }

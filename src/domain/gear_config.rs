@@ -4,9 +4,9 @@ use std::fmt;
 use super::character_stats::ATTRIBUTE_POINTS_BONUS;
 use super::food::Food;
 use super::mundus::MundusStone;
-use crate::data::skill_trees::race::Race;
 use super::weapon_type::WeaponType;
 use super::CharacterStats;
+use crate::data::skill_trees::race::Race;
 
 /// Armor weight determines which armor passives apply.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -333,9 +333,7 @@ impl GearConfig {
 
         // 4. Armor enchantments (7 pieces, all stamina or magicka)
         let armor_enchant_total = match self.armor_trait {
-            ArmorTrait::Infused => {
-                TOTAL_ARMOR_ENCHANT * (1.0 + ARMOR_INFUSED_ENCHANT_BONUS)
-            }
+            ArmorTrait::Infused => TOTAL_ARMOR_ENCHANT * (1.0 + ARMOR_INFUSED_ENCHANT_BONUS),
             _ => TOTAL_ARMOR_ENCHANT,
         };
 
@@ -363,8 +361,7 @@ impl GearConfig {
                 // Bloodthirsty: up to +350 WD/SD per piece, scaling linearly below 90% HP.
                 // Fight-average: 90% of fight below threshold, average bonus = max/2,
                 // so avg = 0.90 * (max / 2) per piece.
-                let avg_per_piece = BLOODTHIRSTY_THRESHOLD
-                    * (BLOODTHIRSTY_MAX_PER_PIECE / 2.0);
+                let avg_per_piece = BLOODTHIRSTY_THRESHOLD * (BLOODTHIRSTY_MAX_PER_PIECE / 2.0);
                 let total = avg_per_piece * JEWELRY_PIECE_COUNT;
                 stats.weapon_damage += total;
                 stats.spell_damage += total;

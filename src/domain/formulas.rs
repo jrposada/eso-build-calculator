@@ -146,8 +146,8 @@ pub fn effective_damage_contribution(
         // Crit rating → crit chance → scales with crit damage bonus (capped at 100%)
         BonusTarget::CriticalRating => {
             let current_chance = stats.critical_chance();
-            let new_chance = crit_rating_to_chance(stats.critical_rating + value)
-                .min(MAX_CRITICAL_CHANCE);
+            let new_chance =
+                crit_rating_to_chance(stats.critical_rating + value).min(MAX_CRITICAL_CHANCE);
             let marginal_chance = new_chance - current_chance;
             if marginal_chance <= 0.0 {
                 return 0.0;
@@ -157,9 +157,8 @@ pub fn effective_damage_contribution(
 
         // Crit damage → scales with crit chance (capped at 125% bonus / 2.25 total)
         BonusTarget::CriticalDamage => {
-            let clamped_value = (stats.critical_damage + value)
-                .min(MAX_CRITICAL_DAMAGE)
-                - stats.critical_damage;
+            let clamped_value =
+                (stats.critical_damage + value).min(MAX_CRITICAL_DAMAGE) - stats.critical_damage;
             if clamped_value <= 0.0 {
                 return 0.0;
             }
@@ -187,8 +186,7 @@ pub fn effective_damage_contribution(
         }
 
         // Penetration → relative improvement in armor damage factor
-        BonusTarget::PhysicalAndSpellPenetration
-        | BonusTarget::EnemyResistanceReduction => {
+        BonusTarget::PhysicalAndSpellPenetration | BonusTarget::EnemyResistanceReduction => {
             let old_factor = armor_damage_factor(stats.target_armor, stats.penetration);
             if old_factor <= 0.0 {
                 return 0.0;
@@ -200,8 +198,8 @@ pub fn effective_damage_contribution(
         // Weapon/Spell crit rating — same as generic CriticalRating
         BonusTarget::WeaponCriticalRating | BonusTarget::SpellCriticalRating => {
             let current_chance = stats.critical_chance();
-            let new_chance = crit_rating_to_chance(stats.critical_rating + value)
-                .min(MAX_CRITICAL_CHANCE);
+            let new_chance =
+                crit_rating_to_chance(stats.critical_rating + value).min(MAX_CRITICAL_CHANCE);
             let marginal_chance = new_chance - current_chance;
             if marginal_chance <= 0.0 {
                 return 0.0;

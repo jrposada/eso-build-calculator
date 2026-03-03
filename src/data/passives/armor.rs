@@ -1,6 +1,5 @@
 use crate::data::skill_trees::armor::{
-    light::light_passives::LIGHT_ARMOR_PASSIVES,
-    medium::medium_passives::MEDIUM_ARMOR_PASSIVES,
+    light::light_passives::LIGHT_ARMOR_PASSIVES, medium::medium_passives::MEDIUM_ARMOR_PASSIVES,
 };
 use crate::domain::{ArmorWeight, BonusData};
 

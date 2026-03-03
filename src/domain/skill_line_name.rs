@@ -141,9 +141,9 @@ impl SkillLineName {
             | SkillLineName::DraconicPower
             | SkillLineName::EarthenHeart => ClassName::Dragonknight,
 
-            SkillLineName::GraveLord
-            | SkillLineName::BoneTyrant
-            | SkillLineName::LivingDeath => ClassName::Necromancer,
+            SkillLineName::GraveLord | SkillLineName::BoneTyrant | SkillLineName::LivingDeath => {
+                ClassName::Necromancer
+            }
 
             SkillLineName::Assassination | SkillLineName::Shadow | SkillLineName::Siphoning => {
                 ClassName::Nightblade

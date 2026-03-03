@@ -61,11 +61,7 @@ pub fn parse_set(s: &str) -> Result<&'static SetData, String> {
         .copied()
         .ok_or_else(|| {
             let names: Vec<_> = ALL_SETS.iter().map(|s| s.name.as_str()).collect();
-            format!(
-                "Invalid set '{}'. Valid options: {}",
-                s,
-                names.join(", ")
-            )
+            format!("Invalid set '{}'. Valid options: {}", s, names.join(", "))
         })
 }
 

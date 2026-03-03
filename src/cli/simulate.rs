@@ -1,5 +1,6 @@
 use super::build_config::BuildConfig;
 use super::parsers::{parse_champion_point, parse_set, parse_skill};
+use super::simulation_display::display_simulation_result;
 use crate::data::bonuses::{TRIAL_BUFF_NAMES, TRIAL_DUMMY_BUFFS};
 use crate::data::passives::armor::armor_passives;
 use crate::data::passives::undaunted_mettle_bonuses;
@@ -8,7 +9,6 @@ use crate::domain::{
     JewelryTrait, MundusStone, Potion, Race, SetData, SetProcEffect, SkillData, SkillLineName,
     WeaponEnchant, WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
 };
-use super::simulation_display::display_simulation_result;
 use crate::infrastructure::{format, logger, table, table::ColumnDefinition};
 use crate::services::{
     generate_distributions, infer_weapons, FightSimulator, PassivesService, PassivesServiceOptions,
@@ -172,12 +172,24 @@ impl SimulateArgs {
                 let mut stats = gear.compute_stats(self.bar1_weapon);
 
                 // Apply stat overrides
-                if let Some(v) = self.max_stamina { stats.max_stamina = v; }
-                if let Some(v) = self.max_magicka { stats.max_magicka = v; }
-                if let Some(v) = self.weapon_damage { stats.weapon_damage = v; }
-                if let Some(v) = self.spell_damage { stats.spell_damage = v; }
-                if let Some(v) = self.critical_rating { stats.critical_rating = v; }
-                if let Some(v) = self.penetration { stats.penetration = v; }
+                if let Some(v) = self.max_stamina {
+                    stats.max_stamina = v;
+                }
+                if let Some(v) = self.max_magicka {
+                    stats.max_magicka = v;
+                }
+                if let Some(v) = self.weapon_damage {
+                    stats.weapon_damage = v;
+                }
+                if let Some(v) = self.spell_damage {
+                    stats.spell_damage = v;
+                }
+                if let Some(v) = self.critical_rating {
+                    stats.critical_rating = v;
+                }
+                if let Some(v) = self.penetration {
+                    stats.penetration = v;
+                }
 
                 (s, cp, (None, None), Vec::new(), stats, None)
             };
@@ -228,25 +240,28 @@ impl SimulateArgs {
             .collect();
 
         // Add armor passives based on armor weight (CLI flag > file > default)
-        let file_armor_weight = file_config.as_ref()
+        let file_armor_weight = file_config
+            .as_ref()
             .and_then(|c| c.armor_weight.as_ref())
             .and_then(|w| ArmorWeight::parse(w).ok());
-        let armor_weight = self.armor_weight
+        let armor_weight = self
+            .armor_weight
             .or(file_armor_weight)
             .unwrap_or(ArmorWeight::Medium);
         passive_bonuses.extend(armor_passives(armor_weight));
 
         // Add Undaunted Mettle bonuses based on armor types worn (file provides default)
-        let armor_types = file_config.as_ref().map_or(self.armor_types, |c| c.armor_types);
+        let armor_types = file_config
+            .as_ref()
+            .map_or(self.armor_types, |c| c.armor_types);
         passive_bonuses.extend(undaunted_mettle_bonuses(armor_types));
 
         // Add potion bonuses (CLI flag > file > default)
-        let file_potion = file_config.as_ref()
+        let file_potion = file_config
+            .as_ref()
             .and_then(|c| c.potion.as_ref())
             .and_then(|p| Potion::parse(p).ok());
-        let potion = self.potion
-            .or(file_potion)
-            .unwrap_or(Potion::WeaponPower);
+        let potion = self.potion.or(file_potion).unwrap_or(Potion::WeaponPower);
         passive_bonuses.extend(potion.bonuses());
 
         // Collect set bonuses
@@ -273,11 +288,7 @@ impl SimulateArgs {
             let piece_count = set.set_type.max_pieces();
             let bonuses = set.bonuses_at(piece_count);
             set_bonuses.extend(bonuses.into_iter().cloned());
-            set_proc_effects.extend(
-                set.proc_effects_at(piece_count)
-                    .into_iter()
-                    .cloned(),
-            );
+            set_proc_effects.extend(set.proc_effects_at(piece_count).into_iter().cloned());
             set_names.push((set.name.clone(), piece_count));
         }
 
@@ -312,12 +323,8 @@ impl SimulateArgs {
 
         // --- Fight simulation ---
         // Determine weapon types
-        let bar1_weapon = self
-            .bar1_weapon
-            .or(file_weapons.0);
-        let bar2_weapon = self
-            .bar2_weapon
-            .or(file_weapons.1);
+        let bar1_weapon = self.bar1_weapon.or(file_weapons.0);
+        let bar2_weapon = self.bar2_weapon.or(file_weapons.1);
 
         let (bar1_weapon, bar2_weapon) = match (bar1_weapon, bar2_weapon) {
             (Some(w1), Some(w2)) => (w1, w2),
@@ -355,15 +362,25 @@ impl SimulateArgs {
         for bonus in potion.bonuses() {
             suppressed.insert(bonus.name.clone());
         }
-        let file_bar1_enchant = file_config.as_ref()
+        let file_bar1_enchant = file_config
+            .as_ref()
             .and_then(|c| c.bar1_enchant.as_ref())
             .and_then(|e| WeaponEnchant::parse(e).ok());
-        let file_bar2_enchant = file_config.as_ref()
+        let file_bar2_enchant = file_config
+            .as_ref()
             .and_then(|c| c.bar2_enchant.as_ref())
             .and_then(|e| WeaponEnchant::parse(e).ok());
-        let bar1_enchant = self.bar1_enchant.or(file_bar1_enchant).or(Some(WeaponEnchant::Flame));
-        let bar2_enchant = self.bar2_enchant.or(file_bar2_enchant).or(Some(WeaponEnchant::Flame));
-        let avg_resource_pct = file_config.as_ref().map_or(self.avg_resource_pct, |c| c.avg_resource_pct);
+        let bar1_enchant = self
+            .bar1_enchant
+            .or(file_bar1_enchant)
+            .or(Some(WeaponEnchant::Flame));
+        let bar2_enchant = self
+            .bar2_enchant
+            .or(file_bar2_enchant)
+            .or(Some(WeaponEnchant::Flame));
+        let avg_resource_pct = file_config
+            .as_ref()
+            .map_or(self.avg_resource_pct, |c| c.avg_resource_pct);
         let simulator = FightSimulator::new(effective_stats, resolved_bonuses, suppressed)
             .with_enchants(bar1_enchant, bar2_enchant)
             .with_set_procs(set_proc_effects)
@@ -384,7 +401,12 @@ impl SimulateArgs {
 
         if let Some((best_idx, best_result)) = results.first() {
             let best_dist = &distributions[*best_idx];
-            display_simulation_result(best_result, best_dist, distributions.len(), build.set_names());
+            display_simulation_result(
+                best_result,
+                best_dist,
+                distributions.len(),
+                build.set_names(),
+            );
         }
     }
 
@@ -481,7 +503,10 @@ fn format_buffed_stats(stats: &CharacterStats) -> String {
         vec!["Weapon Damage".into(), fmt_stat(stats.weapon_damage)],
         vec!["Spell Damage".into(), fmt_stat(stats.spell_damage)],
         vec!["Critical Chance".into(), fmt_pct(stats.critical_chance())],
-        vec!["Critical Damage".into(), fmt_crit_dmg(stats.critical_damage)],
+        vec![
+            "Critical Damage".into(),
+            fmt_crit_dmg(stats.critical_damage),
+        ],
         vec!["Penetration".into(), fmt_stat(stats.penetration)],
         vec!["Target Armor".into(), fmt_stat(stats.target_armor)],
     ];

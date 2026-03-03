@@ -8,8 +8,7 @@ use super::skill_trees::character_class::{
     dragonknight::dragonknight_passives::DRAGONKNIGHT_PASSIVES,
     necromancer::necromancer_passives::NECROMANCER_PASSIVES,
     nightblade::nightblade_passives::NIGHTBLADE_PASSIVES,
-    sorcerer::sorcerer_passives::SORCERER_PASSIVES,
-    templar::templar_passives::TEMPLAR_PASSIVES,
+    sorcerer::sorcerer_passives::SORCERER_PASSIVES, templar::templar_passives::TEMPLAR_PASSIVES,
     warden::warden_passives::WARDEN_PASSIVES,
 };
 use super::skill_trees::guild::{

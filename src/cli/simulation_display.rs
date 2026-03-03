@@ -132,7 +132,10 @@ pub fn display_simulation_result(
     lines.push(breakdown_table);
 
     // Buff uptimes table
-    let has_external = result.buff_uptimes.iter().any(|b| b.external && b.uptime > 0.0);
+    let has_external = result
+        .buff_uptimes
+        .iter()
+        .any(|b| b.external && b.uptime > 0.0);
     let uptime_data: Vec<Vec<String>> = result
         .buff_uptimes
         .iter()
@@ -143,10 +146,7 @@ pub fn display_simulation_result(
             } else {
                 b.name.clone()
             };
-            vec![
-                name,
-                format!("{:.1}%", b.uptime * 100.0),
-            ]
+            vec![name, format!("{:.1}%", b.uptime * 100.0)]
         })
         .collect();
 

@@ -30,8 +30,11 @@ impl SetOptimizer {
         let has_pinned_mythic = options.pinned_mythic.is_some();
 
         // Collect available sets per slot type (exclude pinned)
-        let pinned_normal_names: Vec<&str> =
-            options.pinned_normal.iter().map(|s| s.name.as_str()).collect();
+        let pinned_normal_names: Vec<&str> = options
+            .pinned_normal
+            .iter()
+            .map(|s| s.name.as_str())
+            .collect();
         let pinned_monster_names: Vec<&str> = options
             .pinned_monster
             .iter()
@@ -49,8 +52,7 @@ impl SetOptimizer {
         let available_monsters: Vec<&'static SetData> = ALL_SETS
             .iter()
             .filter(|s| {
-                s.set_type == SetType::Monster
-                    && !pinned_monster_names.contains(&s.name.as_str())
+                s.set_type == SetType::Monster && !pinned_monster_names.contains(&s.name.as_str())
             })
             .copied()
             .collect();
@@ -131,11 +133,7 @@ impl SetOptimizer {
                     let score_set = |set: &'static SetData| -> f64 {
                         let mut bonuses = pinned_bonuses.clone();
                         let pc = set.set_type.max_pieces();
-                        bonuses.extend(
-                            set.bonuses_at(pc)
-                                .into_iter()
-                                .cloned(),
-                        );
+                        bonuses.extend(set.bonuses_at(pc).into_iter().cloned());
                         let b = Build::new_with_extra(
                             skills.clone(),
                             cp,
@@ -234,10 +232,8 @@ impl SetOptimizer {
                     let normal_fills: Vec<Vec<&'static SetData>> = match free_normal_slots {
                         0 => vec![vec![]], // all pinned, no variable slots
                         1 => {
-                            let mut fills: Vec<Vec<&'static SetData>> = var_normals
-                                .iter()
-                                .map(|&s| vec![s])
-                                .collect();
+                            let mut fills: Vec<Vec<&'static SetData>> =
+                                var_normals.iter().map(|&s| vec![s]).collect();
                             fills.push(vec![]); // allow empty
                             fills
                         }
@@ -261,25 +257,22 @@ impl SetOptimizer {
                     };
 
                     // Monster: if pinned, only pinned; else top-K + None
-                    let monster_options: Vec<Option<&'static SetData>> = if !pinned_monster.is_empty() {
-                        vec![None] // pinned monster always included, no variable choice
-                    } else {
-                        let mut opts: Vec<Option<&'static SetData>> = top_monsters
-                            .iter()
-                            .map(|(s, _)| Some(*s))
-                            .collect();
-                        opts.push(None);
-                        opts
-                    };
+                    let monster_options: Vec<Option<&'static SetData>> =
+                        if !pinned_monster.is_empty() {
+                            vec![None] // pinned monster always included, no variable choice
+                        } else {
+                            let mut opts: Vec<Option<&'static SetData>> =
+                                top_monsters.iter().map(|(s, _)| Some(*s)).collect();
+                            opts.push(None);
+                            opts
+                        };
 
                     // Mythic: if pinned, only pinned; else top-K + None
                     let mythic_options: Vec<Option<&'static SetData>> = if pinned_mythic.is_some() {
                         vec![None] // pinned mythic always included, no variable choice
                     } else {
-                        let mut opts: Vec<Option<&'static SetData>> = top_mythics
-                            .iter()
-                            .map(|(s, _)| Some(*s))
-                            .collect();
+                        let mut opts: Vec<Option<&'static SetData>> =
+                            top_mythics.iter().map(|(s, _)| Some(*s)).collect();
                         opts.push(None);
                         opts
                     };
@@ -293,25 +286,19 @@ impl SetOptimizer {
                                 // Always include pinned sets
                                 for &s in pinned_normal.iter() {
                                     loadout_bonuses.extend(
-                                        s.bonuses_at(s.set_type.max_pieces())
-                                            .into_iter()
-                                            .cloned(),
+                                        s.bonuses_at(s.set_type.max_pieces()).into_iter().cloned(),
                                     );
                                     loadout_names.push((s.name.clone(), s.set_type.max_pieces()));
                                 }
                                 for &s in pinned_monster.iter() {
                                     loadout_bonuses.extend(
-                                        s.bonuses_at(s.set_type.max_pieces())
-                                            .into_iter()
-                                            .cloned(),
+                                        s.bonuses_at(s.set_type.max_pieces()).into_iter().cloned(),
                                     );
                                     loadout_names.push((s.name.clone(), s.set_type.max_pieces()));
                                 }
                                 if let Some(s) = pinned_mythic {
                                     loadout_bonuses.extend(
-                                        s.bonuses_at(s.set_type.max_pieces())
-                                            .into_iter()
-                                            .cloned(),
+                                        s.bonuses_at(s.set_type.max_pieces()).into_iter().cloned(),
                                     );
                                     loadout_names.push((s.name.clone(), s.set_type.max_pieces()));
                                 }
@@ -319,25 +306,19 @@ impl SetOptimizer {
                                 // Add variable sets
                                 for &s in normal_fill {
                                     loadout_bonuses.extend(
-                                        s.bonuses_at(s.set_type.max_pieces())
-                                            .into_iter()
-                                            .cloned(),
+                                        s.bonuses_at(s.set_type.max_pieces()).into_iter().cloned(),
                                     );
                                     loadout_names.push((s.name.clone(), s.set_type.max_pieces()));
                                 }
                                 if let Some(s) = var_monster {
                                     loadout_bonuses.extend(
-                                        s.bonuses_at(s.set_type.max_pieces())
-                                            .into_iter()
-                                            .cloned(),
+                                        s.bonuses_at(s.set_type.max_pieces()).into_iter().cloned(),
                                     );
                                     loadout_names.push((s.name.clone(), s.set_type.max_pieces()));
                                 }
                                 if let Some(s) = var_mythic {
                                     loadout_bonuses.extend(
-                                        s.bonuses_at(s.set_type.max_pieces())
-                                            .into_iter()
-                                            .cloned(),
+                                        s.bonuses_at(s.set_type.max_pieces()).into_iter().cloned(),
                                     );
                                     loadout_names.push((s.name.clone(), s.set_type.max_pieces()));
                                 }
@@ -355,21 +336,20 @@ impl SetOptimizer {
                                 let proc_dps: f64 = loadout_names
                                     .iter()
                                     .flat_map(|(name, _)| {
-                                        ALL_SETS
-                                            .iter()
-                                            .filter(move |s| s.name == *name)
-                                            .flat_map(|s| {
+                                        ALL_SETS.iter().filter(move |s| s.name == *name).flat_map(
+                                            |s| {
                                                 s.proc_effects_at(s.set_type.max_pieces())
                                                     .into_iter()
                                                     .map(|p| p.estimated_dps())
-                                            })
+                                            },
+                                        )
                                     })
                                     .sum();
                                 let damage = b.total_damage_per_cast + proc_dps;
 
                                 evaluated_count.fetch_add(1, Ordering::Relaxed);
-                                let _ = best_damage_bits
-                                    .fetch_max(damage.to_bits(), Ordering::Relaxed);
+                                let _ =
+                                    best_damage_bits.fetch_max(damage.to_bits(), Ordering::Relaxed);
 
                                 if best.as_ref().map_or(true, |b| damage > b.damage) {
                                     best = Some(LoadoutCandidate {
@@ -506,7 +486,10 @@ mod tests {
 
         let result = result.expect("Should find a loadout with pinned normal set");
         assert!(
-            result.set_names.iter().any(|(name, _)| name == "Mother's Sorrow"),
+            result
+                .set_names
+                .iter()
+                .any(|(name, _)| name == "Mother's Sorrow"),
             "Pinned set should appear in result: {:?}",
             result.set_names
         );
@@ -531,7 +514,10 @@ mod tests {
 
         let result = result.expect("Should find a loadout with pinned mythic");
         assert!(
-            result.set_names.iter().any(|(name, _)| name == "Harpooner's Wading Kilt"),
+            result
+                .set_names
+                .iter()
+                .any(|(name, _)| name == "Harpooner's Wading Kilt"),
             "Pinned mythic should appear in result: {:?}",
             result.set_names
         );
@@ -585,9 +571,18 @@ mod tests {
 
         let result = result.expect("Should find a loadout with all pinned");
         // When all slots are pinned, the result should contain exactly those sets
-        assert!(result.set_names.iter().any(|(name, _)| name == "Mother's Sorrow"));
-        assert!(result.set_names.iter().any(|(name, _)| name == "Law of Julianos"));
+        assert!(result
+            .set_names
+            .iter()
+            .any(|(name, _)| name == "Mother's Sorrow"));
+        assert!(result
+            .set_names
+            .iter()
+            .any(|(name, _)| name == "Law of Julianos"));
         assert!(result.set_names.iter().any(|(name, _)| name == "Zaan"));
-        assert!(result.set_names.iter().any(|(name, _)| name == "Harpooner's Wading Kilt"));
+        assert!(result
+            .set_names
+            .iter()
+            .any(|(name, _)| name == "Harpooner's Wading Kilt"));
     }
 }

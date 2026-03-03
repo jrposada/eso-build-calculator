@@ -1,4 +1,3 @@
-
 use crate::domain::{BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue};
 use once_cell::sync::Lazy;
 
@@ -27,4 +26,3 @@ pub static KHAJIIT_BONUSES: Lazy<Vec<BonusData>> = Lazy::new(|| {
         .with_skill_id(45301),
     ]
 });
-

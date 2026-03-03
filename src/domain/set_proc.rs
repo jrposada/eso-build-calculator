@@ -40,9 +40,7 @@ pub enum SetProcAction {
         at_max_buff_duration: f64,
     },
     /// Flat bonus added to every light attack's base damage
-    FlatLightAttackBonus {
-        value: f64,
-    },
+    FlatLightAttackBonus { value: f64 },
     /// Resource-scaling buff (e.g. Bahsei's Mania, Coral Riptide)
     /// Linear (threshold_pct=None): bonus = max_value * (1 - avg_resource_pct/100)
     /// Threshold (threshold_pct=Some(t)): bonus = max_value if avg_resource_pct < t, else 0
@@ -79,7 +77,11 @@ impl SetProcEffect {
                 dot_total_damage,
                 ..
             } => {
-                let cd = if self.cooldown > 0.0 { self.cooldown } else { 1.0 };
+                let cd = if self.cooldown > 0.0 {
+                    self.cooldown
+                } else {
+                    1.0
+                };
                 (hit_damage + dot_total_damage) / cd * modifier_estimate
             }
             SetProcAction::StackingBuff {

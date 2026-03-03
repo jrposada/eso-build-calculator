@@ -55,9 +55,9 @@ impl WeaponType {
             | WeaponType::DualWieldAxe
             | WeaponType::DualWieldMace
             | WeaponType::DualWieldDagger => SkillLineName::DualWield,
-            WeaponType::InfernoStaff
-            | WeaponType::LightningStaff
-            | WeaponType::IceStaff => SkillLineName::DestructionStaff,
+            WeaponType::InfernoStaff | WeaponType::LightningStaff | WeaponType::IceStaff => {
+                SkillLineName::DestructionStaff
+            }
             WeaponType::Bow => SkillLineName::Bow,
         }
     }

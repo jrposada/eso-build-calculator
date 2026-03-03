@@ -4,7 +4,8 @@ use crate::data::bonuses::{
     EMPOWER, MAJOR_BREACH, MAJOR_PROPHECY, MAJOR_SAVAGERY, MAJOR_VULNERABILITY,
 };
 use crate::domain::{
-    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, ClassName, DamageFlags, DotDamage, HitDamage, Resource, SkillDamage, SkillData, SkillLineName,
+    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, ClassName, DamageFlags,
+    DotDamage, HitDamage, Resource, SkillDamage, SkillData, SkillLineName,
 };
 use once_cell::sync::Lazy;
 
@@ -18,9 +19,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_skill_id(40118404)
-        .with_damage(
-            SkillDamage::new()
-            .with_dots(vec![DotDamage::new(
+        .with_damage(SkillDamage::new().with_dots(vec![DotDamage::new(
             5.0,
             DamageFlags::MAGIC | DamageFlags::AOE,
             0.00282343,
@@ -82,9 +81,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_skill_id(40115115)
-        .with_damage(
-            SkillDamage::new()
-            .with_hits(vec![HitDamage::new(
+        .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::MAGIC | DamageFlags::AOE | DamageFlags::MELEE,
             0.075,
             0.7875,
@@ -108,17 +105,19 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         .with_skill_id(40118308)
         .with_damage(
             SkillDamage::new()
-            .with_hits(vec![HitDamage::new(
-            DamageFlags::FROST | DamageFlags::AOE | DamageFlags::MELEE,
-            0.038737,
-            0.406744,
-        )])
-            .with_dots(vec![DotDamage::new(
-            4.0,
-            DamageFlags::FROST | DamageFlags::SINGLE_TARGET,
-            0.014118,
-            0.148235,
-        ).with_interval(1.0)])),
+                .with_hits(vec![HitDamage::new(
+                    DamageFlags::FROST | DamageFlags::AOE | DamageFlags::MELEE,
+                    0.038737,
+                    0.406744,
+                )])
+                .with_dots(vec![DotDamage::new(
+                    4.0,
+                    DamageFlags::FROST | DamageFlags::SINGLE_TARGET,
+                    0.014118,
+                    0.148235,
+                )
+                .with_interval(1.0)]),
+        ),
         SkillData::new(
             "Grave Grasp",
             "Grave Grasp",
@@ -135,9 +134,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_skill_id(40118223)
-        .with_damage(
-            SkillDamage::new()
-            .with_hits(vec![HitDamage::new(
+        .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::MAGIC | DamageFlags::AOE | DamageFlags::MELEE,
             0.077475,
             0.813488,
@@ -158,9 +155,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Ultimate,
         )
         .with_skill_id(40118664)
-        .with_damage(
-            SkillDamage::new()
-            .with_hits(vec![HitDamage::new(
+        .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::PHYSICAL | DamageFlags::AOE | DamageFlags::MELEE,
             0.077475,
             0.813488,
@@ -173,9 +168,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Ultimate,
         )
         .with_skill_id(40118279)
-        .with_damage(
-            SkillDamage::new()
-            .with_dots(vec![DotDamage::new(
+        .with_damage(SkillDamage::new().with_dots(vec![DotDamage::new(
             20.0,
             DamageFlags::MAGIC | DamageFlags::AOE,
             0.05,
@@ -197,9 +190,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Stamina,
         )
         .with_skill_id(40118226)
-        .with_damage(
-            SkillDamage::new()
-            .with_hits(vec![HitDamage::new(
+        .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::BLEED | DamageFlags::AOE | DamageFlags::MELEE,
             0.077475,
             0.813488,
@@ -222,22 +213,28 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         .with_skill_id(40117850)
         .with_damage(
             SkillDamage::new()
-            .with_hits(vec![HitDamage::new(
-            DamageFlags::FROST | DamageFlags::AOE | DamageFlags::MELEE,
-            0.1,
-            1.05,
-        )])
-            .with_dots(vec![DotDamage::new(
-            10.0,
-            DamageFlags::FROST | DamageFlags::AOE,
-            0.012521,
-            0.131473,
-        ).with_interval(1.0)]))
+                .with_hits(vec![HitDamage::new(
+                    DamageFlags::FROST | DamageFlags::AOE | DamageFlags::MELEE,
+                    0.1,
+                    1.05,
+                )])
+                .with_dots(vec![DotDamage::new(
+                    10.0,
+                    DamageFlags::FROST | DamageFlags::AOE,
+                    0.012521,
+                    0.131473,
+                )
+                .with_interval(1.0)]),
+        )
         .with_bonuses(vec![BonusData::new(
             "Avid Boneyard",
             BonusSource::Skill,
             BonusTrigger::Cast,
-            BonusValue::new("Avid Boneyard Corpse", BonusTarget::WeaponAndSpellDamageFlat, 300.0),
+            BonusValue::new(
+                "Avid Boneyard Corpse",
+                BonusTarget::WeaponAndSpellDamageFlat,
+                300.0,
+            ),
         )
         .with_duration(10.0)]),
         SkillData::new(
@@ -248,8 +245,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Stamina,
         )
         .with_skill_id(40117690)
-        .with_damage(
-            SkillDamage::new().with_hits(vec![
+        .with_damage(SkillDamage::new().with_hits(vec![
             HitDamage::new(DamageFlags::disease_aoe(), 0.12, 1.26).with_delay(2.5),
         ])),
         SkillData::new(
@@ -262,22 +258,28 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         .with_skill_id(40115252)
         .with_damage(
             SkillDamage::new()
-            .with_hits(vec![HitDamage::new(
-            DamageFlags::FROST | DamageFlags::AOE | DamageFlags::MELEE,
-            0.1,
-            1.05,
-        )])
-            .with_dots(vec![DotDamage::new(
-            10.0,
-            DamageFlags::FROST | DamageFlags::AOE,
-            0.012121,
-            0.127273,
-        ).with_interval(1.0)]))
+                .with_hits(vec![HitDamage::new(
+                    DamageFlags::FROST | DamageFlags::AOE | DamageFlags::MELEE,
+                    0.1,
+                    1.05,
+                )])
+                .with_dots(vec![DotDamage::new(
+                    10.0,
+                    DamageFlags::FROST | DamageFlags::AOE,
+                    0.012121,
+                    0.127273,
+                )
+                .with_interval(1.0)]),
+        )
         .with_bonuses(vec![BonusData::new(
             "Boneyard",
             BonusSource::Skill,
             BonusTrigger::Cast,
-            BonusValue::new("Boneyard Corpse", BonusTarget::WeaponAndSpellDamageFlat, 300.0),
+            BonusValue::new(
+                "Boneyard Corpse",
+                BonusTarget::WeaponAndSpellDamageFlat,
+                300.0,
+            ),
         )
         .with_duration(10.0)]),
         SkillData::new(
@@ -302,7 +304,8 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
                     0.05165,
                     0.542325,
                 )
-                .with_delay(12.0)]))
+                .with_delay(12.0)]),
+        )
         .with_bonuses(vec![
             BonusData::new(
                 "Detonating Siphon",
@@ -325,9 +328,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_skill_id(40114108)
-        .with_damage(
-            SkillDamage::new()
-            .with_hits(vec![HitDamage::new(
+        .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::FLAME | DamageFlags::SINGLE_TARGET,
             0.09,
             0.945,
@@ -341,8 +342,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Ultimate,
         )
         .with_skill_id(40122174)
-        .with_damage(
-            SkillDamage::new().with_hits(vec![
+        .with_damage(SkillDamage::new().with_hits(vec![
             HitDamage::new(DamageFlags::frost_aoe(), 0.15, 1.575),
             HitDamage::new(DamageFlags::frost_aoe(), 0.15, 1.575).with_delay(1.0),
             HitDamage::new(DamageFlags::frost_aoe(), 0.15, 1.575).with_delay(2.0),
@@ -356,8 +356,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Ultimate,
         )
         .with_skill_id(40122388)
-        .with_damage(
-            SkillDamage::new().with_hits(vec![
+        .with_damage(SkillDamage::new().with_hits(vec![
             HitDamage::new(DamageFlags::frost_aoe(), 0.15495, 1.62698),
             HitDamage::new(DamageFlags::frost_aoe(), 0.15495, 1.62698).with_delay(1.0),
             HitDamage::new(DamageFlags::frost_aoe(), 0.15495, 1.62698).with_delay(2.0),
@@ -385,9 +384,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_skill_id(40118008)
-        .with_damage(
-            SkillDamage::new()
-            .with_dots(vec![DotDamage::new(
+        .with_damage(SkillDamage::new().with_dots(vec![DotDamage::new(
             19.3,
             DamageFlags::SHOCK | DamageFlags::AOE,
             0.009182,
@@ -415,8 +412,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Ultimate,
         )
         .with_skill_id(40122395)
-        .with_damage(
-            SkillDamage::new().with_hits(vec![
+        .with_damage(SkillDamage::new().with_hits(vec![
             HitDamage::new(DamageFlags::disease_aoe(), 0.15495, 1.62698),
             HitDamage::new(DamageFlags::disease_aoe(), 0.15495, 1.62698).with_delay(1.0),
             HitDamage::new(DamageFlags::disease_aoe(), 0.15495, 1.62698).with_delay(2.0),
@@ -430,9 +426,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_skill_id(40117637)
-        .with_damage(
-            SkillDamage::new()
-            .with_hits(vec![HitDamage::new(
+        .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::FLAME | DamageFlags::SINGLE_TARGET,
             0.09297,
             0.97619,
@@ -460,9 +454,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_skill_id(40115924)
-        .with_damage(
-            SkillDamage::new()
-            .with_dots(vec![DotDamage::new(
+        .with_damage(SkillDamage::new().with_dots(vec![DotDamage::new(
             19.3,
             DamageFlags::SHOCK | DamageFlags::AOE,
             0.008888,
@@ -490,9 +482,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_skill_id(40118726)
-        .with_damage(
-            SkillDamage::new()
-            .with_hits(vec![HitDamage::new(
+        .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::SHOCK | DamageFlags::SINGLE_TARGET,
             0.02066,
             0.21693,
@@ -501,7 +491,11 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Skeletal Arcanist",
             BonusSource::Skill,
             BonusTrigger::Cast,
-            BonusValue::new("Arcanist Corpse", BonusTarget::WeaponAndSpellDamageFlat, 300.0),
+            BonusValue::new(
+                "Arcanist Corpse",
+                BonusTarget::WeaponAndSpellDamageFlat,
+                300.0,
+            ),
         )
         .with_duration(20.0)]),
         SkillData::new(
@@ -512,8 +506,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Stamina,
         )
         .with_skill_id(40118680)
-        .with_damage(
-            SkillDamage::new().with_dots(vec![DotDamage::new(
+        .with_damage(SkillDamage::new().with_dots(vec![DotDamage::new(
             20.0,
             DamageFlags::physical_single(),
             0.02066,
@@ -525,7 +518,11 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             "Skeletal Archer",
             BonusSource::Skill,
             BonusTrigger::Cast,
-            BonusValue::new("Archer Corpse", BonusTarget::WeaponAndSpellDamageFlat, 300.0),
+            BonusValue::new(
+                "Archer Corpse",
+                BonusTarget::WeaponAndSpellDamageFlat,
+                300.0,
+            ),
         )
         .with_duration(20.0)]),
         SkillData::new(
@@ -536,9 +533,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_skill_id(40114317)
-        .with_damage(
-            SkillDamage::new()
-            .with_hits(vec![HitDamage::new(
+        .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::SHOCK | DamageFlags::SINGLE_TARGET,
             0.02,
             0.21,
@@ -560,23 +555,29 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         .with_skill_id(40117805)
         .with_damage(
             SkillDamage::new()
-            .with_hits(vec![HitDamage::new(
-            DamageFlags::FROST | DamageFlags::AOE | DamageFlags::MELEE,
-            0.1,
-            1.05,
-        )])
-            .with_dots(vec![DotDamage::new(
-            10.0,
-            DamageFlags::FROST | DamageFlags::AOE,
-            0.012521,
-            0.131473,
-        ).with_interval(1.0)]))
+                .with_hits(vec![HitDamage::new(
+                    DamageFlags::FROST | DamageFlags::AOE | DamageFlags::MELEE,
+                    0.1,
+                    1.05,
+                )])
+                .with_dots(vec![DotDamage::new(
+                    10.0,
+                    DamageFlags::FROST | DamageFlags::AOE,
+                    0.012521,
+                    0.131473,
+                )
+                .with_interval(1.0)]),
+        )
         .with_bonuses(vec![
             BonusData::new(
                 "Unnerving Boneyard",
                 BonusSource::Skill,
                 BonusTrigger::Cast,
-                BonusValue::new("Unnerving Boneyard Corpse", BonusTarget::WeaponAndSpellDamageFlat, 300.0),
+                BonusValue::new(
+                    "Unnerving Boneyard Corpse",
+                    BonusTarget::WeaponAndSpellDamageFlat,
+                    300.0,
+                ),
             )
             .with_duration(10.0),
             MAJOR_BREACH.clone(),
@@ -589,9 +590,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Stamina,
         )
         .with_skill_id(40117624)
-        .with_damage(
-            SkillDamage::new()
-            .with_hits(vec![HitDamage::new(
+        .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::POISON | DamageFlags::SINGLE_TARGET,
             0.09297,
             0.97619,

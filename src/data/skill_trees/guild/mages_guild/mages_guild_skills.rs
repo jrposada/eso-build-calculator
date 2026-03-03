@@ -4,7 +4,8 @@ use crate::data::bonuses::unique::{
     MAJOR_BRUTALITY, MAJOR_PROPHECY, MAJOR_SAVAGERY, MAJOR_SORCERY,
 };
 use crate::domain::{
-    BonusTrigger, ClassName, DamageFlags, DotDamage, HitDamage, Resource, SkillDamage, SkillData, SkillLineName,
+    BonusTrigger, ClassName, DamageFlags, DotDamage, HitDamage, Resource, SkillDamage, SkillData,
+    SkillLineName,
 };
 use once_cell::sync::Lazy;
 
@@ -26,9 +27,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_skill_id(42224)
-        .with_damage(
-            SkillDamage::new()
-            .with_dots(vec![DotDamage::new(
+        .with_damage(SkillDamage::new().with_dots(vec![DotDamage::new(
             20.0,
             DamageFlags::MAGIC | DamageFlags::SINGLE_TARGET,
             0.018782,
@@ -43,9 +42,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_skill_id(42207)
-        .with_damage(
-            SkillDamage::new()
-            .with_dots(vec![DotDamage::new(
+        .with_damage(SkillDamage::new().with_dots(vec![DotDamage::new(
             20.0,
             DamageFlags::MAGIC | DamageFlags::SINGLE_TARGET,
             0.018182,
@@ -67,9 +64,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_skill_id(42305)
-        .with_damage(
-            SkillDamage::new()
-            .with_hits(vec![HitDamage::new(
+        .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::FLAME | DamageFlags::AOE | DamageFlags::MELEE,
             0.1,
             1.05,
@@ -92,17 +87,19 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         .with_skill_id(42478)
         .with_damage(
             SkillDamage::new()
-            .with_hits(vec![HitDamage::new(
-            DamageFlags::FROST | DamageFlags::AOE | DamageFlags::MELEE,
-            0.198853,
-            2.08795,
-        )])
-            .with_dots(vec![DotDamage::new(
-            2.0,
-            DamageFlags::FROST | DamageFlags::AOE,
-            0.056815,
-            0.596557,
-        ).with_interval(1.0)])),
+                .with_hits(vec![HitDamage::new(
+                    DamageFlags::FROST | DamageFlags::AOE | DamageFlags::MELEE,
+                    0.198853,
+                    2.08795,
+                )])
+                .with_dots(vec![DotDamage::new(
+                    2.0,
+                    DamageFlags::FROST | DamageFlags::AOE,
+                    0.056815,
+                    0.596557,
+                )
+                .with_interval(1.0)]),
+        ),
         SkillData::new(
             "Inner Light",
             "Magelight",
@@ -112,8 +109,12 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         )
         .with_skill_id(42430)
         .with_bonuses(vec![
-            MAJOR_SAVAGERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
-            MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SAVAGERY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_PROPHECY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
         ]),
         SkillData::new(
             "Magelight",
@@ -124,8 +125,12 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         )
         .with_skill_id(42418)
         .with_bonuses(vec![
-            MAJOR_SAVAGERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
-            MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SAVAGERY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_PROPHECY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
         ]),
         SkillData::new(
             "Meteor",
@@ -137,17 +142,19 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         .with_skill_id(42467)
         .with_damage(
             SkillDamage::new()
-            .with_hits(vec![HitDamage::new(
-            DamageFlags::FLAME | DamageFlags::AOE | DamageFlags::MELEE,
-            0.175,
-            1.8375,
-        )])
-            .with_dots(vec![DotDamage::new(
-            2.0,
-            DamageFlags::FLAME | DamageFlags::AOE,
-            0.05,
-            0.525,
-        ).with_interval(1.0)])),
+                .with_hits(vec![HitDamage::new(
+                    DamageFlags::FLAME | DamageFlags::AOE | DamageFlags::MELEE,
+                    0.175,
+                    1.8375,
+                )])
+                .with_dots(vec![DotDamage::new(
+                    2.0,
+                    DamageFlags::FLAME | DamageFlags::AOE,
+                    0.05,
+                    0.525,
+                )
+                .with_interval(1.0)]),
+        ),
         SkillData::new(
             "Radiant Magelight",
             "Magelight",
@@ -157,8 +164,12 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         )
         .with_skill_id(42455)
         .with_bonuses(vec![
-            MAJOR_SAVAGERY.clone().with_trigger(BonusTrigger::AbilitySlotted),
-            MAJOR_PROPHECY.clone().with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_SAVAGERY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
+            MAJOR_PROPHECY
+                .clone()
+                .with_trigger(BonusTrigger::AbilitySlotted),
         ]),
         SkillData::new(
             "Scalding Rune",
@@ -170,17 +181,19 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         .with_skill_id(42349)
         .with_damage(
             SkillDamage::new()
-            .with_hits(vec![HitDamage::new(
-            DamageFlags::FLAME | DamageFlags::AOE | DamageFlags::MELEE,
-            0.1033,
-            1.08465,
-        )])
-            .with_dots(vec![DotDamage::new(
-            20.0,
-            DamageFlags::FLAME | DamageFlags::SINGLE_TARGET,
-            0.01127,
-            0.11833,
-        ).with_interval(2.0)])),
+                .with_hits(vec![HitDamage::new(
+                    DamageFlags::FLAME | DamageFlags::AOE | DamageFlags::MELEE,
+                    0.1033,
+                    1.08465,
+                )])
+                .with_dots(vec![DotDamage::new(
+                    20.0,
+                    DamageFlags::FLAME | DamageFlags::SINGLE_TARGET,
+                    0.01127,
+                    0.11833,
+                )
+                .with_interval(2.0)]),
+        ),
         SkillData::new(
             "Shooting Star",
             "Meteor",
@@ -191,17 +204,19 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         .with_skill_id(42492)
         .with_damage(
             SkillDamage::new()
-            .with_hits(vec![HitDamage::new(
-            DamageFlags::FLAME | DamageFlags::AOE | DamageFlags::MELEE,
-            0.18078,
-            1.89814,
-        )])
-            .with_dots(vec![DotDamage::new(
-            2.0,
-            DamageFlags::FLAME | DamageFlags::AOE,
-            0.05165,
-            0.542325,
-        ).with_interval(1.0)])),
+                .with_hits(vec![HitDamage::new(
+                    DamageFlags::FLAME | DamageFlags::AOE | DamageFlags::MELEE,
+                    0.18078,
+                    1.89814,
+                )])
+                .with_dots(vec![DotDamage::new(
+                    2.0,
+                    DamageFlags::FLAME | DamageFlags::AOE,
+                    0.05165,
+                    0.542325,
+                )
+                .with_interval(1.0)]),
+        ),
         SkillData::new(
             "Spell Symmetry",
             "Spell Symmetry",
@@ -218,9 +233,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_skill_id(42240)
-        .with_damage(
-            SkillDamage::new()
-            .with_dots(vec![DotDamage::new(
+        .with_damage(SkillDamage::new().with_dots(vec![DotDamage::new(
             20.0,
             DamageFlags::MAGIC | DamageFlags::SINGLE_TARGET,
             0.018782,
@@ -274,9 +287,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
             Resource::Magicka,
         )
         .with_skill_id(42327)
-        .with_damage(
-            SkillDamage::new()
-            .with_hits(vec![HitDamage::new(
+        .with_damage(SkillDamage::new().with_hits(vec![HitDamage::new(
             DamageFlags::FLAME | DamageFlags::AOE | DamageFlags::MELEE,
             0.1033,
             1.08465,

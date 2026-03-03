@@ -1,6 +1,6 @@
 use super::{
     formulas, BonusData, BonusTarget, CharacterStats, ClassName, DamageFlags, ExecuteData,
-    ExecuteScaling, ResolvedBonus, ResolveContext, Resource, SkillDamage, SkillLineName,
+    ExecuteScaling, ResolveContext, ResolvedBonus, Resource, SkillDamage, SkillLineName,
     SkillMechanic,
 };
 use serde::{Deserialize, Serialize};
@@ -221,7 +221,8 @@ impl SkillData {
         }
 
         let armor_factor = formulas::armor_damage_factor(stats.target_armor, stats.penetration);
-        let crit_mult = formulas::critical_multiplier(stats.critical_chance(), stats.critical_damage);
+        let crit_mult =
+            formulas::critical_multiplier(stats.critical_chance(), stats.critical_damage);
 
         total_damage_per_cast * armor_factor * crit_mult * (1.0 + enemy_damage_taken)
     }

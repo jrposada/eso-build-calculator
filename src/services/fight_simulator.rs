@@ -334,8 +334,10 @@ impl FightSimulator {
 
                     // 1. Light attack damage (uses current buffs)
                     let la_data = light_attack_for_weapon(current_weapon);
-                    let (la_done_base, la_taken_base) = self.compute_modifier_for_flags(la_data.flags, None, health_pct);
-                    let (la_done_buff, la_taken_buff) = self.compute_buff_modifier_for_flags(la_data.flags, &state.active_buffs);
+                    let (la_done_base, la_taken_base) =
+                        self.compute_modifier_for_flags(la_data.flags, None, health_pct);
+                    let (la_done_buff, la_taken_buff) =
+                        self.compute_buff_modifier_for_flags(la_data.flags, &state.active_buffs);
                     let mut la_dmg = la_data.calculate_damage(
                         la_done_base + la_done_buff,
                         la_taken_base + la_taken_buff,
@@ -371,8 +373,10 @@ impl FightSimulator {
                             let base_dmg = enchant.base_damage();
                             if base_dmg > 0.0 {
                                 let flags = enchant.damage_flags();
-                                let (done_base, taken_base) = self.compute_modifier_for_flags(flags, None, health_pct);
-                                let (done_buff, taken_buff) = self.compute_buff_modifier_for_flags(flags, &state.active_buffs);
+                                let (done_base, taken_base) =
+                                    self.compute_modifier_for_flags(flags, None, health_pct);
+                                let (done_buff, taken_buff) = self
+                                    .compute_buff_modifier_for_flags(flags, &state.active_buffs);
                                 let enchant_dmg = base_dmg
                                     * (1.0 + done_base + done_buff)
                                     * (1.0 + taken_base + taken_buff)
@@ -386,11 +390,17 @@ impl FightSimulator {
                             // Register status effect as active DoT
                             if let Some(status) = enchant.status_effect() {
                                 let tick_value = status.total_damage;
-                                let (done_base, taken_base) = self.compute_modifier_for_flags(status.flags, None, health_pct);
-                                let (done_buff, taken_buff) = self.compute_buff_modifier_for_flags(status.flags, &state.active_buffs);
+                                let (done_base, taken_base) =
+                                    self.compute_modifier_for_flags(status.flags, None, health_pct);
+                                let (done_buff, taken_buff) = self.compute_buff_modifier_for_flags(
+                                    status.flags,
+                                    &state.active_buffs,
+                                );
 
                                 // Remove existing status effect of same type
-                                state.active_effects.retain(|e| e.source_skill_name != status.name);
+                                state
+                                    .active_effects
+                                    .retain(|e| e.source_skill_name != status.name);
 
                                 state.active_effects.push(ActiveEffect {
                                     source_skill_name: status.name.to_string(),
@@ -417,13 +427,23 @@ impl FightSimulator {
                     }
 
                     // 1c. Set proc triggers: OnLightAttack
-                    self.process_set_procs(SetProcTrigger::OnLightAttack, &buffed, &mut state, health_pct);
+                    self.process_set_procs(
+                        SetProcTrigger::OnLightAttack,
+                        &buffed,
+                        &mut state,
+                        health_pct,
+                    );
 
                     // 2. Skill hit damage (instant portion), gated by proc requirement
                     let hit_dmg = if let Some(threshold) = skill.proc_light_attacks {
                         let counter = state.proc_counters.get(&skill.name).copied().unwrap_or(0);
                         if counter >= threshold {
-                            let dmg = self.calc_skill_hits(skill, &buffed, &state.active_buffs, health_pct);
+                            let dmg = self.calc_skill_hits(
+                                skill,
+                                &buffed,
+                                &state.active_buffs,
+                                health_pct,
+                            );
                             state.proc_counters.insert(skill.name.clone(), 0);
                             dmg
                         } else {
@@ -443,31 +463,46 @@ impl FightSimulator {
 
                     // 2b. Set proc triggers: OnDirectDamage (after skill hit)
                     if hit_dmg > 0.0 {
-                        self.process_set_procs(SetProcTrigger::OnDirectDamage, &buffed, &mut state, health_pct);
+                        self.process_set_procs(
+                            SetProcTrigger::OnDirectDamage,
+                            &buffed,
+                            &mut state,
+                            health_pct,
+                        );
                     }
 
                     // 3. Register/refresh DoTs as active effects (snapshot at cast time)
                     if let Some(damage) = &skill.damage {
                         if let Some(dots) = &damage.dots {
                             for dot in dots {
-                                let base_value = dot.effective_value(buffed.max_stat, buffed.max_power);
+                                let base_value =
+                                    dot.effective_value(buffed.max_stat, buffed.max_power);
                                 let interval = dot.interval.unwrap_or(dot.duration);
                                 let total_ticks = (dot.duration / interval).floor() as i32;
                                 let delay = dot.delay.unwrap_or(0.0);
 
                                 // Snapshot modifier at cast time (includes execute bonuses if currently in range)
-                                let (snapshotted_done, snapshotted_taken) = if dot.ignores_modifier.unwrap_or(false) {
-                                    (0.0, 0.0)
-                                } else {
-                                    let (done_base, taken_base) = self.compute_modifier_for_flags(dot.flags, Some(skill.skill_line), health_pct);
-                                    let (done_buff, taken_buff) = self.compute_buff_modifier_for_flags(dot.flags, &state.active_buffs);
-                                    (done_base + done_buff, taken_base + taken_buff)
-                                };
+                                let (snapshotted_done, snapshotted_taken) =
+                                    if dot.ignores_modifier.unwrap_or(false) {
+                                        (0.0, 0.0)
+                                    } else {
+                                        let (done_base, taken_base) = self
+                                            .compute_modifier_for_flags(
+                                                dot.flags,
+                                                Some(skill.skill_line),
+                                                health_pct,
+                                            );
+                                        let (done_buff, taken_buff) = self
+                                            .compute_buff_modifier_for_flags(
+                                                dot.flags,
+                                                &state.active_buffs,
+                                            );
+                                        (done_base + done_buff, taken_base + taken_buff)
+                                    };
 
                                 // Remove existing effect from same skill
                                 state.active_effects.retain(|e| {
-                                    e.source_skill_name != skill.name
-                                        || e.flags != dot.flags
+                                    e.source_skill_name != skill.name || e.flags != dot.flags
                                 });
 
                                 state.active_effects.push(ActiveEffect {
@@ -481,7 +516,9 @@ impl FightSimulator {
                                     flags: dot.flags,
                                     coefficients: dot.coefficients,
                                     increase_per_tick: dot.increase_per_tick.unwrap_or(0.0),
-                                    flat_increase_per_tick: dot.flat_increase_per_tick.unwrap_or(0.0),
+                                    flat_increase_per_tick: dot
+                                        .flat_increase_per_tick
+                                        .unwrap_or(0.0),
                                     ignores_modifier: dot.ignores_modifier.unwrap_or(false),
                                     snapshotted_done_modifier: snapshotted_done,
                                     snapshotted_taken_modifier: snapshotted_taken,
@@ -493,7 +530,12 @@ impl FightSimulator {
                     }
 
                     // 3b. Set proc triggers: OnDealDamage (after all damage)
-                    self.process_set_procs(SetProcTrigger::OnDealDamage, &buffed, &mut state, health_pct);
+                    self.process_set_procs(
+                        SetProcTrigger::OnDealDamage,
+                        &buffed,
+                        &mut state,
+                        health_pct,
+                    );
 
                     // 4. Register/refresh Cast buffs from skill bonuses
                     self.register_cast_buffs(&mut state, skill);
@@ -583,10 +625,8 @@ impl FightSimulator {
     fn compute_buffed_context(&self, active_buffs: &[ActiveBuff]) -> BuffedContext {
         let stats = self.apply_buffs_to_stats(active_buffs);
 
-        let armor_factor = crate::domain::formulas::armor_damage_factor(
-            stats.target_armor,
-            stats.penetration,
-        );
+        let armor_factor =
+            crate::domain::formulas::armor_damage_factor(stats.target_armor, stats.penetration);
         let crit_mult = crate::domain::formulas::critical_multiplier(
             stats.critical_chance(),
             stats.critical_damage,
@@ -620,11 +660,7 @@ impl FightSimulator {
     }
 
     /// Register permanent buffs from AbilitySlotted bonuses on all skills.
-    fn register_ability_slotted_buffs(
-        &self,
-        state: &mut SimState,
-        distribution: &BarDistribution,
-    ) {
+    fn register_ability_slotted_buffs(&self, state: &mut SimState, distribution: &BarDistribution) {
         for skill in distribution
             .bar1
             .skills
@@ -692,11 +728,7 @@ impl FightSimulator {
         }
     }
 
-    fn advance_time(
-        &self,
-        state: &mut SimState,
-        target_time: f64,
-    ) {
+    fn advance_time(&self, state: &mut SimState, target_time: f64) {
         let dt = target_time - state.time;
         if dt <= 0.0 {
             return;
@@ -705,7 +737,7 @@ impl FightSimulator {
         // Accumulate buff uptimes before expiring
         for buff in &state.active_buffs {
             let active_time = match buff.remaining_duration {
-                None => dt,                       // permanent — active full dt
+                None => dt,                           // permanent — active full dt
                 Some(remaining) => dt.min(remaining), // may expire partway
             };
             *state.buff_uptimes.entry(buff.name.clone()).or_insert(0.0) += active_time;
@@ -817,23 +849,26 @@ impl FightSimulator {
         }
 
         // Priority 8a: Non-execute spammable or channeled filler
-        if let Some(idx) = current_skills.iter().position(|s| {
-            (s.spammable || s.channel_time.is_some()) && s.execute.is_none()
-        }) {
+        if let Some(idx) = current_skills
+            .iter()
+            .position(|s| (s.spammable || s.channel_time.is_some()) && s.execute.is_none())
+        {
             return Action::CastSkill(idx);
         }
 
         // Priority 8b: Execute spammable as fallback (above threshold, base damage only)
-        if let Some(idx) = current_skills.iter().position(|s| {
-            s.spammable && s.execute.is_some()
-        }) {
+        if let Some(idx) = current_skills
+            .iter()
+            .position(|s| s.spammable && s.execute.is_some())
+        {
             return Action::CastSkill(idx);
         }
 
         // Priority 9: Any skill with damage on current bar (exclude unready proc skills)
-        if let Some(idx) = current_skills.iter().position(|s| {
-            s.damage.is_some() && !self.is_unready_proc(state, s)
-        }) {
+        if let Some(idx) = current_skills
+            .iter()
+            .position(|s| s.damage.is_some() && !self.is_unready_proc(state, s))
+        {
             return Action::CastSkill(idx);
         }
 
@@ -848,8 +883,7 @@ impl FightSimulator {
             .iter()
             .any(|e| e.source_skill_name == skill.name && e.remaining_duration > 0.0);
         let has_active_buff = state.active_buffs.iter().any(|b| {
-            b.source_skill_name == skill.name
-                && b.remaining_duration.map_or(false, |d| d > 0.0)
+            b.source_skill_name == skill.name && b.remaining_duration.map_or(false, |d| d > 0.0)
         });
         has_active_effect || has_active_buff
     }
@@ -1006,11 +1040,7 @@ impl FightSimulator {
 
     /// Find a finisher skill on the current bar whose execute threshold the enemy is below.
     /// If multiple finishers qualify, pick the one with highest expected damage at current health.
-    fn find_execute_filler(
-        &self,
-        skills: &[&'static SkillData],
-        health_pct: f64,
-    ) -> Option<usize> {
+    fn find_execute_filler(&self, skills: &[&'static SkillData], health_pct: f64) -> Option<usize> {
         let mut best: Option<(usize, f64)> = None;
         for (idx, skill) in skills.iter().enumerate() {
             if let Some(execute) = &skill.execute {
@@ -1032,7 +1062,10 @@ impl FightSimulator {
         health_pct: f64,
     ) -> bool {
         other_skills.iter().any(|skill| {
-            skill.execute.as_ref().is_some_and(|e| health_pct < e.threshold)
+            skill
+                .execute
+                .as_ref()
+                .is_some_and(|e| health_pct < e.threshold)
         })
     }
 
@@ -1058,7 +1091,8 @@ impl FightSimulator {
                         Some(skill.skill_line),
                         health_pct,
                     );
-                    let (done_buff, taken_buff) = self.compute_buff_modifier_for_flags(hit.flags, active_buffs);
+                    let (done_buff, taken_buff) =
+                        self.compute_buff_modifier_for_flags(hit.flags, active_buffs);
                     let base = hit.effective_value(buffed.max_stat, buffed.max_power);
                     let mut dmg = base
                         * (1.0 + done_base + done_buff)
@@ -1332,7 +1366,8 @@ impl FightSimulator {
         let mut done = 0.0;
         let mut taken = 0.0;
         for b in &self.resolved_bonuses {
-            if !b.skill_line_filter
+            if !b
+                .skill_line_filter
                 .map_or(true, |sl| skill_line.map_or(false, |s| s == sl))
             {
                 continue;

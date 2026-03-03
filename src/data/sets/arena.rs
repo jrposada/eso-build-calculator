@@ -8,7 +8,13 @@ use once_cell::sync::Lazy;
 pub static ARENA_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
     vec![
         SetData::new("Archer's Mind", SetType::Arena)
-            .with_item_slots(vec!["Medium(All)", "Shield", "Weapons(All)", "Neck", "Ring"])
+            .with_item_slots(vec![
+                "Medium(All)",
+                "Shield",
+                "Weapons(All)",
+                "Neck",
+                "Ring",
+            ])
             .with_threshold(
                 2,
                 vec![BonusData::new(
@@ -36,8 +42,7 @@ pub static ARENA_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                     BonusValue::new("Critical Chance", BonusTarget::CriticalRating, 657.0),
                 )],
             ),
-        SetData::new("Caustic Arrow", SetType::Arena)
-            .with_item_slots(vec!["Weapons(Bow)"]),
+        SetData::new("Caustic Arrow", SetType::Arena).with_item_slots(vec!["Weapons(Bow)"]),
         SetData::new("Cruel Flurry", SetType::Arena)
             .with_item_slots(vec!["Weapons(Dagger Sword Mace Axe)"]),
         SetData::new("Crushing Wall", SetType::Arena)
@@ -61,7 +66,11 @@ pub static ARENA_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                     "Elemental Succession 3pc",
                     BonusSource::GearSet,
                     BonusTrigger::Passive,
-                    BonusValue::new("Weapon and Spell Damage", BonusTarget::WeaponAndSpellDamageFlat, 129.0),
+                    BonusValue::new(
+                        "Weapon and Spell Damage",
+                        BonusTarget::WeaponAndSpellDamageFlat,
+                        129.0,
+                    ),
                 )],
             )
             .with_threshold(
@@ -92,13 +101,21 @@ pub static ARENA_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                     "Explosive Rebuke 4pc",
                     BonusSource::GearSet,
                     BonusTrigger::Passive,
-                    BonusValue::new("Weapon and Spell Damage", BonusTarget::WeaponAndSpellDamageFlat, 129.0),
+                    BonusValue::new(
+                        "Weapon and Spell Damage",
+                        BonusTarget::WeaponAndSpellDamageFlat,
+                        129.0,
+                    ),
                 )],
             ),
-        SetData::new("Footman's Fortune", SetType::Arena)
-            .with_item_slots(vec!["Shield", "Weapons(All)", "Heavy(All)", "Neck", "Ring"]),
-        SetData::new("Force Overflow", SetType::Arena)
-            .with_item_slots(vec!["Weapons(Resto)"]),
+        SetData::new("Footman's Fortune", SetType::Arena).with_item_slots(vec![
+            "Shield",
+            "Weapons(All)",
+            "Heavy(All)",
+            "Neck",
+            "Ring",
+        ]),
+        SetData::new("Force Overflow", SetType::Arena).with_item_slots(vec!["Weapons(Resto)"]),
         SetData::new("Frenzied Momentum", SetType::Arena)
             .with_item_slots(vec!["Weapons(Greatsword Maul Battleaxe)"]),
         SetData::new("Gallant Charge", SetType::Arena)
@@ -111,11 +128,14 @@ pub static ARENA_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                     "Glorious Defender 4pc",
                     BonusSource::GearSet,
                     BonusTrigger::Passive,
-                    BonusValue::new("Weapon and Spell Damage", BonusTarget::WeaponAndSpellDamageFlat, 129.0),
+                    BonusValue::new(
+                        "Weapon and Spell Damage",
+                        BonusTarget::WeaponAndSpellDamageFlat,
+                        129.0,
+                    ),
                 )],
             ),
-        SetData::new("Grand Rejuvenation", SetType::Arena)
-            .with_item_slots(vec!["Weapons(Resto)"]),
+        SetData::new("Grand Rejuvenation", SetType::Arena).with_item_slots(vec!["Weapons(Resto)"]),
         SetData::new("Healer's Habit", SetType::Arena)
             .with_item_slots(vec!["Shield", "Weapons(All)", "Light(All)", "Neck", "Ring"])
             .with_threshold(
@@ -133,7 +153,11 @@ pub static ARENA_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                     "Healer's Habit 4pc",
                     BonusSource::GearSet,
                     BonusTrigger::Passive,
-                    BonusValue::new("Weapon and Spell Damage", BonusTarget::WeaponAndSpellDamageFlat, 129.0),
+                    BonusValue::new(
+                        "Weapon and Spell Damage",
+                        BonusTarget::WeaponAndSpellDamageFlat,
+                        129.0,
+                    ),
                 )],
             ),
         SetData::new("Hex Siphon", SetType::Arena)
@@ -153,7 +177,11 @@ pub static ARENA_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                     "Hex Siphon 3pc",
                     BonusSource::GearSet,
                     BonusTrigger::Passive,
-                    BonusValue::new("Weapon and Spell Damage", BonusTarget::WeaponAndSpellDamageFlat, 129.0),
+                    BonusValue::new(
+                        "Weapon and Spell Damage",
+                        BonusTarget::WeaponAndSpellDamageFlat,
+                        129.0,
+                    ),
                 )],
             )
             .with_threshold(
@@ -171,11 +199,21 @@ pub static ARENA_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                     "Hex Siphon 5pc",
                     BonusSource::GearSet,
                     BonusTrigger::Passive,
-                    BonusValue::new("Weapon and Spell Damage", BonusTarget::WeaponAndSpellDamageFlat, 171.0),
+                    BonusValue::new(
+                        "Weapon and Spell Damage",
+                        BonusTarget::WeaponAndSpellDamageFlat,
+                        171.0,
+                    ),
                 )],
             ),
         SetData::new("Hunt Leader", SetType::Arena)
-            .with_item_slots(vec!["Shield", "Weapons(All)", "Medium(All)", "Neck", "Ring"])
+            .with_item_slots(vec![
+                "Shield",
+                "Weapons(All)",
+                "Medium(All)",
+                "Neck",
+                "Ring",
+            ])
             .with_threshold(
                 2,
                 vec![BonusData::new(
@@ -200,15 +238,24 @@ pub static ARENA_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                     "Hunt Leader 4pc",
                     BonusSource::GearSet,
                     BonusTrigger::Passive,
-                    BonusValue::new("Weapon and Spell Damage", BonusTarget::WeaponAndSpellDamageFlat, 129.0),
+                    BonusValue::new(
+                        "Weapon and Spell Damage",
+                        BonusTarget::WeaponAndSpellDamageFlat,
+                        129.0,
+                    ),
                 )],
             ),
-        SetData::new("Mender's Ward", SetType::Arena)
-            .with_item_slots(vec!["Weapons(Resto)"]),
+        SetData::new("Mender's Ward", SetType::Arena).with_item_slots(vec!["Weapons(Resto)"]),
         SetData::new("Merciless Charge", SetType::Arena)
             .with_item_slots(vec!["Weapons(Greatsword Maul Battleaxe)"]),
         SetData::new("Para Bellum", SetType::Arena)
-            .with_item_slots(vec!["Shield", "Weapons(All)", "Medium(All)", "Neck", "Ring"])
+            .with_item_slots(vec![
+                "Shield",
+                "Weapons(All)",
+                "Medium(All)",
+                "Neck",
+                "Ring",
+            ])
             .with_threshold(
                 2,
                 vec![BonusData::new(
@@ -287,14 +334,24 @@ pub static ARENA_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                 )],
             ),
         SetData::new("Pestilent Host", SetType::Arena)
-            .with_item_slots(vec!["Medium(All)", "Shield", "Weapons(All)", "Neck", "Ring"])
+            .with_item_slots(vec![
+                "Medium(All)",
+                "Shield",
+                "Weapons(All)",
+                "Neck",
+                "Ring",
+            ])
             .with_threshold(
                 2,
                 vec![BonusData::new(
                     "Pestilent Host 2pc",
                     BonusSource::GearSet,
                     BonusTrigger::Passive,
-                    BonusValue::new("Offensive Penetration", BonusTarget::PhysicalAndSpellPenetration, 1487.0),
+                    BonusValue::new(
+                        "Offensive Penetration",
+                        BonusTarget::PhysicalAndSpellPenetration,
+                        1487.0,
+                    ),
                 )],
             )
             .with_threshold(
@@ -312,7 +369,11 @@ pub static ARENA_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                     "Pestilent Host 4pc",
                     BonusSource::GearSet,
                     BonusTrigger::Passive,
-                    BonusValue::new("Weapon and Spell Damage", BonusTarget::WeaponAndSpellDamageFlat, 129.0),
+                    BonusValue::new(
+                        "Weapon and Spell Damage",
+                        BonusTarget::WeaponAndSpellDamageFlat,
+                        129.0,
+                    ),
                 )],
             )
             .with_threshold(
@@ -321,11 +382,14 @@ pub static ARENA_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                     "Pestilent Host 5pc",
                     BonusSource::GearSet,
                     BonusTrigger::Passive,
-                    BonusValue::new("Offensive Penetration", BonusTarget::PhysicalAndSpellPenetration, 1487.0),
+                    BonusValue::new(
+                        "Offensive Penetration",
+                        BonusTarget::PhysicalAndSpellPenetration,
+                        1487.0,
+                    ),
                 )],
             ),
-        SetData::new("Point-Blank Snipe", SetType::Arena)
-            .with_item_slots(vec!["Weapons(Bow)"]),
+        SetData::new("Point-Blank Snipe", SetType::Arena).with_item_slots(vec!["Weapons(Bow)"]),
         SetData::new("Precise Regeneration", SetType::Arena)
             .with_item_slots(vec!["Weapons(Resto)"]),
         SetData::new("Puncturing Remedy", SetType::Arena)
@@ -360,19 +424,21 @@ pub static ARENA_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                     "Robes of Destruction Mastery 4pc",
                     BonusSource::GearSet,
                     BonusTrigger::Passive,
-                    BonusValue::new("Weapon and Spell Damage", BonusTarget::WeaponAndSpellDamageFlat, 129.0),
+                    BonusValue::new(
+                        "Weapon and Spell Damage",
+                        BonusTarget::WeaponAndSpellDamageFlat,
+                        129.0,
+                    ),
                 )],
             ),
         SetData::new("Spectral Cloak", SetType::Arena)
             .with_item_slots(vec!["Weapons(Dagger Sword Mace Axe)"]),
         SetData::new("Stinging Slashes", SetType::Arena)
             .with_item_slots(vec!["Weapons(Dagger Sword Mace Axe)"]),
-        SetData::new("Thunderous Volley", SetType::Arena)
-            .with_item_slots(vec!["Weapons(Bow)"]),
+        SetData::new("Thunderous Volley", SetType::Arena).with_item_slots(vec!["Weapons(Bow)"]),
         SetData::new("Titanic Cleave", SetType::Arena)
             .with_item_slots(vec!["Weapons(Greatsword Maul Battleaxe)"]),
-        SetData::new("Virulent Shot", SetType::Arena)
-            .with_item_slots(vec!["Weapons(Bow)"]),
+        SetData::new("Virulent Shot", SetType::Arena).with_item_slots(vec!["Weapons(Bow)"]),
         SetData::new("Void Bash", SetType::Arena)
             .with_item_slots(vec!["Shield", "Weapons(Dagger Sword Mace Axe)"]),
         SetData::new("Wild Impulse", SetType::Arena)
@@ -394,7 +460,11 @@ pub static ARENA_SETS: Lazy<Vec<SetData>> = Lazy::new(|| {
                     "Winterborn 4pc",
                     BonusSource::GearSet,
                     BonusTrigger::Passive,
-                    BonusValue::new("Weapon and Spell Damage", BonusTarget::WeaponAndSpellDamageFlat, 129.0),
+                    BonusValue::new(
+                        "Weapon and Spell Damage",
+                        BonusTarget::WeaponAndSpellDamageFlat,
+                        129.0,
+                    ),
                 )],
             ),
         SetData::new("Wrath of Elements", SetType::Arena)

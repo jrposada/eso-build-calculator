@@ -337,12 +337,13 @@ pub fn stats_differ_significantly(a: &CharacterStats, b: &CharacterStats, thresh
         (va - vb).abs() / max > threshold
     };
 
-    check(a.max_magicka.max(a.max_stamina), b.max_magicka.max(b.max_stamina))
-        || check(
-            a.weapon_damage.max(a.spell_damage),
-            b.weapon_damage.max(b.spell_damage),
-        )
-        || check(a.critical_rating, b.critical_rating)
+    check(
+        a.max_magicka.max(a.max_stamina),
+        b.max_magicka.max(b.max_stamina),
+    ) || check(
+        a.weapon_damage.max(a.spell_damage),
+        b.weapon_damage.max(b.spell_damage),
+    ) || check(a.critical_rating, b.critical_rating)
         || check(a.critical_damage, b.critical_damage)
         || check(a.penetration, b.penetration)
 }

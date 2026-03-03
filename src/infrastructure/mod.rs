@@ -7,5 +7,7 @@ pub use combinatorics::{
     cartesian_product, count_combinations, generate_combinations, CombinationIterator,
 };
 pub use format::{format_duration, format_number};
-pub use logger::{dim, error, info, log, progress, progress_multiline, set_quiet, success, trace, warn};
+pub use logger::{
+    dim, error, info, log, progress, progress_multiline, set_quiet, success, trace, warn,
+};
 pub use table::{table, Align, ColumnDefinition, TableOptions};

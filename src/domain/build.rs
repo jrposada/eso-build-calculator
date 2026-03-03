@@ -1,6 +1,6 @@
 use super::{
     BonusData, BonusSource, BonusTarget, BonusTrigger, CharacterStats, ClassName, DamageFlags,
-    ResolvedBonus, ResolveContext, SkillData, SkillLineName,
+    ResolveContext, ResolvedBonus, SkillData, SkillLineName,
 };
 use crate::infrastructure::{format, table};
 use smallvec::SmallVec;
@@ -75,14 +75,30 @@ impl ModifierLookup {
     pub fn modifier_for(&self, flags: DamageFlags) -> f64 {
         let bits = flags.bits();
         let mut m = self.damage_sum;
-        if bits & 0x0002 != 0 { m += self.bit_sums[1]; }  // PHYSICAL
-        if bits & 0x0004 != 0 { m += self.bit_sums[2]; }  // FLAME
-        if bits & 0x0008 != 0 { m += self.bit_sums[3]; }  // FROST
-        if bits & 0x0010 != 0 { m += self.bit_sums[4]; }  // SHOCK
-        if bits & 0x0100 != 0 { m += self.bit_sums[8]; }  // SINGLE_TARGET
-        if bits & 0x0200 != 0 { m += self.bit_sums[9]; }  // AOE
-        if bits & 0x0400 != 0 { m += self.bit_sums[10]; } // DIRECT
-        if bits & 0x0800 != 0 { m += self.bit_sums[11]; } // DOT
+        if bits & 0x0002 != 0 {
+            m += self.bit_sums[1];
+        } // PHYSICAL
+        if bits & 0x0004 != 0 {
+            m += self.bit_sums[2];
+        } // FLAME
+        if bits & 0x0008 != 0 {
+            m += self.bit_sums[3];
+        } // FROST
+        if bits & 0x0010 != 0 {
+            m += self.bit_sums[4];
+        } // SHOCK
+        if bits & 0x0100 != 0 {
+            m += self.bit_sums[8];
+        } // SINGLE_TARGET
+        if bits & 0x0200 != 0 {
+            m += self.bit_sums[9];
+        } // AOE
+        if bits & 0x0400 != 0 {
+            m += self.bit_sums[10];
+        } // DIRECT
+        if bits & 0x0800 != 0 {
+            m += self.bit_sums[11];
+        } // DOT
         m
     }
 }
@@ -137,7 +153,15 @@ impl Build {
         set_names: Vec<(String, u8)>,
         character_stats: CharacterStats,
     ) -> Self {
-        Self::new_with_extra(skills, cp_bonuses, passive_bonuses, set_bonuses, set_names, character_stats, &[])
+        Self::new_with_extra(
+            skills,
+            cp_bonuses,
+            passive_bonuses,
+            set_bonuses,
+            set_names,
+            character_stats,
+            &[],
+        )
     }
 
     pub fn new_with_extra(
@@ -159,7 +183,11 @@ impl Build {
 
         let mut simple_bonuses: Vec<BonusData> = Vec::new();
         let mut alt_bonuses: Vec<BonusData> = Vec::new();
-        for bonus in cp_bonuses.iter().chain(passive_bonuses.iter()).chain(set_bonuses.iter()) {
+        for bonus in cp_bonuses
+            .iter()
+            .chain(passive_bonuses.iter())
+            .chain(set_bonuses.iter())
+        {
             if !extra_names.is_empty() && extra_names.contains(bonus.name.as_str()) {
                 continue; // suppressed by extra bonus with the same name
             }
@@ -367,8 +395,18 @@ impl Build {
         let mut deferred_effective: SmallVec<[(BonusTarget, f64); 8]> = SmallVec::new();
 
         for rb in cp_pre_resolved.iter().chain(passive_pre_resolved.iter()) {
-            Self::apply_or_defer(&mut intermediate_stats, &mut deferred_intermediate, rb.target, rb.value);
-            Self::apply_or_defer(&mut effective_stats, &mut deferred_effective, rb.target, rb.value);
+            Self::apply_or_defer(
+                &mut intermediate_stats,
+                &mut deferred_intermediate,
+                rb.target,
+                rb.value,
+            );
+            Self::apply_or_defer(
+                &mut effective_stats,
+                &mut deferred_effective,
+                rb.target,
+                rb.value,
+            );
             resolved.push(*rb);
         }
 
@@ -376,8 +414,18 @@ impl Build {
             let bv = bonus.resolve_ref(&default_ctx);
             let multiplier = Self::bonus_multiplier(bonus, skills);
             let applied = bv.value * multiplier;
-            Self::apply_or_defer(&mut intermediate_stats, &mut deferred_intermediate, bv.target, applied);
-            Self::apply_or_defer(&mut effective_stats, &mut deferred_effective, bv.target, applied);
+            Self::apply_or_defer(
+                &mut intermediate_stats,
+                &mut deferred_intermediate,
+                bv.target,
+                applied,
+            );
+            Self::apply_or_defer(
+                &mut effective_stats,
+                &mut deferred_effective,
+                bv.target,
+                applied,
+            );
             resolved.push(ResolvedBonus {
                 target: bv.target,
                 value: bv.value,
@@ -394,7 +442,12 @@ impl Build {
             let chosen = bonus.resolve_ref(&resolve_ctx);
             let multiplier = Self::bonus_multiplier(bonus, skills);
             let applied = chosen.value * multiplier;
-            Self::apply_or_defer(&mut effective_stats, &mut deferred_effective, chosen.target, applied);
+            Self::apply_or_defer(
+                &mut effective_stats,
+                &mut deferred_effective,
+                chosen.target,
+                applied,
+            );
             resolved.push(ResolvedBonus {
                 target: chosen.target,
                 value: chosen.value,
@@ -405,8 +458,10 @@ impl Build {
         Self::apply_deferred_pct(&mut effective_stats, &deferred_effective);
         effective_stats.clamp_caps();
 
-        let armor_factor =
-            super::formulas::armor_damage_factor(effective_stats.target_armor, effective_stats.penetration);
+        let armor_factor = super::formulas::armor_damage_factor(
+            effective_stats.target_armor,
+            effective_stats.penetration,
+        );
         let crit_mult = super::formulas::critical_multiplier(
             effective_stats.critical_chance(),
             effective_stats.critical_damage,
@@ -478,8 +533,7 @@ impl Build {
                     let interval = dot.interval.unwrap_or(dot.duration);
                     let ticks = (dot.duration / interval).floor() as i32;
                     let increase_per_tick = dot.increase_per_tick.unwrap_or(0.0);
-                    let flat_increase_per_tick =
-                        dot.flat_increase_per_tick.unwrap_or(0.0);
+                    let flat_increase_per_tick = dot.flat_increase_per_tick.unwrap_or(0.0);
 
                     for i in 0..ticks {
                         let pct_mult = 1.0 + (i as f64) * increase_per_tick;
@@ -616,22 +670,14 @@ impl Build {
                 if let Some(hits) = &damage.hits {
                     for hit in hits {
                         let modifier = passive_lookup.modifier_for(hit.flags)
-                            + Self::filtered_modifier(
-                                &passive_filtered,
-                                skill_line,
-                                hit.flags,
-                            );
+                            + Self::filtered_modifier(&passive_filtered, skill_line, hit.flags);
                         skill_hit_mods.push(modifier);
                     }
                 }
                 if let Some(dots) = &damage.dots {
                     for dot in dots {
                         let modifier = passive_lookup.modifier_for(dot.flags)
-                            + Self::filtered_modifier(
-                                &passive_filtered,
-                                skill_line,
-                                dot.flags,
-                            );
+                            + Self::filtered_modifier(&passive_filtered, skill_line, dot.flags);
                         skill_dot_mods.push(modifier);
                     }
                 }
@@ -670,8 +716,18 @@ impl Build {
         let mut deferred_effective: SmallVec<[(BonusTarget, f64); 8]> = SmallVec::new();
 
         for rb in cp_pre_resolved {
-            Self::apply_or_defer(&mut intermediate_stats, &mut deferred_intermediate, rb.target, rb.value);
-            Self::apply_or_defer(&mut effective_stats, &mut deferred_effective, rb.target, rb.value);
+            Self::apply_or_defer(
+                &mut intermediate_stats,
+                &mut deferred_intermediate,
+                rb.target,
+                rb.value,
+            );
+            Self::apply_or_defer(
+                &mut effective_stats,
+                &mut deferred_effective,
+                rb.target,
+                rb.value,
+            );
             cp_resolved.push(*rb);
         }
 
@@ -679,8 +735,18 @@ impl Build {
             let bv = bonus.resolve_ref(&default_ctx);
             let multiplier = Self::bonus_multiplier(bonus, skills);
             let applied = bv.value * multiplier;
-            Self::apply_or_defer(&mut intermediate_stats, &mut deferred_intermediate, bv.target, applied);
-            Self::apply_or_defer(&mut effective_stats, &mut deferred_effective, bv.target, applied);
+            Self::apply_or_defer(
+                &mut intermediate_stats,
+                &mut deferred_intermediate,
+                bv.target,
+                applied,
+            );
+            Self::apply_or_defer(
+                &mut effective_stats,
+                &mut deferred_effective,
+                bv.target,
+                applied,
+            );
             cp_resolved.push(ResolvedBonus {
                 target: bv.target,
                 value: bv.value,
@@ -697,7 +763,12 @@ impl Build {
             let chosen = bonus.resolve_ref(&resolve_ctx);
             let multiplier = Self::bonus_multiplier(bonus, skills);
             let applied = chosen.value * multiplier;
-            Self::apply_or_defer(&mut effective_stats, &mut deferred_effective, chosen.target, applied);
+            Self::apply_or_defer(
+                &mut effective_stats,
+                &mut deferred_effective,
+                chosen.target,
+                applied,
+            );
             cp_resolved.push(ResolvedBonus {
                 target: chosen.target,
                 value: chosen.value,
@@ -767,8 +838,7 @@ impl Build {
                 for (hit_idx, hit) in hits.iter().enumerate() {
                     let cp_modifier = cp_ctx.lookup.modifier_for(hit.flags)
                         + Self::filtered_modifier(&cp_ctx.filtered, skill_line, hit.flags);
-                    let total_modifier =
-                        passive_ctx.hit_mods[skill_idx][hit_idx] + cp_modifier;
+                    let total_modifier = passive_ctx.hit_mods[skill_idx][hit_idx] + cp_modifier;
                     let hit_value = hit.effective_value(cp_ctx.max_stat, cp_ctx.max_power);
                     let hit_dmg = hit_value * (1.0 + total_modifier);
                     if let Some(threshold) = hit.execute_threshold {
@@ -783,15 +853,13 @@ impl Build {
                 for (dot_idx, dot) in dots.iter().enumerate() {
                     let cp_modifier = cp_ctx.lookup.modifier_for(dot.flags)
                         + Self::filtered_modifier(&cp_ctx.filtered, skill_line, dot.flags);
-                    let total_modifier =
-                        passive_ctx.dot_mods[skill_idx][dot_idx] + cp_modifier;
+                    let total_modifier = passive_ctx.dot_mods[skill_idx][dot_idx] + cp_modifier;
                     let dot_value = dot.effective_value(cp_ctx.max_stat, cp_ctx.max_power);
 
                     let interval = dot.interval.unwrap_or(dot.duration);
                     let ticks = (dot.duration / interval).floor() as i32;
                     let increase_per_tick = dot.increase_per_tick.unwrap_or(0.0);
-                    let flat_increase_per_tick =
-                        dot.flat_increase_per_tick.unwrap_or(0.0);
+                    let flat_increase_per_tick = dot.flat_increase_per_tick.unwrap_or(0.0);
 
                     for i in 0..ticks {
                         let pct_mult = 1.0 + (i as f64) * increase_per_tick;
@@ -825,7 +893,12 @@ impl Build {
         cp_alt: &[BonusData],
     ) -> f64 {
         let cp_ctx = Self::compute_cp_eval_context(
-            skills, passive_ctx, passive_alt, cp_pre_resolved, cp_ability_count, cp_alt,
+            skills,
+            passive_ctx,
+            passive_alt,
+            cp_pre_resolved,
+            cp_ability_count,
+            cp_alt,
         );
         let mut total = 0.0;
         for (i, skill) in skills.iter().enumerate() {

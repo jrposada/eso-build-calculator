@@ -260,7 +260,11 @@ impl BuildOptimizer {
         }
 
         // Collect extra bonus names to suppress duplicate passives
-        let extra_bonus_names: HashSet<String> = options.extra_bonuses.iter().map(|b| b.name.clone()).collect();
+        let extra_bonus_names: HashSet<String> = options
+            .extra_bonuses
+            .iter()
+            .map(|b| b.name.clone())
+            .collect();
 
         let (mut passive_bonuses_list, mut passive_original) =
             Self::generate_passive_bonuses(&skill_line_combinations, &extra_bonus_names, verbose);
@@ -297,7 +301,11 @@ impl BuildOptimizer {
                 logger::dim(&format!(
                     "Merged {} set bonuses ({}) into {} CP combinations",
                     set_bonuses.len(),
-                    set_names.iter().map(|(n, p)| format!("{} ({}pc)", n, p)).collect::<Vec<_>>().join(", "),
+                    set_names
+                        .iter()
+                        .map(|(n, p)| format!("{} ({}pc)", n, p))
+                        .collect::<Vec<_>>()
+                        .join(", "),
                     champion_point_combinations.len()
                 ));
             }
@@ -306,7 +314,8 @@ impl BuildOptimizer {
         // Merge extra bonuses (e.g. trial dummy buffs) into CP combo buckets
         let extra_bonuses = options.extra_bonuses;
         if !extra_bonuses.is_empty() {
-            let (extra_pre, extra_ability, extra_alt) = Self::three_way_split(extra_bonuses.clone());
+            let (extra_pre, extra_ability, extra_alt) =
+                Self::three_way_split(extra_bonuses.clone());
             for (pre_resolved, ability_count, alt) in &mut champion_point_combinations {
                 pre_resolved.extend_from_slice(&extra_pre);
                 ability_count.extend_from_slice(&extra_ability);
@@ -798,8 +807,8 @@ impl BuildOptimizer {
                 if has_required_finisher {
                     // Only with-finisher builds (required finisher uses 1 slot)
                     let free = base_free_slots - 1;
-                    count += spam_count
-                        * combinatorics::count_combinations(non_spammable.len(), free);
+                    count +=
+                        spam_count * combinatorics::count_combinations(non_spammable.len(), free);
                 } else {
                     // Without finisher: full free slots
                     count += spam_count
@@ -863,9 +872,7 @@ impl BuildOptimizer {
             }
 
             fn try_insert(&mut self, candidate: Candidate) {
-                if self.candidates.len() >= self.capacity
-                    && candidate.damage <= self.min_damage
-                {
+                if self.candidates.len() >= self.capacity && candidate.damage <= self.min_damage {
                     return;
                 }
                 // Binary search for insertion point (descending order)
@@ -922,17 +929,15 @@ impl BuildOptimizer {
                         if count % 1_000_000 == 0 {
                             let last = last_progress_update.swap(count, Ordering::Relaxed);
                             if count > last {
-                                let progress = (count as f64
-                                    / self.total_possible_build_count as f64)
-                                    * 100.0;
+                                let progress =
+                                    (count as f64 / self.total_possible_build_count as f64) * 100.0;
                                 let elapsed = start_time.elapsed().as_secs_f64();
                                 let eta = if progress > 0.0 {
                                     elapsed * (100.0 - progress) / progress
                                 } else {
                                     0.0
                                 };
-                                let best =
-                                    f64::from_bits(best_damage.load(Ordering::Relaxed));
+                                let best = f64::from_bits(best_damage.load(Ordering::Relaxed));
                                 logger::progress(&format!(
                                     "Progress: {:.1}% ({}) | Best: {} | ETA: {}",
                                     progress,
@@ -945,9 +950,7 @@ impl BuildOptimizer {
                     };
 
                     let req_count = self.required_non_spammable.len();
-                    let non_spam_count = BUILD_CONSTRAINTS.skill_count
-                        - 1
-                        - has_finisher as usize;
+                    let non_spam_count = BUILD_CONSTRAINTS.skill_count - 1 - has_finisher as usize;
                     let free_slots = non_spam_count - req_count;
 
                     if self.champion_point_combinations.len() > 1 {
@@ -955,29 +958,24 @@ impl BuildOptimizer {
                         let num_cp = self.champion_point_combinations.len();
 
                         // Passive lookup is constant for this work unit
-                        let (passive_lookup, passive_filtered) =
-                            Build::compute_passive_lookup(
-                                passive_pre_resolved,
-                                passive_ability_count,
-                            );
+                        let (passive_lookup, passive_filtered) = Build::compute_passive_lookup(
+                            passive_pre_resolved,
+                            passive_ability_count,
+                        );
 
                         // Incremental state
                         let mut passive_ctx = None;
                         let mut cp_ctxs = Vec::with_capacity(num_cp);
                         let mut cp_raw_totals = vec![0.0f64; num_cp];
                         let mut cp_skill_damages = vec![[0.0f64; 10]; num_cp];
-                        let mut prev_combo: SmallVec<[&'static SkillData; 10]> =
-                            SmallVec::new();
+                        let mut prev_combo: SmallVec<[&'static SkillData; 10]> = SmallVec::new();
 
-                        let mut combo_iter = combinatorics::CombinationIterator::new(
-                            non_spammable,
-                            free_slots,
-                        );
+                        let mut combo_iter =
+                            combinatorics::CombinationIterator::new(non_spammable, free_slots);
 
                         while let Some(variable) = combo_iter.next() {
                             // Build full combo: [required..., variable..., finisher?, spammable]
-                            let mut combo: SmallVec<[&'static SkillData; 10]> =
-                                SmallVec::new();
+                            let mut combo: SmallVec<[&'static SkillData; 10]> = SmallVec::new();
                             combo.extend_from_slice(&self.required_non_spammable);
                             combo.extend_from_slice(&variable);
                             if let Some(fin) = finisher_skill {
@@ -985,13 +983,11 @@ impl BuildOptimizer {
                             }
                             combo.push(spammable_skill);
 
-                            let first_changed =
-                                req_count + combo_iter.first_changed();
+                            let first_changed = req_count + combo_iter.first_changed();
 
                             let can_incr = passive_ctx.is_some()
-                                && (first_changed..non_spam_count).all(|i| {
-                                    combo[i].skill_line == prev_combo[i].skill_line
-                                });
+                                && (first_changed..non_spam_count)
+                                    .all(|i| combo[i].skill_line == prev_combo[i].skill_line);
 
                             if can_incr {
                                 let pctx = passive_ctx.as_mut().unwrap();
@@ -1010,8 +1006,7 @@ impl BuildOptimizer {
                                 // Update per-CP-combo damages for changed positions
                                 for cp_idx in 0..num_cp {
                                     for i in first_changed..non_spam_count {
-                                        cp_raw_totals[cp_idx] -=
-                                            cp_skill_damages[cp_idx][i];
+                                        cp_raw_totals[cp_idx] -= cp_skill_damages[cp_idx][i];
                                         cp_skill_damages[cp_idx][i] =
                                             Build::single_skill_damage_cached(
                                                 combo[i],
@@ -1019,8 +1014,7 @@ impl BuildOptimizer {
                                                 pctx,
                                                 &cp_ctxs[cp_idx],
                                             );
-                                        cp_raw_totals[cp_idx] +=
-                                            cp_skill_damages[cp_idx][i];
+                                        cp_raw_totals[cp_idx] += cp_skill_damages[cp_idx][i];
                                     }
                                     let damage = cp_raw_totals[cp_idx]
                                         * cp_ctxs[cp_idx].armor_factor
@@ -1037,35 +1031,27 @@ impl BuildOptimizer {
                                 );
 
                                 cp_ctxs.clear();
-                                for (
-                                    cp_idx,
-                                    (cp_pre_resolved, cp_ability_count, cp_alt),
-                                ) in self
-                                    .champion_point_combinations
-                                    .iter()
-                                    .enumerate()
+                                for (cp_idx, (cp_pre_resolved, cp_ability_count, cp_alt)) in
+                                    self.champion_point_combinations.iter().enumerate()
                                 {
-                                    let cp_ctx =
-                                        Build::compute_cp_eval_context(
-                                            &combo,
-                                            &pctx,
-                                            passive_alt,
-                                            cp_pre_resolved,
-                                            cp_ability_count,
-                                            cp_alt,
-                                        );
+                                    let cp_ctx = Build::compute_cp_eval_context(
+                                        &combo,
+                                        &pctx,
+                                        passive_alt,
+                                        cp_pre_resolved,
+                                        cp_ability_count,
+                                        cp_alt,
+                                    );
                                     let mut raw = 0.0;
                                     for (i, skill) in combo.iter().enumerate() {
-                                        let d =
-                                            Build::single_skill_damage_cached(
-                                                skill, i, &pctx, &cp_ctx,
-                                            );
+                                        let d = Build::single_skill_damage_cached(
+                                            skill, i, &pctx, &cp_ctx,
+                                        );
                                         cp_skill_damages[cp_idx][i] = d;
                                         raw += d;
                                     }
                                     cp_raw_totals[cp_idx] = raw;
-                                    let damage =
-                                        raw * cp_ctx.armor_factor * cp_ctx.crit_mult;
+                                    let damage = raw * cp_ctx.armor_factor * cp_ctx.crit_mult;
                                     track(damage, &combo, cp_idx);
                                     cp_ctxs.push(cp_ctx);
                                 }
@@ -1084,18 +1070,14 @@ impl BuildOptimizer {
                         let mut eval_ctx = None;
                         let mut per_skill_damages = [0.0f64; 10];
                         let mut raw_total = 0.0f64;
-                        let mut prev_combo: SmallVec<[&'static SkillData; 10]> =
-                            SmallVec::new();
+                        let mut prev_combo: SmallVec<[&'static SkillData; 10]> = SmallVec::new();
 
-                        let mut combo_iter = combinatorics::CombinationIterator::new(
-                            non_spammable,
-                            free_slots,
-                        );
+                        let mut combo_iter =
+                            combinatorics::CombinationIterator::new(non_spammable, free_slots);
 
                         while let Some(variable) = combo_iter.next() {
                             // Build full combo: [required..., variable..., finisher?, spammable]
-                            let mut combo: SmallVec<[&'static SkillData; 10]> =
-                                SmallVec::new();
+                            let mut combo: SmallVec<[&'static SkillData; 10]> = SmallVec::new();
                             combo.extend_from_slice(&self.required_non_spammable);
                             combo.extend_from_slice(&variable);
                             if let Some(fin) = finisher_skill {
@@ -1103,13 +1085,11 @@ impl BuildOptimizer {
                             }
                             combo.push(spammable_skill);
 
-                            let first_changed =
-                                req_count + combo_iter.first_changed();
+                            let first_changed = req_count + combo_iter.first_changed();
 
                             let can_incr = eval_ctx.is_some()
-                                && (first_changed..non_spam_count).all(|i| {
-                                    combo[i].skill_line == prev_combo[i].skill_line
-                                });
+                                && (first_changed..non_spam_count)
+                                    .all(|i| combo[i].skill_line == prev_combo[i].skill_line);
 
                             if can_incr {
                                 let ctx = eval_ctx.as_ref().unwrap();
@@ -1119,8 +1099,7 @@ impl BuildOptimizer {
                                         Build::single_skill_damage(combo[i], ctx);
                                     raw_total += per_skill_damages[i];
                                 }
-                                let damage =
-                                    raw_total * ctx.armor_factor * ctx.crit_mult;
+                                let damage = raw_total * ctx.armor_factor * ctx.crit_mult;
                                 track(damage, &combo, 0);
                             } else {
                                 let ctx = Build::compute_eval_context(
@@ -1135,12 +1114,10 @@ impl BuildOptimizer {
                                 );
                                 raw_total = 0.0;
                                 for (i, skill) in combo.iter().enumerate() {
-                                    per_skill_damages[i] =
-                                        Build::single_skill_damage(skill, &ctx);
+                                    per_skill_damages[i] = Build::single_skill_damage(skill, &ctx);
                                     raw_total += per_skill_damages[i];
                                 }
-                                let damage =
-                                    raw_total * ctx.armor_factor * ctx.crit_mult;
+                                let damage = raw_total * ctx.armor_factor * ctx.crit_mult;
                                 track(damage, &combo, 0);
                                 eval_ctx = Some(ctx);
                             }

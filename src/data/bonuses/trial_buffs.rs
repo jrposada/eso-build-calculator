@@ -105,22 +105,14 @@ pub static TRIAL_DUMMY_BUFFS: Lazy<Vec<BonusData>> = Lazy::new(|| {
             "Major Vulnerability",
             BonusSource::Buff,
             BonusTrigger::Passive,
-            BonusValue::new(
-                "Major Vulnerability",
-                BonusTarget::EnemyDamageTaken,
-                0.10,
-            ),
+            BonusValue::new("Major Vulnerability", BonusTarget::EnemyDamageTaken, 0.10),
         ),
         // Minor Vulnerability: +5% Enemy Damage Taken
         BonusData::new(
             "Minor Vulnerability",
             BonusSource::Buff,
             BonusTrigger::Passive,
-            BonusValue::new(
-                "Minor Vulnerability",
-                BonusTarget::EnemyDamageTaken,
-                0.05,
-            ),
+            BonusValue::new("Minor Vulnerability", BonusTarget::EnemyDamageTaken, 0.05),
         ),
         // Minor Brittle: +1% Critical Damage
         BonusData::new(
@@ -163,40 +155,24 @@ pub static TRIAL_DUMMY_BUFFS: Lazy<Vec<BonusData>> = Lazy::new(|| {
             "Elemental Catalyst (Flame)",
             BonusSource::Buff,
             BonusTrigger::Passive,
-            BonusValue::new(
-                "Elemental Catalyst (Flame)",
-                BonusTarget::FlameDamage,
-                0.05,
-            ),
+            BonusValue::new("Elemental Catalyst (Flame)", BonusTarget::FlameDamage, 0.05),
         ),
         BonusData::new(
             "Elemental Catalyst (Frost)",
             BonusSource::Buff,
             BonusTrigger::Passive,
-            BonusValue::new(
-                "Elemental Catalyst (Frost)",
-                BonusTarget::FrostDamage,
-                0.05,
-            ),
+            BonusValue::new("Elemental Catalyst (Frost)", BonusTarget::FrostDamage, 0.05),
         ),
         BonusData::new(
             "Elemental Catalyst (Shock)",
             BonusSource::Buff,
             BonusTrigger::Passive,
-            BonusValue::new(
-                "Elemental Catalyst (Shock)",
-                BonusTarget::ShockDamage,
-                0.05,
-            ),
+            BonusValue::new("Elemental Catalyst (Shock)", BonusTarget::ShockDamage, 0.05),
         ),
     ]
 });
 
 /// Names of all trial dummy buffs, used to suppress duplicate buffs in the simulator
 /// when a player's skill provides the same buff that the trial dummy already provides.
-pub static TRIAL_BUFF_NAMES: Lazy<HashSet<String>> = Lazy::new(|| {
-    TRIAL_DUMMY_BUFFS
-        .iter()
-        .map(|b| b.name.clone())
-        .collect()
-});
+pub static TRIAL_BUFF_NAMES: Lazy<HashSet<String>> =
+    Lazy::new(|| TRIAL_DUMMY_BUFFS.iter().map(|b| b.name.clone()).collect());
