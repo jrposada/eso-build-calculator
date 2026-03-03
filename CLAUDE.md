@@ -18,34 +18,26 @@ src/
 ```
 
 #### `cli/` - Command Entry Points
+
 Entry points for CLI commands using `clap`. Each command (e.g., `optimize`, `view`) has its own module that parses arguments and delegates to services.
 
 #### `data/` - Static Data Layer
-Replaces a traditional database. Contains hardcoded game data:
-- `skills/` - Skill definitions by class and weapon type
-- `passives/` - Passive abilities by class and weapon type
-- `bonuses/` - Champion points, unique bonuses
+
+Replaces a traditional database. Contains hardcoded game data.
 
 Data is exposed as static references (`&'static`) via `Lazy` initialization.
 
 #### `domain/` - Domain Layer
-Core business entities and value objects. Contains no external dependencies. Key types:
-- `SkillData`, `PassiveData`, `BonusData` - Core entities
-- `Build` - Aggregate representing a character build
-- Value objects: `DamageType`, `Resource`, `WeaponType`, `ClassName`, etc.
+
+Core business entities and value objects. Contains no external dependencies.
 
 #### `services/` - Orchestration Layer
-Coordinates multiple domain entities and data sources. Services handle:
-- `SkillsService` - Skill filtering, morph selection
-- `PassivesService` - Passive resolution
-- `BuildOptimizer` - Build optimization algorithms
+
+Coordinates multiple domain entities and data sources.
 
 #### `infrastructure/` - Cross-Cutting Concerns
-Utilities shared across layers:
-- `logger` - Console output formatting
-- `format` - Number/duration formatting
-- `table` - Table rendering
-- `combinatorics` - Combination/permutation helpers
+
+Utilities shared across layers.
 
 ## Development
 
