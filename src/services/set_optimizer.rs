@@ -430,7 +430,6 @@ mod tests {
                 get_champion_point("Biting Aura"),
             ],
             required_skills: vec![],
-            forced_morphs: vec![],
             parallelism: 4,
             max_pool_size: None,
             set_bonuses: vec![],

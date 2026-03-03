@@ -25,7 +25,6 @@ pub struct BuildOptimizerOptions {
     pub required_weapon_skill_lines: Vec<SkillLineName>,
     pub required_champion_points: Vec<BonusData>,
     pub required_skills: Vec<&'static SkillData>,
-    pub forced_morphs: Vec<String>,
     pub parallelism: u8,
     pub max_pool_size: Option<usize>,
     pub set_bonuses: Vec<BonusData>,
@@ -92,7 +91,7 @@ impl BuildOptimizer {
         let pure = options.pure;
 
         // Auto-infer constraints from required skills
-        let mut forced_morphs = options.forced_morphs.clone();
+        let mut forced_morphs: Vec<String> = Vec::new();
         for skill in &options.required_skills {
             // Auto-force morph so morph selection picks the correct morph
             if !forced_morphs.contains(&skill.name) {

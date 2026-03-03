@@ -14,6 +14,4 @@ pub use gear_optimizer::{stats_differ_significantly, GearOptimizer, GearOptimize
 pub use passives_service::{PassivesService, PassivesServiceOptions};
 pub use set_optimizer::{SetOptimizer, SetOptimizerOptions};
 pub use sets_service::{SetsService, SetsServiceOptions};
-pub use skills_service::{
-    MorphSelectionOptions, SkillsFilter, SkillsService, SkillsServiceOptions,
-};
+pub use skills_service::{SkillsFilter, SkillsService, SkillsServiceOptions};

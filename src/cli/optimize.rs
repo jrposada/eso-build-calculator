@@ -59,10 +59,6 @@ pub struct OptimizeArgs {
     #[arg(short = 's', long, value_delimiter = ',', value_parser = parse_skill)]
     pub skill: Option<Vec<&'static SkillData>>,
 
-    /// Force specific morph selections (comma-separated morph names)
-    #[arg(short = 'm', long, value_delimiter = ',')]
-    pub morph: Option<Vec<String>>,
-
     /// Pin attribute points to magicka (optimized if omitted)
     #[arg(long, conflicts_with = "stamina")]
     pub magicka: bool,
@@ -266,7 +262,6 @@ impl OptimizeArgs {
                 .unwrap_or_default(),
             required_champion_points: self.champion_point.clone().unwrap_or_default(),
             required_skills: self.skill.clone().unwrap_or_default(),
-            forced_morphs: self.morph.clone().unwrap_or_default(),
             parallelism,
             max_pool_size: self.max_pool_size,
             set_bonuses,
@@ -368,7 +363,6 @@ impl OptimizeArgs {
                         .unwrap_or_default(),
                     required_champion_points: self.champion_point.clone().unwrap_or_default(),
                     required_skills: self.skill.clone().unwrap_or_default(),
-                    forced_morphs: self.morph.clone().unwrap_or_default(),
                     parallelism,
                     max_pool_size: self.max_pool_size,
                     set_bonuses,
