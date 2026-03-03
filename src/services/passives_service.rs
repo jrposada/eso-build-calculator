@@ -1,4 +1,4 @@
-use crate::data::passives::ALL_PASSIVES;
+use crate::data::skill_trees::ALL_PASSIVES;
 use crate::domain::PassiveData;
 use crate::domain::SkillLineName;
 use std::collections::{HashMap, HashSet};

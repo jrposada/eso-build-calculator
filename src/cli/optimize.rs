@@ -4,8 +4,8 @@ use super::parsers::{
 };
 use super::simulation_display::display_simulation_result;
 use crate::data::bonuses::{TRIAL_BUFF_NAMES, TRIAL_DUMMY_BUFFS};
-use crate::data::passives::armor::armor_passives;
-use crate::data::passives::undaunted_mettle_bonuses;
+use crate::data::skill_trees::armor::armor_passives;
+use crate::data::skill_trees::guild::undaunted::undaunted_passives::undaunted_mettle_bonuses;
 use crate::data::sets::ALL_SETS;
 use crate::domain::{
     ArmorDistribution, ArmorTrait, AttributeChoice, BonusData, Build, CharacterStats, ClassName,
