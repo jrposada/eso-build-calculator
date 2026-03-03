@@ -9,8 +9,9 @@ use crate::data::passives::undaunted_mettle_bonuses;
 use crate::data::sets::ALL_SETS;
 use crate::domain::{
     ArmorTrait, ArmorWeight, AttributeChoice, BonusData, Build, CharacterStats, ClassName, Food,
-    GearConfig, JewelryTrait, MundusStone, Potion, Race, SetData, SetProcEffect, SimulationResult,
-    SkillData, SkillLineName, WeaponEnchant, WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
+    GearConfig, JewelryTrait, MundusStone, Potion, Race, SetData, SetProcEffect, SetType,
+    SimulationResult, SkillData, SkillLineName, WeaponEnchant, WeaponTrait, WeaponType,
+    BUILD_CONSTRAINTS,
 };
 use crate::infrastructure::{format, logger};
 use crate::services::{
@@ -29,6 +30,10 @@ use std::time::Instant;
 /// Optimize build command arguments
 #[derive(Args, Debug)]
 pub struct OptimizeArgs {
+    /// Show optimization progress
+    #[arg(short = 'v', long)]
+    pub verbose: bool,
+
     /// Require at least 1 skill line from these classes (comma-separated)
     #[arg(short = 'c', long, value_delimiter = ',', value_parser = parse_class_name)]
     pub class: Option<Vec<ClassName>>,
@@ -39,31 +44,19 @@ pub struct OptimizeArgs {
 
     /// Require at least 1 skill line from these weapons (comma-separated)
     #[arg(short = 'w', long, value_delimiter = ',', value_parser = parse_weapon_skill_line)]
-    pub weapons: Option<Vec<SkillLineName>>,
+    pub weapon: Option<Vec<SkillLineName>>,
 
     /// Require these champion points (comma-separated)
     #[arg(long = "cp", value_delimiter = ',', value_parser = parse_champion_point)]
-    pub champion_points: Option<Vec<crate::domain::BonusData>>,
+    pub champion_point: Option<Vec<crate::domain::BonusData>>,
 
     /// Require these skills in every build (comma-separated skill names)
     #[arg(short = 's', long, value_delimiter = ',', value_parser = parse_skill)]
-    pub skills: Option<Vec<&'static SkillData>>,
+    pub skill: Option<Vec<&'static SkillData>>,
 
     /// Force specific morph selections (comma-separated morph names)
     #[arg(short = 'm', long, value_delimiter = ',')]
-    pub morphs: Option<Vec<String>>,
-
-    /// Show optimization progress
-    #[arg(short = 'v', long)]
-    pub verbose: bool,
-
-    /// Number of parallel threads to use (default: half of available CPUs)
-    #[arg(short = 'p', long)]
-    pub parallelism: Option<u8>,
-
-    /// Cap non-spammable skill pool per skill-line combo (prune lowest-damage skills)
-    #[arg(long)]
-    pub max_pool_size: Option<usize>,
+    pub morph: Option<Vec<String>>,
 
     /// Pin attribute points to magicka (optimized if omitted)
     #[arg(long, conflicts_with = "stamina")]
@@ -81,21 +74,9 @@ pub struct OptimizeArgs {
     #[arg(long, value_parser = WeaponType::parse)]
     pub bar2_weapon: Option<WeaponType>,
 
-    /// Pin normal/arena 5pc sets (comma-separated, max 2)
+    /// Pin gear sets (comma-separated). Auto-grouped by type: max 2 normal/arena, 2 monster, 1 mythic.
     #[arg(long, value_delimiter = ',', value_parser = parse_set)]
-    pub sets: Option<Vec<&'static SetData>>,
-
-    /// Pin monster 2pc sets (comma-separated, max 2)
-    #[arg(long, value_delimiter = ',', value_parser = parse_set)]
-    pub monster_sets: Option<Vec<&'static SetData>>,
-
-    /// Pin mythic 1pc set
-    #[arg(long, value_parser = parse_set)]
-    pub mythic: Option<&'static SetData>,
-
-    /// Export build to this file without prompting
-    #[arg(short = 'o', long)]
-    pub output: Option<PathBuf>,
+    pub set: Option<Vec<&'static SetData>>,
 
     /// Pin character race (dark-elf, khajiit, orc, etc.) — optimized if omitted
     #[arg(long, value_parser = Race::parse)]
@@ -172,6 +153,18 @@ pub struct OptimizeArgs {
     /// Disable trial dummy buffs/debuffs (enabled by default)
     #[arg(long = "no-trial")]
     pub no_trial: bool,
+
+    /// Export build to this file without prompting
+    #[arg(short = 'o', long)]
+    pub output: Option<PathBuf>,
+
+    /// Number of parallel threads to use (default: half of available CPUs)
+    #[arg(short = 'p', long)]
+    pub parallelism: Option<u8>,
+
+    /// Cap non-spammable skill pool per skill-line combo (prune lowest-damage skills)
+    #[arg(long)]
+    pub max_pool_size: Option<usize>,
 }
 
 /// Bundled export options for writing build config JSON.
@@ -266,10 +259,10 @@ impl OptimizeArgs {
             verbose: self.verbose,
             pure: self.pure,
             required_class_names: self.class.clone().unwrap_or_default(),
-            required_weapon_skill_lines: self.weapons.clone().unwrap_or_default(),
-            required_champion_points: self.champion_points.clone().unwrap_or_default(),
-            required_skills: self.skills.clone().unwrap_or_default(),
-            forced_morphs: self.morphs.clone().unwrap_or_default(),
+            required_weapon_skill_lines: self.weapon.clone().unwrap_or_default(),
+            required_champion_points: self.champion_point.clone().unwrap_or_default(),
+            required_skills: self.skill.clone().unwrap_or_default(),
+            forced_morphs: self.morph.clone().unwrap_or_default(),
             parallelism,
             max_pool_size: self.max_pool_size,
             set_bonuses,
@@ -364,10 +357,10 @@ impl OptimizeArgs {
                     verbose: self.verbose,
                     pure: self.pure,
                     required_class_names: self.class.clone().unwrap_or_default(),
-                    required_weapon_skill_lines: self.weapons.clone().unwrap_or_default(),
-                    required_champion_points: self.champion_points.clone().unwrap_or_default(),
-                    required_skills: self.skills.clone().unwrap_or_default(),
-                    forced_morphs: self.morphs.clone().unwrap_or_default(),
+                    required_weapon_skill_lines: self.weapon.clone().unwrap_or_default(),
+                    required_champion_points: self.champion_point.clone().unwrap_or_default(),
+                    required_skills: self.skill.clone().unwrap_or_default(),
+                    forced_morphs: self.morph.clone().unwrap_or_default(),
                     parallelism,
                     max_pool_size: self.max_pool_size,
                     set_bonuses,
@@ -394,13 +387,16 @@ impl OptimizeArgs {
 
         // ── Phase 3: Set Optimization (always runs) ──
         logger::info("Phase 3: Optimizing gear sets...");
+        let pinned_sets = self.set.clone().unwrap_or_default();
+        let (pinned_normal, pinned_monster, pinned_mythic_vec) =
+            Self::split_sets_by_type(&pinned_sets);
         let set_result = SetOptimizer::optimize(
             &builds,
             &SetOptimizerOptions {
                 top_k: 10,
-                pinned_normal: self.sets.clone().unwrap_or_default(),
-                pinned_monster: self.monster_sets.clone().unwrap_or_default(),
-                pinned_mythic: self.mythic,
+                pinned_normal,
+                pinned_monster,
+                pinned_mythic: pinned_mythic_vec.into_iter().next(),
                 parallelism,
                 verbose: self.verbose,
             },
@@ -490,7 +486,7 @@ impl OptimizeArgs {
         }
 
         // Validate weapon count
-        if let Some(weapons) = &self.weapons {
+        if let Some(weapons) = &self.weapon {
             if weapons.len() > BUILD_CONSTRAINTS.weapon_skill_line_count {
                 logger::error(&format!(
                     "Maximum {} weapons allowed",
@@ -501,7 +497,7 @@ impl OptimizeArgs {
         }
 
         // Validate required skills count
-        if let Some(skills) = &self.skills {
+        if let Some(skills) = &self.skill {
             if skills.len() > BUILD_CONSTRAINTS.skill_count {
                 logger::error(&format!(
                     "Maximum {} required skills allowed",
@@ -512,7 +508,7 @@ impl OptimizeArgs {
         }
 
         // Validate champion point count
-        if let Some(cp) = &self.champion_points {
+        if let Some(cp) = &self.champion_point {
             if cp.len() > BUILD_CONSTRAINTS.champion_point_count {
                 logger::error(&format!(
                     "Maximum {} champion points allowed",
@@ -522,32 +518,47 @@ impl OptimizeArgs {
             }
         }
 
-        // Validate set counts
-        if let Some(sets) = &self.sets {
-            if sets.len() > 2 {
+        // Validate set counts by type
+        if let Some(sets) = &self.set {
+            let (normals, monsters, mythics) = Self::split_sets_by_type(sets);
+            if normals.len() > 2 {
                 logger::error("Maximum 2 normal/arena sets allowed");
                 std::process::exit(1);
             }
-        }
-        if let Some(monster) = &self.monster_sets {
-            if monster.len() > 2 {
+            if monsters.len() > 2 {
                 logger::error("Maximum 2 monster sets allowed");
+                std::process::exit(1);
+            }
+            if mythics.len() > 1 {
+                logger::error("Maximum 1 mythic set allowed");
                 std::process::exit(1);
             }
         }
     }
 
+    /// Split a flat list of sets into (normal/arena, monster, mythic) groups.
+    fn split_sets_by_type(
+        sets: &[&'static SetData],
+    ) -> (
+        Vec<&'static SetData>,
+        Vec<&'static SetData>,
+        Vec<&'static SetData>,
+    ) {
+        let mut normals = Vec::new();
+        let mut monsters = Vec::new();
+        let mut mythics = Vec::new();
+        for &set in sets {
+            match set.set_type {
+                SetType::Normal | SetType::Arena => normals.push(set),
+                SetType::Monster => monsters.push(set),
+                SetType::Mythic => mythics.push(set),
+            }
+        }
+        (normals, monsters, mythics)
+    }
+
     fn resolve_set_bonuses(&self) -> (Vec<BonusData>, Vec<(String, u8)>, Vec<SetProcEffect>) {
-        let mut active_sets: Vec<&'static SetData> = Vec::new();
-        if let Some(s) = &self.sets {
-            active_sets.extend(s.iter());
-        }
-        if let Some(m) = &self.monster_sets {
-            active_sets.extend(m.iter());
-        }
-        if let Some(m) = &self.mythic {
-            active_sets.push(m);
-        }
+        let active_sets = self.set.clone().unwrap_or_default();
 
         let mut set_bonuses: Vec<BonusData> = Vec::new();
         let mut set_names: Vec<(String, u8)> = Vec::new();
