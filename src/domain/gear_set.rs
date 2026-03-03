@@ -48,6 +48,7 @@ pub struct SetBonusThreshold {
 pub struct SetData {
     pub name: String,
     pub set_type: SetType,
+    pub item_slots: Vec<String>,
     pub thresholds: Vec<SetBonusThreshold>,
 }
 
@@ -56,8 +57,14 @@ impl SetData {
         Self {
             name: name.into(),
             set_type,
+            item_slots: Vec::new(),
             thresholds: Vec::new(),
         }
+    }
+
+    pub fn with_item_slots(mut self, slots: Vec<&str>) -> Self {
+        self.item_slots = slots.into_iter().map(|s| s.to_string()).collect();
+        self
     }
 
     pub fn with_threshold(mut self, piece_count: u8, bonuses: Vec<BonusData>) -> Self {
@@ -80,6 +87,18 @@ impl SetData {
             });
         }
         self
+    }
+
+    pub fn add_proc_effects(&mut self, piece_count: u8, effects: Vec<SetProcEffect>) {
+        if let Some(threshold) = self.thresholds.iter_mut().find(|t| t.piece_count == piece_count) {
+            threshold.proc_effects = effects;
+        } else {
+            self.thresholds.push(SetBonusThreshold {
+                piece_count,
+                bonuses: Vec::new(),
+                proc_effects: effects,
+            });
+        }
     }
 
     /// Returns cumulative bonuses at the given piece count.
