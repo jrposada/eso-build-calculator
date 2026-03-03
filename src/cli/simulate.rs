@@ -1,5 +1,5 @@
 use super::build_config::BuildConfig;
-use super::parsers::{parse_champion_point, parse_set, parse_skill};
+use super::parsers::{parse_champion_point, parse_set, parse_skill, parse_weapon};
 use super::simulation_display::display_simulation_result;
 use crate::data::bonuses::{TRIAL_BUFF_NAMES, TRIAL_DUMMY_BUFFS};
 use crate::data::passives::armor::armor_passives;
@@ -30,7 +30,7 @@ pub struct SimulateArgs {
     pub champion_points: Option<Vec<BonusData>>,
 
     /// Path to build configuration file (exported from optimize)
-    #[arg(short = 'f', long, conflicts_with_all = ["skills", "champion_points", "sets", "monster_sets", "mythic", "magicka", "stamina", "bar1_weapon", "bar2_weapon"])]
+    #[arg(short = 'f', long, conflicts_with_all = ["skills", "champion_points", "sets", "monster_sets", "mythic", "magicka", "stamina", "weapon"])]
     pub file: Option<PathBuf>,
 
     /// Allocate 64 attribute points to magicka
@@ -41,13 +41,11 @@ pub struct SimulateArgs {
     #[arg(long, conflicts_with = "magicka")]
     pub stamina: bool,
 
-    /// Bar 1 weapon type (e.g., inferno-staff, bow)
-    #[arg(long, value_parser = WeaponType::parse)]
-    pub bar1_weapon: Option<WeaponType>,
-
-    /// Bar 2 weapon type (e.g., inferno-staff, bow)
-    #[arg(long, value_parser = WeaponType::parse)]
-    pub bar2_weapon: Option<WeaponType>,
+    /// Weapon type (comma-separated). Accepts skill lines (bow, destruction-staff, dual-wield,
+    /// two-handed) or specific types (inferno-staff, lightning-staff, dual-wield-dagger, etc.).
+    /// First value = bar1, second = bar2. One value = bar1 only (bar2 inferred).
+    #[arg(short = 'w', long, value_delimiter = ',', value_parser = parse_weapon)]
+    pub weapon: Option<Vec<WeaponType>>,
 
     /// Normal 5pc sets (comma-separated, max 2)
     #[arg(long, value_delimiter = ',', value_parser = parse_set, conflicts_with = "file")]
@@ -169,7 +167,9 @@ impl SimulateArgs {
                     attributes,
                     armor_weight: self.armor_weight.unwrap_or(ArmorWeight::Medium),
                 };
-                let mut stats = gear.compute_stats(self.bar1_weapon);
+                // Derive bar weapons from positional --weapon values
+                let bar1_weapon = self.weapon.as_deref().and_then(|ws| ws.first().copied());
+                let mut stats = gear.compute_stats(bar1_weapon);
 
                 // Apply stat overrides
                 if let Some(v) = self.max_stamina {
@@ -322,23 +322,30 @@ impl SimulateArgs {
         logger::info(&build.to_string());
 
         // --- Fight simulation ---
-        // Determine weapon types
-        let bar1_weapon = self.bar1_weapon.or(file_weapons.0);
-        let bar2_weapon = self.bar2_weapon.or(file_weapons.1);
-
-        let (bar1_weapon, bar2_weapon) = match (bar1_weapon, bar2_weapon) {
-            (Some(w1), Some(w2)) => (w1, w2),
-            (Some(w1), None) => (w1, w1),
-            (None, Some(w2)) => (w2, w2),
-            (None, None) => match infer_weapons(&skills) {
-                Ok(weapons) => weapons,
-                Err(e) => {
-                    logger::warn(&format!(
-                        "Could not infer weapons for simulation: {}. Skipping fight simulation.",
-                        e
-                    ));
-                    return;
-                }
+        // Derive bar weapons from --weapon positional args, file config, or inference
+        let (bar1_weapon, bar2_weapon) = match self.weapon.as_deref() {
+            Some([w1, w2, ..]) => (*w1, *w2),
+            Some([w1]) => {
+                // bar1 pinned, bar2 from file or inferred
+                let w2 = file_weapons.1.or_else(|| {
+                    infer_weapons(&skills).ok().map(|(_, w2)| w2)
+                }).unwrap_or(*w1);
+                (*w1, w2)
+            }
+            _ => match (file_weapons.0, file_weapons.1) {
+                (Some(w1), Some(w2)) => (w1, w2),
+                (Some(w1), None) => (w1, w1),
+                (None, Some(w2)) => (w2, w2),
+                (None, None) => match infer_weapons(&skills) {
+                    Ok(weapons) => weapons,
+                    Err(e) => {
+                        logger::warn(&format!(
+                            "Could not infer weapons for simulation: {}. Skipping fight simulation.",
+                            e
+                        ));
+                        return;
+                    }
+                },
             },
         };
 

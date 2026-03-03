@@ -1,7 +1,7 @@
 use crate::data::bonuses::CHAMPION_POINTS;
 use crate::data::sets::ALL_SETS;
 use crate::data::skills::ALL_SKILLS;
-use crate::domain::{BonusData, ClassName, SetData, SkillData, SkillLineName};
+use crate::domain::{BonusData, ClassName, SetData, SkillData, WeaponType};
 
 pub fn parse_class_name(s: &str) -> Result<ClassName, String> {
     let s = s.trim();
@@ -19,15 +19,22 @@ pub fn parse_class_name(s: &str) -> Result<ClassName, String> {
     }
 }
 
-pub fn parse_weapon_skill_line(s: &str) -> Result<SkillLineName, String> {
+pub fn parse_weapon(s: &str) -> Result<WeaponType, String> {
     let s = s.trim();
+    // Try parsing as a specific weapon type first
+    if let Ok(wt) = WeaponType::parse(s) {
+        return Ok(wt);
+    }
+    // Fall back to skill line name → default weapon type
     match s.to_lowercase().as_str() {
-        "bow" => Ok(SkillLineName::Bow),
-        "destruction-staff" | "destructionstaff" => Ok(SkillLineName::DestructionStaff),
-        "dual-wield" | "dualwield" => Ok(SkillLineName::DualWield),
-        "two-handed" | "twohanded" => Ok(SkillLineName::TwoHanded),
+        "destruction-staff" | "destructionstaff" => Ok(WeaponType::InfernoStaff),
+        "dual-wield" | "dualwield" => Ok(WeaponType::DualWieldDagger),
+        "two-handed" | "twohanded" => Ok(WeaponType::TwoHandedSword),
+        // "bow" is already handled by WeaponType::parse above
         _ => Err(format!(
-            "Invalid weapon skill line '{}'. Valid options: bow, destruction-staff, dual-wield, two-handed",
+            "Invalid weapon '{}'. Valid options: bow, destruction-staff, dual-wield, two-handed, \
+             two-handed-sword, two-handed-axe, two-handed-mace, dual-wield-sword, dual-wield-axe, \
+             dual-wield-mace, dual-wield-dagger, inferno-staff, lightning-staff, ice-staff",
             s
         )),
     }

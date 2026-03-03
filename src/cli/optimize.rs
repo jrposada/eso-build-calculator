@@ -1,6 +1,6 @@
 use super::build_config::BuildConfig;
 use super::parsers::{
-    parse_champion_point, parse_class_name, parse_set, parse_skill, parse_weapon_skill_line,
+    parse_champion_point, parse_class_name, parse_set, parse_skill, parse_weapon,
 };
 use super::simulation_display::display_simulation_result;
 use crate::data::bonuses::{TRIAL_BUFF_NAMES, TRIAL_DUMMY_BUFFS};
@@ -10,8 +10,7 @@ use crate::data::sets::ALL_SETS;
 use crate::domain::{
     ArmorTrait, ArmorWeight, AttributeChoice, BonusData, Build, CharacterStats, ClassName, Food,
     GearConfig, JewelryTrait, MundusStone, Potion, Race, SetData, SetProcEffect, SetType,
-    SimulationResult, SkillData, SkillLineName, WeaponEnchant, WeaponTrait, WeaponType,
-    BUILD_CONSTRAINTS,
+    SimulationResult, SkillData, WeaponEnchant, WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
 };
 use crate::infrastructure::{format, logger};
 use crate::services::{
@@ -34,7 +33,11 @@ pub struct OptimizeArgs {
     #[arg(short = 'v', long)]
     pub verbose: bool,
 
-    /// Require at least 1 skill line from these classes (comma-separated)
+    /// Pin character race (dark-elf, khajiit, orc, etc.) - optimized if omitted
+    #[arg(long, value_parser = Race::parse)]
+    pub race: Option<Race>,
+
+    /// Pin at least 1 skill line from these class (comma-separated) -
     #[arg(short = 'c', long, value_delimiter = ',', value_parser = parse_class_name)]
     pub class: Option<Vec<ClassName>>,
 
@@ -42,9 +45,11 @@ pub struct OptimizeArgs {
     #[arg(long, requires = "class")]
     pub pure: bool,
 
-    /// Require at least 1 skill line from these weapons (comma-separated)
-    #[arg(short = 'w', long, value_delimiter = ',', value_parser = parse_weapon_skill_line)]
-    pub weapon: Option<Vec<SkillLineName>>,
+    /// Pin weapon (comma-separated). Accepts skill lines (bow, destruction-staff, dual-wield,
+    /// two-handed) or specific types (inferno-staff, lightning-staff, dual-wield-dagger, etc.).
+    /// First value = bar1, second = bar2. One value = bar1 only (bar2 optimized).
+    #[arg(short = 'w', long, value_delimiter = ',', value_parser = parse_weapon)]
+    pub weapon: Option<Vec<WeaponType>>,
 
     /// Require these champion points (comma-separated)
     #[arg(long = "cp", value_delimiter = ',', value_parser = parse_champion_point)]
@@ -66,39 +71,27 @@ pub struct OptimizeArgs {
     #[arg(long, conflicts_with = "magicka")]
     pub stamina: bool,
 
-    /// Bar 1 weapon type for fight simulation (e.g., inferno-staff, bow)
-    #[arg(long, value_parser = WeaponType::parse)]
-    pub bar1_weapon: Option<WeaponType>,
-
-    /// Bar 2 weapon type for fight simulation (e.g., inferno-staff, bow)
-    #[arg(long, value_parser = WeaponType::parse)]
-    pub bar2_weapon: Option<WeaponType>,
-
     /// Pin gear sets (comma-separated). Auto-grouped by type: max 2 normal/arena, 2 monster, 1 mythic.
     #[arg(long, value_delimiter = ',', value_parser = parse_set)]
     pub set: Option<Vec<&'static SetData>>,
 
-    /// Pin character race (dark-elf, khajiit, orc, etc.) — optimized if omitted
-    #[arg(long, value_parser = Race::parse)]
-    pub race: Option<Race>,
-
-    /// Pin mundus stone (thief, shadow, warrior, etc.) — optimized if omitted
+    /// Pin mundus stone (thief, shadow, warrior, etc.) - optimized if omitted
     #[arg(long, value_parser = MundusStone::parse)]
     pub mundus: Option<MundusStone>,
 
-    /// Pin food buff (lava-foot, ghastly-eye, sugar-skulls) — optimized if omitted
+    /// Pin food buff (lava-foot, ghastly-eye, sugar-skulls) - optimized if omitted
     #[arg(long, value_parser = Food::parse)]
     pub food: Option<Food>,
 
-    /// Pin armor trait for all 7 pieces — optimized if omitted
+    /// Pin armor trait for all 7 pieces - optimized if omitted
     #[arg(long, value_parser = ArmorTrait::parse)]
     pub armor_trait: Option<ArmorTrait>,
 
-    /// Pin jewelry trait for all 3 pieces — optimized if omitted
+    /// Pin jewelry trait for all 3 pieces - optimized if omitted
     #[arg(long, value_parser = JewelryTrait::parse)]
     pub jewelry_trait: Option<JewelryTrait>,
 
-    /// Pin weapon trait — optimized if omitted
+    /// Pin weapon trait - optimized if omitted
     #[arg(long, value_parser = WeaponTrait::parse)]
     pub weapon_trait: Option<WeaponTrait>,
 
@@ -210,7 +203,14 @@ impl OptimizeArgs {
             armor_weight: self.armor_weight.unwrap_or(ArmorWeight::Medium),
         };
 
-        let mut character_stats = baseline_gear.compute_stats(self.bar1_weapon);
+        // Derive bar weapons from positional --weapon values
+        let (bar1_weapon, bar2_weapon) = match self.weapon.as_deref() {
+            Some([w1, w2, ..]) => (Some(*w1), Some(*w2)),
+            Some([w1]) => (Some(*w1), None),
+            _ => (None, None),
+        };
+
+        let mut character_stats = baseline_gear.compute_stats(bar1_weapon);
 
         // Apply stat overrides
         if let Some(v) = self.max_stamina {
@@ -259,7 +259,11 @@ impl OptimizeArgs {
             verbose: self.verbose,
             pure: self.pure,
             required_class_names: self.class.clone().unwrap_or_default(),
-            required_weapon_skill_lines: self.weapon.clone().unwrap_or_default(),
+            required_weapon_skill_lines: self
+                .weapon
+                .as_ref()
+                .map(|ws| ws.iter().map(|w| w.skill_line()).collect())
+                .unwrap_or_default(),
             required_champion_points: self.champion_point.clone().unwrap_or_default(),
             required_skills: self.skill.clone().unwrap_or_default(),
             forced_morphs: self.morph.clone().unwrap_or_default(),
@@ -292,7 +296,7 @@ impl OptimizeArgs {
             pinned_jewelry_trait: self.jewelry_trait,
             pinned_weapon_trait: self.weapon_trait,
             pinned_attributes,
-            bar1_weapon: self.bar1_weapon,
+            bar1_weapon,
             top_k: 3,
             verbose: self.verbose,
         };
@@ -357,7 +361,11 @@ impl OptimizeArgs {
                     verbose: self.verbose,
                     pure: self.pure,
                     required_class_names: self.class.clone().unwrap_or_default(),
-                    required_weapon_skill_lines: self.weapon.clone().unwrap_or_default(),
+                    required_weapon_skill_lines: self
+                        .weapon
+                        .as_ref()
+                        .map(|ws| ws.iter().map(|w| w.skill_line()).collect())
+                        .unwrap_or_default(),
                     required_champion_points: self.champion_point.clone().unwrap_or_default(),
                     required_skills: self.skill.clone().unwrap_or_default(),
                     forced_morphs: self.morph.clone().unwrap_or_default(),
@@ -443,8 +451,8 @@ impl OptimizeArgs {
             ));
         let gear_config = winning_gear.as_ref().map(|g| &g.gear_config);
         let export_opts = ExportOptions {
-            bar1_weapon: self.bar1_weapon,
-            bar2_weapon: self.bar2_weapon,
+            bar1_weapon,
+            bar2_weapon,
             bar1_enchant: Some(winning_bar1),
             bar2_enchant: Some(winning_bar2),
             armor_weight: Some(self.armor_weight.unwrap_or(ArmorWeight::Medium)),
@@ -585,24 +593,27 @@ impl OptimizeArgs {
         WeaponEnchant,
         CharacterStats,
     )> {
-        // Determine weapon types from CLI args or infer from the top build
-        let (bar1_weapon, bar2_weapon) = match (self.bar1_weapon, self.bar2_weapon) {
-            (Some(w1), Some(w2)) => (w1, w2),
-            (Some(w1), None) => (w1, w1),
-            (None, Some(w2)) => (w2, w2),
-            (None, None) => {
-                let top_skills = builds[0].skills();
-                match infer_weapons(top_skills) {
-                    Ok(weapons) => weapons,
-                    Err(e) => {
+        // Derive bar weapons from --weapon positional args, or infer from skills
+        let inferred = {
+            let top_skills = builds[0].skills();
+            match infer_weapons(top_skills) {
+                Ok(weapons) => Some(weapons),
+                Err(e) => {
+                    if self.weapon.is_none() {
                         logger::warn(&format!(
                             "Could not infer weapons for simulation: {}. Skipping fight simulation.",
                             e
                         ));
                         return None;
                     }
+                    None
                 }
             }
+        };
+        let (bar1_weapon, bar2_weapon) = match self.weapon.as_deref() {
+            Some([w1, w2, ..]) => (*w1, *w2),
+            Some([w1]) => (*w1, inferred.map(|(_, w2)| w2).unwrap_or(*w1)),
+            _ => inferred.unwrap(),
         };
 
         logger::info(&format!(
