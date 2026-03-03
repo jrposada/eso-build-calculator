@@ -1,0 +1,78 @@
+{
+  "skills": [
+    "Lotus Fan",
+    "Merciless Resolve",
+    "Barbed Trap",
+    "Dark Shade",
+    "Thunderous Volley",
+    "Stampede",
+    "Crippling Grasp",
+    "Carve",
+    "Scalding Rune",
+    "Concealed Weapon"
+  ],
+  "champion_points": [
+    "Biting Aura",
+    "Deadly Aim",
+    "Master-at-Arms",
+    "Thaumaturge"
+  ],
+  "sets": [
+    "Leviathan",
+    "Hunding's Rage",
+    "Archdruid Devyric",
+    "Belharza's Band"
+  ],
+  "character_stats": {
+    "max_magicka": 13910.0,
+    "max_stamina": 29958.0,
+    "weapon_damage": 2252.5,
+    "spell_damage": 2252.5,
+    "critical_rating": 0.0,
+    "critical_damage": 1.66775,
+    "penetration": 0.0,
+    "target_armor": 18200.0
+  },
+  "race": "Dunmer",
+  "mundus": "The Shadow",
+  "food": "Lava Foot Soup-and-Saltrice",
+  "armor_trait": "Divines",
+  "jewelry_trait": "Bloodthirsty",
+  "weapon_trait": "Nirnhoned",
+  "bar1_enchant": "Poison",
+  "bar2_enchant": "Flame",
+  "armor_weight": "Medium",
+  "potion": "Weapon Power",
+  "armor_types": 3,
+  "avg_resource_pct": 50.0,
+  "trial": true,
+  "metadata": {
+    "dps": 60034.305317324084,
+    "total_damage": 21000000.0,
+    "fight_duration": 349.8000000000006,
+    "bar1_skills": [
+      "Thunderous Volley",
+      "Barbed Trap",
+      "Dark Shade",
+      "Crippling Grasp",
+      "Scalding Rune"
+    ],
+    "bar2_skills": [
+      "Stampede",
+      "Carve",
+      "Lotus Fan",
+      "Merciless Resolve",
+      "Concealed Weapon"
+    ],
+    "buffed_stats": {
+      "max_magicka": 15941.86152,
+      "max_stamina": 36123.740000000005,
+      "weapon_damage": 4125.876150000001,
+      "spell_damage": 3750.7965000000004,
+      "critical_rating": 21966.0,
+      "critical_damage": 2.04775,
+      "penetration": 18517.0,
+      "target_armor": 18200.0
+    }
+  }
+}
