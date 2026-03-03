@@ -1,0 +1,46 @@
+use crate::domain::{
+    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, ClassName, PassiveData,
+    SkillLineName,
+};
+use once_cell::sync::Lazy;
+
+/// Returns Undaunted Mettle bonuses based on number of distinct armor weights worn.
+/// Each armor type grants +2% MaxMagicka and +2% MaxStamina.
+/// Standard 5/1/1 builds use 3 armor types → +6% each.
+pub fn undaunted_mettle_bonuses(armor_types: u8) -> Vec<BonusData> {
+    if armor_types == 0 {
+        return vec![];
+    }
+    let pct = armor_types as f64 * 0.02;
+    vec![
+        BonusData::new(
+            "Undaunted Mettle",
+            BonusSource::Passive,
+            BonusTrigger::Passive,
+            BonusValue::new("Max Magicka", BonusTarget::MaxMagicka, pct),
+        ),
+        BonusData::new(
+            "Undaunted Mettle",
+            BonusSource::Passive,
+            BonusTrigger::Passive,
+            BonusValue::new("Max Stamina", BonusTarget::MaxStamina, pct),
+        ),
+    ]
+}
+
+pub static UNDAUNTED_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
+    vec![
+        PassiveData::new(
+            "Undaunted Command",
+            ClassName::Guild,
+            SkillLineName::Undaunted,
+            vec![],
+        ),
+        PassiveData::new(
+            "Undaunted Mettle",
+            ClassName::Guild,
+            SkillLineName::Undaunted,
+            vec![],
+        ),
+    ]
+});
