@@ -3,20 +3,6 @@ use std::fmt;
 
 use super::CharacterStats;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum Race {
-    Altmer,
-    Argonian,
-    Bosmer,
-    Breton,
-    Dunmer,
-    Imperial,
-    Khajiit,
-    Nord,
-    Orc,
-    Redguard,
-}
-
 /// All races for gear optimization.
 pub const DPS_RACES: &[Race] = &[
     Race::Altmer,
