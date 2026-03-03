@@ -64,7 +64,7 @@ fn nightblade_bow_2h_all_cp_forced() {
 
     assert_eq!(
         build.total_damage_per_cast as u64, 13_914,
-        "Total damage changed — optimization may have introduced a regression"
+        "Total damage changed - optimization may have introduced a regression"
     );
 
     let skill_names = build.skill_names();
@@ -132,7 +132,7 @@ fn nightblade_bow_2h_one_cp_forced() {
 
     assert_eq!(
         build.total_damage_per_cast as u64, 14_064,
-        "Total damage changed — optimization may have introduced a regression"
+        "Total damage changed - optimization may have introduced a regression"
     );
 
     let skill_names = build.skill_names();

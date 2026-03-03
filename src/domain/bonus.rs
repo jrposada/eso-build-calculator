@@ -195,7 +195,7 @@ mod tests {
     #[test]
     fn test_resolve_ancient_knowledge_dot_vs_direct() {
         // Ancient Knowledge: DotDamage(12%) vs DirectDamage(12%)
-        // Both are percentage modifiers so they should be equal — resolve picks first max
+        // Both are percentage modifiers so they should be equal - resolve picks first max
         let bonus = BonusData::new(
             "Ancient Knowledge",
             BonusSource::Passive,
@@ -209,7 +209,7 @@ mod tests {
         ));
         let ctx = ResolveContext::new(CharacterStats::default());
         let result = bonus.resolve(&ctx);
-        // Both equal — max_by picks last equal, which is DirectDamage
+        // Both equal - max_by picks last equal, which is DirectDamage
         assert!(result.value == 0.12);
     }
 

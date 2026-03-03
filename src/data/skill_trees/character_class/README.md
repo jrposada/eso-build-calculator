@@ -10,16 +10,17 @@ Skills in the JSON have rank suffixes (e.g., `"Flame Lash 1"` through `"Flame La
 
 ## Classes
 
-| Directory       | Class        | Skill Lines                                          |
-| --------------- | ------------ | ---------------------------------------------------- |
+| Directory       | Class        | Skill Lines                                                |
+| --------------- | ------------ | ---------------------------------------------------------- |
 | `arcanist/`     | Arcanist     | Herald of the Tome, Apocryphal Soldier, Curative Runeforms |
-| `dragonknight/` | Dragonknight | Ardent Flame, Draconic Power, Earthen Heart          |
-| `necromancer/`  | Necromancer  | Grave Lord, Bone Tyrant, Living Death                |
-| `nightblade/`   | Nightblade   | Assassination, Shadow, Siphoning                     |
-| `sorcerer/`     | Sorcerer     | Dark Magic, Daedric Summoning, Storm Calling         |
-| `templar/`      | Templar      | Aedric Spear, Dawn's Wrath, Restoring Light          |
-| `warden/`       | Warden       | Animal Companions, Green Balance, Winter's Embrace   |
+| `dragonknight/` | Dragonknight | Ardent Flame, Draconic Power, Earthen Heart                |
+| `necromancer/`  | Necromancer  | Grave Lord, Bone Tyrant, Living Death                      |
+| `nightblade/`   | Nightblade   | Assassination, Shadow, Siphoning                           |
+| `sorcerer/`     | Sorcerer     | Dark Magic, Daedric Summoning, Storm Calling               |
+| `templar/`      | Templar      | Aedric Spear, Dawn's Wrath, Restoring Light                |
+| `warden/`       | Warden       | Animal Companions, Green Balance, Winter's Embrace         |
 
 Each class directory contains:
-- `<class>_skills.rs` — active skills (`SkillData`)
-- `<class>_passives.rs` — passive abilities (`PassiveData`)
+
+- `<class>_skills.rs` - active skills (`SkillData`)
+- `<class>_passives.rs` - passive abilities (`PassiveData`)

@@ -77,7 +77,7 @@ pub fn generate_distributions(
         } else if skill.skill_line == bar2_skill_line && bar1_skill_line != bar2_skill_line {
             bar2_forced.push(skill);
         } else if skill.skill_line.is_weapon() && bar1_skill_line == bar2_skill_line {
-            // Same weapon both bars — weapon skills are flexible
+            // Same weapon both bars - weapon skills are flexible
             flexible.push(skill);
         } else {
             // Class/guild skills are flexible
@@ -88,7 +88,7 @@ pub fn generate_distributions(
     let bar1_slots_needed = 5_usize.saturating_sub(bar1_forced.len());
 
     if bar1_slots_needed > flexible.len() {
-        // Not enough flexible skills — return single distribution with whatever we have
+        // Not enough flexible skills - return single distribution with whatever we have
         let mut bar1_skills = bar1_forced;
         let mut bar2_skills = bar2_forced;
         let (fill1, fill2) = flexible.split_at(flexible.len().min(bar1_slots_needed));
@@ -108,7 +108,7 @@ pub fn generate_distributions(
 
     let bar2_slots_needed = 5_usize.saturating_sub(bar2_forced.len());
     if bar1_slots_needed + bar2_slots_needed != flexible.len() {
-        // Mismatch — return single best-effort distribution
+        // Mismatch - return single best-effort distribution
         let mut bar1_skills = bar1_forced;
         let mut bar2_skills = bar2_forced;
         let (fill1, fill2) = flexible.split_at(bar1_slots_needed.min(flexible.len()));

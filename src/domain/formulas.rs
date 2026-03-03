@@ -131,7 +131,7 @@ pub fn effective_damage_contribution(
     stats: &CharacterStats,
 ) -> f64 {
     match target {
-        // Percentage damage modifiers — value is the direct contribution
+        // Percentage damage modifiers - value is the direct contribution
         BonusTarget::Damage
         | BonusTarget::DirectDamage
         | BonusTarget::DotDamage
@@ -195,7 +195,7 @@ pub fn effective_damage_contribution(
             (new_factor - old_factor) / old_factor
         }
 
-        // Weapon/Spell crit rating — same as generic CriticalRating
+        // Weapon/Spell crit rating - same as generic CriticalRating
         BonusTarget::WeaponCriticalRating | BonusTarget::SpellCriticalRating => {
             let current_chance = stats.critical_chance();
             let new_chance =
@@ -246,7 +246,7 @@ pub fn effective_damage_contribution(
             (stats.max_power() * value) / base
         }
 
-        // Unsupported targets — no damage contribution estimate
+        // Unsupported targets - no damage contribution estimate
         _ => 0.0,
     }
 }
@@ -692,7 +692,7 @@ mod tests {
 
     #[test]
     fn test_edc_crit_rating_at_cap_returns_zero() {
-        // Stats already at 100% crit chance — adding more rating gives 0
+        // Stats already at 100% crit chance - adding more rating gives 0
         let stats = CharacterStats::default()
             .with_critical_rating(MAX_CRIT_VALUE_CP160) // 100% total crit
             .with_critical_damage(2.0);
@@ -706,7 +706,7 @@ mod tests {
 
     #[test]
     fn test_edc_crit_damage_at_cap_returns_zero() {
-        // Stats already at 2.25 crit damage cap — adding more gives 0
+        // Stats already at 2.25 crit damage cap - adding more gives 0
         let stats = CharacterStats::default()
             .with_critical_rating(10956.0)
             .with_critical_damage(MAX_CRITICAL_DAMAGE);

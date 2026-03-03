@@ -19,5 +19,5 @@ Skills in the JSON have rank suffixes (e.g., `"Poison Injection 1"` through `"Po
 
 Each directory contains:
 
-- `<weapon>_skills.rs` — active skills (`SkillData`)
-- `<weapon>_passives.rs` — passive abilities (`PassiveData`)
+- `<weapon>_skills.rs` - active skills (`SkillData`)
+- `<weapon>_passives.rs` - passive abilities (`PassiveData`)

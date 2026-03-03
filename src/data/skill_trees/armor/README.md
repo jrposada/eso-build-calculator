@@ -20,5 +20,5 @@ Passive values are per-piece. Stacking by number of equipped pieces is handled a
 
 Each directory contains:
 
-- `<weight>_passives.rs` — DPS-relevant passives as `BonusData`
-- `<weight>_skills.rs` — Empty; armor active skills are defensive buffs not modeled in the calculator
+- `<weight>_passives.rs` - DPS-relevant passives as `BonusData`
+- `<weight>_skills.rs` - Empty; armor active skills are defensive buffs not modeled in the calculator

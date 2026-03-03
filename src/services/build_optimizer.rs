@@ -54,7 +54,7 @@ pub struct BuildOptimizer {
 
     /// Required non-spammable skills prepended to every combination
     required_non_spammable: Vec<&'static SkillData>,
-    /// Required finisher skill (if any) — always included in builds
+    /// Required finisher skill (if any) - always included in builds
     required_finisher: Option<&'static SkillData>,
 
     /// Pre-split champion point combinations: (pre_resolved, ability_count, alt)
@@ -167,11 +167,7 @@ impl BuildOptimizer {
             });
 
         let (class_names, class_skill_line_combinations) =
-            Self::generate_class_skill_line_combinations(
-                pure,
-                &required_class_names,
-                verbose,
-            );
+            Self::generate_class_skill_line_combinations(pure, &required_class_names, verbose);
 
         let (weapon_skill_line_names, weapon_skill_line_combinations) =
             Self::generate_weapon_skill_line_combinations(&required_weapon_skill_lines, verbose);
@@ -855,7 +851,7 @@ impl BuildOptimizer {
             .build()
             .expect("Failed to create thread pool");
 
-        // Lightweight candidate — stores indices for final Build reconstruction
+        // Lightweight candidate - stores indices for final Build reconstruction
         #[derive(Clone)]
         struct Candidate {
             damage: f64,
@@ -907,7 +903,7 @@ impl BuildOptimizer {
         }
 
         // Pre-collect lightweight work units to avoid par_bridge() mutex contention.
-        // Each work unit is (cp_idx, skill_line_idx, spammable_idx) — a few KB total.
+        // Each work unit is (cp_idx, skill_line_idx, spammable_idx) - a few KB total.
         let work_units = self.collect_work_units();
 
         let best_candidates: Option<TopN> = pool.install(|| {

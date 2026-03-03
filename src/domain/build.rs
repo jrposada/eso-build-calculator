@@ -605,7 +605,7 @@ impl Build {
 
     /// Build cached passive context for a given (skill combo, passive bonuses) pair.
     /// Pre-computes per-skill, per-hit/dot modifier sums from passive bonuses.
-    /// Constant across all CP combos — computed once per skill combo.
+    /// Constant across all CP combos - computed once per skill combo.
     pub fn cache_passive_context(
         skills: &[&'static SkillData],
         passive_pre_resolved: &[ResolvedBonus],

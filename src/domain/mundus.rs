@@ -44,19 +44,19 @@ impl MundusStone {
             MundusStone::Tower => stats.max_stamina += 2_023.0 * amp,
             MundusStone::Mage => stats.max_magicka += 2_023.0 * amp,
             MundusStone::Lord => {
-                // +2,225 max health — not modeled (no max_health field)
+                // +2,225 max health - not modeled (no max_health field)
             }
             MundusStone::Steed => {
-                // +movement speed — not modeled
+                // +movement speed - not modeled
             }
             MundusStone::Atronach => {
-                // +310 mag recovery — not modeled for DPS
+                // +310 mag recovery - not modeled for DPS
             }
             MundusStone::Serpent => {
-                // +310 stam recovery — not modeled for DPS
+                // +310 stam recovery - not modeled for DPS
             }
             MundusStone::Ritual => {
-                // +healing done — not modeled for DPS
+                // +healing done - not modeled for DPS
             }
         }
     }

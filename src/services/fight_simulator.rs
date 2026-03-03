@@ -737,13 +737,13 @@ impl FightSimulator {
         // Accumulate buff uptimes before expiring
         for buff in &state.active_buffs {
             let active_time = match buff.remaining_duration {
-                None => dt,                           // permanent — active full dt
+                None => dt,                           // permanent - active full dt
                 Some(remaining) => dt.min(remaining), // may expire partway
             };
             *state.buff_uptimes.entry(buff.name.clone()).or_insert(0.0) += active_time;
         }
 
-        // Expire buffs (before ticking DoTs — DoTs already snapshotted so order doesn't matter)
+        // Expire buffs (before ticking DoTs - DoTs already snapshotted so order doesn't matter)
         state.active_buffs.retain_mut(|buff| {
             match &mut buff.remaining_duration {
                 None => true, // permanent buffs never expire
@@ -813,27 +813,27 @@ impl FightSimulator {
     ) -> Action {
         let health_pct = state.remaining_hp / self.target_hp;
 
-        // Priority 1: Current bar expired DoTs/buffs — recast
+        // Priority 1: Current bar expired DoTs/buffs - recast
         if let Some(idx) = self.find_expired_dot_skill(state, current_skills) {
             return Action::CastSkill(idx);
         }
 
-        // Priority 2: Current bar never-applied DoTs — cast
+        // Priority 2: Current bar never-applied DoTs - cast
         if let Some(idx) = self.find_unapplied_dot_skill(state, current_skills) {
             return Action::CastSkill(idx);
         }
 
-        // Priority 3: Other bar has expired or unapplied DoTs — swap
+        // Priority 3: Other bar has expired or unapplied DoTs - swap
         if self.other_bar_needs_attention(state, other_skills) {
             return Action::BarSwap;
         }
 
-        // Priority 4: Ready proc skill on current bar — fire
+        // Priority 4: Ready proc skill on current bar - fire
         if let Some(idx) = self.find_ready_proc_skill(state, current_skills) {
             return Action::CastSkill(idx);
         }
 
-        // Priority 5: Ready proc skill on other bar — swap
+        // Priority 5: Ready proc skill on other bar - swap
         if self.other_bar_has_ready_proc(state, other_skills) {
             return Action::BarSwap;
         }
@@ -843,7 +843,7 @@ impl FightSimulator {
             return Action::CastSkill(idx);
         }
 
-        // Priority 7: Finisher on other bar when in execute range — swap
+        // Priority 7: Finisher on other bar when in execute range - swap
         if self.other_bar_has_execute_filler(other_skills, health_pct) {
             return Action::BarSwap;
         }

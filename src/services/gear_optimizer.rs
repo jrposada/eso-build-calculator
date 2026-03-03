@@ -40,8 +40,8 @@ pub struct GearOptimizer;
 
 impl GearOptimizer {
     /// Two-phase gear optimization:
-    /// Phase 1A: Greedy — score coupled/independent dimensions keeping others at baseline.
-    /// Phase 1B: Refine — cross-product top-K from each dimension group.
+    /// Phase 1A: Greedy - score coupled/independent dimensions keeping others at baseline.
+    /// Phase 1B: Refine - cross-product top-K from each dimension group.
     pub fn optimize(
         builds: &[Build],
         options: &GearOptimizerOptions,
@@ -67,7 +67,7 @@ impl GearOptimizer {
 
         // ── Phase 1A: Greedy scoring ──
 
-        // Coupled group 1: (ArmorTrait, Mundus) — Divines amplifies Mundus
+        // Coupled group 1: (ArmorTrait, Mundus) - Divines amplifies Mundus
         let armor_candidates: Vec<ArmorTrait> = match options.pinned_armor_trait {
             Some(t) => vec![t],
             None => DPS_ARMOR_TRAITS.to_vec(),
@@ -113,7 +113,7 @@ impl GearOptimizer {
             ));
         }
 
-        // Coupled group 2: (Attributes, Food) — both affect resource pools
+        // Coupled group 2: (Attributes, Food) - both affect resource pools
         let attr_candidates: Vec<AttributeChoice> = match options.pinned_attributes {
             Some(a) => vec![a],
             None => DPS_ATTRIBUTES.to_vec(),

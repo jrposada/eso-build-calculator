@@ -10,17 +10,17 @@ Skills in the JSON have rank suffixes (e.g., `"Barbed Trap 1"` through `"Barbed 
 
 ## Skill Lines
 
-| Directory          | Skill Line    |
-| ------------------ | ------------- |
-| `fighters_guild/`  | Fighters Guild |
-| `mages_guild/`     | Mages Guild   |
-| `undaunted/`       | Undaunted     |
-| `psijic_order/`    | Psijic Order  |
+| Directory         | Skill Line     |
+| ----------------- | -------------- |
+| `fighters_guild/` | Fighters Guild |
+| `mages_guild/`    | Mages Guild    |
+| `undaunted/`      | Undaunted      |
+| `psijic_order/`   | Psijic Order   |
 
 Each directory contains:
 
-- `<guild>_skills.rs` — active skills (`SkillData`)
-- `<guild>_passives.rs` — passive abilities (`PassiveData`)
+- `<guild>_skills.rs` - active skills (`SkillData`)
+- `<guild>_passives.rs` - passive abilities (`PassiveData`)
 
 ### Special: Undaunted Mettle
 
