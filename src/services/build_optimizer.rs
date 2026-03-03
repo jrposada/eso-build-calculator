@@ -20,7 +20,7 @@ use std::time::Instant;
 pub struct BuildOptimizerOptions {
     pub character_stats: CharacterStats,
     pub verbose: bool,
-    pub pure_class: Option<ClassName>,
+    pub pure: bool,
     pub required_class_names: Vec<ClassName>,
     pub required_weapon_skill_lines: Vec<SkillLineName>,
     pub required_champion_points: Vec<BonusData>,
@@ -89,7 +89,7 @@ impl BuildOptimizer {
             .iter()
             .map(|cp| cp.name.clone())
             .collect();
-        let pure_class = options.pure_class;
+        let pure = options.pure;
 
         // Auto-infer constraints from required skills
         let mut forced_morphs = options.forced_morphs.clone();
@@ -107,14 +107,12 @@ impl BuildOptimizer {
             } else if !sl.is_guild() {
                 // Class skill line
                 let class = sl.get_class();
-                if let Some(pure) = pure_class {
-                    if class != pure {
-                        logger::error(&format!(
-                            "Required skill '{}' is from class {} but --pure {} was specified",
-                            skill.name, class, pure
-                        ));
-                        std::process::exit(1);
-                    }
+                if pure && !required_class_names.contains(&class) {
+                    logger::error(&format!(
+                        "Required skill '{}' is from class {} which is not in --class",
+                        skill.name, class
+                    ));
+                    std::process::exit(1);
                 }
                 if !required_class_names.contains(&class) {
                     required_class_names.push(class);
@@ -170,7 +168,7 @@ impl BuildOptimizer {
 
         let (class_names, class_skill_line_combinations) =
             Self::generate_class_skill_line_combinations(
-                pure_class,
+                pure,
                 &required_class_names,
                 verbose,
             );
@@ -448,15 +446,27 @@ impl BuildOptimizer {
     }
 
     fn generate_class_skill_line_combinations(
-        pure_class: Option<ClassName>,
+        pure: bool,
         required_class_names: &[ClassName],
         verbose: bool,
     ) -> (HashSet<ClassName>, Vec<Vec<SkillLineName>>) {
         let mut class_names: HashSet<ClassName> = HashSet::new();
 
-        let class_name_combinations: Vec<Vec<ClassName>> = if let Some(class) = pure_class {
-            class_names.insert(class);
-            vec![vec![class]]
+        let class_name_combinations: Vec<Vec<ClassName>> = if pure {
+            // Pure mode: only use the classes specified by --class
+            for &c in required_class_names {
+                class_names.insert(c);
+            }
+            if required_class_names.len() >= BUILD_CONSTRAINTS.class_skill_line_count {
+                // Enough classes to fill all slots: generate combinations of exactly those
+                combinatorics::generate_combinations(
+                    &required_class_names.to_vec(),
+                    BUILD_CONSTRAINTS.class_skill_line_count,
+                )
+            } else {
+                // Fewer classes than slots: single combination with all specified classes
+                vec![required_class_names.to_vec()]
+            }
         } else {
             combinatorics::generate_combinations(
                 &ClassName::CLASS_ONLY.to_vec(),

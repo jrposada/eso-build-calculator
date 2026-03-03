@@ -1,11 +1,3 @@
-use std::fs;
-use std::io::{self, Write};
-use std::path::PathBuf;
-use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
-use std::time::Instant;
-
-use rayon::prelude::*;
-
 use super::build_config::BuildConfig;
 use super::parsers::{
     parse_champion_point, parse_class_name, parse_set, parse_skill, parse_weapon_skill_line,
@@ -27,17 +19,23 @@ use crate::services::{
     SetOptimizer, SetOptimizerOptions,
 };
 use clap::Args;
+use rayon::prelude::*;
+use std::fs;
+use std::io::{self, Write};
+use std::path::PathBuf;
+use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
+use std::time::Instant;
 
 /// Optimize build command arguments
 #[derive(Args, Debug)]
 pub struct OptimizeArgs {
     /// Require at least 1 skill line from these classes (comma-separated)
-    #[arg(short = 'c', long, value_delimiter = ',', value_parser = parse_class_name, conflicts_with = "pure")]
-    pub classes: Option<Vec<ClassName>>,
+    #[arg(short = 'c', long, value_delimiter = ',', value_parser = parse_class_name)]
+    pub class: Option<Vec<ClassName>>,
 
-    /// Use only skills from a single class (pure build)
-    #[arg(long, value_parser = parse_class_name, conflicts_with = "classes")]
-    pub pure: Option<ClassName>,
+    /// Restrict build to only the classes specified by --class
+    #[arg(long, requires = "class")]
+    pub pure: bool,
 
     /// Require at least 1 skill line from these weapons (comma-separated)
     #[arg(short = 'w', long, value_delimiter = ',', value_parser = parse_weapon_skill_line)]
@@ -266,8 +264,8 @@ impl OptimizeArgs {
         let optimizer = BuildOptimizer::new(BuildOptimizerOptions {
             character_stats,
             verbose: self.verbose,
-            pure_class: self.pure,
-            required_class_names: self.classes.clone().unwrap_or_default(),
+            pure: self.pure,
+            required_class_names: self.class.clone().unwrap_or_default(),
             required_weapon_skill_lines: self.weapons.clone().unwrap_or_default(),
             required_champion_points: self.champion_points.clone().unwrap_or_default(),
             required_skills: self.skills.clone().unwrap_or_default(),
@@ -364,8 +362,8 @@ impl OptimizeArgs {
                 let rerun_optimizer = BuildOptimizer::new(BuildOptimizerOptions {
                     character_stats: new_stats,
                     verbose: self.verbose,
-                    pure_class: self.pure,
-                    required_class_names: self.classes.clone().unwrap_or_default(),
+                    pure: self.pure,
+                    required_class_names: self.class.clone().unwrap_or_default(),
                     required_weapon_skill_lines: self.weapons.clone().unwrap_or_default(),
                     required_champion_points: self.champion_points.clone().unwrap_or_default(),
                     required_skills: self.skills.clone().unwrap_or_default(),
@@ -481,7 +479,7 @@ impl OptimizeArgs {
 
     fn validate(&self) {
         // Validate class count
-        if let Some(classes) = &self.classes {
+        if let Some(classes) = &self.class {
             if classes.len() > BUILD_CONSTRAINTS.class_skill_line_count {
                 logger::error(&format!(
                     "Maximum {} classes allowed",

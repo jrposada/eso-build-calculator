@@ -25,8 +25,8 @@ fn benchmark_nightblade_bow_2h_with_cp(c: &mut Criterion) {
             let optimizer = BuildOptimizer::new(BuildOptimizerOptions {
                 character_stats: CharacterStats::default(),
                 verbose: false,
-                pure_class: Some(ClassName::Nightblade),
-                required_class_names: vec![],
+                pure: true,
+                required_class_names: vec![ClassName::Nightblade],
                 required_weapon_skill_lines: vec![SkillLineName::Bow, SkillLineName::TwoHanded],
                 required_champion_points: vec![
                     get_champion_point("Deadly Aim"),
@@ -58,8 +58,8 @@ fn benchmark_nightblade_bow_2h_multi_cp(c: &mut Criterion) {
             let optimizer = BuildOptimizer::new(BuildOptimizerOptions {
                 character_stats: CharacterStats::default(),
                 verbose: false,
-                pure_class: Some(ClassName::Nightblade),
-                required_class_names: vec![],
+                pure: true,
+                required_class_names: vec![ClassName::Nightblade],
                 required_weapon_skill_lines: vec![SkillLineName::Bow, SkillLineName::TwoHanded],
                 required_champion_points: vec![get_champion_point("Deadly Aim")],
                 required_skills: vec![],
