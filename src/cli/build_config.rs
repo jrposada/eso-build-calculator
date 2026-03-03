@@ -16,8 +16,8 @@ fn default_true() -> bool {
     true
 }
 
-fn default_armor_types() -> u8 {
-    3
+fn default_armor() -> String {
+    "1,5,1".to_string()
 }
 
 fn default_avg_resource_pct() -> f64 {
@@ -52,12 +52,10 @@ pub struct BuildConfig {
     pub bar1_enchant: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bar2_enchant: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub armor_weight: Option<String>,
+    #[serde(default = "default_armor")]
+    pub armor: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub potion: Option<String>,
-    #[serde(default = "default_armor_types")]
-    pub armor_types: u8,
     #[serde(default = "default_avg_resource_pct")]
     pub avg_resource_pct: f64,
     #[serde(default = "default_true")]

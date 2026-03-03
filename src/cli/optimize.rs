@@ -8,8 +8,8 @@ use crate::data::passives::armor::armor_passives;
 use crate::data::passives::undaunted_mettle_bonuses;
 use crate::data::sets::ALL_SETS;
 use crate::domain::{
-    ArmorTrait, ArmorWeight, AttributeChoice, BonusData, Build, CharacterStats, ClassName, Food,
-    GearConfig, JewelryTrait, MundusStone, Potion, Race, SetData, SetProcEffect, SetType,
+    ArmorDistribution, ArmorTrait, AttributeChoice, BonusData, Build, CharacterStats, ClassName,
+    Food, GearConfig, JewelryTrait, MundusStone, Potion, Race, SetData, SetProcEffect, SetType,
     SimulationResult, SkillData, WeaponEnchant, WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
 };
 use crate::infrastructure::{format, logger};
@@ -38,18 +38,12 @@ pub struct OptimizeArgs {
     pub race: Option<Race>,
 
     /// Pin at least 1 skill line from these class (comma-separated)
-    #[arg(short = 'c', long, value_delimiter = ',', value_parser = parse_class_name)]
+    #[arg(long, value_delimiter = ',', value_parser = parse_class_name)]
     pub class: Option<Vec<ClassName>>,
 
     /// Restrict build to only the classes specified by --class
     #[arg(long, requires = "class")]
     pub pure: bool,
-
-    /// Pin weapon (comma-separated). Accepts skill lines (bow, destruction-staff, dual-wield,
-    /// two-handed) or specific types (inferno-staff, lightning-staff, dual-wield-dagger, etc.).
-    /// First value = bar1, second = bar2. One value = bar1 only (bar2 optimized).
-    #[arg(short = 'w', long, value_delimiter = ',', value_parser = parse_weapon)]
-    pub weapon: Option<Vec<WeaponType>>,
 
     /// Pin attribute points to magicka (optimized if omitted)
     #[arg(long, conflicts_with = "stamina")]
@@ -59,17 +53,23 @@ pub struct OptimizeArgs {
     #[arg(long, conflicts_with = "magicka")]
     pub stamina: bool,
 
+    /// Pin gear sets (comma-separated). Auto-grouped by type: max 2 normal/arena, 2 monster, 1 mythic.
+    #[arg(long, value_delimiter = ',', value_parser = parse_set)]
+    pub set: Option<Vec<&'static SetData>>,
+
+    /// Pin weapon (comma-separated). Accepts skill lines (bow, destruction-staff, dual-wield,
+    /// two-handed) or specific types (inferno-staff, lightning-staff, dual-wield-dagger, etc.).
+    /// First value = bar1, second = bar2. One value = bar1 only (bar2 optimized).
+    #[arg(long, value_delimiter = ',', value_parser = parse_weapon)]
+    pub weapon: Option<Vec<WeaponType>>,
+
     /// Require these skills in every build (comma-separated skill names)
-    #[arg(short = 's', long, value_delimiter = ',', value_parser = parse_skill)]
+    #[arg(long, value_delimiter = ',', value_parser = parse_skill)]
     pub skill: Option<Vec<&'static SkillData>>,
 
     /// Require these champion points (comma-separated)
     #[arg(long = "cp", value_delimiter = ',', value_parser = parse_champion_point)]
     pub champion_point: Option<Vec<crate::domain::BonusData>>,
-
-    /// Pin gear sets (comma-separated). Auto-grouped by type: max 2 normal/arena, 2 monster, 1 mythic.
-    #[arg(long, value_delimiter = ',', value_parser = parse_set)]
-    pub set: Option<Vec<&'static SetData>>,
 
     /// Pin mundus stone (thief, shadow, warrior, etc.) - optimized if omitted
     #[arg(long, value_parser = MundusStone::parse)]
@@ -91,9 +91,9 @@ pub struct OptimizeArgs {
     #[arg(long, value_parser = WeaponTrait::parse)]
     pub weapon_trait: Option<WeaponTrait>,
 
-    /// Armor weight for armor passives (medium, light, heavy; defaults to medium)
-    #[arg(long, value_parser = ArmorWeight::parse)]
-    pub armor_weight: Option<ArmorWeight>,
+    /// Armor piece counts as light,medium,heavy (e.g. 1,5,1). Free slots optimized.
+    #[arg(long, value_parser = ArmorDistribution::parse, default_value = "1,5,1")]
+    pub armor: ArmorDistribution,
 
     /// Potion buff (weapon-power, spell-power; defaults to weapon-power)
     #[arg(long, value_parser = Potion::parse)]
@@ -106,10 +106,6 @@ pub struct OptimizeArgs {
     /// Bar 2 weapon enchant (flame, poison, shock, berserker; defaults to flame)
     #[arg(long, value_parser = WeaponEnchant::parse)]
     pub bar2_enchant: Option<WeaponEnchant>,
-
-    /// Number of distinct armor weights worn (1-3, defaults to 3 for 5/1/1 builds)
-    #[arg(long, default_value = "3")]
-    pub armor_types: u8,
 
     /// Average resource percentage for resource-scaling sets like Bahsei's (0-100, default 50)
     #[arg(long, default_value = "50")]
@@ -138,9 +134,8 @@ struct ExportOptions {
     bar2_weapon: Option<WeaponType>,
     bar1_enchant: Option<WeaponEnchant>,
     bar2_enchant: Option<WeaponEnchant>,
-    armor_weight: Option<ArmorWeight>,
+    armor: ArmorDistribution,
     potion: Option<Potion>,
-    armor_types: u8,
     avg_resource_pct: f64,
     trial: bool,
 }
@@ -172,7 +167,7 @@ impl OptimizeArgs {
             jewelry_trait: self.jewelry_trait.unwrap_or(JewelryTrait::Bloodthirsty),
             weapon_trait: self.weapon_trait.unwrap_or(WeaponTrait::Nirnhoned),
             attributes: pinned_attributes.unwrap_or(AttributeChoice::Stamina),
-            armor_weight: self.armor_weight.unwrap_or(ArmorWeight::Medium),
+            armor_distribution: self.armor,
         };
 
         // Derive bar weapons from positional --weapon values
@@ -196,10 +191,33 @@ impl OptimizeArgs {
         };
 
         // Resolve armor passives and potion bonuses
-        let armor_weight = self.armor_weight.unwrap_or(ArmorWeight::Medium);
+        // Generate all completions and pick the best-guess passives for Phase 0
+        let completions = self.armor.completions();
         let potion = self.potion.unwrap_or(Potion::WeaponPower);
-        let mut armor_passive_bonuses = armor_passives(armor_weight);
-        armor_passive_bonuses.extend(undaunted_mettle_bonuses(self.armor_types));
+
+        // Deduplicate completions by (dominant_weight, type_count) to avoid redundant evaluations
+        let mut unique_passive_sets: Vec<(Option<crate::domain::ArmorWeight>, u8, ArmorDistribution)> = Vec::new();
+        for c in &completions {
+            let key = (c.dominant_weight(), c.type_count());
+            if !unique_passive_sets.iter().any(|(dw, tc, _)| *dw == key.0 && *tc == key.1) {
+                unique_passive_sets.push((key.0, key.1, *c));
+            }
+        }
+
+        // Use the best-guess heuristic: prefer medium dominant + 3-type, else first completion
+        let best_guess = unique_passive_sets
+            .iter()
+            .find(|(dw, tc, _)| *dw == Some(crate::domain::ArmorWeight::Medium) && *tc == 3)
+            .or_else(|| unique_passive_sets.first())
+            .map(|(_, _, c)| *c)
+            .unwrap_or(self.armor);
+
+        let mut armor_passive_bonuses = if let Some(dw) = best_guess.dominant_weight() {
+            armor_passives(dw)
+        } else {
+            Vec::new()
+        };
+        armor_passive_bonuses.extend(undaunted_mettle_bonuses(best_guess.type_count()));
         armor_passive_bonuses.extend(potion.bonuses());
 
         // ── Phase 0: BuildOptimizer with baseline stats ──
@@ -236,6 +254,56 @@ impl OptimizeArgs {
 
         logger::info(&builds[0].to_string());
         logger::info(&format!("Phase 0 completed in {:.2?}", elapsed));
+
+        // ── Free-slot armor optimization ──
+        // If multiple unique passive sets exist, re-evaluate the winning build with each
+        let winning_armor = if unique_passive_sets.len() > 1 {
+            let mut best_armor = best_guess;
+            let mut best_dpc = builds[0].total_damage_per_cast;
+            let source = &builds[0];
+
+            for &(dw, tc, dist) in &unique_passive_sets {
+                let mut passives = if let Some(weight) = dw {
+                    armor_passives(weight)
+                } else {
+                    Vec::new()
+                };
+                passives.extend(undaunted_mettle_bonuses(tc));
+                passives.extend(potion.bonuses());
+
+                let build = Build::new_with_extra(
+                    source.skills().to_vec(),
+                    source.cp_bonuses(),
+                    &passives,
+                    &[],
+                    Vec::new(),
+                    source.character_stats().clone(),
+                    &extra_bonuses,
+                );
+                if build.total_damage_per_cast > best_dpc {
+                    best_dpc = build.total_damage_per_cast;
+                    best_armor = dist;
+                }
+            }
+
+            if best_armor != best_guess {
+                logger::info(&format!(
+                    "Armor optimization: {} beats default (free slots filled optimally)",
+                    best_armor
+                ));
+                // Rebuild armor passives with winning distribution
+                armor_passive_bonuses = if let Some(dw) = best_armor.dominant_weight() {
+                    armor_passives(dw)
+                } else {
+                    Vec::new()
+                };
+                armor_passive_bonuses.extend(undaunted_mettle_bonuses(best_armor.type_count()));
+                armor_passive_bonuses.extend(potion.bonuses());
+            }
+            best_armor
+        } else {
+            best_guess
+        };
 
         // ── Phase 1: Gear Optimization ──
         let gear_options = GearOptimizerOptions {
@@ -384,9 +452,8 @@ impl OptimizeArgs {
             bar2_weapon,
             bar1_enchant: Some(winning_bar1),
             bar2_enchant: Some(winning_bar2),
-            armor_weight: Some(self.armor_weight.unwrap_or(ArmorWeight::Medium)),
+            armor: winning_armor,
             potion: Some(self.potion.unwrap_or(Potion::WeaponPower)),
-            armor_types: self.armor_types,
             avg_resource_pct: self.avg_resource_pct,
             trial: !self.no_trial,
         };
@@ -888,9 +955,8 @@ impl OptimizeArgs {
             weapon_trait: gear_config.map(|g| g.weapon_trait.to_string()),
             bar1_enchant: opts.bar1_enchant.map(|e| e.to_string()),
             bar2_enchant: opts.bar2_enchant.map(|e| e.to_string()),
-            armor_weight: opts.armor_weight.map(|w| w.to_string()),
+            armor: opts.armor.to_string(),
             potion: opts.potion.map(|p| p.to_string()),
-            armor_types: opts.armor_types,
             avg_resource_pct: opts.avg_resource_pct,
             trial: opts.trial,
             metadata,

@@ -5,9 +5,9 @@ use crate::data::bonuses::{TRIAL_BUFF_NAMES, TRIAL_DUMMY_BUFFS};
 use crate::data::passives::armor::armor_passives;
 use crate::data::passives::undaunted_mettle_bonuses;
 use crate::domain::{
-    ArmorTrait, ArmorWeight, AttributeChoice, BonusData, Build, CharacterStats, Food, GearConfig,
-    JewelryTrait, MundusStone, Potion, Race, SetData, SetProcEffect, SkillData, SkillLineName,
-    WeaponEnchant, WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
+    ArmorDistribution, ArmorTrait, AttributeChoice, BonusData, Build, CharacterStats, Food,
+    GearConfig, JewelryTrait, MundusStone, Potion, Race, SetData, SetProcEffect, SkillData,
+    SkillLineName, WeaponEnchant, WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
 };
 use crate::infrastructure::{format, logger, table, table::ColumnDefinition};
 use crate::services::{
@@ -87,9 +87,9 @@ pub struct SimulateArgs {
     #[arg(long, value_parser = WeaponTrait::parse)]
     pub weapon_trait: Option<WeaponTrait>,
 
-    /// Armor weight for armor passives (medium, light, heavy; defaults to medium)
-    #[arg(long, value_parser = ArmorWeight::parse)]
-    pub armor_weight: Option<ArmorWeight>,
+    /// Armor piece counts as light,medium,heavy (e.g. 1,5,1). Free slots use specified distribution.
+    #[arg(long, value_parser = ArmorDistribution::parse, default_value = "1,5,1")]
+    pub armor: ArmorDistribution,
 
     /// Potion buff (weapon-power, spell-power; defaults to weapon-power)
     #[arg(long, value_parser = Potion::parse)]
@@ -102,10 +102,6 @@ pub struct SimulateArgs {
     /// Bar 2 weapon enchant (flame, poison, shock, berserker; defaults to flame)
     #[arg(long, value_parser = WeaponEnchant::parse)]
     pub bar2_enchant: Option<WeaponEnchant>,
-
-    /// Number of distinct armor weights worn (1-3, defaults to 3 for 5/1/1 builds)
-    #[arg(long, default_value = "3")]
-    pub armor_types: u8,
 
     /// Average resource percentage for resource-scaling sets like Bahsei's (0-100, default 50)
     #[arg(long, default_value = "50")]
@@ -165,7 +161,7 @@ impl SimulateArgs {
                     jewelry_trait: self.jewelry_trait.unwrap_or(JewelryTrait::Bloodthirsty),
                     weapon_trait: self.weapon_trait.unwrap_or(WeaponTrait::Nirnhoned),
                     attributes,
-                    armor_weight: self.armor_weight.unwrap_or(ArmorWeight::Medium),
+                    armor_distribution: self.armor,
                 };
                 // Derive bar weapons from positional --weapon values
                 let bar1_weapon = self.weapon.as_deref().and_then(|ws| ws.first().copied());
@@ -239,22 +235,15 @@ impl SimulateArgs {
             .flat_map(|p| p.bonuses.iter().cloned())
             .collect();
 
-        // Add armor passives based on armor weight (CLI flag > file > default)
-        let file_armor_weight = file_config
+        // Add armor passives based on armor distribution (file > CLI default)
+        let armor_dist = file_config
             .as_ref()
-            .and_then(|c| c.armor_weight.as_ref())
-            .and_then(|w| ArmorWeight::parse(w).ok());
-        let armor_weight = self
-            .armor_weight
-            .or(file_armor_weight)
-            .unwrap_or(ArmorWeight::Medium);
-        passive_bonuses.extend(armor_passives(armor_weight));
-
-        // Add Undaunted Mettle bonuses based on armor types worn (file provides default)
-        let armor_types = file_config
-            .as_ref()
-            .map_or(self.armor_types, |c| c.armor_types);
-        passive_bonuses.extend(undaunted_mettle_bonuses(armor_types));
+            .and_then(|c| ArmorDistribution::parse(&c.armor).ok())
+            .unwrap_or(self.armor);
+        if let Some(dw) = armor_dist.dominant_weight() {
+            passive_bonuses.extend(armor_passives(dw));
+        }
+        passive_bonuses.extend(undaunted_mettle_bonuses(armor_dist.type_count()));
 
         // Add potion bonuses (CLI flag > file > default)
         let file_potion = file_config

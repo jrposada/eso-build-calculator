@@ -288,7 +288,7 @@ impl GearOptimizer {
                                 jewelry_trait: jewelry,
                                 weapon_trait: weapon,
                                 attributes: attr,
-                                armor_weight: baseline.armor_weight,
+                                armor_distribution: baseline.armor_distribution,
                             };
                             let dpc = score(&gear);
                             if dpc > best_dpc {

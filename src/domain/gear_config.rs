@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 
 use super::character_stats::ATTRIBUTE_POINTS_BONUS;
@@ -37,6 +37,114 @@ impl fmt::Display for ArmorWeight {
             ArmorWeight::Light => write!(f, "Light"),
             ArmorWeight::Heavy => write!(f, "Heavy"),
         }
+    }
+}
+
+/// Distribution of armor pieces across the three weights (light, medium, heavy).
+/// Sum must be ≤ 7; free slots (7 - sum) are optimized by trying all valid allocations.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct ArmorDistribution {
+    pub light: u8,
+    pub medium: u8,
+    pub heavy: u8,
+}
+
+impl ArmorDistribution {
+    pub fn parse(s: &str) -> Result<Self, String> {
+        let parts: Vec<&str> = s.split(',').collect();
+        if parts.len() != 3 {
+            return Err(format!(
+                "Armor distribution requires exactly 3 comma-separated values (light,medium,heavy), got {}",
+                parts.len()
+            ));
+        }
+        let light: u8 = parts[0]
+            .trim()
+            .parse()
+            .map_err(|_| format!("Invalid light armor count: '{}'", parts[0].trim()))?;
+        let medium: u8 = parts[1]
+            .trim()
+            .parse()
+            .map_err(|_| format!("Invalid medium armor count: '{}'", parts[1].trim()))?;
+        let heavy: u8 = parts[2]
+            .trim()
+            .parse()
+            .map_err(|_| format!("Invalid heavy armor count: '{}'", parts[2].trim()))?;
+        let sum = light + medium + heavy;
+        if sum > 7 {
+            return Err(format!(
+                "Armor piece total must be ≤ 7, got {} ({},{},{})",
+                sum, light, medium, heavy
+            ));
+        }
+        Ok(Self {
+            light,
+            medium,
+            heavy,
+        })
+    }
+
+    /// Returns the dominant armor weight (≥ 5 pieces), or `None` if no weight dominates.
+    pub fn dominant_weight(&self) -> Option<ArmorWeight> {
+        if self.light >= 5 {
+            Some(ArmorWeight::Light)
+        } else if self.medium >= 5 {
+            Some(ArmorWeight::Medium)
+        } else if self.heavy >= 5 {
+            Some(ArmorWeight::Heavy)
+        } else {
+            None
+        }
+    }
+
+    /// Count of non-zero weights (for Undaunted Mettle).
+    pub fn type_count(&self) -> u8 {
+        (self.light > 0) as u8 + (self.medium > 0) as u8 + (self.heavy > 0) as u8
+    }
+
+    /// Number of unassigned armor slots.
+    pub fn free_slots(&self) -> u8 {
+        7 - self.light - self.medium - self.heavy
+    }
+
+    /// All valid distributions filling free slots to sum=7.
+    /// Returns `vec![self]` when sum == 7.
+    pub fn completions(&self) -> Vec<ArmorDistribution> {
+        let free = self.free_slots();
+        if free == 0 {
+            return vec![*self];
+        }
+        let mut results = Vec::new();
+        for add_l in 0..=free {
+            for add_m in 0..=(free - add_l) {
+                let add_h = free - add_l - add_m;
+                results.push(ArmorDistribution {
+                    light: self.light + add_l,
+                    medium: self.medium + add_m,
+                    heavy: self.heavy + add_h,
+                });
+            }
+        }
+        results
+    }
+}
+
+impl fmt::Display for ArmorDistribution {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{},{},{}", self.light, self.medium, self.heavy)
+    }
+}
+
+impl Serialize for ArmorDistribution {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_str(&self.to_string())
+    }
+}
+
+impl<'de> Deserialize<'de> for ArmorDistribution {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let s = String::deserialize(deserializer)?;
+        ArmorDistribution::parse(&s).map_err(serde::de::Error::custom)
     }
 }
 
@@ -240,7 +348,7 @@ pub struct GearConfig {
     pub jewelry_trait: JewelryTrait,
     pub weapon_trait: WeaponTrait,
     pub attributes: AttributeChoice,
-    pub armor_weight: ArmorWeight,
+    pub armor_distribution: ArmorDistribution,
 }
 
 impl Default for GearConfig {
@@ -253,7 +361,11 @@ impl Default for GearConfig {
             jewelry_trait: JewelryTrait::Bloodthirsty,
             weapon_trait: WeaponTrait::Nirnhoned,
             attributes: AttributeChoice::None,
-            armor_weight: ArmorWeight::Medium,
+            armor_distribution: ArmorDistribution {
+                light: 1,
+                medium: 5,
+                heavy: 1,
+            },
         }
     }
 }

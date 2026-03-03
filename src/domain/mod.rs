@@ -47,8 +47,8 @@ pub use dot_damage::DotDamage;
 pub use execute::{ExecuteData, ExecuteScaling};
 pub use food::{Food, DPS_FOODS};
 pub use gear_config::{
-    ArmorTrait, ArmorWeight, AttributeChoice, GearConfig, JewelryTrait, WeaponTrait,
-    DPS_ARMOR_TRAITS, DPS_ATTRIBUTES, DPS_JEWELRY_TRAITS, DPS_WEAPON_TRAITS,
+    ArmorDistribution, ArmorTrait, ArmorWeight, AttributeChoice, GearConfig, JewelryTrait,
+    WeaponTrait, DPS_ARMOR_TRAITS, DPS_ATTRIBUTES, DPS_JEWELRY_TRAITS, DPS_WEAPON_TRAITS,
 };
 pub use gear_set::{SetBonusThreshold, SetData, SetType};
 pub use hit_damage::HitDamage;

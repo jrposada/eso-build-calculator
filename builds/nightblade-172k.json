@@ -44,9 +44,8 @@
   "weapon_trait": "Charged",
   "bar1_enchant": "Flame",
   "bar2_enchant": "Berserker",
-  "armor_weight": "Medium",
+  "armor": "1,5,1",
   "potion": "Weapon Power",
-  "armor_types": 3,
   "avg_resource_pct": 50.0,
   "trial": true,
   "metadata": {
