@@ -144,10 +144,10 @@ pub struct CalculateArgs {
 
 impl CalculateArgs {
     pub fn run(&self) {
-        let (skills, champion_points, file_weapons, file_sets, stats, file_trial) =
+        let (skills, champion_points, file_weapons, file_sets, stats, file_config) =
             if let Some(path) = &self.file {
-                let (s, cp, w, sets, character_stats, trial) = self.load_from_file(path);
-                (s, cp, w, sets, character_stats, Some(trial))
+                let (s, cp, w, sets, character_stats, config) = self.load_from_file(path);
+                (s, cp, w, sets, character_stats, Some(config))
             } else {
                 let (s, cp) = self.get_from_args();
 
@@ -186,7 +186,7 @@ impl CalculateArgs {
         let use_trial = if self.no_trial {
             false
         } else {
-            file_trial.unwrap_or(true)
+            file_config.as_ref().map_or(true, |c| c.trial)
         };
         let extra_bonuses: Vec<BonusData> = if use_trial {
             TRIAL_DUMMY_BUFFS.clone()
@@ -227,15 +227,26 @@ impl CalculateArgs {
             .flat_map(|p| p.bonuses.iter().cloned())
             .collect();
 
-        // Add armor passives based on armor weight
-        let armor_weight = self.armor_weight.unwrap_or(ArmorWeight::Medium);
+        // Add armor passives based on armor weight (CLI flag > file > default)
+        let file_armor_weight = file_config.as_ref()
+            .and_then(|c| c.armor_weight.as_ref())
+            .and_then(|w| ArmorWeight::parse(w).ok());
+        let armor_weight = self.armor_weight
+            .or(file_armor_weight)
+            .unwrap_or(ArmorWeight::Medium);
         passive_bonuses.extend(armor_passives(armor_weight));
 
-        // Add Undaunted Mettle bonuses based on armor types worn
-        passive_bonuses.extend(undaunted_mettle_bonuses(self.armor_types));
+        // Add Undaunted Mettle bonuses based on armor types worn (file provides default)
+        let armor_types = file_config.as_ref().map_or(self.armor_types, |c| c.armor_types);
+        passive_bonuses.extend(undaunted_mettle_bonuses(armor_types));
 
-        // Add potion bonuses (default: weapon-power)
-        let potion = self.potion.unwrap_or(Potion::WeaponPower);
+        // Add potion bonuses (CLI flag > file > default)
+        let file_potion = file_config.as_ref()
+            .and_then(|c| c.potion.as_ref())
+            .and_then(|p| Potion::parse(p).ok());
+        let potion = self.potion
+            .or(file_potion)
+            .unwrap_or(Potion::WeaponPower);
         passive_bonuses.extend(potion.bonuses());
 
         // Collect set bonuses
@@ -344,12 +355,19 @@ impl CalculateArgs {
         for bonus in potion.bonuses() {
             suppressed.insert(bonus.name.clone());
         }
-        let bar1_enchant = self.bar1_enchant.or(Some(WeaponEnchant::Flame));
-        let bar2_enchant = self.bar2_enchant.or(Some(WeaponEnchant::Flame));
+        let file_bar1_enchant = file_config.as_ref()
+            .and_then(|c| c.bar1_enchant.as_ref())
+            .and_then(|e| WeaponEnchant::parse(e).ok());
+        let file_bar2_enchant = file_config.as_ref()
+            .and_then(|c| c.bar2_enchant.as_ref())
+            .and_then(|e| WeaponEnchant::parse(e).ok());
+        let bar1_enchant = self.bar1_enchant.or(file_bar1_enchant).or(Some(WeaponEnchant::Flame));
+        let bar2_enchant = self.bar2_enchant.or(file_bar2_enchant).or(Some(WeaponEnchant::Flame));
+        let avg_resource_pct = file_config.as_ref().map_or(self.avg_resource_pct, |c| c.avg_resource_pct);
         let simulator = FightSimulator::new(effective_stats, resolved_bonuses, suppressed)
             .with_enchants(bar1_enchant, bar2_enchant)
             .with_set_procs(set_proc_effects)
-            .with_avg_resource_pct(self.avg_resource_pct);
+            .with_avg_resource_pct(avg_resource_pct);
 
         if self.verbose {
             let buffed = simulator.compute_buffed_stats(&distributions[0]);
@@ -393,7 +411,7 @@ impl CalculateArgs {
         (Option<WeaponType>, Option<WeaponType>),
         Vec<&'static SetData>,
         CharacterStats,
-        bool,
+        BuildConfig,
     ) {
         let content = fs::read_to_string(path).unwrap_or_else(|e| {
             logger::error(&format!("Failed to read file '{}': {}", path.display(), e));
@@ -447,7 +465,8 @@ impl CalculateArgs {
             })
             .collect();
 
-        (skills, champion_points, (bar1, bar2), sets, config.character_stats, config.trial)
+        let stats = config.character_stats.clone();
+        (skills, champion_points, (bar1, bar2), sets, stats, config)
     }
 }
 

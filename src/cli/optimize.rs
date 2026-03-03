@@ -176,6 +176,19 @@ pub struct OptimizeArgs {
     pub no_trial: bool,
 }
 
+/// Bundled export options for writing build config JSON.
+struct ExportOptions {
+    bar1_weapon: Option<WeaponType>,
+    bar2_weapon: Option<WeaponType>,
+    bar1_enchant: Option<WeaponEnchant>,
+    bar2_enchant: Option<WeaponEnchant>,
+    armor_weight: Option<ArmorWeight>,
+    potion: Option<Potion>,
+    armor_types: u8,
+    avg_resource_pct: f64,
+    trial: bool,
+}
+
 impl OptimizeArgs {
     pub fn run(&self) {
         self.validate();
@@ -395,16 +408,34 @@ impl OptimizeArgs {
         let best_build = &builds[0];
         let export_build = sim_result
             .as_ref()
-            .map(|(build_idx, _, _)| &builds[*build_idx])
+            .map(|(build_idx, _, _, _, _)| &builds[*build_idx])
             .unwrap_or(best_build);
-        let sim_data = sim_result.as_ref().map(|(_, dist, result)| (dist, result));
+        let sim_data = sim_result.as_ref().map(|(_, dist, result, _, _)| (dist, result));
 
-        // Export with gear info
+        // Export with gear info (use winning enchants from simulation if available)
+        let (winning_bar1, winning_bar2) = sim_result
+            .as_ref()
+            .map(|(_, _, _, e1, e2)| (*e1, *e2))
+            .unwrap_or((
+                self.bar1_enchant.unwrap_or(WeaponEnchant::Flame),
+                self.bar2_enchant.unwrap_or(WeaponEnchant::Flame),
+            ));
         let gear_config = winning_gear.as_ref().map(|g| &g.gear_config);
+        let export_opts = ExportOptions {
+            bar1_weapon: self.bar1_weapon,
+            bar2_weapon: self.bar2_weapon,
+            bar1_enchant: Some(winning_bar1),
+            bar2_enchant: Some(winning_bar2),
+            armor_weight: Some(self.armor_weight.unwrap_or(ArmorWeight::Medium)),
+            potion: Some(self.potion.unwrap_or(Potion::WeaponPower)),
+            armor_types: self.armor_types,
+            avg_resource_pct: self.avg_resource_pct,
+            trial: !self.no_trial,
+        };
         if let Some(path) = &self.output {
-            Self::export_to_file(export_build, self.bar1_weapon, self.bar2_weapon, sim_data, gear_config, !self.no_trial, path);
+            Self::export_to_file(export_build, sim_data, gear_config, &export_opts, path);
         } else {
-            Self::prompt_export(export_build, self.bar1_weapon, self.bar2_weapon, sim_data, gear_config, !self.no_trial);
+            Self::prompt_export(export_build, sim_data, gear_config, &export_opts);
         }
     }
 
@@ -501,7 +532,7 @@ impl OptimizeArgs {
     fn run_simulation(
         &self,
         builds: &[crate::domain::Build],
-    ) -> Option<(usize, BarDistribution, SimulationResult)> {
+    ) -> Option<(usize, BarDistribution, SimulationResult, WeaponEnchant, WeaponEnchant)> {
         // Determine weapon types from CLI args or infer from the top build
         let (bar1_weapon, bar2_weapon) = match (self.bar1_weapon, self.bar2_weapon) {
             (Some(w1), Some(w2)) => (w1, w2),
@@ -733,7 +764,7 @@ impl OptimizeArgs {
 
             display_simulation_result(&result, &best_dist, distributions.len(), builds[best_build_idx].set_names());
             logger::info(&format!("Simulation completed in {:.2?}", sim_elapsed));
-            return Some((best_build_idx, best_dist, result));
+            return Some((best_build_idx, best_dist, result, winning_bar1, winning_bar2));
         }
 
         None
@@ -741,11 +772,9 @@ impl OptimizeArgs {
 
     fn prompt_export(
         build: &crate::domain::Build,
-        bar1_weapon: Option<WeaponType>,
-        bar2_weapon: Option<WeaponType>,
         simulation: Option<(&BarDistribution, &SimulationResult)>,
         gear_config: Option<&GearConfig>,
-        trial: bool,
+        opts: &ExportOptions,
     ) {
         // Show prompt with greyed-out default value "no"
         print!("\nExport build to file? [path/no]: \x1b[90mn\x1b[0m");
@@ -764,16 +793,14 @@ impl OptimizeArgs {
         }
 
         let path = PathBuf::from(input);
-        Self::export_to_file(build, bar1_weapon, bar2_weapon, simulation, gear_config, trial, &path);
+        Self::export_to_file(build, simulation, gear_config, opts, &path);
     }
 
     fn export_to_file(
         build: &crate::domain::Build,
-        bar1_weapon: Option<WeaponType>,
-        bar2_weapon: Option<WeaponType>,
         simulation: Option<(&BarDistribution, &SimulationResult)>,
         gear_config: Option<&GearConfig>,
-        trial: bool,
+        opts: &ExportOptions,
         path: &PathBuf,
     ) {
         let metadata = simulation.map(|(dist, result)| {
@@ -790,8 +817,8 @@ impl OptimizeArgs {
             skills: build.skill_names(),
             champion_points: build.champion_point_names(),
             sets: build.set_names().iter().map(|(name, _)| name.clone()).collect(),
-            bar1_weapon: bar1_weapon.map(|w| w.to_string()),
-            bar2_weapon: bar2_weapon.map(|w| w.to_string()),
+            bar1_weapon: opts.bar1_weapon.map(|w| w.to_string()),
+            bar2_weapon: opts.bar2_weapon.map(|w| w.to_string()),
             character_stats: build.character_stats().clone(),
             race: gear_config.and_then(|g| g.race.map(|r| r.to_string())),
             mundus: gear_config.and_then(|g| g.mundus.map(|m| m.to_string())),
@@ -799,7 +826,13 @@ impl OptimizeArgs {
             armor_trait: gear_config.map(|g| g.armor_trait.to_string()),
             jewelry_trait: gear_config.map(|g| g.jewelry_trait.to_string()),
             weapon_trait: gear_config.map(|g| g.weapon_trait.to_string()),
-            trial,
+            bar1_enchant: opts.bar1_enchant.map(|e| e.to_string()),
+            bar2_enchant: opts.bar2_enchant.map(|e| e.to_string()),
+            armor_weight: opts.armor_weight.map(|w| w.to_string()),
+            potion: opts.potion.map(|p| p.to_string()),
+            armor_types: opts.armor_types,
+            avg_resource_pct: opts.avg_resource_pct,
+            trial: opts.trial,
             metadata,
         };
 
