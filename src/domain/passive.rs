@@ -7,6 +7,7 @@ pub struct PassiveData {
     pub name: String,
     pub class_name: ClassName,
     pub skill_line: SkillLineName,
+    pub skill_id: Option<u32>,
     pub bonuses: Vec<BonusData>,
 }
 
@@ -21,7 +22,13 @@ impl PassiveData {
             name: name.into(),
             class_name,
             skill_line,
+            skill_id: None,
             bonuses,
         }
+    }
+
+    pub fn with_skill_id(mut self, skill_id: u32) -> Self {
+        self.skill_id = Some(skill_id);
+        self
     }
 }

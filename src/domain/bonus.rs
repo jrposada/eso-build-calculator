@@ -35,6 +35,7 @@ pub struct BonusData {
     pub source: BonusSource,
     pub trigger: BonusTrigger,
 
+    pub skill_id: Option<u32>,
     pub cooldown: Option<f64>,
     pub duration: Option<f64>,
     pub execute_threshold: Option<f64>,
@@ -54,12 +55,18 @@ impl BonusData {
             name: name.into(),
             source,
             trigger,
+            skill_id: None,
             value: vec![value],
             cooldown: None,
             duration: None,
             execute_threshold: None,
             skill_line_filter: None,
         }
+    }
+
+    pub fn with_skill_id(mut self, skill_id: u32) -> Self {
+        self.skill_id = Some(skill_id);
+        self
     }
 
     pub fn with_trigger(mut self, trigger: BonusTrigger) -> Self {

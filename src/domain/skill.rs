@@ -14,6 +14,8 @@ pub struct SkillData {
     pub resource: Resource,
 
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub skill_id: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub damage: Option<SkillDamage>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub channel_time: Option<f64>,
@@ -44,6 +46,7 @@ impl SkillData {
             class_name,
             skill_line,
             resource,
+            skill_id: None,
             damage: None,
             channel_time: None,
             execute: None,
@@ -52,6 +55,11 @@ impl SkillData {
             cooldown: None,
             proc_light_attacks: None,
         }
+    }
+
+    pub fn with_skill_id(mut self, skill_id: u32) -> Self {
+        self.skill_id = Some(skill_id);
+        self
     }
 
     pub fn with_damage(mut self, damage: SkillDamage) -> Self {
