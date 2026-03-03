@@ -1,0 +1,67 @@
+use crate::domain::{
+    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, ClassName, PassiveData,
+    SkillLineName,
+};
+use once_cell::sync::Lazy;
+
+pub static DESTRUCTION_STAFF_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
+    vec![
+        // TODO: Requires HA mechanic
+        PassiveData::new(
+            "Tri Focus",
+            ClassName::Weapon,
+            SkillLineName::DestructionStaff,
+            vec![],
+        ),
+        PassiveData::new(
+            "Penetrating Magic",
+            ClassName::Weapon,
+            SkillLineName::DestructionStaff,
+            vec![BonusData::new(
+                "Penetrating Magic",
+                BonusSource::Passive,
+                BonusTrigger::DestructionStuffEquipped,
+                BonusValue::new(
+                    "Penetrating Magic",
+                    BonusTarget::PhysicalAndSpellPenetration,
+                    2974.0,
+                ),
+            )
+            .with_skill_line_filter(SkillLineName::Bow)],
+        ),
+        PassiveData::new(
+            "Elemental Force",
+            ClassName::Weapon,
+            SkillLineName::DestructionStaff,
+            vec![BonusData::new(
+                "Elemental Force",
+                BonusSource::Passive,
+                BonusTrigger::DestructionStuffEquipped,
+                BonusValue::new("Elemental Force", BonusTarget::StatusEffectChance, 1.0),
+            )],
+        ),
+        PassiveData::new(
+            "Ancient Knowledge",
+            ClassName::Weapon,
+            SkillLineName::DestructionStaff,
+            vec![BonusData::new(
+                "Ancient Knowledge (Inferno)",
+                BonusSource::Passive,
+                BonusTrigger::DestructionStuffEquipped,
+                BonusValue::new("Ancient Knowledge (Inferno)", BonusTarget::DotDamage, 0.12),
+            )
+            .with_alternative(BonusValue::new(
+                "Ancient Knowledge (Lightning)",
+                BonusTarget::DirectDamage,
+                0.12,
+            ))],
+        ),
+        PassiveData::new(
+            "Destruction Expert",
+            ClassName::Weapon,
+            SkillLineName::DestructionStaff,
+            vec![], //Not tracked - resource recovery on kill
+        ),
+    ]
+});
+
