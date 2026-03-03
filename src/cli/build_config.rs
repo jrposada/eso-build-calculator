@@ -8,6 +8,8 @@ pub struct BuildMetadata {
     pub fight_duration: f64,
     pub bar1_skills: Vec<String>,
     pub bar2_skills: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub buffed_stats: Option<CharacterStats>,
 }
 
 fn default_true() -> bool {

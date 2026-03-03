@@ -16,9 +16,9 @@ use crate::data::passives::armor::armor_passives;
 use crate::data::passives::undaunted_mettle_bonuses;
 use crate::data::sets::ALL_SETS;
 use crate::domain::{
-    ArmorTrait, ArmorWeight, AttributeChoice, BonusData, Build, ClassName, Food, GearConfig,
-    JewelryTrait, MundusStone, Potion, Race, SetData, SetProcEffect, SimulationResult, SkillData,
-    SkillLineName, WeaponEnchant, WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
+    ArmorTrait, ArmorWeight, AttributeChoice, BonusData, Build, CharacterStats, ClassName, Food,
+    GearConfig, JewelryTrait, MundusStone, Potion, Race, SetData, SetProcEffect, SimulationResult,
+    SkillData, SkillLineName, WeaponEnchant, WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
 };
 use crate::infrastructure::{format, logger};
 use crate::services::{
@@ -408,14 +408,15 @@ impl OptimizeArgs {
         let best_build = &builds[0];
         let export_build = sim_result
             .as_ref()
-            .map(|(build_idx, _, _, _, _)| &builds[*build_idx])
+            .map(|(build_idx, _, _, _, _, _)| &builds[*build_idx])
             .unwrap_or(best_build);
-        let sim_data = sim_result.as_ref().map(|(_, dist, result, _, _)| (dist, result));
+        let sim_data = sim_result.as_ref().map(|(_, dist, result, _, _, _)| (dist, result));
+        let buffed_stats = sim_result.as_ref().map(|(_, _, _, _, _, stats)| stats);
 
         // Export with gear info (use winning enchants from simulation if available)
         let (winning_bar1, winning_bar2) = sim_result
             .as_ref()
-            .map(|(_, _, _, e1, e2)| (*e1, *e2))
+            .map(|(_, _, _, e1, e2, _)| (*e1, *e2))
             .unwrap_or((
                 self.bar1_enchant.unwrap_or(WeaponEnchant::Flame),
                 self.bar2_enchant.unwrap_or(WeaponEnchant::Flame),
@@ -433,9 +434,9 @@ impl OptimizeArgs {
             trial: !self.no_trial,
         };
         if let Some(path) = &self.output {
-            Self::export_to_file(export_build, sim_data, gear_config, &export_opts, path);
+            Self::export_to_file(export_build, sim_data, buffed_stats, gear_config, &export_opts, path);
         } else {
-            Self::prompt_export(export_build, sim_data, gear_config, &export_opts);
+            Self::prompt_export(export_build, sim_data, buffed_stats, gear_config, &export_opts);
         }
     }
 
@@ -532,7 +533,7 @@ impl OptimizeArgs {
     fn run_simulation(
         &self,
         builds: &[crate::domain::Build],
-    ) -> Option<(usize, BarDistribution, SimulationResult, WeaponEnchant, WeaponEnchant)> {
+    ) -> Option<(usize, BarDistribution, SimulationResult, WeaponEnchant, WeaponEnchant, CharacterStats)> {
         // Determine weapon types from CLI args or infer from the top build
         let (bar1_weapon, bar2_weapon) = match (self.bar1_weapon, self.bar2_weapon) {
             (Some(w1), Some(w2)) => (w1, w2),
@@ -764,7 +765,43 @@ impl OptimizeArgs {
 
             display_simulation_result(&result, &best_dist, distributions.len(), builds[best_build_idx].set_names());
             logger::info(&format!("Simulation completed in {:.2?}", sim_elapsed));
-            return Some((best_build_idx, best_dist, result, winning_bar1, winning_bar2));
+
+            // Compute buffed stats for export metadata
+            let build = &builds[best_build_idx];
+            let mut suppressed_final = if self.no_trial {
+                std::collections::HashSet::new()
+            } else {
+                TRIAL_BUFF_NAMES.clone()
+            };
+            let potion_final = self.potion.unwrap_or(Potion::WeaponPower);
+            for bonus in potion_final.bonuses() {
+                suppressed_final.insert(bonus.name.clone());
+            }
+            let proc_effects_final: Vec<SetProcEffect> = build
+                .set_names()
+                .iter()
+                .flat_map(|(name, _)| {
+                    ALL_SETS
+                        .iter()
+                        .filter(move |s| s.name == *name)
+                        .flat_map(|s| {
+                            s.proc_effects_at(s.set_type.max_pieces())
+                                .into_iter()
+                                .cloned()
+                        })
+                })
+                .collect();
+            let final_sim = FightSimulator::new(
+                build.effective_stats(),
+                build.resolved_bonuses(),
+                suppressed_final,
+            )
+            .with_enchants(Some(winning_bar1), Some(winning_bar2))
+            .with_set_procs(proc_effects_final)
+            .with_avg_resource_pct(self.avg_resource_pct);
+            let buffed_stats = final_sim.compute_buffed_stats(&best_dist);
+
+            return Some((best_build_idx, best_dist, result, winning_bar1, winning_bar2, buffed_stats));
         }
 
         None
@@ -773,6 +810,7 @@ impl OptimizeArgs {
     fn prompt_export(
         build: &crate::domain::Build,
         simulation: Option<(&BarDistribution, &SimulationResult)>,
+        buffed_stats: Option<&CharacterStats>,
         gear_config: Option<&GearConfig>,
         opts: &ExportOptions,
     ) {
@@ -793,12 +831,13 @@ impl OptimizeArgs {
         }
 
         let path = PathBuf::from(input);
-        Self::export_to_file(build, simulation, gear_config, opts, &path);
+        Self::export_to_file(build, simulation, buffed_stats, gear_config, opts, &path);
     }
 
     fn export_to_file(
         build: &crate::domain::Build,
         simulation: Option<(&BarDistribution, &SimulationResult)>,
+        buffed_stats: Option<&CharacterStats>,
         gear_config: Option<&GearConfig>,
         opts: &ExportOptions,
         path: &PathBuf,
@@ -810,6 +849,7 @@ impl OptimizeArgs {
                 fight_duration: result.fight_duration,
                 bar1_skills: dist.bar1.skills.iter().map(|s| s.name.to_string()).collect(),
                 bar2_skills: dist.bar2.skills.iter().map(|s| s.name.to_string()).collect(),
+                buffed_stats: buffed_stats.cloned(),
             }
         });
 
