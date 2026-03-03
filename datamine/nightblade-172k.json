@@ -1,0 +1,69 @@
+{
+  "skills": [
+    "Escalating Runeblades",
+    "Tentacular Dread",
+    "Power of the Light",
+    "Merciless Resolve",
+    "Radiant Oppression",
+    "Stampede",
+    "Carve",
+    "Barbed Trap",
+    "Inspired Scholarship",
+    "Solar Barrage"
+  ],
+  "champion_points": [
+    "Wrathful Strikes",
+    "Deadly Aim",
+    "Master-at-Arms",
+    "Exploiter"
+  ],
+  "sets": [
+    "Advancing Yokeda",
+    "Perfected Slivers of the Null Arca",
+    "Slimecraw",
+    "Huntsman's Warmask",
+    "Perfected Merciless Charge"
+  ],
+  "bar1_weapon": "dual-wield-dagger",
+  "bar2_weapon": "two-handed-sword",
+  "character_stats": {
+    "max_magicka": 13910.0,
+    "max_stamina": 29958.0,
+    "weapon_damage": 2252.5,
+    "spell_damage": 2252.5,
+    "critical_rating": 0.0,
+    "critical_damage": 1.66775,
+    "penetration": 0.0,
+    "target_armor": 18200.0
+  },
+  "race": "Dunmer",
+  "mundus": "The Shadow",
+  "food": "Lava Foot Soup-and-Saltrice",
+  "armor_trait": "Divines",
+  "jewelry_trait": "Bloodthirsty",
+  "weapon_trait": "Charged",
+  "bar1_enchant": "Flame",
+  "bar2_enchant": "Berserker",
+  "armor_weight": "Medium",
+  "potion": "Weapon Power",
+  "armor_types": 3,
+  "avg_resource_pct": 50.0,
+  "trial": true,
+  "metadata": {
+    "dps": 172000.0,
+    "bar1_skills": [
+      "Escalating Runeblades",
+      "Tentacular Dread",
+      "Power of the Light",
+      "Merciless Resolve",
+      "Radiant Oppression"
+    ],
+    "bar2_skills": [
+      "Stampede",
+      "Carve",
+      "Barbed Trap",
+      "Inspired Scholarship",
+      "Solar Barrage"
+    ]
+  }
+}
