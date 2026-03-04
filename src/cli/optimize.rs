@@ -112,7 +112,18 @@ pub struct OptimizeArgs {
 impl OptimizeArgs {
     pub fn run(&self) {
         self.validate();
+        let options = self.build_pipeline_options();
+        let result = OptimizePipeline::run(options);
 
+        // Handle export
+        if let Some(path) = &self.output {
+            Self::export_to_file(&result.build_config, path);
+        } else {
+            Self::prompt_export(&result.build_config);
+        }
+    }
+
+    fn build_pipeline_options(&self) -> OptimizePipelineOptions {
         let parallelism = self
             .parallelism
             .unwrap_or_else(|| (num_cpus::get() / 2).max(1) as u8);
@@ -178,7 +189,7 @@ impl OptimizeArgs {
             _ => (None, None),
         };
 
-        let pipeline_options = OptimizePipelineOptions {
+        OptimizePipelineOptions {
             verbose: self.verbose,
             pure: self.pure,
             required_class_names: self.class.clone().unwrap_or_default(),
@@ -208,15 +219,6 @@ impl OptimizeArgs {
             pinned_mundus: self.mundus,
             pinned_food: self.food,
             pinned_attributes,
-        };
-
-        let result = OptimizePipeline::run(pipeline_options);
-
-        // Handle export
-        if let Some(path) = &self.output {
-            Self::export_to_file(&result.build_config, path);
-        } else {
-            Self::prompt_export(&result.build_config);
         }
     }
 
