@@ -14,7 +14,7 @@ pub mod dot_damage;
 pub mod execute;
 pub mod food;
 pub mod formulas;
-pub mod gear_config;
+pub mod equipment;
 pub mod gear_set;
 pub mod hit_damage;
 pub mod light_attack;
@@ -47,8 +47,8 @@ pub use damage_flags::DamageFlags;
 pub use dot_damage::DotDamage;
 pub use execute::{ExecuteData, ExecuteScaling};
 pub use food::{Food, DPS_FOODS};
-pub use gear_config::{
-    ArmorDistribution, ArmorTrait, ArmorWeight, AttributeChoice, GearConfig, JewelryTrait,
+pub use equipment::{
+    ArmorDistribution, ArmorTrait, ArmorWeight, AttributeChoice, JewelryTrait,
     WeaponTrait, DPS_ARMOR_TRAITS, DPS_ATTRIBUTES, DPS_JEWELRY_TRAITS, DPS_WEAPON_TRAITS,
 };
 pub use gear_set::{SetBonusThreshold, SetData, SetType};

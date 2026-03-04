@@ -1,5 +1,5 @@
 use crate::domain::{
-    ArmorTrait, AttributeChoice, Build, CharacterStats, Food, GearConfig, JewelryTrait,
+    ArmorTrait, AttributeChoice, Build, BuildConfig, CharacterStats, Food, JewelryTrait,
     MundusStone, Race, WeaponTrait, WeaponType, DPS_ARMOR_TRAITS, DPS_ATTRIBUTES, DPS_FOODS,
     DPS_JEWELRY_TRAITS, DPS_MUNDUS_STONES, DPS_RACES, DPS_WEAPON_TRAITS,
 };
@@ -35,7 +35,7 @@ impl GearOptimizerOptions {
 }
 
 pub struct GearOptimizerResult {
-    pub gear_config: GearConfig,
+    pub build_config: BuildConfig,
     pub character_stats: CharacterStats,
 }
 
@@ -48,14 +48,14 @@ impl GearOptimizer {
     pub fn optimize(
         builds: &[Build],
         options: &GearOptimizerOptions,
-        baseline: &GearConfig,
+        baseline: &BuildConfig,
     ) -> GearOptimizerResult {
         let rep = &builds[0];
         let top_k = options.top_k;
 
-        // Helper: evaluate a GearConfig by building a new Build and returning DPC
-        let score = |gear: &GearConfig| -> f64 {
-            let stats = gear.compute_stats(options.bar1_weapon);
+        // Helper: evaluate a BuildConfig by building a new Build and returning DPC
+        let score = |gear: &BuildConfig| -> f64 {
+            let stats = gear.compute_stats();
             let build = Build::new_with_extra(
                 rep.skills().to_vec(),
                 rep.cp_bonuses(),
@@ -342,7 +342,7 @@ impl GearOptimizer {
                 for &(_, race) in &race_scores {
                     for &(_, jewelry) in &jewelry_scores {
                         for &(_, weapon) in &weapon_scores {
-                            let gear = GearConfig {
+                            let gear = BuildConfig {
                                 race,
                                 mundus,
                                 food,
@@ -350,7 +350,9 @@ impl GearOptimizer {
                                 jewelry_traits: jewelry,
                                 weapon_traits: weapon,
                                 attributes: attr,
-                                armor_distribution: baseline.armor_distribution,
+                                armor: baseline.armor,
+                                bar1_weapon: baseline.bar1_weapon,
+                                ..baseline.clone()
                             };
                             let dpc = score(&gear);
                             if dpc > best_dpc {
@@ -363,7 +365,7 @@ impl GearOptimizer {
             }
         }
 
-        let best_stats = best_gear.compute_stats(options.bar1_weapon);
+        let best_stats = best_gear.compute_stats();
 
         if options.verbose {
             logger::dim(&format!(
@@ -380,7 +382,7 @@ impl GearOptimizer {
         }
 
         GearOptimizerResult {
-            gear_config: best_gear,
+            build_config: best_gear,
             character_stats: best_stats,
         }
     }

@@ -1,6 +1,6 @@
 use super::parsers::{parse_class_name, parse_weapon};
 use crate::domain::{
-    ArmorDistribution, ArmorTrait, AttributeChoice, BonusData, ClassName, Food, GearConfig,
+    ArmorDistribution, ArmorTrait, AttributeChoice, BonusData, BuildConfig, ClassName, Food,
     JewelryTrait, MundusStone, Potion, Race, SetData, SkillData, WeaponEnchant,
     WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
 };
@@ -211,7 +211,7 @@ impl OptimizeArgs {
             None
         };
 
-        // Build baseline GearConfig
+        // Build baseline BuildConfig
         let baseline_armor_traits = {
             let mut arr = [ArmorTrait::Divines; 7];
             if let Some(pinned) = &self.armor_trait {
@@ -239,16 +239,6 @@ impl OptimizeArgs {
             }
             arr
         };
-        let baseline_gear = GearConfig {
-            race: self.race,
-            mundus: self.mundus,
-            food: self.food,
-            armor_traits: baseline_armor_traits,
-            jewelry_traits: baseline_jewelry_traits,
-            weapon_traits: baseline_weapon_traits,
-            attributes: pinned_attributes.unwrap_or(AttributeChoice::Stamina),
-            armor_distribution: self.armor,
-        };
 
         // Derive bar weapons from positional --weapon values
         let (bar1_weapon, bar2_weapon) = match self.weapon.as_deref() {
@@ -262,6 +252,23 @@ impl OptimizeArgs {
             Some([e1, e2, ..]) => (Some(*e1), Some(*e2)),
             Some([e1]) => (Some(*e1), None),
             _ => (None, None),
+        };
+
+        let baseline = BuildConfig {
+            race: self.race,
+            mundus: self.mundus,
+            food: self.food,
+            armor_traits: baseline_armor_traits,
+            jewelry_traits: baseline_jewelry_traits,
+            weapon_traits: baseline_weapon_traits,
+            attributes: pinned_attributes.unwrap_or(AttributeChoice::Stamina),
+            armor: self.armor,
+            bar1_weapon,
+            bar2_weapon,
+            potion: self.potion,
+            avg_resource_pct: self.avg_resource_pct,
+            trial: !self.no_trial,
+            ..BuildConfig::default()
         };
 
         OptimizePipelineOptions {
@@ -278,15 +285,10 @@ impl OptimizeArgs {
             parallelism,
             max_pool_size: self.max_pool_size,
             pinned_sets: self.set.clone().unwrap_or_default(),
-            baseline_gear,
-            bar1_weapon,
-            bar2_weapon,
+            baseline,
             pinned_bar1_enchant,
             pinned_bar2_enchant,
-            armor: self.armor,
             potion: self.potion.unwrap_or(Potion::WeaponPower),
-            avg_resource_pct: self.avg_resource_pct,
-            use_trial: !self.no_trial,
             pinned_armor_traits: self.armor_trait.clone().unwrap_or_default(),
             pinned_jewelry_traits: self.jewelry_trait.clone().unwrap_or_default(),
             pinned_weapon_traits: self.weapon_trait.clone().unwrap_or_default(),

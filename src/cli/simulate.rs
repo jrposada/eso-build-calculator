@@ -5,7 +5,7 @@ use crate::data::skill_trees::armor::armor_passives;
 use crate::data::skill_trees::guild::undaunted::undaunted_passives::undaunted_mettle_bonuses;
 use crate::domain::{
     ArmorDistribution, ArmorTrait, AttributeChoice, BonusData, Build, BuildConfig, CharacterStats,
-    Food, GearConfig, JewelryTrait, MundusStone, Potion, Race, SetData, SetProcEffect, SkillData,
+    Food, JewelryTrait, MundusStone, Potion, Race, SetData, SetProcEffect, SkillData,
     SkillLineName, WeaponEnchant, WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
 };
 use crate::infrastructure::{format, logger, table, table::ColumnDefinition};
@@ -175,7 +175,9 @@ impl SimulateArgs {
                     }
                     arr
                 };
-                let gear = GearConfig {
+                let bar1_weapon = self.weapon.as_deref().and_then(|ws| ws.first().copied());
+                let bar2_weapon = self.weapon.as_deref().and_then(|ws| ws.get(1).copied());
+                let build_cfg = BuildConfig {
                     race: self.race,
                     mundus: self.mundus,
                     food: self.food,
@@ -183,11 +185,12 @@ impl SimulateArgs {
                     jewelry_traits,
                     weapon_traits,
                     attributes,
-                    armor_distribution: self.armor,
+                    armor: self.armor,
+                    bar1_weapon,
+                    bar2_weapon,
+                    ..BuildConfig::default()
                 };
-                // Derive bar weapons from positional --weapon values
-                let bar1_weapon = self.weapon.as_deref().and_then(|ws| ws.first().copied());
-                let mut stats = gear.compute_stats(bar1_weapon);
+                let mut stats = build_cfg.compute_stats();
 
                 // Apply stat overrides
                 if let Some(v) = self.max_stamina {
@@ -260,7 +263,7 @@ impl SimulateArgs {
         // Add armor passives based on armor distribution (file > CLI default)
         let armor_dist = file_config
             .as_ref()
-            .and_then(|c| ArmorDistribution::parse(&c.armor).ok())
+            .map(|c| c.armor)
             .unwrap_or(self.armor);
         if let Some(dw) = armor_dist.dominant_weight() {
             passive_bonuses.extend(armor_passives(dw));
@@ -270,8 +273,7 @@ impl SimulateArgs {
         // Add potion bonuses (CLI flag > file > default)
         let file_potion = file_config
             .as_ref()
-            .and_then(|c| c.potion.as_ref())
-            .and_then(|p| Potion::parse(p).ok());
+            .and_then(|c| c.potion);
         let potion = self.potion.or(file_potion).unwrap_or(Potion::WeaponPower);
         passive_bonuses.extend(potion.bonuses());
 
@@ -384,11 +386,7 @@ impl SimulateArgs {
         let file_enchants: Vec<WeaponEnchant> = file_config
             .as_ref()
             .and_then(|c| c.enchant.as_ref())
-            .map(|es| {
-                es.iter()
-                    .filter_map(|e| WeaponEnchant::parse(e).ok())
-                    .collect()
-            })
+            .cloned()
             .unwrap_or_default();
         let (cli_bar1, cli_bar2) = match self.enchant.as_deref() {
             Some([e1, e2, ..]) => (Some(*e1), Some(*e2)),
@@ -490,14 +488,8 @@ impl SimulateArgs {
             })
             .collect();
 
-        let bar1 = config
-            .bar1_weapon
-            .as_ref()
-            .and_then(|w| WeaponType::parse(w).ok());
-        let bar2 = config
-            .bar2_weapon
-            .as_ref()
-            .and_then(|w| WeaponType::parse(w).ok());
+        let bar1 = config.bar1_weapon;
+        let bar2 = config.bar2_weapon;
 
         let sets: Vec<&'static SetData> = config
             .sets

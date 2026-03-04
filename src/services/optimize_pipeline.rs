@@ -4,8 +4,8 @@ use crate::data::skill_trees::armor::armor_passives;
 use crate::data::skill_trees::guild::undaunted::undaunted_passives::undaunted_mettle_bonuses;
 use crate::domain::{
     ArmorDistribution, ArmorWeight, BonusData, Build, BuildConfig, BuildMetadata, CharacterStats,
-    ClassName, GearConfig, Potion, SetData, SetProcEffect, SimulationResult, SkillData,
-    WeaponEnchant, WeaponType,
+    ClassName, Potion, SetData, SetProcEffect, SimulationResult, SkillData,
+    WeaponEnchant,
 };
 use crate::infrastructure::{format, logger};
 use crate::services::{
@@ -27,15 +27,10 @@ pub struct OptimizePipelineOptions {
     pub parallelism: u8,
     pub max_pool_size: Option<usize>,
     pub pinned_sets: Vec<&'static SetData>,
-    pub baseline_gear: GearConfig,
-    pub bar1_weapon: Option<WeaponType>,
-    pub bar2_weapon: Option<WeaponType>,
+    pub baseline: BuildConfig,
     pub pinned_bar1_enchant: Option<WeaponEnchant>,
     pub pinned_bar2_enchant: Option<WeaponEnchant>,
-    pub armor: ArmorDistribution,
     pub potion: Potion,
-    pub avg_resource_pct: f64,
-    pub use_trial: bool,
     pub pinned_armor_traits: Vec<crate::domain::ArmorTrait>,
     pub pinned_jewelry_traits: Vec<crate::domain::JewelryTrait>,
     pub pinned_weapon_traits: Vec<crate::domain::WeaponTrait>,
@@ -62,7 +57,7 @@ pub struct OptimizePipeline;
 
 impl OptimizePipeline {
     pub fn run(options: OptimizePipelineOptions) -> OptimizePipelineResult {
-        let character_stats = options.baseline_gear.compute_stats(options.bar1_weapon);
+        let character_stats = options.baseline.compute_stats();
         let baseline_stats = character_stats.clone();
 
         // Resolve pinned set bonuses for Phase 0
@@ -70,14 +65,14 @@ impl OptimizePipeline {
             resolve_set_bonuses(&options.pinned_sets);
 
         // Resolve trial dummy buffs
-        let extra_bonuses = if options.use_trial {
+        let extra_bonuses = if options.baseline.trial {
             TRIAL_DUMMY_BUFFS.clone()
         } else {
             Vec::new()
         };
 
         // Resolve armor passives and potion bonuses
-        let completions = options.armor.completions();
+        let completions = options.baseline.armor.completions();
 
         // Deduplicate completions by (dominant_weight, type_count)
         let mut unique_passive_sets: Vec<(Option<ArmorWeight>, u8, ArmorDistribution)> = Vec::new();
@@ -97,7 +92,7 @@ impl OptimizePipeline {
             .find(|(dw, tc, _)| *dw == Some(ArmorWeight::Medium) && *tc == 3)
             .or_else(|| unique_passive_sets.first())
             .map(|(_, _, c)| *c)
-            .unwrap_or(options.armor);
+            .unwrap_or(options.baseline.armor);
 
         let mut armor_passive_bonuses = if let Some(dw) = best_guess.dominant_weight() {
             armor_passives(dw)
@@ -195,7 +190,7 @@ impl OptimizePipeline {
             pinned_jewelry_traits: options.pinned_jewelry_traits.clone(),
             pinned_weapon_traits: options.pinned_weapon_traits.clone(),
             pinned_attributes: options.pinned_attributes,
-            bar1_weapon: options.bar1_weapon,
+            bar1_weapon: options.baseline.bar1_weapon,
             top_k: 3,
             verbose: options.verbose,
         };
@@ -209,10 +204,10 @@ impl OptimizePipeline {
             logger::info("Phase 1: Optimizing gear (race, mundus, food, traits)...");
             let gear_start = Instant::now();
             let result =
-                GearOptimizer::optimize(&builds, &gear_options, &options.baseline_gear);
+                GearOptimizer::optimize(&builds, &gear_options, &options.baseline);
             let gear_elapsed = gear_start.elapsed();
 
-            let g = &result.gear_config;
+            let g = &result.build_config;
             logger::success(&std::format!(
                 "Best gear: Race={}, Mundus={}, Food={}, Armor={}, Jewelry={}, Weapon={}, Attributes={}",
                 g.race.map_or("None".to_string(), |r| r.to_string()),
@@ -333,7 +328,7 @@ impl OptimizePipeline {
                     .unwrap_or(WeaponEnchant::Flame),
             ));
 
-        let gear_config = winning_gear.as_ref().map(|g| &g.gear_config);
+        let winning_build_config = winning_gear.as_ref().map(|g| &g.build_config);
 
         // Build the metadata from simulation data
         let metadata = sim_data.map(|(dist, result)| BuildMetadata {
@@ -363,26 +358,29 @@ impl OptimizePipeline {
                 .iter()
                 .map(|(name, _)| name.clone())
                 .collect(),
-            bar1_weapon: options.bar1_weapon.map(|w| w.to_string()),
-            bar2_weapon: options.bar2_weapon.map(|w| w.to_string()),
+            bar1_weapon: options.baseline.bar1_weapon,
+            bar2_weapon: options.baseline.bar2_weapon,
             character_stats: export_build.character_stats().clone(),
-            race: gear_config.and_then(|g| g.race.map(|r| r.to_string())),
-            mundus: gear_config.and_then(|g| g.mundus.map(|m| m.to_string())),
-            food: gear_config.and_then(|g| g.food.map(|f| f.to_string())),
-            armor_trait: gear_config
-                .map(|g| g.armor_traits.iter().map(|t| t.to_string()).collect()),
-            jewelry_trait: gear_config
-                .map(|g| g.jewelry_traits.iter().map(|t| t.to_string()).collect()),
-            weapon_trait: gear_config
-                .map(|g| g.weapon_traits.iter().map(|t| t.to_string()).collect()),
-            enchant: Some(vec![
-                winning_bar1.to_string(),
-                winning_bar2.to_string(),
-            ]),
-            armor: winning_armor.to_string(),
-            potion: Some(options.potion.to_string()),
-            avg_resource_pct: options.avg_resource_pct,
-            trial: options.use_trial,
+            race: winning_build_config.and_then(|g| g.race),
+            mundus: winning_build_config.and_then(|g| g.mundus),
+            food: winning_build_config.and_then(|g| g.food),
+            armor_traits: winning_build_config
+                .map(|g| g.armor_traits)
+                .unwrap_or(options.baseline.armor_traits),
+            jewelry_traits: winning_build_config
+                .map(|g| g.jewelry_traits)
+                .unwrap_or(options.baseline.jewelry_traits),
+            weapon_traits: winning_build_config
+                .map(|g| g.weapon_traits)
+                .unwrap_or(options.baseline.weapon_traits),
+            enchant: Some(vec![winning_bar1, winning_bar2]),
+            armor: winning_armor,
+            potion: Some(options.potion),
+            avg_resource_pct: options.baseline.avg_resource_pct,
+            trial: options.baseline.trial,
+            attributes: winning_build_config
+                .map(|g| g.attributes)
+                .unwrap_or(options.baseline.attributes),
             metadata,
         };
 
@@ -436,7 +434,7 @@ fn run_simulation(
         match infer_weapons(top_skills) {
             Ok(weapons) => Some(weapons),
             Err(e) => {
-                if options.bar1_weapon.is_none() && options.bar2_weapon.is_none() {
+                if options.baseline.bar1_weapon.is_none() && options.baseline.bar2_weapon.is_none() {
                     logger::warn(&std::format!(
                         "Could not infer weapons for simulation: {}. Skipping fight simulation.",
                         e
@@ -447,7 +445,7 @@ fn run_simulation(
             }
         }
     };
-    let (bar1_weapon, bar2_weapon) = match (options.bar1_weapon, options.bar2_weapon) {
+    let (bar1_weapon, bar2_weapon) = match (options.baseline.bar1_weapon, options.baseline.bar2_weapon) {
         (Some(w1), Some(w2)) => (w1, w2),
         (Some(w1), None) => (w1, inferred.map(|(_, w2)| w2).unwrap_or(w1)),
         (None, Some(w2)) => (inferred.map(|(w1, _)| w1).unwrap_or(w2), w2),
@@ -473,7 +471,7 @@ fn run_simulation(
             if distributions.is_empty() {
                 return None;
             }
-            let mut suppressed = if options.use_trial {
+            let mut suppressed = if options.baseline.trial {
                 TRIAL_BUFF_NAMES.clone()
             } else {
                 std::collections::HashSet::new()
@@ -504,7 +502,7 @@ fn run_simulation(
             )
             .with_enchants(bar1_enchant, bar2_enchant)
             .with_set_procs(proc_effects)
-            .with_avg_resource_pct(options.avg_resource_pct);
+            .with_avg_resource_pct(options.baseline.avg_resource_pct);
             Some((build_idx, simulator, distributions))
         })
         .collect();
@@ -606,7 +604,7 @@ fn run_simulation(
             };
 
             let build = &builds[best_build_idx];
-            let mut suppressed = if options.use_trial {
+            let mut suppressed = if options.baseline.trial {
                 TRIAL_BUFF_NAMES.clone()
             } else {
                 std::collections::HashSet::new()
@@ -644,7 +642,7 @@ fn run_simulation(
                     )
                     .with_enchants(Some(e1), Some(e2))
                     .with_set_procs(proc_effects.clone())
-                    .with_avg_resource_pct(options.avg_resource_pct);
+                    .with_avg_resource_pct(options.baseline.avg_resource_pct);
 
                     let r = sim.simulate(&best_dist);
                     if r.dps > best_enchant_dps {
@@ -675,7 +673,7 @@ fn run_simulation(
 
         // Compute buffed stats for export metadata
         let build = &builds[best_build_idx];
-        let mut suppressed_final = if options.use_trial {
+        let mut suppressed_final = if options.baseline.trial {
             TRIAL_BUFF_NAMES.clone()
         } else {
             std::collections::HashSet::new()
@@ -704,7 +702,7 @@ fn run_simulation(
         )
         .with_enchants(Some(winning_bar1), Some(winning_bar2))
         .with_set_procs(proc_effects_final)
-        .with_avg_resource_pct(options.avg_resource_pct);
+        .with_avg_resource_pct(options.baseline.avg_resource_pct);
         let buffed_stats = final_sim.compute_buffed_stats(&best_dist);
 
         return Some((
