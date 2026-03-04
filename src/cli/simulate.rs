@@ -95,13 +95,9 @@ pub struct SimulateArgs {
     #[arg(long, value_parser = Potion::parse)]
     pub potion: Option<Potion>,
 
-    /// Bar 1 weapon enchant (flame, poison, shock, berserker; defaults to flame)
-    #[arg(long, value_parser = WeaponEnchant::parse)]
-    pub bar1_enchant: Option<WeaponEnchant>,
-
-    /// Bar 2 weapon enchant (flame, poison, shock, berserker; defaults to flame)
-    #[arg(long, value_parser = WeaponEnchant::parse)]
-    pub bar2_enchant: Option<WeaponEnchant>,
+    /// Weapon enchants per bar (comma-separated: bar1,bar2). Unpinned bars default to flame.
+    #[arg(long, value_delimiter = ',', value_parser = WeaponEnchant::parse)]
+    pub enchant: Option<Vec<WeaponEnchant>>,
 
     /// Average resource percentage for resource-scaling sets like Bahsei's (0-100, default 50)
     #[arg(long, default_value = "50")]
@@ -386,21 +382,25 @@ impl SimulateArgs {
         for bonus in potion.bonuses() {
             suppressed.insert(bonus.name.clone());
         }
-        let file_bar1_enchant = file_config
+        let file_enchants: Vec<WeaponEnchant> = file_config
             .as_ref()
-            .and_then(|c| c.bar1_enchant.as_ref())
-            .and_then(|e| WeaponEnchant::parse(e).ok());
-        let file_bar2_enchant = file_config
-            .as_ref()
-            .and_then(|c| c.bar2_enchant.as_ref())
-            .and_then(|e| WeaponEnchant::parse(e).ok());
-        let bar1_enchant = self
-            .bar1_enchant
-            .or(file_bar1_enchant)
+            .and_then(|c| c.enchant.as_ref())
+            .map(|es| {
+                es.iter()
+                    .filter_map(|e| WeaponEnchant::parse(e).ok())
+                    .collect()
+            })
+            .unwrap_or_default();
+        let (cli_bar1, cli_bar2) = match self.enchant.as_deref() {
+            Some([e1, e2, ..]) => (Some(*e1), Some(*e2)),
+            Some([e1]) => (Some(*e1), None),
+            _ => (None, None),
+        };
+        let bar1_enchant = cli_bar1
+            .or(file_enchants.first().copied())
             .or(Some(WeaponEnchant::Flame));
-        let bar2_enchant = self
-            .bar2_enchant
-            .or(file_bar2_enchant)
+        let bar2_enchant = cli_bar2
+            .or(file_enchants.get(1).copied())
             .or(Some(WeaponEnchant::Flame));
         let avg_resource_pct = file_config
             .as_ref()

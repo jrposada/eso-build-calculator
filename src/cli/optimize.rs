@@ -97,13 +97,9 @@ pub struct OptimizeArgs {
     #[arg(long, value_parser = Potion::parse)]
     pub potion: Option<Potion>,
 
-    /// Bar 1 weapon enchant (flame, poison, shock, berserker; defaults to flame)
-    #[arg(long, value_parser = WeaponEnchant::parse)]
-    pub bar1_enchant: Option<WeaponEnchant>,
-
-    /// Bar 2 weapon enchant (flame, poison, shock, berserker; defaults to flame)
-    #[arg(long, value_parser = WeaponEnchant::parse)]
-    pub bar2_enchant: Option<WeaponEnchant>,
+    /// Weapon enchants per bar (comma-separated: bar1,bar2). Unpinned bars optimized.
+    #[arg(long, value_delimiter = ',', value_parser = WeaponEnchant::parse)]
+    pub enchant: Option<Vec<WeaponEnchant>>,
 
     /// Average resource percentage for resource-scaling sets like Bahsei's (0-100, default 50)
     #[arg(long, default_value = "50")]
@@ -130,8 +126,8 @@ pub struct OptimizeArgs {
 struct ExportOptions {
     bar1_weapon: Option<WeaponType>,
     bar2_weapon: Option<WeaponType>,
-    bar1_enchant: Option<WeaponEnchant>,
-    bar2_enchant: Option<WeaponEnchant>,
+    bar1_enchant: WeaponEnchant,
+    bar2_enchant: WeaponEnchant,
     armor: ArmorDistribution,
     potion: Option<Potion>,
     avg_resource_pct: f64,
@@ -199,6 +195,13 @@ impl OptimizeArgs {
         let (bar1_weapon, bar2_weapon) = match self.weapon.as_deref() {
             Some([w1, w2, ..]) => (Some(*w1), Some(*w2)),
             Some([w1]) => (Some(*w1), None),
+            _ => (None, None),
+        };
+
+        // Derive bar enchants from positional --enchant values
+        let (pinned_bar1_enchant, pinned_bar2_enchant) = match self.enchant.as_deref() {
+            Some([e1, e2, ..]) => (Some(*e1), Some(*e2)),
+            Some([e1]) => (Some(*e1), None),
             _ => (None, None),
         };
 
@@ -475,15 +478,15 @@ impl OptimizeArgs {
             .as_ref()
             .map(|(_, _, _, e1, e2, _)| (*e1, *e2))
             .unwrap_or((
-                self.bar1_enchant.unwrap_or(WeaponEnchant::Flame),
-                self.bar2_enchant.unwrap_or(WeaponEnchant::Flame),
+                pinned_bar1_enchant.unwrap_or(WeaponEnchant::Flame),
+                pinned_bar2_enchant.unwrap_or(WeaponEnchant::Flame),
             ));
         let gear_config = winning_gear.as_ref().map(|g| &g.gear_config);
         let export_opts = ExportOptions {
             bar1_weapon,
             bar2_weapon,
-            bar1_enchant: Some(winning_bar1),
-            bar2_enchant: Some(winning_bar2),
+            bar1_enchant: winning_bar1,
+            bar2_enchant: winning_bar2,
             armor: winning_armor,
             potion: Some(self.potion.unwrap_or(Potion::WeaponPower)),
             avg_resource_pct: self.avg_resource_pct,
@@ -664,6 +667,13 @@ impl OptimizeArgs {
             _ => inferred.unwrap(),
         };
 
+        // Derive bar enchants from --enchant values
+        let (pinned_bar1_enchant, pinned_bar2_enchant) = match self.enchant.as_deref() {
+            Some([e1, e2, ..]) => (Some(*e1), Some(*e2)),
+            Some([e1]) => (Some(*e1), None),
+            _ => (None, None),
+        };
+
         logger::info(&format!(
             "Phase 4: Running fight simulation on top {} candidates (Bar1: {}, Bar2: {})...",
             builds.len(),
@@ -693,8 +703,8 @@ impl OptimizeArgs {
                 for bonus in potion.bonuses() {
                     suppressed.insert(bonus.name.clone());
                 }
-                let bar1_enchant = self.bar1_enchant.or(Some(WeaponEnchant::Flame));
-                let bar2_enchant = self.bar2_enchant.or(Some(WeaponEnchant::Flame));
+                let bar1_enchant = pinned_bar1_enchant.or(Some(WeaponEnchant::Flame));
+                let bar2_enchant = pinned_bar2_enchant.or(Some(WeaponEnchant::Flame));
                 // Collect proc effects from the build's equipped sets
                 let proc_effects: Vec<SetProcEffect> = build
                     .set_names()
@@ -797,10 +807,10 @@ impl OptimizeArgs {
             let best_dist = distributions[best_dist_idx].clone();
 
             // ── Enchant optimization sweep ──
-            let bar1_pinned = self.bar1_enchant.is_some();
-            let bar2_pinned = self.bar2_enchant.is_some();
-            let mut winning_bar1 = self.bar1_enchant.unwrap_or(WeaponEnchant::Flame);
-            let mut winning_bar2 = self.bar2_enchant.unwrap_or(WeaponEnchant::Flame);
+            let bar1_pinned = pinned_bar1_enchant.is_some();
+            let bar2_pinned = pinned_bar2_enchant.is_some();
+            let mut winning_bar1 = pinned_bar1_enchant.unwrap_or(WeaponEnchant::Flame);
+            let mut winning_bar2 = pinned_bar2_enchant.unwrap_or(WeaponEnchant::Flame);
 
             if !bar1_pinned || !bar2_pinned {
                 let all_enchants = [
@@ -1008,8 +1018,10 @@ impl OptimizeArgs {
                 .map(|g| g.jewelry_traits.iter().map(|t| t.to_string()).collect()),
             weapon_trait: gear_config
                 .map(|g| g.weapon_traits.iter().map(|t| t.to_string()).collect()),
-            bar1_enchant: opts.bar1_enchant.map(|e| e.to_string()),
-            bar2_enchant: opts.bar2_enchant.map(|e| e.to_string()),
+            enchant: Some(vec![
+                opts.bar1_enchant.to_string(),
+                opts.bar2_enchant.to_string(),
+            ]),
             armor: opts.armor.to_string(),
             potion: opts.potion.map(|p| p.to_string()),
             avg_resource_pct: opts.avg_resource_pct,

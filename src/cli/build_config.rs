@@ -49,9 +49,7 @@ pub struct BuildConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub weapon_trait: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub bar1_enchant: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub bar2_enchant: Option<String>,
+    pub enchant: Option<Vec<String>>,
     #[serde(default = "default_armor")]
     pub armor: String,
     #[serde(skip_serializing_if = "Option::is_none")]
