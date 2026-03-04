@@ -35,6 +35,10 @@ fn benchmark_nightblade_bow_2h_with_cp(c: &mut Criterion) {
                     get_champion_point("Biting Aura"),
                 ],
                 required_skills: vec![],
+                set_bonuses: Vec::new(),
+                set_names: Vec::new(),
+                extra_bonuses: Vec::new(),
+                armor_passive_bonuses: Vec::new(),
                 parallelism: 4,
                 max_pool_size: None,
             });
@@ -62,6 +66,10 @@ fn benchmark_nightblade_bow_2h_multi_cp(c: &mut Criterion) {
                 required_weapon_skill_lines: vec![SkillLineName::Bow, SkillLineName::TwoHanded],
                 required_champion_points: vec![get_champion_point("Deadly Aim")],
                 required_skills: vec![],
+                set_bonuses: Vec::new(),
+                set_names: Vec::new(),
+                extra_bonuses: Vec::new(),
+                armor_passive_bonuses: Vec::new(),
                 parallelism: 4,
                 max_pool_size: None,
             });
