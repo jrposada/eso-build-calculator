@@ -316,9 +316,10 @@ impl SimulateArgs {
             Some([w1, w2, ..]) => (*w1, *w2),
             Some([w1]) => {
                 // bar1 pinned, bar2 from file or inferred
-                let w2 = file_weapons.1.or_else(|| {
-                    infer_weapons(&skills).ok().map(|(_, w2)| w2)
-                }).unwrap_or(*w1);
+                let w2 = file_weapons
+                    .1
+                    .or_else(|| infer_weapons(&skills).ok().map(|(_, w2)| w2))
+                    .unwrap_or(*w1);
                 (*w1, w2)
             }
             _ => match (file_weapons.0, file_weapons.1) {

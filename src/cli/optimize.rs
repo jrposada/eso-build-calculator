@@ -4,9 +4,9 @@ use super::parsers::{
 };
 use super::simulation_display::display_simulation_result;
 use crate::data::bonuses::{TRIAL_BUFF_NAMES, TRIAL_DUMMY_BUFFS};
+use crate::data::sets::ALL_SETS;
 use crate::data::skill_trees::armor::armor_passives;
 use crate::data::skill_trees::guild::undaunted::undaunted_passives::undaunted_mettle_bonuses;
-use crate::data::sets::ALL_SETS;
 use crate::domain::{
     ArmorDistribution, ArmorTrait, AttributeChoice, BonusData, Build, CharacterStats, ClassName,
     Food, GearConfig, JewelryTrait, MundusStone, Potion, Race, SetData, SetProcEffect, SetType,
@@ -196,10 +196,17 @@ impl OptimizeArgs {
         let potion = self.potion.unwrap_or(Potion::WeaponPower);
 
         // Deduplicate completions by (dominant_weight, type_count) to avoid redundant evaluations
-        let mut unique_passive_sets: Vec<(Option<crate::domain::ArmorWeight>, u8, ArmorDistribution)> = Vec::new();
+        let mut unique_passive_sets: Vec<(
+            Option<crate::domain::ArmorWeight>,
+            u8,
+            ArmorDistribution,
+        )> = Vec::new();
         for c in &completions {
             let key = (c.dominant_weight(), c.type_count());
-            if !unique_passive_sets.iter().any(|(dw, tc, _)| *dw == key.0 && *tc == key.1) {
+            if !unique_passive_sets
+                .iter()
+                .any(|(dw, tc, _)| *dw == key.0 && *tc == key.1)
+            {
                 unique_passive_sets.push((key.0, key.1, *c));
             }
         }
