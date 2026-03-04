@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use eso_build_calculator::cli::{OptimizeArgs, SimulateArgs};
+use eso_build_calculator::cli::{CalculateArgs, OptimizeArgs};
 
 #[derive(Parser)]
 #[command(name = "eso-build-calculator")]
