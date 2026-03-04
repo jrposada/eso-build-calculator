@@ -12,9 +12,9 @@ use crate::domain::{
 };
 use crate::infrastructure::{format, logger};
 use crate::services::{
-    generate_distributions, infer_weapons, stats_differ_significantly, BarDistribution,
-    BuildOptimizer, BuildOptimizerOptions, FightSimulator, GearOptimizer, GearOptimizerOptions,
-    SetOptimizer, SetOptimizerOptions,
+    format_armor_traits, format_jewelry_traits, generate_distributions, infer_weapons,
+    stats_differ_significantly, BarDistribution, BuildOptimizer, BuildOptimizerOptions,
+    FightSimulator, GearOptimizer, GearOptimizerOptions, SetOptimizer, SetOptimizerOptions,
 };
 use clap::Args;
 use rayon::prelude::*;
@@ -77,17 +77,17 @@ pub struct OptimizeArgs {
     #[arg(long, value_parser = Food::parse)]
     pub food: Option<Food>,
 
-    /// Pin armor trait for all 7 pieces - optimized if omitted
-    #[arg(long, value_parser = ArmorTrait::parse)]
-    pub armor_trait: Option<ArmorTrait>,
+    /// Pin armor traits per slot (comma-separated, max 7). Pins first N slots, rest optimized.
+    #[arg(long, value_delimiter = ',', value_parser = ArmorTrait::parse)]
+    pub armor_trait: Option<Vec<ArmorTrait>>,
 
-    /// Pin jewelry trait for all 3 pieces - optimized if omitted
-    #[arg(long, value_parser = JewelryTrait::parse)]
-    pub jewelry_trait: Option<JewelryTrait>,
+    /// Pin jewelry traits per slot (comma-separated, max 3). Pins first N slots, rest optimized.
+    #[arg(long, value_delimiter = ',', value_parser = JewelryTrait::parse)]
+    pub jewelry_trait: Option<Vec<JewelryTrait>>,
 
-    /// Pin weapon trait - optimized if omitted
-    #[arg(long, value_parser = WeaponTrait::parse)]
-    pub weapon_trait: Option<WeaponTrait>,
+    /// Pin weapon traits per slot (comma-separated, max 2). Bar1, then bar2. Rest optimized.
+    #[arg(long, value_delimiter = ',', value_parser = WeaponTrait::parse)]
+    pub weapon_trait: Option<Vec<WeaponTrait>>,
 
     /// Armor piece counts as light,medium,heavy (e.g. 1,5,1). Free slots optimized.
     #[arg(long, value_parser = ArmorDistribution::parse, default_value = "1,5,1")]
@@ -157,13 +157,40 @@ impl OptimizeArgs {
 
         // ── Build baseline GearConfig for Phase 0 ──
         // Pinned dimensions use the pinned value; unpinned use sensible defaults.
+        let baseline_armor_traits = {
+            let mut arr = [ArmorTrait::Divines; 7];
+            if let Some(pinned) = &self.armor_trait {
+                for (i, t) in pinned.iter().enumerate() {
+                    arr[i] = *t;
+                }
+            }
+            arr
+        };
+        let baseline_jewelry_traits = {
+            let mut arr = [JewelryTrait::Bloodthirsty; 3];
+            if let Some(pinned) = &self.jewelry_trait {
+                for (i, t) in pinned.iter().enumerate() {
+                    arr[i] = *t;
+                }
+            }
+            arr
+        };
+        let baseline_weapon_traits = {
+            let mut arr = [WeaponTrait::Nirnhoned; 2];
+            if let Some(pinned) = &self.weapon_trait {
+                for (i, t) in pinned.iter().enumerate() {
+                    arr[i] = *t;
+                }
+            }
+            arr
+        };
         let baseline_gear = GearConfig {
             race: self.race,     // None if unpinned (naked baseline)
             mundus: self.mundus, // None if unpinned
             food: self.food,     // None if unpinned
-            armor_trait: self.armor_trait.unwrap_or(ArmorTrait::Divines),
-            jewelry_trait: self.jewelry_trait.unwrap_or(JewelryTrait::Bloodthirsty),
-            weapon_trait: self.weapon_trait.unwrap_or(WeaponTrait::Nirnhoned),
+            armor_traits: baseline_armor_traits,
+            jewelry_traits: baseline_jewelry_traits,
+            weapon_traits: baseline_weapon_traits,
             attributes: pinned_attributes.unwrap_or(AttributeChoice::Stamina),
             armor_distribution: self.armor,
         };
@@ -315,9 +342,9 @@ impl OptimizeArgs {
             pinned_race: self.race,
             pinned_mundus: self.mundus,
             pinned_food: self.food,
-            pinned_armor_trait: self.armor_trait,
-            pinned_jewelry_trait: self.jewelry_trait,
-            pinned_weapon_trait: self.weapon_trait,
+            pinned_armor_traits: self.armor_trait.clone().unwrap_or_default(),
+            pinned_jewelry_traits: self.jewelry_trait.clone().unwrap_or_default(),
+            pinned_weapon_traits: self.weapon_trait.clone().unwrap_or_default(),
             pinned_attributes,
             bar1_weapon,
             top_k: 3,
@@ -342,9 +369,9 @@ impl OptimizeArgs {
                 g.race.map_or("None".to_string(), |r| r.to_string()),
                 g.mundus.map_or("None".to_string(), |m| m.to_string()),
                 g.food.map_or("None".to_string(), |f| f.to_string()),
-                g.armor_trait,
-                g.jewelry_trait,
-                g.weapon_trait,
+                format_armor_traits(&g.armor_traits),
+                format_jewelry_traits(&g.jewelry_traits),
+                g.weapon_traits[0],
                 g.attributes,
             ));
             logger::info(&format!("Phase 1 completed in {:.2?}", gear_elapsed));
@@ -523,6 +550,26 @@ impl OptimizeArgs {
                     "Maximum {} champion points allowed",
                     BUILD_CONSTRAINTS.champion_point_count
                 ));
+                std::process::exit(1);
+            }
+        }
+
+        // Validate trait slot counts
+        if let Some(traits) = &self.armor_trait {
+            if traits.len() > 7 {
+                logger::error("Maximum 7 armor trait values allowed (one per piece)");
+                std::process::exit(1);
+            }
+        }
+        if let Some(traits) = &self.jewelry_trait {
+            if traits.len() > 3 {
+                logger::error("Maximum 3 jewelry trait values allowed (one per piece)");
+                std::process::exit(1);
+            }
+        }
+        if let Some(traits) = &self.weapon_trait {
+            if traits.len() > 2 {
+                logger::error("Maximum 2 weapon trait values allowed (bar1, bar2)");
                 std::process::exit(1);
             }
         }
@@ -955,9 +1002,12 @@ impl OptimizeArgs {
             race: gear_config.and_then(|g| g.race.map(|r| r.to_string())),
             mundus: gear_config.and_then(|g| g.mundus.map(|m| m.to_string())),
             food: gear_config.and_then(|g| g.food.map(|f| f.to_string())),
-            armor_trait: gear_config.map(|g| g.armor_trait.to_string()),
-            jewelry_trait: gear_config.map(|g| g.jewelry_trait.to_string()),
-            weapon_trait: gear_config.map(|g| g.weapon_trait.to_string()),
+            armor_trait: gear_config
+                .map(|g| g.armor_traits.iter().map(|t| t.to_string()).collect()),
+            jewelry_trait: gear_config
+                .map(|g| g.jewelry_traits.iter().map(|t| t.to_string()).collect()),
+            weapon_trait: gear_config
+                .map(|g| g.weapon_traits.iter().map(|t| t.to_string()).collect()),
             bar1_enchant: opts.bar1_enchant.map(|e| e.to_string()),
             bar2_enchant: opts.bar2_enchant.map(|e| e.to_string()),
             armor: opts.armor.to_string(),

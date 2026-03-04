@@ -344,9 +344,9 @@ pub struct GearConfig {
     pub race: Option<Race>,
     pub mundus: Option<MundusStone>,
     pub food: Option<Food>,
-    pub armor_trait: ArmorTrait,
-    pub jewelry_trait: JewelryTrait,
-    pub weapon_trait: WeaponTrait,
+    pub armor_traits: [ArmorTrait; 7],
+    pub jewelry_traits: [JewelryTrait; 3],
+    pub weapon_traits: [WeaponTrait; 2],
     pub attributes: AttributeChoice,
     pub armor_distribution: ArmorDistribution,
 }
@@ -357,9 +357,9 @@ impl Default for GearConfig {
             race: None,
             mundus: None,
             food: None,
-            armor_trait: ArmorTrait::Divines,
-            jewelry_trait: JewelryTrait::Bloodthirsty,
-            weapon_trait: WeaponTrait::Nirnhoned,
+            armor_traits: [ArmorTrait::Divines; 7],
+            jewelry_traits: [JewelryTrait::Bloodthirsty; 3],
+            weapon_traits: [WeaponTrait::Nirnhoned; 2],
             attributes: AttributeChoice::None,
             armor_distribution: ArmorDistribution {
                 light: 1,
@@ -381,7 +381,6 @@ const TOTAL_ARMOR_ENCHANT: f64 = LARGE_ARMOR_ENCHANT * 3.0 + SMALL_ARMOR_ENCHANT
 
 // Jewelry enchantment values (CP160 gold, Glyph of Increase Physical Harm)
 const JEWELRY_ENCHANT_DAMAGE: f64 = 174.0; // per piece
-const JEWELRY_PIECE_COUNT: f64 = 3.0;
 
 // Trait values (legendary quality)
 const ARMOR_INFUSED_ENCHANT_BONUS: f64 = 0.12; // +12% enchant per piece
@@ -393,8 +392,6 @@ const BLOODTHIRSTY_THRESHOLD: f64 = 0.90; // Scales below 90% enemy HP
 const WEAPON_NIRNHONED_BONUS: f64 = 0.15; // +15% of weapon base as W/SD
 const WEAPON_PRECISE_CRIT_RATING: f64 = 1_117.0;
 const WEAPON_SHARPENED_PENETRATION: f64 = 3_276.0;
-
-const ARMOR_PIECE_COUNT: u8 = 7;
 
 impl GearConfig {
     /// Compute character stats from gear configuration and weapon types.
@@ -423,8 +420,8 @@ impl GearConfig {
                 stats.weapon_damage = base;
             }
 
-            // 3. Weapon trait bonus
-            match self.weapon_trait {
+            // 3. Weapon trait bonus (bar1 weapon trait = index 0)
+            match self.weapon_traits[0] {
                 WeaponTrait::Nirnhoned => {
                     let bonus = base * WEAPON_NIRNHONED_BONUS;
                     if weapon.is_destruction_staff() {
@@ -444,9 +441,17 @@ impl GearConfig {
         }
 
         // 4. Armor enchantments (7 pieces, all stamina or magicka)
-        let armor_enchant_total = match self.armor_trait {
-            ArmorTrait::Infused => TOTAL_ARMOR_ENCHANT * (1.0 + ARMOR_INFUSED_ENCHANT_BONUS),
-            _ => TOTAL_ARMOR_ENCHANT,
+        // Infused pieces get +12% enchant bonus; non-infused get base value.
+        let infused_armor_count = self
+            .armor_traits
+            .iter()
+            .filter(|t| **t == ArmorTrait::Infused)
+            .count() as f64;
+        let non_infused_count = 7.0 - infused_armor_count;
+        let armor_enchant_total = {
+            let base_per_piece = TOTAL_ARMOR_ENCHANT / 7.0;
+            non_infused_count * base_per_piece
+                + infused_armor_count * base_per_piece * (1.0 + ARMOR_INFUSED_ENCHANT_BONUS)
         };
 
         // Apply enchant to the primary resource
@@ -459,40 +464,46 @@ impl GearConfig {
         }
 
         // 5. Jewelry enchantments (3 pieces, weapon+spell damage)
-        let jewelry_enchant_per_piece = match self.jewelry_trait {
-            JewelryTrait::Infused => JEWELRY_ENCHANT_DAMAGE * (1.0 + JEWELRY_INFUSED_ENCHANT_BONUS),
-            _ => JEWELRY_ENCHANT_DAMAGE,
-        };
-        let jewelry_damage_total = jewelry_enchant_per_piece * JEWELRY_PIECE_COUNT;
+        // Infused jewelry gets +60% enchant bonus per piece
+        let mut jewelry_damage_total = 0.0;
+        for jt in &self.jewelry_traits {
+            let enchant = match jt {
+                JewelryTrait::Infused => {
+                    JEWELRY_ENCHANT_DAMAGE * (1.0 + JEWELRY_INFUSED_ENCHANT_BONUS)
+                }
+                _ => JEWELRY_ENCHANT_DAMAGE,
+            };
+            jewelry_damage_total += enchant;
+        }
         stats.weapon_damage += jewelry_damage_total;
         stats.spell_damage += jewelry_damage_total;
 
-        // 6. Jewelry trait bonus (if not Infused, which was handled above)
-        match self.jewelry_trait {
-            JewelryTrait::Bloodthirsty => {
-                // Bloodthirsty: up to +350 WD/SD per piece, scaling linearly below 90% HP.
-                // Fight-average: 90% of fight below threshold, average bonus = max/2,
-                // so avg = 0.90 * (max / 2) per piece.
-                let avg_per_piece = BLOODTHIRSTY_THRESHOLD * (BLOODTHIRSTY_MAX_PER_PIECE / 2.0);
-                let total = avg_per_piece * JEWELRY_PIECE_COUNT;
-                stats.weapon_damage += total;
-                stats.spell_damage += total;
+        // 6. Jewelry trait bonuses (per-piece)
+        for jt in &self.jewelry_traits {
+            match jt {
+                JewelryTrait::Bloodthirsty => {
+                    let avg_per_piece =
+                        BLOODTHIRSTY_THRESHOLD * (BLOODTHIRSTY_MAX_PER_PIECE / 2.0);
+                    stats.weapon_damage += avg_per_piece;
+                    stats.spell_damage += avg_per_piece;
+                }
+                JewelryTrait::Robust => {
+                    stats.max_stamina += JEWELRY_ROBUST_STAMINA;
+                }
+                JewelryTrait::Arcane => {
+                    stats.max_magicka += JEWELRY_ARCANE_MAGICKA;
+                }
+                _ => {} // Infused handled above, others not modeled for DPS
             }
-            JewelryTrait::Robust => {
-                stats.max_stamina += JEWELRY_ROBUST_STAMINA * JEWELRY_PIECE_COUNT;
-            }
-            JewelryTrait::Arcane => {
-                stats.max_magicka += JEWELRY_ARCANE_MAGICKA * JEWELRY_PIECE_COUNT;
-            }
-            _ => {} // Other traits not modeled for DPS
         }
 
         // 7. Mundus stone (amplified by Divines)
         if let Some(mundus) = &self.mundus {
-            let divines_count = match self.armor_trait {
-                ArmorTrait::Divines => ARMOR_PIECE_COUNT,
-                _ => 0,
-            };
+            let divines_count = self
+                .armor_traits
+                .iter()
+                .filter(|t| **t == ArmorTrait::Divines)
+                .count() as u8;
             mundus.apply(&mut stats, divines_count);
         }
 

@@ -43,11 +43,11 @@ pub struct BuildConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub food: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub armor_trait: Option<String>,
+    pub armor_trait: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub jewelry_trait: Option<String>,
+    pub jewelry_trait: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub weapon_trait: Option<String>,
+    pub weapon_trait: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bar1_enchant: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]

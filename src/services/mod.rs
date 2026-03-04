@@ -10,7 +10,10 @@ pub mod skills_service;
 pub use bar_distribution::{generate_distributions, infer_weapons, BarDistribution};
 pub use build_optimizer::{BuildOptimizer, BuildOptimizerOptions};
 pub use fight_simulator::FightSimulator;
-pub use gear_optimizer::{stats_differ_significantly, GearOptimizer, GearOptimizerOptions};
+pub use gear_optimizer::{
+    format_armor_traits, format_jewelry_traits, format_weapon_traits, stats_differ_significantly,
+    GearOptimizer, GearOptimizerOptions,
+};
 pub use passives_service::{PassivesService, PassivesServiceOptions};
 pub use set_optimizer::{SetOptimizer, SetOptimizerOptions};
 pub use sets_service::{SetsService, SetsServiceOptions};

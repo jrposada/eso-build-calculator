@@ -75,17 +75,17 @@ pub struct SimulateArgs {
     #[arg(long, value_parser = Food::parse, conflicts_with = "file")]
     pub food: Option<Food>,
 
-    /// Armor trait for all 7 pieces (defaults to divines if omitted)
-    #[arg(long, value_parser = ArmorTrait::parse)]
-    pub armor_trait: Option<ArmorTrait>,
+    /// Armor traits per slot (comma-separated, max 7; defaults to divines if omitted)
+    #[arg(long, value_delimiter = ',', value_parser = ArmorTrait::parse)]
+    pub armor_trait: Option<Vec<ArmorTrait>>,
 
-    /// Jewelry trait for all 3 pieces (defaults to bloodthirsty if omitted)
-    #[arg(long, value_parser = JewelryTrait::parse)]
-    pub jewelry_trait: Option<JewelryTrait>,
+    /// Jewelry traits per slot (comma-separated, max 3; defaults to bloodthirsty if omitted)
+    #[arg(long, value_delimiter = ',', value_parser = JewelryTrait::parse)]
+    pub jewelry_trait: Option<Vec<JewelryTrait>>,
 
-    /// Weapon trait (defaults to nirnhoned if omitted)
-    #[arg(long, value_parser = WeaponTrait::parse)]
-    pub weapon_trait: Option<WeaponTrait>,
+    /// Weapon traits per slot (comma-separated, max 2; defaults to nirnhoned if omitted)
+    #[arg(long, value_delimiter = ',', value_parser = WeaponTrait::parse)]
+    pub weapon_trait: Option<Vec<WeaponTrait>>,
 
     /// Armor piece counts as light,medium,heavy (e.g. 1,5,1). Free slots use specified distribution.
     #[arg(long, value_parser = ArmorDistribution::parse, default_value = "1,5,1")]
@@ -153,13 +153,40 @@ impl SimulateArgs {
                     AttributeChoice::None
                 };
 
+                let armor_traits = {
+                    let mut arr = [ArmorTrait::Divines; 7];
+                    if let Some(pinned) = &self.armor_trait {
+                        for (i, t) in pinned.iter().enumerate() {
+                            arr[i] = *t;
+                        }
+                    }
+                    arr
+                };
+                let jewelry_traits = {
+                    let mut arr = [JewelryTrait::Bloodthirsty; 3];
+                    if let Some(pinned) = &self.jewelry_trait {
+                        for (i, t) in pinned.iter().enumerate() {
+                            arr[i] = *t;
+                        }
+                    }
+                    arr
+                };
+                let weapon_traits = {
+                    let mut arr = [WeaponTrait::Nirnhoned; 2];
+                    if let Some(pinned) = &self.weapon_trait {
+                        for (i, t) in pinned.iter().enumerate() {
+                            arr[i] = *t;
+                        }
+                    }
+                    arr
+                };
                 let gear = GearConfig {
                     race: self.race,
                     mundus: self.mundus,
                     food: self.food,
-                    armor_trait: self.armor_trait.unwrap_or(ArmorTrait::Divines),
-                    jewelry_trait: self.jewelry_trait.unwrap_or(JewelryTrait::Bloodthirsty),
-                    weapon_trait: self.weapon_trait.unwrap_or(WeaponTrait::Nirnhoned),
+                    armor_traits,
+                    jewelry_traits,
+                    weapon_traits,
                     attributes,
                     armor_distribution: self.armor,
                 };
