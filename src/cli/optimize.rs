@@ -1,7 +1,7 @@
 use super::parsers::{parse_class_name, parse_weapon};
 use crate::domain::{
     ArmorDistribution, ArmorTrait, AttributeChoice, BonusData, ClassName, Food, GearConfig,
-    JewelryTrait, MundusStone, Potion, Race, SetData, SetType, SkillData, WeaponEnchant,
+    JewelryTrait, MundusStone, Potion, Race, SetData, SkillData, WeaponEnchant,
     WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
 };
 use crate::infrastructure::logger;
@@ -182,7 +182,7 @@ impl OptimizeArgs {
         }
 
         if let Some(sets) = &self.set {
-            let (normals, monsters, mythics) = split_sets_by_type(sets);
+            let (normals, monsters, mythics) = SetData::split_by_type(sets);
             if normals.len() > 2 {
                 logger::error("Maximum 2 normal/arena sets allowed");
                 std::process::exit(1);
@@ -326,22 +326,3 @@ impl OptimizeArgs {
     }
 }
 
-fn split_sets_by_type(
-    sets: &[&'static SetData],
-) -> (
-    Vec<&'static SetData>,
-    Vec<&'static SetData>,
-    Vec<&'static SetData>,
-) {
-    let mut normals = Vec::new();
-    let mut monsters = Vec::new();
-    let mut mythics = Vec::new();
-    for &set in sets {
-        match set.set_type {
-            SetType::Normal | SetType::Arena => normals.push(set),
-            SetType::Monster => monsters.push(set),
-            SetType::Mythic => mythics.push(set),
-        }
-    }
-    (normals, monsters, mythics)
-}

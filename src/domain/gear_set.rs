@@ -129,6 +129,29 @@ impl SetData {
     }
 }
 
+impl SetData {
+    /// Splits a slice of sets into (normal+arena, monster, mythic) groups.
+    pub fn split_by_type(
+        sets: &[&'static SetData],
+    ) -> (
+        Vec<&'static SetData>,
+        Vec<&'static SetData>,
+        Vec<&'static SetData>,
+    ) {
+        let mut normals = Vec::new();
+        let mut monsters = Vec::new();
+        let mut mythics = Vec::new();
+        for &set in sets {
+            match set.set_type {
+                SetType::Normal | SetType::Arena => normals.push(set),
+                SetType::Monster => monsters.push(set),
+                SetType::Mythic => mythics.push(set),
+            }
+        }
+        (normals, monsters, mythics)
+    }
+}
+
 impl fmt::Display for SetData {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{} ({})", self.name, self.set_type)

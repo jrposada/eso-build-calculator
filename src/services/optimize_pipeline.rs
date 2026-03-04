@@ -4,7 +4,7 @@ use crate::data::skill_trees::armor::armor_passives;
 use crate::data::skill_trees::guild::undaunted::undaunted_passives::undaunted_mettle_bonuses;
 use crate::domain::{
     ArmorDistribution, ArmorWeight, BonusData, Build, BuildConfig, BuildMetadata, CharacterStats,
-    ClassName, GearConfig, Potion, SetData, SetProcEffect, SetType, SimulationResult, SkillData,
+    ClassName, GearConfig, Potion, SetData, SetProcEffect, SimulationResult, SkillData,
     WeaponEnchant, WeaponType,
 };
 use crate::infrastructure::{format, logger};
@@ -278,7 +278,7 @@ impl OptimizePipeline {
         // ── Phase 3: Set Optimization (always runs) ──
         logger::info("Phase 3: Optimizing gear sets...");
         let (pinned_normal, pinned_monster, pinned_mythic_vec) =
-            split_sets_by_type(&options.pinned_sets);
+            SetData::split_by_type(&options.pinned_sets);
         let set_result = SetOptimizer::optimize(
             &builds,
             &SetOptimizerOptions {
@@ -417,26 +417,6 @@ fn resolve_set_bonuses(
         set_names.push((set.name.clone(), piece_count));
     }
     (set_bonuses, set_names, set_proc_effects)
-}
-
-fn split_sets_by_type(
-    sets: &[&'static SetData],
-) -> (
-    Vec<&'static SetData>,
-    Vec<&'static SetData>,
-    Vec<&'static SetData>,
-) {
-    let mut normals = Vec::new();
-    let mut monsters = Vec::new();
-    let mut mythics = Vec::new();
-    for &set in sets {
-        match set.set_type {
-            SetType::Normal | SetType::Arena => normals.push(set),
-            SetType::Monster => monsters.push(set),
-            SetType::Mythic => mythics.push(set),
-        }
-    }
-    (normals, monsters, mythics)
 }
 
 fn run_simulation(
