@@ -20,13 +20,8 @@ use std::time::Instant;
 pub struct OptimizePipelineOptions {
     pub verbose: bool,
     pub pure: bool,
-    pub required_class_names: Vec<ClassName>,
-    pub required_weapon_skill_lines: Vec<crate::domain::SkillLineName>,
-    pub required_champion_points: Vec<BonusData>,
-    pub required_skills: Vec<&'static SkillData>,
     pub parallelism: u8,
     pub max_pool_size: Option<usize>,
-    pub pinned_sets: Vec<&'static SetData>,
     pub baseline: BuildConfig,
 }
 
@@ -50,9 +45,27 @@ impl OptimizePipeline {
         let character_stats = options.baseline.compute_stats();
         let baseline_stats = character_stats.clone();
 
+        // Resolve constraints from baseline
+        let required_skills: Vec<&'static SkillData> = options.baseline.skills
+            .iter()
+            .map(|name| SkillData::parse(name).unwrap_or_else(|e| panic!("Invalid skill '{}': {}", name, e)))
+            .collect();
+        let required_champion_points: Vec<BonusData> = options.baseline.champion_points
+            .iter()
+            .map(|name| BonusData::parse_champion_point(name).unwrap_or_else(|e| panic!("Invalid CP '{}': {}", name, e)))
+            .collect();
+        let pinned_sets: Vec<&'static SetData> = options.baseline.sets
+            .iter()
+            .map(|name| SetData::parse(name).unwrap_or_else(|e| panic!("Invalid set '{}': {}", name, e)))
+            .collect();
+        let required_class_names: Vec<ClassName> = options.baseline.classes.clone();
+        let required_weapon_skill_lines: Vec<crate::domain::SkillLineName> = [
+            options.baseline.bar1_weapon, options.baseline.bar2_weapon
+        ].iter().filter_map(|w| w.map(|w| w.skill_line())).collect();
+
         // Resolve pinned set bonuses for Phase 0
         let (set_bonuses, set_names, _set_proc_effects) =
-            resolve_set_bonuses(&options.pinned_sets);
+            resolve_set_bonuses(&pinned_sets);
 
         // Resolve trial dummy buffs
         let extra_bonuses = if options.baseline.trial {
@@ -100,10 +113,10 @@ impl OptimizePipeline {
             character_stats,
             verbose: options.verbose,
             pure: options.pure,
-            required_class_names: options.required_class_names.clone(),
-            required_weapon_skill_lines: options.required_weapon_skill_lines.clone(),
-            required_champion_points: options.required_champion_points.clone(),
-            required_skills: options.required_skills.clone(),
+            required_class_names: required_class_names.clone(),
+            required_weapon_skill_lines: required_weapon_skill_lines.clone(),
+            required_champion_points: required_champion_points.clone(),
+            required_skills: required_skills.clone(),
             parallelism: options.parallelism,
             max_pool_size: options.max_pool_size,
             set_bonuses,
@@ -215,15 +228,15 @@ impl OptimizePipeline {
                 );
 
                 let (set_bonuses, set_names, _set_proc_effects) =
-                    resolve_set_bonuses(&options.pinned_sets);
+                    resolve_set_bonuses(&pinned_sets);
                 let rerun_optimizer = BuildOptimizer::new(BuildOptimizerOptions {
                     character_stats: new_stats,
                     verbose: options.verbose,
                     pure: options.pure,
-                    required_class_names: options.required_class_names.clone(),
-                    required_weapon_skill_lines: options.required_weapon_skill_lines.clone(),
-                    required_champion_points: options.required_champion_points.clone(),
-                    required_skills: options.required_skills.clone(),
+                    required_class_names: required_class_names.clone(),
+                    required_weapon_skill_lines: required_weapon_skill_lines.clone(),
+                    required_champion_points: required_champion_points.clone(),
+                    required_skills: required_skills.clone(),
                     parallelism: options.parallelism,
                     max_pool_size: options.max_pool_size,
                     set_bonuses,
@@ -256,7 +269,7 @@ impl OptimizePipeline {
         // ── Phase 3: Set Optimization (always runs) ──
         logger::info("Phase 3: Optimizing gear sets...");
         let (pinned_normal, pinned_monster, pinned_mythic_vec) =
-            SetData::split_by_type(&options.pinned_sets);
+            SetData::split_by_type(&pinned_sets);
         let set_result = SetOptimizer::optimize(
             &builds,
             &SetOptimizerOptions {
@@ -343,6 +356,7 @@ impl OptimizePipeline {
                 .iter()
                 .map(|(name, _)| name.clone())
                 .collect(),
+            classes: options.baseline.classes.clone(),
             bar1_weapon: options.baseline.bar1_weapon,
             bar2_weapon: options.baseline.bar2_weapon,
             character_stats: export_build.character_stats().clone(),

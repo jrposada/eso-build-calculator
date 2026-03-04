@@ -226,6 +226,16 @@ impl OptimizeArgs {
         };
 
         let baseline = BuildConfig {
+            skills: self.skill.as_ref()
+                .map(|s| s.iter().map(|s| s.name.to_string()).collect())
+                .unwrap_or_default(),
+            champion_points: self.champion_point.as_ref()
+                .map(|cps| cps.iter().map(|cp| cp.name.clone()).collect())
+                .unwrap_or_default(),
+            sets: self.set.as_ref()
+                .map(|sets| sets.iter().map(|s| s.name.clone()).collect())
+                .unwrap_or_default(),
+            classes: self.class.clone().unwrap_or_default(),
             race: self.race,
             mundus: self.mundus,
             food: self.food,
@@ -247,17 +257,8 @@ impl OptimizeArgs {
         OptimizePipelineOptions {
             verbose: self.verbose,
             pure: self.pure,
-            required_class_names: self.class.clone().unwrap_or_default(),
-            required_weapon_skill_lines: self
-                .weapon
-                .as_ref()
-                .map(|ws| ws.iter().map(|w| w.skill_line()).collect())
-                .unwrap_or_default(),
-            required_champion_points: self.champion_point.clone().unwrap_or_default(),
-            required_skills: self.skill.clone().unwrap_or_default(),
             parallelism,
             max_pool_size: self.max_pool_size,
-            pinned_sets: self.set.clone().unwrap_or_default(),
             baseline,
         }
     }

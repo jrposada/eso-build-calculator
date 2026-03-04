@@ -8,6 +8,7 @@ use super::weapon_enchant::WeaponEnchant;
 use super::weapon_type::WeaponType;
 use super::CharacterStats;
 use crate::data::skill_trees::race::Race;
+use super::class_name::ClassName;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BuildMetadata {
@@ -44,6 +45,8 @@ pub struct BuildConfig {
     pub champion_points: Vec<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub sets: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub classes: Vec<ClassName>,
 
     // Character
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -102,6 +105,7 @@ impl Default for BuildConfig {
             skills: Vec::new(),
             champion_points: Vec::new(),
             sets: Vec::new(),
+            classes: Vec::new(),
             race: None,
             attributes: None,
             bar1_weapon: None,
