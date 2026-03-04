@@ -45,7 +45,7 @@ pub struct BuildOptimizer {
     class_names: HashSet<ClassName>,
     required_weapon_skill_lines: Vec<SkillLineName>,
     weapon_skill_line_names: HashSet<SkillLineName>,
-    required_champion_points: Vec<String>,
+    required_champion_points: Vec<BonusData>,
     champion_point_names: HashSet<String>,
     required_skill_names: Vec<String>,
     skill_names: HashSet<String>,
@@ -83,11 +83,7 @@ impl BuildOptimizer {
         let parallelism = options.parallelism;
         let mut required_class_names = options.required_class_names;
         let mut required_weapon_skill_lines = options.required_weapon_skill_lines;
-        let required_champion_points: Vec<String> = options
-            .required_champion_points
-            .iter()
-            .map(|cp| cp.name.clone())
-            .collect();
+        let required_champion_points = options.required_champion_points;
         let pure = options.pure;
 
         // Auto-infer constraints from required skills
@@ -393,28 +389,33 @@ impl BuildOptimizer {
     }
 
     fn generate_champion_point_combinations(
-        required_champion_points: &[String],
+        required_champion_points: &[BonusData],
         verbose: bool,
     ) -> (HashSet<String>, Vec<PreSplitBonuses>, Vec<Vec<BonusData>>) {
         let mut champion_point_names: HashSet<String> = HashSet::new();
-        let cp_vec: Vec<_> = CHAMPION_POINTS.iter().cloned().collect();
+
+        let required_names: HashSet<&str> = required_champion_points
+            .iter()
+            .map(|cp| cp.name.as_str())
+            .collect();
+
+        let free_pool: Vec<_> = CHAMPION_POINTS
+            .iter()
+            .filter(|cp| !required_names.contains(cp.name.as_str()))
+            .cloned()
+            .collect();
+
+        let free_slots = BUILD_CONSTRAINTS.champion_point_count - required_champion_points.len();
 
         let filtered: Vec<Vec<BonusData>> =
-            combinatorics::generate_combinations(&cp_vec, BUILD_CONSTRAINTS.champion_point_count)
+            combinatorics::generate_combinations(&free_pool, free_slots)
                 .into_iter()
-                .filter(|combination| {
-                    let has_required = required_champion_points.is_empty()
-                        || required_champion_points
-                            .iter()
-                            .all(|required| combination.iter().any(|cp| &cp.name == required));
-
-                    if has_required {
-                        for cp in combination {
-                            champion_point_names.insert(cp.name.clone());
-                        }
+                .map(|mut combo| {
+                    combo.extend(required_champion_points.iter().cloned());
+                    for cp in &combo {
+                        champion_point_names.insert(cp.name.clone());
                     }
-
-                    has_required
+                    combo
                 })
                 .collect();
 
@@ -427,7 +428,11 @@ impl BuildOptimizer {
             let required_str = if required_champion_points.is_empty() {
                 "none".to_string()
             } else {
-                required_champion_points.join(", ")
+                required_champion_points
+                    .iter()
+                    .map(|cp| cp.name.as_str())
+                    .collect::<Vec<_>>()
+                    .join(", ")
             };
             logger::dim(&format!(
                 "Generated {} champion point combinations using {} CPs (required: {})",
@@ -463,26 +468,27 @@ impl BuildOptimizer {
                 vec![required_class_names.to_vec()]
             }
         } else {
-            combinatorics::generate_combinations(
-                &ClassName::CLASS_ONLY.to_vec(),
-                BUILD_CONSTRAINTS.class_skill_line_count,
-            )
-            .into_iter()
-            .filter(|combination| {
-                let has_required = required_class_names.is_empty()
-                    || required_class_names
-                        .iter()
-                        .all(|required| combination.contains(required));
+            let free_pool: Vec<_> = ClassName::CLASS_ONLY
+                .iter()
+                .filter(|c| !required_class_names.contains(c))
+                .copied()
+                .collect();
+            let free_slots = BUILD_CONSTRAINTS.class_skill_line_count - required_class_names.len();
 
-                if has_required {
-                    for class in combination {
-                        class_names.insert(*class);
+            for &c in required_class_names {
+                class_names.insert(c);
+            }
+
+            combinatorics::generate_combinations(&free_pool, free_slots)
+                .into_iter()
+                .map(|mut combo| {
+                    combo.extend_from_slice(required_class_names);
+                    for &class in &combo {
+                        class_names.insert(class);
                     }
-                }
-
-                has_required
-            })
-            .collect()
+                    combo
+                })
+                .collect()
         };
 
         if verbose {
@@ -522,26 +528,29 @@ impl BuildOptimizer {
     ) -> (HashSet<SkillLineName>, Vec<Vec<SkillLineName>>) {
         let mut weapon_skill_line_names: HashSet<SkillLineName> = HashSet::new();
 
-        let combinations: Vec<Vec<SkillLineName>> = combinatorics::generate_combinations(
-            &SkillLineName::WEAPON.to_vec(),
-            BUILD_CONSTRAINTS.weapon_skill_line_count,
-        )
-        .into_iter()
-        .filter(|combination| {
-            let has_required = required_weapon_skill_lines.is_empty()
-                || required_weapon_skill_lines
-                    .iter()
-                    .all(|required| combination.contains(required));
+        let free_pool: Vec<_> = SkillLineName::WEAPON
+            .iter()
+            .filter(|w| !required_weapon_skill_lines.contains(w))
+            .copied()
+            .collect();
+        let free_slots =
+            BUILD_CONSTRAINTS.weapon_skill_line_count - required_weapon_skill_lines.len();
 
-            if has_required {
-                for weapon in combination {
-                    weapon_skill_line_names.insert(*weapon);
-                }
-            }
+        for &w in required_weapon_skill_lines {
+            weapon_skill_line_names.insert(w);
+        }
 
-            has_required
-        })
-        .collect();
+        let combinations: Vec<Vec<SkillLineName>> =
+            combinatorics::generate_combinations(&free_pool, free_slots)
+                .into_iter()
+                .map(|mut combo| {
+                    combo.extend_from_slice(required_weapon_skill_lines);
+                    for &weapon in &combo {
+                        weapon_skill_line_names.insert(weapon);
+                    }
+                    combo
+                })
+                .collect();
 
         if verbose {
             let required_str = if required_weapon_skill_lines.is_empty() {
@@ -1244,7 +1253,8 @@ impl BuildOptimizer {
         let used_weapons_str = Self::fmt_sorted_list(self.weapon_skill_line_names.iter());
         let required_weapons_str = Self::fmt_sorted_list(self.required_weapon_skill_lines.iter());
         let used_cp_str = Self::fmt_sorted_list(self.champion_point_names.iter());
-        let required_cp_str = Self::fmt_sorted_list(self.required_champion_points.iter());
+        let required_cp_str =
+            Self::fmt_sorted_list(self.required_champion_points.iter().map(|cp| &cp.name));
         let required_skills_str = Self::fmt_sorted_list(self.required_skill_names.iter());
 
         let name_width = [
