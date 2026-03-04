@@ -24,6 +24,7 @@ pub struct OptimizePipelineOptions {
     pub max_pool_size: Option<usize>,
     pub baseline: BuildConfig,
     pub trial: bool,
+    pub avg_resource_pct: f64,
 }
 
 /// Result of the optimization pipeline. Serializes to the same JSON shape as BuildConfig.
@@ -377,7 +378,6 @@ impl OptimizePipeline {
             bar2_enchant: Some(winning_bar2),
             armor: winning_armor,
             potion: Some(potion),
-            avg_resource_pct: options.baseline.avg_resource_pct,
             attributes: winning_build_config
                 .and_then(|g| g.attributes)
                 .or(options.baseline.attributes),
@@ -401,7 +401,7 @@ impl OptimizePipeline {
     }
 }
 
-fn resolve_set_bonuses(
+pub(crate) fn resolve_set_bonuses(
     sets: &[&'static SetData],
 ) -> (Vec<BonusData>, Vec<(String, u8)>, Vec<SetProcEffect>) {
     let mut set_bonuses: Vec<BonusData> = Vec::new();
@@ -503,7 +503,7 @@ fn run_simulation(
             )
             .with_enchants(bar1_enchant, bar2_enchant)
             .with_set_procs(proc_effects)
-            .with_avg_resource_pct(options.baseline.avg_resource_pct);
+            .with_avg_resource_pct(options.avg_resource_pct);
             Some((build_idx, simulator, distributions))
         })
         .collect();
@@ -644,7 +644,7 @@ fn run_simulation(
                     )
                     .with_enchants(Some(e1), Some(e2))
                     .with_set_procs(proc_effects.clone())
-                    .with_avg_resource_pct(options.baseline.avg_resource_pct);
+                    .with_avg_resource_pct(options.avg_resource_pct);
 
                     let r = sim.simulate(&best_dist);
                     if r.dps > best_enchant_dps {
@@ -705,7 +705,7 @@ fn run_simulation(
         )
         .with_enchants(Some(winning_bar1), Some(winning_bar2))
         .with_set_procs(proc_effects_final)
-        .with_avg_resource_pct(options.baseline.avg_resource_pct);
+        .with_avg_resource_pct(options.avg_resource_pct);
         let buffed_stats = final_sim.compute_buffed_stats(&best_dist);
 
         return Some((

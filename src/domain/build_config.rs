@@ -21,10 +21,6 @@ pub struct BuildMetadata {
     pub buffed_stats: Option<CharacterStats>,
 }
 
-fn default_avg_resource_pct() -> f64 {
-    50.0
-}
-
 fn default_armor_distribution() -> ArmorDistribution {
     ArmorDistribution {
         light: 1,
@@ -82,10 +78,6 @@ pub struct BuildConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub potion: Option<super::potion::Potion>,
 
-    // Simulation params
-    #[serde(default = "default_avg_resource_pct")]
-    pub avg_resource_pct: f64,
-
     // Computed output
     #[serde(default)]
     pub character_stats: CharacterStats,
@@ -113,7 +105,6 @@ impl Default for BuildConfig {
             mundus: None,
             food: None,
             potion: None,
-            avg_resource_pct: 50.0,
             character_stats: CharacterStats::default(),
             metadata: None,
         }

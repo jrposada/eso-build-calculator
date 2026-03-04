@@ -1,4 +1,4 @@
-use crate::domain::SimulationResult;
+use crate::domain::{CharacterStats, SimulationResult};
 use crate::infrastructure::{format, logger, table};
 use crate::services::bar_distribution::BarDistribution;
 
@@ -175,4 +175,36 @@ pub fn display_simulation_result(
     ));
 
     logger::info(&lines.join("\n"));
+}
+
+pub fn format_buffed_stats(stats: &CharacterStats) -> String {
+    let fmt_stat = |val: f64| format::format_number(val as u64);
+    let fmt_pct = |val: f64| format!("{:.2}%", val * 100.0);
+    let fmt_crit_dmg = |val: f64| format!("{:.2}%", (val - 1.0) * 100.0);
+
+    let data: Vec<Vec<String>> = vec![
+        vec!["Max Magicka".into(), fmt_stat(stats.max_magicka)],
+        vec!["Max Stamina".into(), fmt_stat(stats.max_stamina)],
+        vec!["Weapon Damage".into(), fmt_stat(stats.weapon_damage)],
+        vec!["Spell Damage".into(), fmt_stat(stats.spell_damage)],
+        vec!["Critical Chance".into(), fmt_pct(stats.critical_chance())],
+        vec![
+            "Critical Damage".into(),
+            fmt_crit_dmg(stats.critical_damage),
+        ],
+        vec!["Penetration".into(), fmt_stat(stats.penetration)],
+        vec!["Target Armor".into(), fmt_stat(stats.target_armor)],
+    ];
+
+    table::table(
+        &data,
+        table::TableOptions {
+            title: Some("Buffed Character Stats".into()),
+            columns: vec![
+                table::ColumnDefinition::new("Stat", 20),
+                table::ColumnDefinition::new("Value", 12).align_right(),
+            ],
+            footer: None,
+        },
+    )
 }

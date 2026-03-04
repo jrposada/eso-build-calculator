@@ -5,7 +5,7 @@ use crate::domain::{
     WeaponType, BUILD_CONSTRAINTS,
 };
 use crate::infrastructure::logger;
-use crate::services::{OptimizePipeline, OptimizePipelineOptions};
+use crate::services::{OptimizePipeline, OptimizePipelineOptions, DEFAULT_AVG_RESOURCE_PCT};
 use clap::Args;
 use std::fs;
 use std::io::{self, Write};
@@ -89,7 +89,7 @@ pub struct OptimizeArgs {
     pub enchant: Option<Vec<WeaponEnchant>>,
 
     /// Average resource percentage for resource-scaling sets like Bahsei's (0-100, default 50)
-    #[arg(long, default_value = "50")]
+    #[arg(long, default_value_t = DEFAULT_AVG_RESOURCE_PCT)]
     pub avg_resource_pct: f64,
 
     /// Disable trial dummy buffs/debuffs (enabled by default)
@@ -249,7 +249,6 @@ impl OptimizeArgs {
             bar1_enchant,
             bar2_enchant,
             potion: self.potion,
-            avg_resource_pct: self.avg_resource_pct,
             ..BuildConfig::default()
         };
 
@@ -260,6 +259,7 @@ impl OptimizeArgs {
             max_pool_size: self.max_pool_size,
             baseline,
             trial: !self.no_trial,
+            avg_resource_pct: self.avg_resource_pct,
         }
     }
 

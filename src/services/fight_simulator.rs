@@ -10,6 +10,8 @@ use std::collections::{HashMap, HashSet};
 
 use super::bar_distribution::BarDistribution;
 
+pub const DEFAULT_AVG_RESOURCE_PCT: f64 = 50.0;
+
 pub struct FightSimulator {
     pub target_hp: f64,
     pub effective_stats: CharacterStats,
@@ -96,7 +98,7 @@ impl FightSimulator {
             bar1_enchant: None,
             bar2_enchant: None,
             set_procs: Vec::new(),
-            avg_resource_pct: 50.0,
+            avg_resource_pct: DEFAULT_AVG_RESOURCE_PCT,
         }
     }
 
