@@ -1,7 +1,7 @@
 use super::parsers::{parse_class_name, parse_weapon};
 use crate::domain::{
-    ArmorDistribution, ArmorTrait, AttributeChoice, BonusData, ClassName, Food,
-    GearConfig, JewelryTrait, MundusStone, Potion, Race, SetData, SetType, SkillData, WeaponEnchant,
+    ArmorDistribution, ArmorTrait, AttributeChoice, BonusData, ClassName, Food, GearConfig,
+    JewelryTrait, MundusStone, Potion, Race, SetData, SetType, SkillData, WeaponEnchant,
     WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
 };
 use crate::infrastructure::logger;
@@ -115,11 +115,86 @@ impl OptimizeArgs {
         let options = self.build_pipeline_options();
         let result = OptimizePipeline::run(options);
 
-        // Handle export
-        if let Some(path) = &self.output {
+        let path = self.output.clone().or_else(Self::prompt_export);
+        if let Some(path) = &path {
             Self::export_to_file(&result.build_config, path);
-        } else {
-            Self::prompt_export(&result.build_config);
+        }
+    }
+
+    fn validate(&self) {
+        if let Some(classes) = &self.class {
+            if classes.len() > BUILD_CONSTRAINTS.class_skill_line_count {
+                logger::error(&format!(
+                    "Maximum {} classes allowed",
+                    BUILD_CONSTRAINTS.class_skill_line_count
+                ));
+                std::process::exit(1);
+            }
+        }
+
+        if let Some(weapons) = &self.weapon {
+            if weapons.len() > BUILD_CONSTRAINTS.weapon_skill_line_count {
+                logger::error(&format!(
+                    "Maximum {} weapons allowed",
+                    BUILD_CONSTRAINTS.weapon_skill_line_count
+                ));
+                std::process::exit(1);
+            }
+        }
+
+        if let Some(skills) = &self.skill {
+            if skills.len() > BUILD_CONSTRAINTS.skill_count {
+                logger::error(&format!(
+                    "Maximum {} required skills allowed",
+                    BUILD_CONSTRAINTS.skill_count
+                ));
+                std::process::exit(1);
+            }
+        }
+
+        if let Some(cp) = &self.champion_point {
+            if cp.len() > BUILD_CONSTRAINTS.champion_point_count {
+                logger::error(&format!(
+                    "Maximum {} champion points allowed",
+                    BUILD_CONSTRAINTS.champion_point_count
+                ));
+                std::process::exit(1);
+            }
+        }
+
+        if let Some(traits) = &self.armor_trait {
+            if traits.len() > 7 {
+                logger::error("Maximum 7 armor trait values allowed (one per piece)");
+                std::process::exit(1);
+            }
+        }
+        if let Some(traits) = &self.jewelry_trait {
+            if traits.len() > 3 {
+                logger::error("Maximum 3 jewelry trait values allowed (one per piece)");
+                std::process::exit(1);
+            }
+        }
+        if let Some(traits) = &self.weapon_trait {
+            if traits.len() > 2 {
+                logger::error("Maximum 2 weapon trait values allowed (bar1, bar2)");
+                std::process::exit(1);
+            }
+        }
+
+        if let Some(sets) = &self.set {
+            let (normals, monsters, mythics) = split_sets_by_type(sets);
+            if normals.len() > 2 {
+                logger::error("Maximum 2 normal/arena sets allowed");
+                std::process::exit(1);
+            }
+            if monsters.len() > 2 {
+                logger::error("Maximum 2 monster sets allowed");
+                std::process::exit(1);
+            }
+            if mythics.len() > 1 {
+                logger::error("Maximum 1 mythic set allowed");
+                std::process::exit(1);
+            }
         }
     }
 
@@ -222,101 +297,22 @@ impl OptimizeArgs {
         }
     }
 
-    fn validate(&self) {
-        if let Some(classes) = &self.class {
-            if classes.len() > BUILD_CONSTRAINTS.class_skill_line_count {
-                logger::error(&format!(
-                    "Maximum {} classes allowed",
-                    BUILD_CONSTRAINTS.class_skill_line_count
-                ));
-                std::process::exit(1);
-            }
-        }
-
-        if let Some(weapons) = &self.weapon {
-            if weapons.len() > BUILD_CONSTRAINTS.weapon_skill_line_count {
-                logger::error(&format!(
-                    "Maximum {} weapons allowed",
-                    BUILD_CONSTRAINTS.weapon_skill_line_count
-                ));
-                std::process::exit(1);
-            }
-        }
-
-        if let Some(skills) = &self.skill {
-            if skills.len() > BUILD_CONSTRAINTS.skill_count {
-                logger::error(&format!(
-                    "Maximum {} required skills allowed",
-                    BUILD_CONSTRAINTS.skill_count
-                ));
-                std::process::exit(1);
-            }
-        }
-
-        if let Some(cp) = &self.champion_point {
-            if cp.len() > BUILD_CONSTRAINTS.champion_point_count {
-                logger::error(&format!(
-                    "Maximum {} champion points allowed",
-                    BUILD_CONSTRAINTS.champion_point_count
-                ));
-                std::process::exit(1);
-            }
-        }
-
-        if let Some(traits) = &self.armor_trait {
-            if traits.len() > 7 {
-                logger::error("Maximum 7 armor trait values allowed (one per piece)");
-                std::process::exit(1);
-            }
-        }
-        if let Some(traits) = &self.jewelry_trait {
-            if traits.len() > 3 {
-                logger::error("Maximum 3 jewelry trait values allowed (one per piece)");
-                std::process::exit(1);
-            }
-        }
-        if let Some(traits) = &self.weapon_trait {
-            if traits.len() > 2 {
-                logger::error("Maximum 2 weapon trait values allowed (bar1, bar2)");
-                std::process::exit(1);
-            }
-        }
-
-        if let Some(sets) = &self.set {
-            let (normals, monsters, mythics) = split_sets_by_type(sets);
-            if normals.len() > 2 {
-                logger::error("Maximum 2 normal/arena sets allowed");
-                std::process::exit(1);
-            }
-            if monsters.len() > 2 {
-                logger::error("Maximum 2 monster sets allowed");
-                std::process::exit(1);
-            }
-            if mythics.len() > 1 {
-                logger::error("Maximum 1 mythic set allowed");
-                std::process::exit(1);
-            }
-        }
-    }
-
-    fn prompt_export(config: &crate::domain::BuildConfig) {
+    fn prompt_export() -> Option<PathBuf> {
         print!("\nExport build to file? [path/no]: \x1b[90mn\x1b[0m");
         print!("\x1b[1D");
         io::stdout().flush().unwrap();
 
         let mut input = String::new();
         if io::stdin().read_line(&mut input).is_err() {
-            return;
+            return None;
         }
 
         let input = input.trim();
-        if input.is_empty() || input.eq_ignore_ascii_case("no") || input.eq_ignore_ascii_case("n")
-        {
-            return;
+        if input.is_empty() || input.eq_ignore_ascii_case("no") || input.eq_ignore_ascii_case("n") {
+            return None;
         }
 
-        let path = PathBuf::from(input);
-        Self::export_to_file(config, &path);
+        Some(PathBuf::from(input))
     }
 
     fn export_to_file(config: &crate::domain::BuildConfig, path: &PathBuf) {
