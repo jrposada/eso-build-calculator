@@ -1,5 +1,5 @@
 use super::build_config::BuildConfig;
-use super::parsers::{parse_champion_point, parse_set, parse_skill, parse_weapon};
+use super::parsers::parse_weapon;
 use super::simulation_display::display_simulation_result;
 use crate::data::bonuses::{TRIAL_BUFF_NAMES, TRIAL_DUMMY_BUFFS};
 use crate::data::skill_trees::armor::armor_passives;
@@ -22,11 +22,11 @@ use std::path::PathBuf;
 #[derive(Args, Debug)]
 pub struct SimulateArgs {
     /// 10 skills (comma-separated skill names)
-    #[arg(short = 's', long, value_delimiter = ',', value_parser = parse_skill, conflicts_with = "file")]
+    #[arg(short = 's', long, value_delimiter = ',', value_parser = SkillData::parse, conflicts_with = "file")]
     pub skills: Option<Vec<&'static SkillData>>,
 
     /// 4 champion points (comma-separated)
-    #[arg(long = "cp", value_delimiter = ',', value_parser = parse_champion_point, conflicts_with = "file")]
+    #[arg(long = "cp", value_delimiter = ',', value_parser = BonusData::parse_champion_point, conflicts_with = "file")]
     pub champion_points: Option<Vec<BonusData>>,
 
     /// Path to build configuration file (exported from optimize)
@@ -48,15 +48,15 @@ pub struct SimulateArgs {
     pub weapon: Option<Vec<WeaponType>>,
 
     /// Normal 5pc sets (comma-separated, max 2)
-    #[arg(long, value_delimiter = ',', value_parser = parse_set, conflicts_with = "file")]
+    #[arg(long, value_delimiter = ',', value_parser = SetData::parse, conflicts_with = "file")]
     pub sets: Option<Vec<&'static SetData>>,
 
     /// Monster sets (comma-separated, max 2)
-    #[arg(long, value_delimiter = ',', value_parser = parse_set, conflicts_with = "file")]
+    #[arg(long, value_delimiter = ',', value_parser = SetData::parse, conflicts_with = "file")]
     pub monster_sets: Option<Vec<&'static SetData>>,
 
     /// Mythic item (max 1)
-    #[arg(long, value_parser = parse_set, conflicts_with = "file")]
+    #[arg(long, value_parser = SetData::parse, conflicts_with = "file")]
     pub mythic: Option<&'static SetData>,
 
     /// Show extra details (buffed character stats)
@@ -446,7 +446,7 @@ impl SimulateArgs {
             .skills
             .iter()
             .map(|name| {
-                parse_skill(name).unwrap_or_else(|e| {
+                SkillData::parse(name).unwrap_or_else(|e| {
                     logger::error(&e);
                     std::process::exit(1);
                 })
@@ -457,7 +457,7 @@ impl SimulateArgs {
             .champion_points
             .iter()
             .map(|name| {
-                parse_champion_point(name).unwrap_or_else(|e| {
+                BonusData::parse_champion_point(name).unwrap_or_else(|e| {
                     logger::error(&e);
                     std::process::exit(1);
                 })
@@ -477,7 +477,7 @@ impl SimulateArgs {
             .sets
             .iter()
             .map(|name| {
-                parse_set(name).unwrap_or_else(|e| {
+                SetData::parse(name).unwrap_or_else(|e| {
                     logger::error(&e);
                     std::process::exit(1);
                 })

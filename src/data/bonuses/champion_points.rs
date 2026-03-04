@@ -2,6 +2,25 @@ use crate::domain::{BonusData, BonusValue};
 use crate::domain::{BonusSource, BonusTarget, BonusTrigger};
 use once_cell::sync::Lazy;
 
+impl BonusData {
+    pub fn parse_champion_point(s: &str) -> Result<BonusData, String> {
+        let s = s.trim();
+        let normalized = s.to_lowercase().replace('-', " ");
+
+        CHAMPION_POINTS
+            .iter()
+            .find(|cp| cp.name.to_lowercase().replace('-', " ") == normalized)
+            .cloned()
+            .ok_or_else(|| {
+                format!(
+                    "Invalid champion point '{}'. Valid options: backstabber, biting-aura, deadly-aim, \
+                    exploiter, fighting-finesse, master-at-arms, thaumaturge",
+                    s
+                )
+            })
+    }
+}
+
 pub static CHAMPION_POINTS: Lazy<Vec<BonusData>> = Lazy::new(|| {
     vec![
         BonusData::new(

@@ -45,3 +45,16 @@ pub static ALL_SKILLS: Lazy<Vec<&'static SkillData>> = Lazy::new(|| {
 
     sources.iter().flat_map(|s| s.iter()).collect()
 });
+
+impl SkillData {
+    pub fn parse(s: &str) -> Result<&'static SkillData, String> {
+        let s = s.trim();
+        let normalized = s.to_lowercase().replace('-', " ");
+
+        ALL_SKILLS
+            .iter()
+            .find(|skill| skill.name.to_lowercase().replace('-', " ") == normalized)
+            .copied()
+            .ok_or_else(|| format!("Invalid skill name '{}'", s))
+    }
+}

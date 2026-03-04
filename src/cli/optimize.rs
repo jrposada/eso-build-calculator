@@ -1,7 +1,5 @@
 use super::build_config::BuildConfig;
-use super::parsers::{
-    parse_champion_point, parse_class_name, parse_set, parse_skill, parse_weapon,
-};
+use super::parsers::{parse_class_name, parse_weapon};
 use super::simulation_display::display_simulation_result;
 use crate::data::bonuses::{TRIAL_BUFF_NAMES, TRIAL_DUMMY_BUFFS};
 use crate::data::sets::ALL_SETS;
@@ -54,7 +52,7 @@ pub struct OptimizeArgs {
     pub stamina: bool,
 
     /// Pin gear sets (comma-separated). Auto-grouped by type: max 2 normal/arena, 2 monster, 1 mythic.
-    #[arg(long, value_delimiter = ',', value_parser = parse_set)]
+    #[arg(long, value_delimiter = ',', value_parser = SetData::parse)]
     pub set: Option<Vec<&'static SetData>>,
 
     /// Pin weapon (comma-separated). Accepts skill lines (bow, destruction-staff, dual-wield,
@@ -64,12 +62,12 @@ pub struct OptimizeArgs {
     pub weapon: Option<Vec<WeaponType>>,
 
     /// Require these skills in every build (comma-separated skill names)
-    #[arg(long, value_delimiter = ',', value_parser = parse_skill)]
+    #[arg(long, value_delimiter = ',', value_parser = SkillData::parse)]
     pub skill: Option<Vec<&'static SkillData>>,
 
     /// Require these champion points (comma-separated)
-    #[arg(long = "cp", value_delimiter = ',', value_parser = parse_champion_point)]
-    pub champion_point: Option<Vec<crate::domain::BonusData>>,
+    #[arg(long = "cp", value_delimiter = ',', value_parser = BonusData::parse_champion_point)]
+    pub champion_point: Option<Vec<BonusData>>,
 
     /// Pin mundus stone (thief, shadow, warrior, etc.) - optimized if omitted
     #[arg(long, value_parser = MundusStone::parse)]
