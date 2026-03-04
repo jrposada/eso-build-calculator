@@ -250,7 +250,6 @@ impl OptimizeArgs {
             bar2_enchant,
             potion: self.potion,
             avg_resource_pct: self.avg_resource_pct,
-            trial: !self.no_trial,
             ..BuildConfig::default()
         };
 
@@ -260,6 +259,7 @@ impl OptimizeArgs {
             parallelism,
             max_pool_size: self.max_pool_size,
             baseline,
+            trial: !self.no_trial,
         }
     }
 

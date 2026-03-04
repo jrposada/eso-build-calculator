@@ -21,10 +21,6 @@ pub struct BuildMetadata {
     pub buffed_stats: Option<CharacterStats>,
 }
 
-fn default_true() -> bool {
-    true
-}
-
 fn default_avg_resource_pct() -> f64 {
     50.0
 }
@@ -89,8 +85,6 @@ pub struct BuildConfig {
     // Simulation params
     #[serde(default = "default_avg_resource_pct")]
     pub avg_resource_pct: f64,
-    #[serde(default = "default_true")]
-    pub trial: bool,
 
     // Computed output
     #[serde(default)]
@@ -120,7 +114,6 @@ impl Default for BuildConfig {
             food: None,
             potion: None,
             avg_resource_pct: 50.0,
-            trial: true,
             character_stats: CharacterStats::default(),
             metadata: None,
         }

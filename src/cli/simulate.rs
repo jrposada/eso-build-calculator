@@ -191,12 +191,7 @@ impl SimulateArgs {
                 (s, cp, (None, None), Vec::new(), stats, None)
             };
 
-        // Trial buffs: --no-trial overrides file config; file config defaults to true
-        let use_trial = if self.no_trial {
-            false
-        } else {
-            file_config.as_ref().map_or(true, |c| c.trial)
-        };
+        let use_trial = !self.no_trial;
         let extra_bonuses: Vec<BonusData> = if use_trial {
             TRIAL_DUMMY_BUFFS.clone()
         } else {

@@ -23,6 +23,7 @@ pub struct OptimizePipelineOptions {
     pub parallelism: u8,
     pub max_pool_size: Option<usize>,
     pub baseline: BuildConfig,
+    pub trial: bool,
 }
 
 /// Result of the optimization pipeline. Serializes to the same JSON shape as BuildConfig.
@@ -68,7 +69,7 @@ impl OptimizePipeline {
             resolve_set_bonuses(&pinned_sets);
 
         // Resolve trial dummy buffs
-        let extra_bonuses = if options.baseline.trial {
+        let extra_bonuses = if options.trial {
             TRIAL_DUMMY_BUFFS.clone()
         } else {
             Vec::new()
@@ -377,7 +378,6 @@ impl OptimizePipeline {
             armor: winning_armor,
             potion: Some(potion),
             avg_resource_pct: options.baseline.avg_resource_pct,
-            trial: options.baseline.trial,
             attributes: winning_build_config
                 .and_then(|g| g.attributes)
                 .or(options.baseline.attributes),
@@ -471,7 +471,7 @@ fn run_simulation(
             if distributions.is_empty() {
                 return None;
             }
-            let mut suppressed = if options.baseline.trial {
+            let mut suppressed = if options.trial {
                 TRIAL_BUFF_NAMES.clone()
             } else {
                 std::collections::HashSet::new()
@@ -605,7 +605,7 @@ fn run_simulation(
             };
 
             let build = &builds[best_build_idx];
-            let mut suppressed = if options.baseline.trial {
+            let mut suppressed = if options.trial {
                 TRIAL_BUFF_NAMES.clone()
             } else {
                 std::collections::HashSet::new()
@@ -675,7 +675,7 @@ fn run_simulation(
 
         // Compute buffed stats for export metadata
         let build = &builds[best_build_idx];
-        let mut suppressed_final = if options.baseline.trial {
+        let mut suppressed_final = if options.trial {
             TRIAL_BUFF_NAMES.clone()
         } else {
             std::collections::HashSet::new()
