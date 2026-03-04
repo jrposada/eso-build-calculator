@@ -1,8 +1,8 @@
 use super::parsers::{parse_class_name, parse_weapon};
 use crate::domain::{
     ArmorDistribution, ArmorTrait, AttributeChoice, BonusData, BuildConfig, ClassName, Food,
-    JewelryTrait, MundusStone, Potion, Race, SetData, SkillData, WeaponEnchant,
-    WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
+    JewelryTrait, MundusStone, Potion, Race, SetData, SkillData, WeaponEnchant, WeaponTrait,
+    WeaponType, BUILD_CONSTRAINTS,
 };
 use crate::infrastructure::logger;
 use crate::services::{OptimizePipeline, OptimizePipelineOptions};
@@ -203,41 +203,12 @@ impl OptimizeArgs {
             .parallelism
             .unwrap_or_else(|| (num_cpus::get() / 2).max(1) as u8);
 
-        let pinned_attributes = if self.magicka {
+        let attributes = if self.magicka {
             Some(AttributeChoice::Magicka)
         } else if self.stamina {
             Some(AttributeChoice::Stamina)
         } else {
             None
-        };
-
-        // Build baseline BuildConfig
-        let baseline_armor_traits = {
-            let mut arr = [ArmorTrait::Divines; 7];
-            if let Some(pinned) = &self.armor_trait {
-                for (i, t) in pinned.iter().enumerate() {
-                    arr[i] = *t;
-                }
-            }
-            arr
-        };
-        let baseline_jewelry_traits = {
-            let mut arr = [JewelryTrait::Bloodthirsty; 3];
-            if let Some(pinned) = &self.jewelry_trait {
-                for (i, t) in pinned.iter().enumerate() {
-                    arr[i] = *t;
-                }
-            }
-            arr
-        };
-        let baseline_weapon_traits = {
-            let mut arr = [WeaponTrait::Nirnhoned; 2];
-            if let Some(pinned) = &self.weapon_trait {
-                for (i, t) in pinned.iter().enumerate() {
-                    arr[i] = *t;
-                }
-            }
-            arr
         };
 
         // Derive bar weapons from positional --weapon values
@@ -248,7 +219,7 @@ impl OptimizeArgs {
         };
 
         // Derive bar enchants from positional --enchant values
-        let (pinned_bar1_enchant, pinned_bar2_enchant) = match self.enchant.as_deref() {
+        let (bar1_enchant, bar2_enchant) = match self.enchant.as_deref() {
             Some([e1, e2, ..]) => (Some(*e1), Some(*e2)),
             Some([e1]) => (Some(*e1), None),
             _ => (None, None),
@@ -258,13 +229,15 @@ impl OptimizeArgs {
             race: self.race,
             mundus: self.mundus,
             food: self.food,
-            armor_traits: baseline_armor_traits,
-            jewelry_traits: baseline_jewelry_traits,
-            weapon_traits: baseline_weapon_traits,
-            attributes: pinned_attributes.unwrap_or(AttributeChoice::Stamina),
+            armor_traits: self.armor_trait.clone().unwrap_or_default(),
+            jewelry_traits: self.jewelry_trait.clone().unwrap_or_default(),
+            weapon_traits: self.weapon_trait.clone().unwrap_or_default(),
+            attributes,
             armor: self.armor,
             bar1_weapon,
             bar2_weapon,
+            bar1_enchant,
+            bar2_enchant,
             potion: self.potion,
             avg_resource_pct: self.avg_resource_pct,
             trial: !self.no_trial,
@@ -286,16 +259,6 @@ impl OptimizeArgs {
             max_pool_size: self.max_pool_size,
             pinned_sets: self.set.clone().unwrap_or_default(),
             baseline,
-            pinned_bar1_enchant,
-            pinned_bar2_enchant,
-            potion: self.potion.unwrap_or(Potion::WeaponPower),
-            pinned_armor_traits: self.armor_trait.clone().unwrap_or_default(),
-            pinned_jewelry_traits: self.jewelry_trait.clone().unwrap_or_default(),
-            pinned_weapon_traits: self.weapon_trait.clone().unwrap_or_default(),
-            pinned_race: self.race,
-            pinned_mundus: self.mundus,
-            pinned_food: self.food,
-            pinned_attributes,
         }
     }
 
@@ -327,4 +290,3 @@ impl OptimizeArgs {
         }
     }
 }
-

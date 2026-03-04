@@ -1,36 +1,25 @@
 use crate::domain::{
     ArmorTrait, AttributeChoice, Build, BuildConfig, CharacterStats, Food, JewelryTrait,
-    MundusStone, Race, WeaponTrait, WeaponType, DPS_ARMOR_TRAITS, DPS_ATTRIBUTES, DPS_FOODS,
+    MundusStone, Race, WeaponTrait, DPS_ARMOR_TRAITS, DPS_ATTRIBUTES, DPS_FOODS,
     DPS_JEWELRY_TRAITS, DPS_MUNDUS_STONES, DPS_RACES, DPS_WEAPON_TRAITS,
 };
 use crate::infrastructure::logger;
 
 pub struct GearOptimizerOptions {
-    pub pinned_race: Option<Race>,
-    pub pinned_mundus: Option<MundusStone>,
-    pub pinned_food: Option<Food>,
-    /// Per-slot pinned armor traits. len 0..=7; pins first N slots, rest optimized.
-    pub pinned_armor_traits: Vec<ArmorTrait>,
-    /// Per-slot pinned jewelry traits. len 0..=3; pins first N slots, rest optimized.
-    pub pinned_jewelry_traits: Vec<JewelryTrait>,
-    /// Per-slot pinned weapon traits. len 0..=2; index 0=bar1, 1=bar2.
-    pub pinned_weapon_traits: Vec<WeaponTrait>,
-    pub pinned_attributes: Option<AttributeChoice>,
-    pub bar1_weapon: Option<WeaponType>,
     pub top_k: usize,
     pub verbose: bool,
 }
 
 impl GearOptimizerOptions {
     /// Returns true if all gear dimensions are pinned (nothing to optimize).
-    pub fn all_pinned(&self) -> bool {
-        self.pinned_race.is_some()
-            && self.pinned_mundus.is_some()
-            && self.pinned_food.is_some()
-            && self.pinned_armor_traits.len() == 7
-            && self.pinned_jewelry_traits.len() == 3
-            && self.pinned_weapon_traits.len() >= 1
-            && self.pinned_attributes.is_some()
+    pub fn all_pinned(&self, baseline: &BuildConfig) -> bool {
+        baseline.race.is_some()
+            && baseline.mundus.is_some()
+            && baseline.food.is_some()
+            && baseline.armor_traits.len() == 7
+            && baseline.jewelry_traits.len() == 3
+            && !baseline.weapon_traits.is_empty()
+            && baseline.attributes.is_some()
     }
 }
 
@@ -72,7 +61,7 @@ impl GearOptimizer {
 
         // Coupled group 1: (ArmorTraits, Mundus) - Divines amplifies Mundus
         // Generate all armor trait array combinations for free slots (not pinned)
-        let pinned_armor = &options.pinned_armor_traits;
+        let pinned_armor = &baseline.armor_traits;
         let free_armor_slots = 7 - pinned_armor.len();
         let armor_trait_arrays: Vec<[ArmorTrait; 7]> = if free_armor_slots == 0 {
             // All 7 slots pinned
@@ -104,7 +93,7 @@ impl GearOptimizer {
             combos
         };
 
-        let mundus_candidates: Vec<Option<MundusStone>> = match options.pinned_mundus {
+        let mundus_candidates: Vec<Option<MundusStone>> = match baseline.mundus {
             Some(m) => vec![Some(m)],
             None => {
                 let mut v: Vec<Option<MundusStone>> =
@@ -118,7 +107,7 @@ impl GearOptimizer {
         for armor in &armor_trait_arrays {
             for &mundus in &mundus_candidates {
                 let mut gear = baseline.clone();
-                gear.armor_traits = *armor;
+                gear.armor_traits = armor.to_vec();
                 gear.mundus = mundus;
                 let dpc = score(&gear);
                 armor_mundus_scores.push((dpc, *armor, mundus));
@@ -146,11 +135,11 @@ impl GearOptimizer {
         }
 
         // Coupled group 2: (Attributes, Food) - both affect resource pools
-        let attr_candidates: Vec<AttributeChoice> = match options.pinned_attributes {
+        let attr_candidates: Vec<AttributeChoice> = match baseline.attributes {
             Some(a) => vec![a],
             None => DPS_ATTRIBUTES.to_vec(),
         };
-        let food_candidates: Vec<Option<Food>> = match options.pinned_food {
+        let food_candidates: Vec<Option<Food>> = match baseline.food {
             Some(f) => vec![Some(f)],
             None => {
                 let mut v: Vec<Option<Food>> = DPS_FOODS.iter().copied().map(Some).collect();
@@ -163,7 +152,7 @@ impl GearOptimizer {
         for &attr in &attr_candidates {
             for &food in &food_candidates {
                 let mut gear = baseline.clone();
-                gear.attributes = attr;
+                gear.attributes = Some(attr);
                 gear.food = food;
                 let dpc = score(&gear);
                 attr_food_scores.push((dpc, attr, food));
@@ -191,7 +180,7 @@ impl GearOptimizer {
         }
 
         // Independent: Race
-        let race_candidates: Vec<Option<Race>> = match options.pinned_race {
+        let race_candidates: Vec<Option<Race>> = match baseline.race {
             Some(r) => vec![Some(r)],
             None => {
                 let mut v: Vec<Option<Race>> = DPS_RACES.iter().copied().map(Some).collect();
@@ -228,7 +217,7 @@ impl GearOptimizer {
         }
 
         // Independent: JewelryTraits (per-slot)
-        let pinned_jewelry = &options.pinned_jewelry_traits;
+        let pinned_jewelry = &baseline.jewelry_traits;
         let free_jewelry_slots = 3 - pinned_jewelry.len();
         let jewelry_trait_arrays: Vec<[JewelryTrait; 3]> = if free_jewelry_slots == 0 {
             let mut arr = [JewelryTrait::Bloodthirsty; 3];
@@ -258,7 +247,7 @@ impl GearOptimizer {
         let mut jewelry_scores: Vec<(f64, [JewelryTrait; 3])> = Vec::new();
         for jewelry in &jewelry_trait_arrays {
             let mut gear = baseline.clone();
-            gear.jewelry_traits = *jewelry;
+            gear.jewelry_traits = jewelry.to_vec();
             let dpc = score(&gear);
             jewelry_scores.push((dpc, *jewelry));
         }
@@ -279,7 +268,7 @@ impl GearOptimizer {
         }
 
         // Independent: WeaponTraits (per-slot, but only bar1 affects DPS calc)
-        let pinned_weapon = &options.pinned_weapon_traits;
+        let pinned_weapon = &baseline.weapon_traits;
         let weapon_candidates: Vec<[WeaponTrait; 2]> = if !pinned_weapon.is_empty() {
             // At least bar1 is pinned
             let bar1 = pinned_weapon[0];
@@ -295,7 +284,7 @@ impl GearOptimizer {
         let mut weapon_scores: Vec<(f64, [WeaponTrait; 2])> = Vec::new();
         for wt in &weapon_candidates {
             let mut gear = baseline.clone();
-            gear.weapon_traits = *wt;
+            gear.weapon_traits = wt.to_vec();
             let dpc = score(&gear);
             weapon_scores.push((dpc, *wt));
         }
@@ -346,10 +335,10 @@ impl GearOptimizer {
                                 race,
                                 mundus,
                                 food,
-                                armor_traits: armor,
-                                jewelry_traits: jewelry,
-                                weapon_traits: weapon,
-                                attributes: attr,
+                                armor_traits: armor.to_vec(),
+                                jewelry_traits: jewelry.to_vec(),
+                                weapon_traits: weapon.to_vec(),
+                                attributes: Some(attr),
                                 armor: baseline.armor,
                                 bar1_weapon: baseline.bar1_weapon,
                                 ..baseline.clone()
@@ -376,8 +365,8 @@ impl GearOptimizer {
                 best_gear.food.map_or("None".to_string(), |f| f.to_string()),
                 format_armor_traits(&best_gear.armor_traits),
                 format_jewelry_traits(&best_gear.jewelry_traits),
-                best_gear.weapon_traits[0],
-                best_gear.attributes,
+                best_gear.weapon_traits.first().map_or("None".to_string(), |t| t.to_string()),
+                best_gear.attributes.map_or("None".to_string(), |a| a.to_string()),
             ));
         }
 
@@ -388,18 +377,18 @@ impl GearOptimizer {
     }
 }
 
-/// Format armor trait array as compact string like "5×Divines,2×Infused".
-pub fn format_armor_traits(traits: &[ArmorTrait; 7]) -> String {
+/// Format armor trait slice as compact string like "5×Divines,2×Infused".
+pub fn format_armor_traits(traits: &[ArmorTrait]) -> String {
     format_trait_counts(traits)
 }
 
-/// Format jewelry trait array as compact string like "2×Bloodthirsty,1×Infused".
-pub fn format_jewelry_traits(traits: &[JewelryTrait; 3]) -> String {
+/// Format jewelry trait slice as compact string like "2×Bloodthirsty,1×Infused".
+pub fn format_jewelry_traits(traits: &[JewelryTrait]) -> String {
     format_trait_counts(traits)
 }
 
-/// Format weapon trait array as compact string.
-pub fn format_weapon_traits(traits: &[WeaponTrait; 2]) -> String {
+/// Format weapon trait slice as compact string.
+pub fn format_weapon_traits(traits: &[WeaponTrait]) -> String {
     format_trait_counts(traits)
 }
 

@@ -28,18 +28,6 @@ fn default_avg_resource_pct() -> f64 {
     50.0
 }
 
-fn default_armor_traits() -> [ArmorTrait; 7] {
-    [ArmorTrait::Divines; 7]
-}
-
-fn default_jewelry_traits() -> [JewelryTrait; 3] {
-    [JewelryTrait::Bloodthirsty; 3]
-}
-
-fn default_weapon_traits() -> [WeaponTrait; 2] {
-    [WeaponTrait::Nirnhoned; 2]
-}
-
 fn default_armor_distribution() -> ArmorDistribution {
     ArmorDistribution {
         light: 1,
@@ -60,8 +48,8 @@ pub struct BuildConfig {
     // Character
     #[serde(skip_serializing_if = "Option::is_none")]
     pub race: Option<Race>,
-    #[serde(default)]
-    pub attributes: AttributeChoice,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub attributes: Option<AttributeChoice>,
 
     // Weapons
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -69,17 +57,19 @@ pub struct BuildConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bar2_weapon: Option<WeaponType>,
 
-    // Gear traits
-    #[serde(default = "default_armor_traits")]
-    pub armor_traits: [ArmorTrait; 7],
-    #[serde(default = "default_jewelry_traits")]
-    pub jewelry_traits: [JewelryTrait; 3],
-    #[serde(default = "default_weapon_traits")]
-    pub weapon_traits: [WeaponTrait; 2],
+    // Gear traits (partial Vec = only pinned slots; free slots optimized)
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub armor_traits: Vec<ArmorTrait>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub jewelry_traits: Vec<JewelryTrait>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub weapon_traits: Vec<WeaponTrait>,
 
     // Enchants
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub enchant: Option<Vec<WeaponEnchant>>,
+    pub bar1_enchant: Option<WeaponEnchant>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bar2_enchant: Option<WeaponEnchant>,
 
     // Armor
     #[serde(default = "default_armor_distribution")]
@@ -113,13 +103,14 @@ impl Default for BuildConfig {
             champion_points: Vec::new(),
             sets: Vec::new(),
             race: None,
-            attributes: AttributeChoice::None,
+            attributes: None,
             bar1_weapon: None,
             bar2_weapon: None,
-            armor_traits: default_armor_traits(),
-            jewelry_traits: default_jewelry_traits(),
-            weapon_traits: default_weapon_traits(),
-            enchant: None,
+            armor_traits: Vec::new(),
+            jewelry_traits: Vec::new(),
+            weapon_traits: Vec::new(),
+            bar1_enchant: None,
+            bar2_enchant: None,
             armor: default_armor_distribution(),
             mundus: None,
             food: None,
@@ -163,9 +154,9 @@ impl BuildConfig {
 
         // 1. Attribute points
         match self.attributes {
-            AttributeChoice::Magicka => stats.max_magicka += ATTRIBUTE_POINTS_BONUS,
-            AttributeChoice::Stamina => stats.max_stamina += ATTRIBUTE_POINTS_BONUS,
-            AttributeChoice::None => {}
+            Some(AttributeChoice::Magicka) => stats.max_magicka += ATTRIBUTE_POINTS_BONUS,
+            Some(AttributeChoice::Stamina) => stats.max_stamina += ATTRIBUTE_POINTS_BONUS,
+            Some(AttributeChoice::None) | None => {}
         }
 
         // 2. Weapon base damage (replaces default 1,000)
@@ -182,8 +173,8 @@ impl BuildConfig {
                 stats.weapon_damage = base;
             }
 
-            // 3. Weapon trait bonus (bar1 weapon trait = index 0)
-            match self.weapon_traits[0] {
+            // 3. Weapon trait bonus (bar1 weapon trait = index 0, default Nirnhoned)
+            match self.weapon_traits.first().copied().unwrap_or(WeaponTrait::Nirnhoned) {
                 WeaponTrait::Nirnhoned => {
                     let bonus = base * WEAPON_NIRNHONED_BONUS;
                     if weapon.is_destruction_staff() {
@@ -203,6 +194,7 @@ impl BuildConfig {
         }
 
         // 4. Armor enchantments (7 pieces, all stamina or magicka)
+        // Unspecified slots default to Divines (no infused bonus)
         let infused_armor_count = self
             .armor_traits
             .iter()
@@ -216,7 +208,7 @@ impl BuildConfig {
         };
 
         // Apply enchant to the primary resource
-        if self.attributes == AttributeChoice::Magicka
+        if self.attributes == Some(AttributeChoice::Magicka)
             || self.bar1_weapon.map_or(false, |w| w.is_destruction_staff())
         {
             stats.max_magicka += armor_enchant_total;
@@ -258,12 +250,15 @@ impl BuildConfig {
         }
 
         // 7. Mundus stone (amplified by Divines)
+        // Unspecified armor slots default to Divines for mundus calculation
         if let Some(mundus) = &self.mundus {
-            let divines_count = self
+            let explicit_divines = self
                 .armor_traits
                 .iter()
                 .filter(|t| **t == ArmorTrait::Divines)
-                .count() as u8;
+                .count();
+            let unspecified_slots = 7_usize.saturating_sub(self.armor_traits.len());
+            let divines_count = (explicit_divines + unspecified_slots) as u8;
             mundus.apply(&mut stats, divines_count);
         }
 

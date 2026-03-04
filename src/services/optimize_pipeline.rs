@@ -28,16 +28,6 @@ pub struct OptimizePipelineOptions {
     pub max_pool_size: Option<usize>,
     pub pinned_sets: Vec<&'static SetData>,
     pub baseline: BuildConfig,
-    pub pinned_bar1_enchant: Option<WeaponEnchant>,
-    pub pinned_bar2_enchant: Option<WeaponEnchant>,
-    pub potion: Potion,
-    pub pinned_armor_traits: Vec<crate::domain::ArmorTrait>,
-    pub pinned_jewelry_traits: Vec<crate::domain::JewelryTrait>,
-    pub pinned_weapon_traits: Vec<crate::domain::WeaponTrait>,
-    pub pinned_race: Option<crate::domain::Race>,
-    pub pinned_mundus: Option<crate::domain::MundusStone>,
-    pub pinned_food: Option<crate::domain::Food>,
-    pub pinned_attributes: Option<crate::domain::AttributeChoice>,
 }
 
 /// Result of the optimization pipeline. Serializes to the same JSON shape as BuildConfig.
@@ -99,8 +89,9 @@ impl OptimizePipeline {
         } else {
             Vec::new()
         };
+        let potion = options.baseline.potion.unwrap_or(Potion::WeaponPower);
         armor_passive_bonuses.extend(undaunted_mettle_bonuses(best_guess.type_count()));
-        armor_passive_bonuses.extend(options.potion.bonuses());
+        armor_passive_bonuses.extend(potion.bonuses());
 
         // ── Phase 0: BuildOptimizer with baseline stats ──
         logger::info("Phase 0: Finding optimal skill/CP build...");
@@ -146,7 +137,7 @@ impl OptimizePipeline {
                     Vec::new()
                 };
                 passives.extend(undaunted_mettle_bonuses(tc));
-                passives.extend(options.potion.bonuses());
+                passives.extend(potion.bonuses());
 
                 let build = Build::new_with_extra(
                     source.skills().to_vec(),
@@ -174,7 +165,7 @@ impl OptimizePipeline {
                     Vec::new()
                 };
                 armor_passive_bonuses.extend(undaunted_mettle_bonuses(best_armor.type_count()));
-                armor_passive_bonuses.extend(options.potion.bonuses());
+                armor_passive_bonuses.extend(potion.bonuses());
             }
             best_armor
         } else {
@@ -183,19 +174,11 @@ impl OptimizePipeline {
 
         // ── Phase 1: Gear Optimization ──
         let gear_options = GearOptimizerOptions {
-            pinned_race: options.pinned_race,
-            pinned_mundus: options.pinned_mundus,
-            pinned_food: options.pinned_food,
-            pinned_armor_traits: options.pinned_armor_traits.clone(),
-            pinned_jewelry_traits: options.pinned_jewelry_traits.clone(),
-            pinned_weapon_traits: options.pinned_weapon_traits.clone(),
-            pinned_attributes: options.pinned_attributes,
-            bar1_weapon: options.baseline.bar1_weapon,
             top_k: 3,
             verbose: options.verbose,
         };
 
-        let winning_gear = if gear_options.all_pinned() {
+        let winning_gear = if gear_options.all_pinned(&options.baseline) {
             if options.verbose {
                 logger::dim("Phase 1: All gear dimensions pinned, skipping gear optimization.");
             }
@@ -215,8 +198,8 @@ impl OptimizePipeline {
                 g.food.map_or("None".to_string(), |f| f.to_string()),
                 format_armor_traits(&g.armor_traits),
                 format_jewelry_traits(&g.jewelry_traits),
-                g.weapon_traits[0],
-                g.attributes,
+                g.weapon_traits.first().map_or("None".to_string(), |t| t.to_string()),
+                g.attributes.map_or("None".to_string(), |a| a.to_string()),
             ));
             logger::info(&std::format!("Phase 1 completed in {:.2?}", gear_elapsed));
             Some(result)
@@ -321,10 +304,12 @@ impl OptimizePipeline {
             .map(|(_, _, _, e1, e2, _)| (*e1, *e2))
             .unwrap_or((
                 options
-                    .pinned_bar1_enchant
+                    .baseline
+                    .bar1_enchant
                     .unwrap_or(WeaponEnchant::Flame),
                 options
-                    .pinned_bar2_enchant
+                    .baseline
+                    .bar2_enchant
                     .unwrap_or(WeaponEnchant::Flame),
             ));
 
@@ -365,22 +350,23 @@ impl OptimizePipeline {
             mundus: winning_build_config.and_then(|g| g.mundus),
             food: winning_build_config.and_then(|g| g.food),
             armor_traits: winning_build_config
-                .map(|g| g.armor_traits)
-                .unwrap_or(options.baseline.armor_traits),
+                .map(|g| g.armor_traits.clone())
+                .unwrap_or_else(|| options.baseline.armor_traits.clone()),
             jewelry_traits: winning_build_config
-                .map(|g| g.jewelry_traits)
-                .unwrap_or(options.baseline.jewelry_traits),
+                .map(|g| g.jewelry_traits.clone())
+                .unwrap_or_else(|| options.baseline.jewelry_traits.clone()),
             weapon_traits: winning_build_config
-                .map(|g| g.weapon_traits)
-                .unwrap_or(options.baseline.weapon_traits),
-            enchant: Some(vec![winning_bar1, winning_bar2]),
+                .map(|g| g.weapon_traits.clone())
+                .unwrap_or_else(|| options.baseline.weapon_traits.clone()),
+            bar1_enchant: Some(winning_bar1),
+            bar2_enchant: Some(winning_bar2),
             armor: winning_armor,
-            potion: Some(options.potion),
+            potion: Some(potion),
             avg_resource_pct: options.baseline.avg_resource_pct,
             trial: options.baseline.trial,
             attributes: winning_build_config
-                .map(|g| g.attributes)
-                .unwrap_or(options.baseline.attributes),
+                .and_then(|g| g.attributes)
+                .or(options.baseline.attributes),
             metadata,
         };
 
@@ -476,11 +462,12 @@ fn run_simulation(
             } else {
                 std::collections::HashSet::new()
             };
-            for bonus in options.potion.bonuses() {
+            let potion = options.baseline.potion.unwrap_or(Potion::WeaponPower);
+            for bonus in potion.bonuses() {
                 suppressed.insert(bonus.name.clone());
             }
-            let bar1_enchant = options.pinned_bar1_enchant.or(Some(WeaponEnchant::Flame));
-            let bar2_enchant = options.pinned_bar2_enchant.or(Some(WeaponEnchant::Flame));
+            let bar1_enchant = options.baseline.bar1_enchant.or(Some(WeaponEnchant::Flame));
+            let bar2_enchant = options.baseline.bar2_enchant.or(Some(WeaponEnchant::Flame));
             let proc_effects: Vec<SetProcEffect> = build
                 .set_names()
                 .iter()
@@ -580,10 +567,10 @@ fn run_simulation(
         let best_dist = distributions[best_dist_idx].clone();
 
         // ── Enchant optimization sweep ──
-        let bar1_pinned = options.pinned_bar1_enchant.is_some();
-        let bar2_pinned = options.pinned_bar2_enchant.is_some();
-        let mut winning_bar1 = options.pinned_bar1_enchant.unwrap_or(WeaponEnchant::Flame);
-        let mut winning_bar2 = options.pinned_bar2_enchant.unwrap_or(WeaponEnchant::Flame);
+        let bar1_pinned = options.baseline.bar1_enchant.is_some();
+        let bar2_pinned = options.baseline.bar2_enchant.is_some();
+        let mut winning_bar1 = options.baseline.bar1_enchant.unwrap_or(WeaponEnchant::Flame);
+        let mut winning_bar2 = options.baseline.bar2_enchant.unwrap_or(WeaponEnchant::Flame);
 
         if !bar1_pinned || !bar2_pinned {
             let all_enchants = [
@@ -609,7 +596,8 @@ fn run_simulation(
             } else {
                 std::collections::HashSet::new()
             };
-            for bonus in options.potion.bonuses() {
+            let potion = options.baseline.potion.unwrap_or(Potion::WeaponPower);
+            for bonus in potion.bonuses() {
                 suppressed.insert(bonus.name.clone());
             }
             let proc_effects: Vec<SetProcEffect> = build
@@ -678,7 +666,8 @@ fn run_simulation(
         } else {
             std::collections::HashSet::new()
         };
-        for bonus in options.potion.bonuses() {
+        let potion = options.baseline.potion.unwrap_or(Potion::WeaponPower);
+        for bonus in potion.bonuses() {
             suppressed_final.insert(bonus.name.clone());
         }
         let proc_effects_final: Vec<SetProcEffect> = build

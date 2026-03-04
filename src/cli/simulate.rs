@@ -141,40 +141,16 @@ impl SimulateArgs {
                 let (s, cp) = self.get_from_args();
 
                 let attributes = if self.magicka {
-                    AttributeChoice::Magicka
+                    Some(AttributeChoice::Magicka)
                 } else if self.stamina {
-                    AttributeChoice::Stamina
+                    Some(AttributeChoice::Stamina)
                 } else {
-                    AttributeChoice::None
+                    None
                 };
 
-                let armor_traits = {
-                    let mut arr = [ArmorTrait::Divines; 7];
-                    if let Some(pinned) = &self.armor_trait {
-                        for (i, t) in pinned.iter().enumerate() {
-                            arr[i] = *t;
-                        }
-                    }
-                    arr
-                };
-                let jewelry_traits = {
-                    let mut arr = [JewelryTrait::Bloodthirsty; 3];
-                    if let Some(pinned) = &self.jewelry_trait {
-                        for (i, t) in pinned.iter().enumerate() {
-                            arr[i] = *t;
-                        }
-                    }
-                    arr
-                };
-                let weapon_traits = {
-                    let mut arr = [WeaponTrait::Nirnhoned; 2];
-                    if let Some(pinned) = &self.weapon_trait {
-                        for (i, t) in pinned.iter().enumerate() {
-                            arr[i] = *t;
-                        }
-                    }
-                    arr
-                };
+                let armor_traits = self.armor_trait.clone().unwrap_or_else(|| vec![ArmorTrait::Divines; 7]);
+                let jewelry_traits = self.jewelry_trait.clone().unwrap_or_else(|| vec![JewelryTrait::Bloodthirsty; 3]);
+                let weapon_traits = self.weapon_trait.clone().unwrap_or_else(|| vec![WeaponTrait::Nirnhoned; 2]);
                 let bar1_weapon = self.weapon.as_deref().and_then(|ws| ws.first().copied());
                 let bar2_weapon = self.weapon.as_deref().and_then(|ws| ws.get(1).copied());
                 let build_cfg = BuildConfig {
@@ -383,21 +359,16 @@ impl SimulateArgs {
         for bonus in potion.bonuses() {
             suppressed.insert(bonus.name.clone());
         }
-        let file_enchants: Vec<WeaponEnchant> = file_config
-            .as_ref()
-            .and_then(|c| c.enchant.as_ref())
-            .cloned()
-            .unwrap_or_default();
         let (cli_bar1, cli_bar2) = match self.enchant.as_deref() {
             Some([e1, e2, ..]) => (Some(*e1), Some(*e2)),
             Some([e1]) => (Some(*e1), None),
             _ => (None, None),
         };
         let bar1_enchant = cli_bar1
-            .or(file_enchants.first().copied())
+            .or(file_config.as_ref().and_then(|c| c.bar1_enchant))
             .or(Some(WeaponEnchant::Flame));
         let bar2_enchant = cli_bar2
-            .or(file_enchants.get(1).copied())
+            .or(file_config.as_ref().and_then(|c| c.bar2_enchant))
             .or(Some(WeaponEnchant::Flame));
         let avg_resource_pct = file_config
             .as_ref()
