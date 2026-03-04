@@ -1,4 +1,5 @@
 pub mod bonus;
+pub mod build_config;
 pub mod bonus_source;
 pub mod bonus_target;
 pub mod bonus_trigger;
@@ -67,4 +68,5 @@ pub use skill_damage::SkillDamage;
 pub use skill_line_name::SkillLineName;
 pub use skill_mechanic::SkillMechanic;
 pub use weapon_enchant::WeaponEnchant;
+pub use build_config::{BuildConfig, BuildMetadata};
 pub use weapon_type::WeaponType;

@@ -1,12 +1,11 @@
-use super::build_config::BuildConfig;
 use super::parsers::parse_weapon;
 use super::simulation_display::display_simulation_result;
 use crate::data::bonuses::{TRIAL_BUFF_NAMES, TRIAL_DUMMY_BUFFS};
 use crate::data::skill_trees::armor::armor_passives;
 use crate::data::skill_trees::guild::undaunted::undaunted_passives::undaunted_mettle_bonuses;
 use crate::domain::{
-    ArmorDistribution, ArmorTrait, AttributeChoice, BonusData, Build, CharacterStats, Food,
-    GearConfig, JewelryTrait, MundusStone, Potion, Race, SetData, SetProcEffect, SkillData,
+    ArmorDistribution, ArmorTrait, AttributeChoice, BonusData, Build, BuildConfig, CharacterStats,
+    Food, GearConfig, JewelryTrait, MundusStone, Potion, Race, SetData, SetProcEffect, SkillData,
     SkillLineName, WeaponEnchant, WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
 };
 use crate::infrastructure::{format, logger, table, table::ColumnDefinition};

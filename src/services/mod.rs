@@ -2,6 +2,7 @@ pub mod bar_distribution;
 pub mod build_optimizer;
 pub mod fight_simulator;
 pub mod gear_optimizer;
+pub mod optimize_pipeline;
 pub mod passives_service;
 pub mod set_optimizer;
 pub mod sets_service;
@@ -17,4 +18,5 @@ pub use gear_optimizer::{
 pub use passives_service::{PassivesService, PassivesServiceOptions};
 pub use set_optimizer::{SetOptimizer, SetOptimizerOptions};
 pub use sets_service::{SetsService, SetsServiceOptions};
+pub use optimize_pipeline::{OptimizePipeline, OptimizePipelineOptions, OptimizePipelineResult};
 pub use skills_service::{SkillsFilter, SkillsService, SkillsServiceOptions};

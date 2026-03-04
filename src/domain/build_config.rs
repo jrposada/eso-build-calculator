@@ -1,4 +1,4 @@
-use crate::domain::CharacterStats;
+use super::CharacterStats;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

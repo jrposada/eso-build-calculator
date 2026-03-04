@@ -1,28 +1,15 @@
-use super::build_config::BuildConfig;
 use super::parsers::{parse_class_name, parse_weapon};
-use super::simulation_display::display_simulation_result;
-use crate::data::bonuses::{TRIAL_BUFF_NAMES, TRIAL_DUMMY_BUFFS};
-use crate::data::sets::ALL_SETS;
-use crate::data::skill_trees::armor::armor_passives;
-use crate::data::skill_trees::guild::undaunted::undaunted_passives::undaunted_mettle_bonuses;
 use crate::domain::{
-    ArmorDistribution, ArmorTrait, AttributeChoice, BonusData, Build, CharacterStats, ClassName,
-    Food, GearConfig, JewelryTrait, MundusStone, Potion, Race, SetData, SetProcEffect, SetType,
-    SimulationResult, SkillData, WeaponEnchant, WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
+    ArmorDistribution, ArmorTrait, AttributeChoice, BonusData, ClassName, Food,
+    GearConfig, JewelryTrait, MundusStone, Potion, Race, SetData, SetType, SkillData, WeaponEnchant,
+    WeaponTrait, WeaponType, BUILD_CONSTRAINTS,
 };
-use crate::infrastructure::{format, logger};
-use crate::services::{
-    format_armor_traits, format_jewelry_traits, generate_distributions, infer_weapons,
-    stats_differ_significantly, BarDistribution, BuildOptimizer, BuildOptimizerOptions,
-    FightSimulator, GearOptimizer, GearOptimizerOptions, SetOptimizer, SetOptimizerOptions,
-};
+use crate::infrastructure::logger;
+use crate::services::{OptimizePipeline, OptimizePipelineOptions};
 use clap::Args;
-use rayon::prelude::*;
 use std::fs;
 use std::io::{self, Write};
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
-use std::time::Instant;
 
 /// Optimize build command arguments
 #[derive(Args, Debug)]
@@ -122,18 +109,6 @@ pub struct OptimizeArgs {
     pub max_pool_size: Option<usize>,
 }
 
-/// Bundled export options for writing build config JSON.
-struct ExportOptions {
-    bar1_weapon: Option<WeaponType>,
-    bar2_weapon: Option<WeaponType>,
-    bar1_enchant: WeaponEnchant,
-    bar2_enchant: WeaponEnchant,
-    armor: ArmorDistribution,
-    potion: Option<Potion>,
-    avg_resource_pct: f64,
-    trial: bool,
-}
-
 impl OptimizeArgs {
     pub fn run(&self) {
         self.validate();
@@ -142,7 +117,6 @@ impl OptimizeArgs {
             .parallelism
             .unwrap_or_else(|| (num_cpus::get() / 2).max(1) as u8);
 
-        // Determine pinned attributes
         let pinned_attributes = if self.magicka {
             Some(AttributeChoice::Magicka)
         } else if self.stamina {
@@ -151,8 +125,7 @@ impl OptimizeArgs {
             None
         };
 
-        // ── Build baseline GearConfig for Phase 0 ──
-        // Pinned dimensions use the pinned value; unpinned use sensible defaults.
+        // Build baseline GearConfig
         let baseline_armor_traits = {
             let mut arr = [ArmorTrait::Divines; 7];
             if let Some(pinned) = &self.armor_trait {
@@ -181,9 +154,9 @@ impl OptimizeArgs {
             arr
         };
         let baseline_gear = GearConfig {
-            race: self.race,     // None if unpinned (naked baseline)
-            mundus: self.mundus, // None if unpinned
-            food: self.food,     // None if unpinned
+            race: self.race,
+            mundus: self.mundus,
+            food: self.food,
             armor_traits: baseline_armor_traits,
             jewelry_traits: baseline_jewelry_traits,
             weapon_traits: baseline_weapon_traits,
@@ -205,61 +178,7 @@ impl OptimizeArgs {
             _ => (None, None),
         };
 
-        let character_stats = baseline_gear.compute_stats(bar1_weapon);
-        let baseline_stats = character_stats.clone();
-
-        // Resolve pinned set bonuses for Phase 0
-        let (set_bonuses, set_names, _set_proc_effects) = self.resolve_set_bonuses();
-
-        // Resolve trial dummy buffs
-        let extra_bonuses = if self.no_trial {
-            Vec::new()
-        } else {
-            TRIAL_DUMMY_BUFFS.clone()
-        };
-
-        // Resolve armor passives and potion bonuses
-        // Generate all completions and pick the best-guess passives for Phase 0
-        let completions = self.armor.completions();
-        let potion = self.potion.unwrap_or(Potion::WeaponPower);
-
-        // Deduplicate completions by (dominant_weight, type_count) to avoid redundant evaluations
-        let mut unique_passive_sets: Vec<(
-            Option<crate::domain::ArmorWeight>,
-            u8,
-            ArmorDistribution,
-        )> = Vec::new();
-        for c in &completions {
-            let key = (c.dominant_weight(), c.type_count());
-            if !unique_passive_sets
-                .iter()
-                .any(|(dw, tc, _)| *dw == key.0 && *tc == key.1)
-            {
-                unique_passive_sets.push((key.0, key.1, *c));
-            }
-        }
-
-        // Use the best-guess heuristic: prefer medium dominant + 3-type, else first completion
-        let best_guess = unique_passive_sets
-            .iter()
-            .find(|(dw, tc, _)| *dw == Some(crate::domain::ArmorWeight::Medium) && *tc == 3)
-            .or_else(|| unique_passive_sets.first())
-            .map(|(_, _, c)| *c)
-            .unwrap_or(self.armor);
-
-        let mut armor_passive_bonuses = if let Some(dw) = best_guess.dominant_weight() {
-            armor_passives(dw)
-        } else {
-            Vec::new()
-        };
-        armor_passive_bonuses.extend(undaunted_mettle_bonuses(best_guess.type_count()));
-        armor_passive_bonuses.extend(potion.bonuses());
-
-        // ── Phase 0: BuildOptimizer with baseline stats ──
-        logger::info("Phase 0: Finding optimal skill/CP build...");
-
-        let optimizer = BuildOptimizer::new(BuildOptimizerOptions {
-            character_stats,
+        let pipeline_options = OptimizePipelineOptions {
             verbose: self.verbose,
             pure: self.pure,
             required_class_names: self.class.clone().unwrap_or_default(),
@@ -272,248 +191,36 @@ impl OptimizeArgs {
             required_skills: self.skill.clone().unwrap_or_default(),
             parallelism,
             max_pool_size: self.max_pool_size,
-            set_bonuses,
-            set_names,
-            extra_bonuses: extra_bonuses.clone(),
-            armor_passive_bonuses: armor_passive_bonuses.clone(),
-        });
-
-        let start = Instant::now();
-        let mut builds = optimizer.find_optimal_build();
-        let elapsed = start.elapsed();
-
-        if builds.is_empty() {
-            logger::error("No valid build found with the given constraints.");
-            std::process::exit(1);
-        }
-
-        logger::info(&builds[0].to_string());
-        logger::info(&format!("Phase 0 completed in {:.2?}", elapsed));
-
-        // ── Free-slot armor optimization ──
-        // If multiple unique passive sets exist, re-evaluate the winning build with each
-        let winning_armor = if unique_passive_sets.len() > 1 {
-            let mut best_armor = best_guess;
-            let mut best_dpc = builds[0].total_damage_per_cast;
-            let source = &builds[0];
-
-            for &(dw, tc, dist) in &unique_passive_sets {
-                let mut passives = if let Some(weight) = dw {
-                    armor_passives(weight)
-                } else {
-                    Vec::new()
-                };
-                passives.extend(undaunted_mettle_bonuses(tc));
-                passives.extend(potion.bonuses());
-
-                let build = Build::new_with_extra(
-                    source.skills().to_vec(),
-                    source.cp_bonuses(),
-                    &passives,
-                    &[],
-                    Vec::new(),
-                    source.character_stats().clone(),
-                    &extra_bonuses,
-                );
-                if build.total_damage_per_cast > best_dpc {
-                    best_dpc = build.total_damage_per_cast;
-                    best_armor = dist;
-                }
-            }
-
-            if best_armor != best_guess {
-                logger::info(&format!(
-                    "Armor optimization: {} beats default (free slots filled optimally)",
-                    best_armor
-                ));
-                // Rebuild armor passives with winning distribution
-                armor_passive_bonuses = if let Some(dw) = best_armor.dominant_weight() {
-                    armor_passives(dw)
-                } else {
-                    Vec::new()
-                };
-                armor_passive_bonuses.extend(undaunted_mettle_bonuses(best_armor.type_count()));
-                armor_passive_bonuses.extend(potion.bonuses());
-            }
-            best_armor
-        } else {
-            best_guess
-        };
-
-        // ── Phase 1: Gear Optimization ──
-        let gear_options = GearOptimizerOptions {
-            pinned_race: self.race,
-            pinned_mundus: self.mundus,
-            pinned_food: self.food,
+            pinned_sets: self.set.clone().unwrap_or_default(),
+            baseline_gear,
+            bar1_weapon,
+            bar2_weapon,
+            pinned_bar1_enchant,
+            pinned_bar2_enchant,
+            armor: self.armor,
+            potion: self.potion.unwrap_or(Potion::WeaponPower),
+            avg_resource_pct: self.avg_resource_pct,
+            use_trial: !self.no_trial,
             pinned_armor_traits: self.armor_trait.clone().unwrap_or_default(),
             pinned_jewelry_traits: self.jewelry_trait.clone().unwrap_or_default(),
             pinned_weapon_traits: self.weapon_trait.clone().unwrap_or_default(),
+            pinned_race: self.race,
+            pinned_mundus: self.mundus,
+            pinned_food: self.food,
             pinned_attributes,
-            bar1_weapon,
-            top_k: 3,
-            verbose: self.verbose,
         };
 
-        let winning_gear = if gear_options.all_pinned() {
-            if self.verbose {
-                logger::dim("Phase 1: All gear dimensions pinned, skipping gear optimization.");
-            }
-            None
-        } else {
-            logger::info("Phase 1: Optimizing gear (race, mundus, food, traits)...");
-            let gear_start = Instant::now();
-            let result = GearOptimizer::optimize(&builds, &gear_options, &baseline_gear);
-            let gear_elapsed = gear_start.elapsed();
+        let result = OptimizePipeline::run(pipeline_options);
 
-            // Display winning gear
-            let g = &result.gear_config;
-            logger::success(&format!(
-                "Best gear: Race={}, Mundus={}, Food={}, Armor={}, Jewelry={}, Weapon={}, Attributes={}",
-                g.race.map_or("None".to_string(), |r| r.to_string()),
-                g.mundus.map_or("None".to_string(), |m| m.to_string()),
-                g.food.map_or("None".to_string(), |f| f.to_string()),
-                format_armor_traits(&g.armor_traits),
-                format_jewelry_traits(&g.jewelry_traits),
-                g.weapon_traits[0],
-                g.attributes,
-            ));
-            logger::info(&format!("Phase 1 completed in {:.2?}", gear_elapsed));
-            Some(result)
-        };
-
-        // ── Phase 2: Conditional BuildOptimizer re-run ──
-        if let Some(ref gear_result) = winning_gear {
-            let new_stats = gear_result.character_stats.clone();
-
-            if stats_differ_significantly(&baseline_stats, &new_stats, 0.05) {
-                logger::info("Phase 2: Gear stats changed >5%, re-running build optimizer...");
-
-                let (set_bonuses, set_names, _set_proc_effects) = self.resolve_set_bonuses();
-                let rerun_optimizer = BuildOptimizer::new(BuildOptimizerOptions {
-                    character_stats: new_stats,
-                    verbose: self.verbose,
-                    pure: self.pure,
-                    required_class_names: self.class.clone().unwrap_or_default(),
-                    required_weapon_skill_lines: self
-                        .weapon
-                        .as_ref()
-                        .map(|ws| ws.iter().map(|w| w.skill_line()).collect())
-                        .unwrap_or_default(),
-                    required_champion_points: self.champion_point.clone().unwrap_or_default(),
-                    required_skills: self.skill.clone().unwrap_or_default(),
-                    parallelism,
-                    max_pool_size: self.max_pool_size,
-                    set_bonuses,
-                    set_names,
-                    extra_bonuses: extra_bonuses.clone(),
-                    armor_passive_bonuses: armor_passive_bonuses.clone(),
-                });
-
-                let rerun_start = Instant::now();
-                let new_builds = rerun_optimizer.find_optimal_build();
-                let rerun_elapsed = rerun_start.elapsed();
-
-                if !new_builds.is_empty() {
-                    logger::info(&new_builds[0].to_string());
-                    logger::info(&format!("Phase 2 completed in {:.2?}", rerun_elapsed));
-                    builds = new_builds;
-                } else {
-                    logger::warn("Phase 2 re-run found no valid builds, keeping Phase 0 results.");
-                }
-            } else if self.verbose {
-                logger::dim("Phase 2: Stats within 5% of baseline, skipping re-run.");
-            }
-        }
-
-        // ── Phase 3: Set Optimization (always runs) ──
-        logger::info("Phase 3: Optimizing gear sets...");
-        let pinned_sets = self.set.clone().unwrap_or_default();
-        let (pinned_normal, pinned_monster, pinned_mythic_vec) =
-            Self::split_sets_by_type(&pinned_sets);
-        let set_result = SetOptimizer::optimize(
-            &builds,
-            &SetOptimizerOptions {
-                top_k: 10,
-                pinned_normal,
-                pinned_monster,
-                pinned_mythic: pinned_mythic_vec.into_iter().next(),
-                parallelism,
-                verbose: self.verbose,
-            },
-        );
-        let builds = if let Some(result) = set_result {
-            let source = &builds[result.build_idx];
-            let best_with_sets = Build::new_with_extra(
-                source.skills().to_vec(),
-                source.cp_bonuses(),
-                source.passive_bonuses(),
-                &result.set_bonuses,
-                result.set_names,
-                source.character_stats().clone(),
-                &extra_bonuses,
-            );
-            logger::info(&best_with_sets.to_string());
-            vec![best_with_sets]
-        } else {
-            logger::warn("Set optimization found no valid loadout.");
-            builds
-        };
-
-        // ── Phase 4: Fight Simulation ──
-        let sim_result = self.run_simulation(&builds);
-
-        // Use the build selected by simulation (if any), otherwise fall back to DPC-best
-        let best_build = &builds[0];
-        let export_build = sim_result
-            .as_ref()
-            .map(|(build_idx, _, _, _, _, _)| &builds[*build_idx])
-            .unwrap_or(best_build);
-        let sim_data = sim_result
-            .as_ref()
-            .map(|(_, dist, result, _, _, _)| (dist, result));
-        let buffed_stats = sim_result.as_ref().map(|(_, _, _, _, _, stats)| stats);
-
-        // Export with gear info (use winning enchants from simulation if available)
-        let (winning_bar1, winning_bar2) = sim_result
-            .as_ref()
-            .map(|(_, _, _, e1, e2, _)| (*e1, *e2))
-            .unwrap_or((
-                pinned_bar1_enchant.unwrap_or(WeaponEnchant::Flame),
-                pinned_bar2_enchant.unwrap_or(WeaponEnchant::Flame),
-            ));
-        let gear_config = winning_gear.as_ref().map(|g| &g.gear_config);
-        let export_opts = ExportOptions {
-            bar1_weapon,
-            bar2_weapon,
-            bar1_enchant: winning_bar1,
-            bar2_enchant: winning_bar2,
-            armor: winning_armor,
-            potion: Some(self.potion.unwrap_or(Potion::WeaponPower)),
-            avg_resource_pct: self.avg_resource_pct,
-            trial: !self.no_trial,
-        };
+        // Handle export
         if let Some(path) = &self.output {
-            Self::export_to_file(
-                export_build,
-                sim_data,
-                buffed_stats,
-                gear_config,
-                &export_opts,
-                path,
-            );
+            Self::export_to_file(&result.build_config, path);
         } else {
-            Self::prompt_export(
-                export_build,
-                sim_data,
-                buffed_stats,
-                gear_config,
-                &export_opts,
-            );
+            Self::prompt_export(&result.build_config);
         }
     }
 
     fn validate(&self) {
-        // Validate class count
         if let Some(classes) = &self.class {
             if classes.len() > BUILD_CONSTRAINTS.class_skill_line_count {
                 logger::error(&format!(
@@ -524,7 +231,6 @@ impl OptimizeArgs {
             }
         }
 
-        // Validate weapon count
         if let Some(weapons) = &self.weapon {
             if weapons.len() > BUILD_CONSTRAINTS.weapon_skill_line_count {
                 logger::error(&format!(
@@ -535,7 +241,6 @@ impl OptimizeArgs {
             }
         }
 
-        // Validate required skills count
         if let Some(skills) = &self.skill {
             if skills.len() > BUILD_CONSTRAINTS.skill_count {
                 logger::error(&format!(
@@ -546,7 +251,6 @@ impl OptimizeArgs {
             }
         }
 
-        // Validate champion point count
         if let Some(cp) = &self.champion_point {
             if cp.len() > BUILD_CONSTRAINTS.champion_point_count {
                 logger::error(&format!(
@@ -557,7 +261,6 @@ impl OptimizeArgs {
             }
         }
 
-        // Validate trait slot counts
         if let Some(traits) = &self.armor_trait {
             if traits.len() > 7 {
                 logger::error("Maximum 7 armor trait values allowed (one per piece)");
@@ -577,9 +280,8 @@ impl OptimizeArgs {
             }
         }
 
-        // Validate set counts by type
         if let Some(sets) = &self.set {
-            let (normals, monsters, mythics) = Self::split_sets_by_type(sets);
+            let (normals, monsters, mythics) = split_sets_by_type(sets);
             if normals.len() > 2 {
                 logger::error("Maximum 2 normal/arena sets allowed");
                 std::process::exit(1);
@@ -595,365 +297,8 @@ impl OptimizeArgs {
         }
     }
 
-    /// Split a flat list of sets into (normal/arena, monster, mythic) groups.
-    fn split_sets_by_type(
-        sets: &[&'static SetData],
-    ) -> (
-        Vec<&'static SetData>,
-        Vec<&'static SetData>,
-        Vec<&'static SetData>,
-    ) {
-        let mut normals = Vec::new();
-        let mut monsters = Vec::new();
-        let mut mythics = Vec::new();
-        for &set in sets {
-            match set.set_type {
-                SetType::Normal | SetType::Arena => normals.push(set),
-                SetType::Monster => monsters.push(set),
-                SetType::Mythic => mythics.push(set),
-            }
-        }
-        (normals, monsters, mythics)
-    }
-
-    fn resolve_set_bonuses(&self) -> (Vec<BonusData>, Vec<(String, u8)>, Vec<SetProcEffect>) {
-        let active_sets = self.set.clone().unwrap_or_default();
-
-        let mut set_bonuses: Vec<BonusData> = Vec::new();
-        let mut set_names: Vec<(String, u8)> = Vec::new();
-        let mut set_proc_effects: Vec<SetProcEffect> = Vec::new();
-        for set in &active_sets {
-            let piece_count = set.set_type.max_pieces();
-            let bonuses = set.bonuses_at(piece_count);
-            set_bonuses.extend(bonuses.into_iter().cloned());
-            set_proc_effects.extend(set.proc_effects_at(piece_count).into_iter().cloned());
-            set_names.push((set.name.clone(), piece_count));
-        }
-
-        (set_bonuses, set_names, set_proc_effects)
-    }
-
-    fn run_simulation(
-        &self,
-        builds: &[crate::domain::Build],
-    ) -> Option<(
-        usize,
-        BarDistribution,
-        SimulationResult,
-        WeaponEnchant,
-        WeaponEnchant,
-        CharacterStats,
-    )> {
-        // Derive bar weapons from --weapon positional args, or infer from skills
-        let inferred = {
-            let top_skills = builds[0].skills();
-            match infer_weapons(top_skills) {
-                Ok(weapons) => Some(weapons),
-                Err(e) => {
-                    if self.weapon.is_none() {
-                        logger::warn(&format!(
-                            "Could not infer weapons for simulation: {}. Skipping fight simulation.",
-                            e
-                        ));
-                        return None;
-                    }
-                    None
-                }
-            }
-        };
-        let (bar1_weapon, bar2_weapon) = match self.weapon.as_deref() {
-            Some([w1, w2, ..]) => (*w1, *w2),
-            Some([w1]) => (*w1, inferred.map(|(_, w2)| w2).unwrap_or(*w1)),
-            _ => inferred.unwrap(),
-        };
-
-        // Derive bar enchants from --enchant values
-        let (pinned_bar1_enchant, pinned_bar2_enchant) = match self.enchant.as_deref() {
-            Some([e1, e2, ..]) => (Some(*e1), Some(*e2)),
-            Some([e1]) => (Some(*e1), None),
-            _ => (None, None),
-        };
-
-        logger::info(&format!(
-            "Phase 4: Running fight simulation on top {} candidates (Bar1: {}, Bar2: {})...",
-            builds.len(),
-            bar1_weapon,
-            bar2_weapon
-        ));
-
-        let sim_start = Instant::now();
-
-        // Pre-compute work items: (build_idx, simulator, distributions)
-        let work: Vec<(usize, FightSimulator, Vec<BarDistribution>)> = builds
-            .iter()
-            .enumerate()
-            .filter_map(|(build_idx, build)| {
-                let distributions =
-                    generate_distributions(build.skills(), bar1_weapon, bar2_weapon);
-                if distributions.is_empty() {
-                    return None;
-                }
-                let mut suppressed = if self.no_trial {
-                    std::collections::HashSet::new()
-                } else {
-                    TRIAL_BUFF_NAMES.clone()
-                };
-                // Suppress potion buff names to prevent double-counting with skill buffs
-                let potion = self.potion.unwrap_or(Potion::WeaponPower);
-                for bonus in potion.bonuses() {
-                    suppressed.insert(bonus.name.clone());
-                }
-                let bar1_enchant = pinned_bar1_enchant.or(Some(WeaponEnchant::Flame));
-                let bar2_enchant = pinned_bar2_enchant.or(Some(WeaponEnchant::Flame));
-                // Collect proc effects from the build's equipped sets
-                let proc_effects: Vec<SetProcEffect> = build
-                    .set_names()
-                    .iter()
-                    .flat_map(|(name, _)| {
-                        ALL_SETS
-                            .iter()
-                            .filter(move |s| s.name == *name)
-                            .flat_map(|s| {
-                                s.proc_effects_at(s.set_type.max_pieces())
-                                    .into_iter()
-                                    .cloned()
-                            })
-                    })
-                    .collect();
-                let simulator = FightSimulator::new(
-                    build.effective_stats(),
-                    build.resolved_bonuses(),
-                    suppressed,
-                )
-                .with_enchants(bar1_enchant, bar2_enchant)
-                .with_set_procs(proc_effects)
-                .with_avg_resource_pct(self.avg_resource_pct);
-                Some((build_idx, simulator, distributions))
-            })
-            .collect();
-
-        let total_sims: usize = work.iter().map(|(_, _, d)| d.len()).sum();
-        let completed = AtomicUsize::new(0);
-        let best_dps_bits = AtomicU64::new(f64::NEG_INFINITY.to_bits());
-
-        let results: Vec<_> = work
-            .par_iter()
-            .filter_map(|(build_idx, simulator, distributions)| {
-                let mut local_best: Option<(usize, SimulationResult)> = None;
-                for (dist_idx, dist) in distributions.iter().enumerate() {
-                    let result = simulator.simulate(dist);
-                    if local_best
-                        .as_ref()
-                        .map_or(true, |(_, r)| result.dps > r.dps)
-                    {
-                        local_best = Some((dist_idx, result));
-                    }
-
-                    let done = completed.fetch_add(1, Ordering::Relaxed) + 1;
-
-                    // Update shared best DPS via CAS loop
-                    if let Some((_, ref best)) = local_best {
-                        let new_bits = best.dps.to_bits();
-                        let mut current = best_dps_bits.load(Ordering::Relaxed);
-                        loop {
-                            if f64::from_bits(current) >= best.dps {
-                                break;
-                            }
-                            match best_dps_bits.compare_exchange_weak(
-                                current,
-                                new_bits,
-                                Ordering::Relaxed,
-                                Ordering::Relaxed,
-                            ) {
-                                Ok(_) => break,
-                                Err(actual) => current = actual,
-                            }
-                        }
-                    }
-
-                    if done % 10 == 0 || done == total_sims {
-                        let best = f64::from_bits(best_dps_bits.load(Ordering::Relaxed));
-                        let best_str = if best > 0.0 {
-                            format::format_number(best as u64)
-                        } else {
-                            "---".to_string()
-                        };
-                        logger::progress(&format!(
-                            "Simulating: {}/{} | Best DPS: {}",
-                            done, total_sims, best_str
-                        ));
-                    }
-                }
-                local_best
-                    .map(|(dist_idx, result)| (*build_idx, dist_idx, distributions.clone(), result))
-            })
-            .collect();
-
-        let sim_elapsed = sim_start.elapsed();
-
-        // Find global best from parallel results
-        if let Some((best_build_idx, best_dist_idx, distributions, mut result)) = results
-            .into_iter()
-            .max_by(|(_, _, _, a), (_, _, _, b)| a.dps.partial_cmp(&b.dps).unwrap())
-        {
-            if best_build_idx > 0 {
-                logger::info(&format!(
-                    "Simulation selected build #{} (of {} candidates) as best DPS.",
-                    best_build_idx + 1,
-                    builds.len()
-                ));
-                logger::info(&builds[best_build_idx].to_string());
-            }
-            let best_dist = distributions[best_dist_idx].clone();
-
-            // ── Enchant optimization sweep ──
-            let bar1_pinned = pinned_bar1_enchant.is_some();
-            let bar2_pinned = pinned_bar2_enchant.is_some();
-            let mut winning_bar1 = pinned_bar1_enchant.unwrap_or(WeaponEnchant::Flame);
-            let mut winning_bar2 = pinned_bar2_enchant.unwrap_or(WeaponEnchant::Flame);
-
-            if !bar1_pinned || !bar2_pinned {
-                let all_enchants = [
-                    WeaponEnchant::Flame,
-                    WeaponEnchant::Poison,
-                    WeaponEnchant::Shock,
-                    WeaponEnchant::Berserker,
-                ];
-                let bar1_candidates: Vec<WeaponEnchant> = if bar1_pinned {
-                    vec![winning_bar1]
-                } else {
-                    all_enchants.to_vec()
-                };
-                let bar2_candidates: Vec<WeaponEnchant> = if bar2_pinned {
-                    vec![winning_bar2]
-                } else {
-                    all_enchants.to_vec()
-                };
-
-                let build = &builds[best_build_idx];
-                let mut suppressed = if self.no_trial {
-                    std::collections::HashSet::new()
-                } else {
-                    TRIAL_BUFF_NAMES.clone()
-                };
-                let potion = self.potion.unwrap_or(Potion::WeaponPower);
-                for bonus in potion.bonuses() {
-                    suppressed.insert(bonus.name.clone());
-                }
-                let proc_effects: Vec<SetProcEffect> = build
-                    .set_names()
-                    .iter()
-                    .flat_map(|(name, _)| {
-                        ALL_SETS
-                            .iter()
-                            .filter(move |s| s.name == *name)
-                            .flat_map(|s| {
-                                s.proc_effects_at(s.set_type.max_pieces())
-                                    .into_iter()
-                                    .cloned()
-                            })
-                    })
-                    .collect();
-
-                let combo_count = bar1_candidates.len() * bar2_candidates.len();
-                let mut best_enchant_dps = result.dps;
-
-                for &e1 in &bar1_candidates {
-                    for &e2 in &bar2_candidates {
-                        if e1 == winning_bar1 && e2 == winning_bar2 {
-                            continue; // already tested
-                        }
-                        let sim = FightSimulator::new(
-                            build.effective_stats(),
-                            build.resolved_bonuses(),
-                            suppressed.clone(),
-                        )
-                        .with_enchants(Some(e1), Some(e2))
-                        .with_set_procs(proc_effects.clone())
-                        .with_avg_resource_pct(self.avg_resource_pct);
-
-                        let r = sim.simulate(&best_dist);
-                        if r.dps > best_enchant_dps {
-                            best_enchant_dps = r.dps;
-                            winning_bar1 = e1;
-                            winning_bar2 = e2;
-                            result = r;
-                        }
-                    }
-                }
-
-                logger::success(&format!(
-                    "Best enchants: Bar1={}, Bar2={} (optimized from {} combos)",
-                    winning_bar1, winning_bar2, combo_count
-                ));
-            }
-
-            display_simulation_result(
-                &result,
-                &best_dist,
-                distributions.len(),
-                builds[best_build_idx].set_names(),
-            );
-            logger::info(&format!("Simulation completed in {:.2?}", sim_elapsed));
-
-            // Compute buffed stats for export metadata
-            let build = &builds[best_build_idx];
-            let mut suppressed_final = if self.no_trial {
-                std::collections::HashSet::new()
-            } else {
-                TRIAL_BUFF_NAMES.clone()
-            };
-            let potion_final = self.potion.unwrap_or(Potion::WeaponPower);
-            for bonus in potion_final.bonuses() {
-                suppressed_final.insert(bonus.name.clone());
-            }
-            let proc_effects_final: Vec<SetProcEffect> = build
-                .set_names()
-                .iter()
-                .flat_map(|(name, _)| {
-                    ALL_SETS
-                        .iter()
-                        .filter(move |s| s.name == *name)
-                        .flat_map(|s| {
-                            s.proc_effects_at(s.set_type.max_pieces())
-                                .into_iter()
-                                .cloned()
-                        })
-                })
-                .collect();
-            let final_sim = FightSimulator::new(
-                build.effective_stats(),
-                build.resolved_bonuses(),
-                suppressed_final,
-            )
-            .with_enchants(Some(winning_bar1), Some(winning_bar2))
-            .with_set_procs(proc_effects_final)
-            .with_avg_resource_pct(self.avg_resource_pct);
-            let buffed_stats = final_sim.compute_buffed_stats(&best_dist);
-
-            return Some((
-                best_build_idx,
-                best_dist,
-                result,
-                winning_bar1,
-                winning_bar2,
-                buffed_stats,
-            ));
-        }
-
-        None
-    }
-
-    fn prompt_export(
-        build: &crate::domain::Build,
-        simulation: Option<(&BarDistribution, &SimulationResult)>,
-        buffed_stats: Option<&CharacterStats>,
-        gear_config: Option<&GearConfig>,
-        opts: &ExportOptions,
-    ) {
-        // Show prompt with greyed-out default value "no"
+    fn prompt_export(config: &crate::domain::BuildConfig) {
         print!("\nExport build to file? [path/no]: \x1b[90mn\x1b[0m");
-        // Move cursor back over the default value so user input overwrites it
         print!("\x1b[1D");
         io::stdout().flush().unwrap();
 
@@ -963,73 +308,17 @@ impl OptimizeArgs {
         }
 
         let input = input.trim();
-        if input.is_empty() || input.eq_ignore_ascii_case("no") || input.eq_ignore_ascii_case("n") {
+        if input.is_empty() || input.eq_ignore_ascii_case("no") || input.eq_ignore_ascii_case("n")
+        {
             return;
         }
 
         let path = PathBuf::from(input);
-        Self::export_to_file(build, simulation, buffed_stats, gear_config, opts, &path);
+        Self::export_to_file(config, &path);
     }
 
-    fn export_to_file(
-        build: &crate::domain::Build,
-        simulation: Option<(&BarDistribution, &SimulationResult)>,
-        buffed_stats: Option<&CharacterStats>,
-        gear_config: Option<&GearConfig>,
-        opts: &ExportOptions,
-        path: &PathBuf,
-    ) {
-        let metadata = simulation.map(|(dist, result)| super::build_config::BuildMetadata {
-            dps: result.dps,
-            total_damage: result.total_damage,
-            fight_duration: result.fight_duration,
-            bar1_skills: dist
-                .bar1
-                .skills
-                .iter()
-                .map(|s| s.name.to_string())
-                .collect(),
-            bar2_skills: dist
-                .bar2
-                .skills
-                .iter()
-                .map(|s| s.name.to_string())
-                .collect(),
-            buffed_stats: buffed_stats.cloned(),
-        });
-
-        let config = BuildConfig {
-            skills: build.skill_names(),
-            champion_points: build.champion_point_names(),
-            sets: build
-                .set_names()
-                .iter()
-                .map(|(name, _)| name.clone())
-                .collect(),
-            bar1_weapon: opts.bar1_weapon.map(|w| w.to_string()),
-            bar2_weapon: opts.bar2_weapon.map(|w| w.to_string()),
-            character_stats: build.character_stats().clone(),
-            race: gear_config.and_then(|g| g.race.map(|r| r.to_string())),
-            mundus: gear_config.and_then(|g| g.mundus.map(|m| m.to_string())),
-            food: gear_config.and_then(|g| g.food.map(|f| f.to_string())),
-            armor_trait: gear_config
-                .map(|g| g.armor_traits.iter().map(|t| t.to_string()).collect()),
-            jewelry_trait: gear_config
-                .map(|g| g.jewelry_traits.iter().map(|t| t.to_string()).collect()),
-            weapon_trait: gear_config
-                .map(|g| g.weapon_traits.iter().map(|t| t.to_string()).collect()),
-            enchant: Some(vec![
-                opts.bar1_enchant.to_string(),
-                opts.bar2_enchant.to_string(),
-            ]),
-            armor: opts.armor.to_string(),
-            potion: opts.potion.map(|p| p.to_string()),
-            avg_resource_pct: opts.avg_resource_pct,
-            trial: opts.trial,
-            metadata,
-        };
-
-        match serde_json::to_string_pretty(&config) {
+    fn export_to_file(config: &crate::domain::BuildConfig, path: &PathBuf) {
+        match serde_json::to_string_pretty(config) {
             Ok(json) => match fs::write(path, json) {
                 Ok(_) => logger::info(&format!("Build exported to {}", path.display())),
                 Err(e) => logger::error(&format!("Failed to write file: {}", e)),
@@ -1037,4 +326,24 @@ impl OptimizeArgs {
             Err(e) => logger::error(&format!("Failed to serialize build: {}", e)),
         }
     }
+}
+
+fn split_sets_by_type(
+    sets: &[&'static SetData],
+) -> (
+    Vec<&'static SetData>,
+    Vec<&'static SetData>,
+    Vec<&'static SetData>,
+) {
+    let mut normals = Vec::new();
+    let mut monsters = Vec::new();
+    let mut mythics = Vec::new();
+    for &set in sets {
+        match set.set_type {
+            SetType::Normal | SetType::Arena => normals.push(set),
+            SetType::Monster => monsters.push(set),
+            SetType::Mythic => mythics.push(set),
+        }
+    }
+    (normals, monsters, mythics)
 }
