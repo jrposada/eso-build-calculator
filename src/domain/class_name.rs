@@ -53,4 +53,20 @@ impl ClassName {
         ClassName::Templar,
         ClassName::Arcanist,
     ];
+
+    pub fn parse(s: &str) -> Result<ClassName, String> {
+        match s.trim().to_lowercase().as_str() {
+            "arcanist" => Ok(ClassName::Arcanist),
+            "dragonknight" => Ok(ClassName::Dragonknight),
+            "necromancer" => Ok(ClassName::Necromancer),
+            "nightblade" => Ok(ClassName::Nightblade),
+            "sorcerer" => Ok(ClassName::Sorcerer),
+            "templar" => Ok(ClassName::Templar),
+            "warden" => Ok(ClassName::Warden),
+            _ => Err(format!(
+                "Invalid class '{}'. Valid options: arcanist, dragonknight, necromancer, nightblade, sorcerer, templar, warden",
+                s
+            )),
+        }
+    }
 }

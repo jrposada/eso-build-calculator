@@ -210,19 +210,44 @@ impl SimulatePipeline {
 
         let build_summary = build.to_string();
 
-        // Resolve weapons
-        let (bar1_weapon, bar2_weapon) = match (config.bar1_weapon, config.bar2_weapon) {
+        // Resolve weapons: Specific → infer from skills → skill-line default
+        let pinned_bar1 = config.bar1_weapon.and_then(|wc| wc.weapon_type());
+        let pinned_bar2 = config.bar2_weapon.and_then(|wc| wc.weapon_type());
+        let inferred = infer_weapons(&skills).ok();
+
+        let resolve = |pinned: Option<crate::domain::WeaponType>,
+                       wc: Option<crate::domain::WeaponChoice>,
+                       inferred_wt: Option<crate::domain::WeaponType>|
+         -> Option<crate::domain::WeaponType> {
+            pinned
+                .or(inferred_wt)
+                .or_else(|| wc.and_then(|wc| wc.skill_line().default_weapon_type()))
+        };
+
+        let (bar1_weapon, bar2_weapon) = match (pinned_bar1, pinned_bar2) {
             (Some(w1), Some(w2)) => (w1, w2),
             (Some(w1), None) => {
-                let w2 = infer_weapons(&skills).ok().map(|(_, w2)| w2).unwrap_or(w1);
+                let w2 =
+                    resolve(None, config.bar2_weapon, inferred.map(|(_, w2)| w2)).unwrap_or(w1);
                 (w1, w2)
             }
             (None, Some(w2)) => {
-                let w1 = infer_weapons(&skills).ok().map(|(w1, _)| w1).unwrap_or(w2);
+                let w1 =
+                    resolve(None, config.bar1_weapon, inferred.map(|(w1, _)| w1)).unwrap_or(w2);
                 (w1, w2)
             }
             (None, None) => {
-                infer_weapons(&skills).map_err(|e| format!("Could not infer weapons: {}", e))?
+                let w1 = resolve(None, config.bar1_weapon, inferred.map(|(w1, _)| w1));
+                let w2 = resolve(None, config.bar2_weapon, inferred.map(|(_, w2)| w2));
+                match (w1, w2) {
+                    (Some(w1), Some(w2)) => (w1, w2),
+                    _ => {
+                        return Err(
+                            "Could not resolve weapons. Specify --weapon or use a build with weapon skill lines."
+                                .to_string(),
+                        )
+                    }
+                }
             }
         };
 

@@ -1,8 +1,7 @@
-use super::parsers::{parse_class_name, parse_weapon};
 use crate::domain::{
     ArmorDistribution, ArmorTrait, AttributeChoice, BonusData, BuildConfig, ClassName, Food,
-    JewelryTrait, MundusStone, Potion, Race, SetData, SkillData, WeaponEnchant, WeaponTrait,
-    WeaponType, BUILD_CONSTRAINTS,
+    JewelryTrait, MundusStone, Potion, Race, SetData, SkillData, WeaponChoice, WeaponEnchant,
+    WeaponTrait, BUILD_CONSTRAINTS,
 };
 use crate::infrastructure::logger;
 use crate::services::{OptimizePipeline, OptimizePipelineOptions, DEFAULT_AVG_RESOURCE_PCT};
@@ -23,7 +22,7 @@ pub struct OptimizeArgs {
     pub race: Option<Race>,
 
     /// Pin at least 1 skill line from these class (comma-separated)
-    #[arg(long, value_delimiter = ',', value_parser = parse_class_name)]
+    #[arg(long, value_delimiter = ',', value_parser = ClassName::parse)]
     pub class: Option<Vec<ClassName>>,
 
     /// Restrict build to only the classes specified by --class
@@ -45,8 +44,8 @@ pub struct OptimizeArgs {
     /// Pin weapon (comma-separated). Accepts skill lines (bow, destruction-staff, dual-wield,
     /// two-handed) or specific types (inferno-staff, lightning-staff, dual-wield-dagger, etc.).
     /// First value = bar1, second = bar2. One value = bar1 only (bar2 optimized).
-    #[arg(long, value_delimiter = ',', value_parser = parse_weapon)]
-    pub weapon: Option<Vec<WeaponType>>,
+    #[arg(long, value_delimiter = ',', value_parser = WeaponChoice::parse)]
+    pub weapon: Option<Vec<WeaponChoice>>,
 
     /// Require these skills in every build (comma-separated skill names)
     #[arg(long, value_delimiter = ',', value_parser = SkillData::parse)]

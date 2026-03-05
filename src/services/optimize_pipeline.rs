@@ -76,7 +76,7 @@ impl OptimizePipeline {
         let required_weapon_skill_lines: Vec<crate::domain::SkillLineName> =
             [options.baseline.bar1_weapon, options.baseline.bar2_weapon]
                 .iter()
-                .filter_map(|w| w.map(|w| w.skill_line()))
+                .filter_map(|w| w.map(|wc| wc.skill_line()))
                 .collect();
 
         // Resolve pinned set bonuses for Phase 0
@@ -434,30 +434,83 @@ fn run_simulation(
     CharacterStats,
 )> {
     // Derive bar weapons from options, or infer from skills
+    let pinned_bar1 = options.baseline.bar1_weapon.and_then(|wc| wc.weapon_type());
+    let pinned_bar2 = options.baseline.bar2_weapon.and_then(|wc| wc.weapon_type());
+
     let inferred = {
         let top_skills = builds[0].skills();
         match infer_weapons(top_skills) {
             Ok(weapons) => Some(weapons),
             Err(e) => {
-                if options.baseline.bar1_weapon.is_none() && options.baseline.bar2_weapon.is_none()
-                {
-                    logger::warn(&std::format!(
-                        "Could not infer weapons for simulation: {}. Skipping fight simulation.",
-                        e
-                    ));
-                    return None;
+                if pinned_bar1.is_none() && pinned_bar2.is_none() {
+                    // Try skill-line defaults as last resort
+                    let fallback1 = options
+                        .baseline
+                        .bar1_weapon
+                        .and_then(|wc| wc.skill_line().default_weapon_type());
+                    let fallback2 = options
+                        .baseline
+                        .bar2_weapon
+                        .and_then(|wc| wc.skill_line().default_weapon_type());
+                    if fallback1.is_none() && fallback2.is_none() {
+                        logger::warn(&std::format!(
+                            "Could not infer weapons for simulation: {}. Skipping fight simulation.",
+                            e
+                        ));
+                        return None;
+                    }
                 }
                 None
             }
         }
     };
-    let (bar1_weapon, bar2_weapon) =
-        match (options.baseline.bar1_weapon, options.baseline.bar2_weapon) {
-            (Some(w1), Some(w2)) => (w1, w2),
-            (Some(w1), None) => (w1, inferred.map(|(_, w2)| w2).unwrap_or(w1)),
-            (None, Some(w2)) => (inferred.map(|(w1, _)| w1).unwrap_or(w2), w2),
-            (None, None) => inferred.unwrap(),
-        };
+
+    let resolve_weapon = |pinned: Option<crate::domain::WeaponType>,
+                          wc: Option<crate::domain::WeaponChoice>,
+                          inferred_wt: Option<crate::domain::WeaponType>|
+     -> Option<crate::domain::WeaponType> {
+        pinned
+            .or(inferred_wt)
+            .or_else(|| wc.and_then(|wc| wc.skill_line().default_weapon_type()))
+    };
+
+    let (bar1_weapon, bar2_weapon) = match (pinned_bar1, pinned_bar2) {
+        (Some(w1), Some(w2)) => (w1, w2),
+        (Some(w1), None) => {
+            let w2 = resolve_weapon(
+                None,
+                options.baseline.bar2_weapon,
+                inferred.map(|(_, w2)| w2),
+            )
+            .unwrap_or(w1);
+            (w1, w2)
+        }
+        (None, Some(w2)) => {
+            let w1 = resolve_weapon(
+                None,
+                options.baseline.bar1_weapon,
+                inferred.map(|(w1, _)| w1),
+            )
+            .unwrap_or(w2);
+            (w1, w2)
+        }
+        (None, None) => {
+            let w1 = resolve_weapon(
+                None,
+                options.baseline.bar1_weapon,
+                inferred.map(|(w1, _)| w1),
+            );
+            let w2 = resolve_weapon(
+                None,
+                options.baseline.bar2_weapon,
+                inferred.map(|(_, w2)| w2),
+            );
+            match (w1, w2) {
+                (Some(w1), Some(w2)) => (w1, w2),
+                _ => return None,
+            }
+        }
+    };
 
     logger::info(&std::format!(
         "Phase 4: Running fight simulation on top {} candidates (Bar1: {}, Bar2: {})...",

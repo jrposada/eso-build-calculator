@@ -5,8 +5,8 @@ use super::class_name::ClassName;
 use super::equipment::{ArmorDistribution, ArmorTrait, AttributeChoice, JewelryTrait, WeaponTrait};
 use super::food::Food;
 use super::mundus::MundusStone;
+use super::weapon_choice::WeaponChoice;
 use super::weapon_enchant::WeaponEnchant;
-use super::weapon_type::WeaponType;
 use super::CharacterStats;
 use crate::data::skill_trees::race::Race;
 
@@ -48,9 +48,9 @@ pub struct BuildConfig {
 
     // Weapons
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub bar1_weapon: Option<WeaponType>,
+    pub bar1_weapon: Option<WeaponChoice>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub bar2_weapon: Option<WeaponType>,
+    pub bar2_weapon: Option<WeaponChoice>,
 
     // Gear traits (partial Vec = only pinned slots; free slots optimized)
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -148,7 +148,11 @@ impl BuildConfig {
         }
 
         // 2. Weapon base damage (replaces default 1,000)
-        if let Some(weapon) = self.bar1_weapon {
+        let resolved_weapon = self.bar1_weapon.and_then(|wc| {
+            wc.weapon_type()
+                .or_else(|| wc.skill_line().default_weapon_type())
+        });
+        if let Some(weapon) = resolved_weapon {
             let base = if weapon.is_two_handed() {
                 TWO_HANDED_BASE_DAMAGE
             } else {
@@ -202,7 +206,7 @@ impl BuildConfig {
 
         // Apply enchant to the primary resource
         if self.attributes == Some(AttributeChoice::Magicka)
-            || self.bar1_weapon.map_or(false, |w| w.is_destruction_staff())
+            || resolved_weapon.map_or(false, |w| w.is_destruction_staff())
         {
             stats.max_magicka += armor_enchant_total;
         } else {

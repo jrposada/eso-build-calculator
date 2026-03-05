@@ -30,6 +30,7 @@ pub mod skill_damage;
 pub mod skill_line_name;
 pub mod skill_mechanic;
 pub mod status_effect;
+pub mod weapon_choice;
 pub mod weapon_enchant;
 pub mod weapon_type;
 
@@ -68,5 +69,6 @@ pub use skill::SkillData;
 pub use skill_damage::SkillDamage;
 pub use skill_line_name::SkillLineName;
 pub use skill_mechanic::SkillMechanic;
+pub use weapon_choice::WeaponChoice;
 pub use weapon_enchant::WeaponEnchant;
 pub use weapon_type::WeaponType;
