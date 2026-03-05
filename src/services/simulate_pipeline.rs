@@ -2,8 +2,8 @@ use crate::data::bonuses::{TRIAL_BUFF_NAMES, TRIAL_DUMMY_BUFFS};
 use crate::data::skill_trees::armor::armor_passives;
 use crate::data::skill_trees::guild::undaunted::undaunted_passives::undaunted_mettle_bonuses;
 use crate::domain::{
-    BonusData, Build, BuildConfig, CharacterStats, Potion, SetData, SimulationResult,
-    SkillData, SkillLineName, WeaponEnchant, BUILD_CONSTRAINTS,
+    BonusData, Build, BuildConfig, CharacterStats, Potion, SetData, SimulationResult, SkillData,
+    SkillLineName, WeaponEnchant, BUILD_CONSTRAINTS,
 };
 use crate::infrastructure::format;
 use crate::services::{
@@ -214,27 +214,24 @@ impl SimulatePipeline {
         let (bar1_weapon, bar2_weapon) = match (config.bar1_weapon, config.bar2_weapon) {
             (Some(w1), Some(w2)) => (w1, w2),
             (Some(w1), None) => {
-                let w2 = infer_weapons(&skills)
-                    .ok()
-                    .map(|(_, w2)| w2)
-                    .unwrap_or(w1);
+                let w2 = infer_weapons(&skills).ok().map(|(_, w2)| w2).unwrap_or(w1);
                 (w1, w2)
             }
             (None, Some(w2)) => {
-                let w1 = infer_weapons(&skills)
-                    .ok()
-                    .map(|(w1, _)| w1)
-                    .unwrap_or(w2);
+                let w1 = infer_weapons(&skills).ok().map(|(w1, _)| w1).unwrap_or(w2);
                 (w1, w2)
             }
-            (None, None) => infer_weapons(&skills)
-                .map_err(|e| format!("Could not infer weapons: {}", e))?,
+            (None, None) => {
+                infer_weapons(&skills).map_err(|e| format!("Could not infer weapons: {}", e))?
+            }
         };
 
         // Generate distributions and simulate
         let distributions = generate_distributions(&skills, bar1_weapon, bar2_weapon);
         if distributions.is_empty() {
-            return Err("No valid bar distributions found for this skill/weapon combination.".to_string());
+            return Err(
+                "No valid bar distributions found for this skill/weapon combination.".to_string(),
+            );
         }
 
         let effective_stats = build.effective_stats();
@@ -273,10 +270,7 @@ impl SimulatePipeline {
 
         results.sort_by(|a, b| b.1.dps.partial_cmp(&a.1.dps).unwrap());
 
-        let (best_idx, best_result) = results
-            .into_iter()
-            .next()
-            .ok_or("No simulation results")?;
+        let (best_idx, best_result) = results.into_iter().next().ok_or("No simulation results")?;
 
         Ok(SimulatePipelineResult {
             build_summary,

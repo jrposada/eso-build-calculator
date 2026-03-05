@@ -1,20 +1,20 @@
 pub mod bonus;
-pub mod build_config;
 pub mod bonus_source;
 pub mod bonus_target;
 pub mod bonus_trigger;
 pub mod bonus_value;
 pub mod build;
+pub mod build_config;
 pub mod build_constrains;
 pub mod character_stats;
 pub mod class_name;
 pub mod damage_coefficients;
 pub mod damage_flags;
 pub mod dot_damage;
+pub mod equipment;
 pub mod execute;
 pub mod food;
 pub mod formulas;
-pub mod equipment;
 pub mod gear_set;
 pub mod hit_damage;
 pub mod light_attack;
@@ -39,18 +39,19 @@ pub use bonus_target::BonusTarget;
 pub use bonus_trigger::BonusTrigger;
 pub use bonus_value::{BonusValue, ResolvedBonus};
 pub use build::{Build, CachedPassiveContext};
+pub use build_config::{BuildConfig, BuildMetadata};
 pub use build_constrains::BUILD_CONSTRAINTS;
 pub use character_stats::{CharacterStats, ATTRIBUTE_POINTS_BONUS};
 pub use class_name::ClassName;
 pub use damage_coefficients::DamageCoefficients;
 pub use damage_flags::DamageFlags;
 pub use dot_damage::DotDamage;
+pub use equipment::{
+    ArmorDistribution, ArmorTrait, ArmorWeight, AttributeChoice, JewelryTrait, WeaponTrait,
+    DPS_ARMOR_TRAITS, DPS_ATTRIBUTES, DPS_JEWELRY_TRAITS, DPS_WEAPON_TRAITS,
+};
 pub use execute::{ExecuteData, ExecuteScaling};
 pub use food::{Food, DPS_FOODS};
-pub use equipment::{
-    ArmorDistribution, ArmorTrait, ArmorWeight, AttributeChoice, JewelryTrait,
-    WeaponTrait, DPS_ARMOR_TRAITS, DPS_ATTRIBUTES, DPS_JEWELRY_TRAITS, DPS_WEAPON_TRAITS,
-};
 pub use gear_set::{SetBonusThreshold, SetData, SetType};
 pub use hit_damage::HitDamage;
 pub use light_attack::LightAttackData;
@@ -68,5 +69,4 @@ pub use skill_damage::SkillDamage;
 pub use skill_line_name::SkillLineName;
 pub use skill_mechanic::SkillMechanic;
 pub use weapon_enchant::WeaponEnchant;
-pub use build_config::{BuildConfig, BuildMetadata};
 pub use weapon_type::WeaponType;

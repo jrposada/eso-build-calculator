@@ -275,10 +275,7 @@ impl GearOptimizer {
             let bar2 = pinned_weapon.get(1).copied().unwrap_or(bar1);
             vec![[bar1, bar2]]
         } else {
-            DPS_WEAPON_TRAITS
-                .iter()
-                .map(|&t| [t, t])
-                .collect()
+            DPS_WEAPON_TRAITS.iter().map(|&t| [t, t]).collect()
         };
 
         let mut weapon_scores: Vec<(f64, [WeaponTrait; 2])> = Vec::new();

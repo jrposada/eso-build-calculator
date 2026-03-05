@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::character_stats::ATTRIBUTE_POINTS_BONUS;
+use super::class_name::ClassName;
 use super::equipment::{ArmorDistribution, ArmorTrait, AttributeChoice, JewelryTrait, WeaponTrait};
 use super::food::Food;
 use super::mundus::MundusStone;
@@ -8,7 +9,6 @@ use super::weapon_enchant::WeaponEnchant;
 use super::weapon_type::WeaponType;
 use super::CharacterStats;
 use crate::data::skill_trees::race::Race;
-use super::class_name::ClassName;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BuildMetadata {
@@ -162,7 +162,12 @@ impl BuildConfig {
             }
 
             // 3. Weapon trait bonus (bar1 weapon trait = index 0, default Nirnhoned)
-            match self.weapon_traits.first().copied().unwrap_or(WeaponTrait::Nirnhoned) {
+            match self
+                .weapon_traits
+                .first()
+                .copied()
+                .unwrap_or(WeaponTrait::Nirnhoned)
+            {
                 WeaponTrait::Nirnhoned => {
                     let bonus = base * WEAPON_NIRNHONED_BONUS;
                     if weapon.is_destruction_staff() {
@@ -222,8 +227,7 @@ impl BuildConfig {
         for jt in &self.jewelry_traits {
             match jt {
                 JewelryTrait::Bloodthirsty => {
-                    let avg_per_piece =
-                        BLOODTHIRSTY_THRESHOLD * (BLOODTHIRSTY_MAX_PER_PIECE / 2.0);
+                    let avg_per_piece = BLOODTHIRSTY_THRESHOLD * (BLOODTHIRSTY_MAX_PER_PIECE / 2.0);
                     stats.weapon_damage += avg_per_piece;
                     stats.spell_damage += avg_per_piece;
                 }

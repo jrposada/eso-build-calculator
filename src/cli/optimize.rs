@@ -226,13 +226,19 @@ impl OptimizeArgs {
         };
 
         let baseline = BuildConfig {
-            skills: self.skill.as_ref()
+            skills: self
+                .skill
+                .as_ref()
                 .map(|s| s.iter().map(|s| s.name.to_string()).collect())
                 .unwrap_or_default(),
-            champion_points: self.champion_point.as_ref()
+            champion_points: self
+                .champion_point
+                .as_ref()
                 .map(|cps| cps.iter().map(|cp| cp.name.clone()).collect())
                 .unwrap_or_default(),
-            sets: self.set.as_ref()
+            sets: self
+                .set
+                .as_ref()
                 .map(|sets| sets.iter().map(|s| s.name.clone()).collect())
                 .unwrap_or_default(),
             classes: self.class.clone().unwrap_or_default(),

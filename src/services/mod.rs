@@ -16,9 +16,9 @@ pub use gear_optimizer::{
     format_armor_traits, format_jewelry_traits, format_weapon_traits, stats_differ_significantly,
     GearOptimizer, GearOptimizerOptions,
 };
+pub use optimize_pipeline::{OptimizePipeline, OptimizePipelineOptions, OptimizePipelineResult};
 pub use passives_service::{PassivesService, PassivesServiceOptions};
 pub use set_optimizer::{SetOptimizer, SetOptimizerOptions};
 pub use sets_service::{SetsService, SetsServiceOptions};
-pub use optimize_pipeline::{OptimizePipeline, OptimizePipelineOptions, OptimizePipelineResult};
 pub use simulate_pipeline::{SimulatePipeline, SimulatePipelineOptions, SimulatePipelineResult};
 pub use skills_service::{SkillsFilter, SkillsService, SkillsServiceOptions};

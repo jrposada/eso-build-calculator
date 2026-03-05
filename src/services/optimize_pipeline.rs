@@ -4,8 +4,7 @@ use crate::data::skill_trees::armor::armor_passives;
 use crate::data::skill_trees::guild::undaunted::undaunted_passives::undaunted_mettle_bonuses;
 use crate::domain::{
     ArmorDistribution, ArmorWeight, BonusData, Build, BuildConfig, BuildMetadata, CharacterStats,
-    ClassName, Potion, SetData, SetProcEffect, SimulationResult, SkillData,
-    WeaponEnchant,
+    ClassName, Potion, SetData, SetProcEffect, SimulationResult, SkillData, WeaponEnchant,
 };
 use crate::infrastructure::{format, logger};
 use crate::services::{
@@ -48,26 +47,40 @@ impl OptimizePipeline {
         let baseline_stats = character_stats.clone();
 
         // Resolve constraints from baseline
-        let required_skills: Vec<&'static SkillData> = options.baseline.skills
+        let required_skills: Vec<&'static SkillData> = options
+            .baseline
+            .skills
             .iter()
-            .map(|name| SkillData::parse(name).unwrap_or_else(|e| panic!("Invalid skill '{}': {}", name, e)))
+            .map(|name| {
+                SkillData::parse(name).unwrap_or_else(|e| panic!("Invalid skill '{}': {}", name, e))
+            })
             .collect();
-        let required_champion_points: Vec<BonusData> = options.baseline.champion_points
+        let required_champion_points: Vec<BonusData> = options
+            .baseline
+            .champion_points
             .iter()
-            .map(|name| BonusData::parse_champion_point(name).unwrap_or_else(|e| panic!("Invalid CP '{}': {}", name, e)))
+            .map(|name| {
+                BonusData::parse_champion_point(name)
+                    .unwrap_or_else(|e| panic!("Invalid CP '{}': {}", name, e))
+            })
             .collect();
-        let pinned_sets: Vec<&'static SetData> = options.baseline.sets
+        let pinned_sets: Vec<&'static SetData> = options
+            .baseline
+            .sets
             .iter()
-            .map(|name| SetData::parse(name).unwrap_or_else(|e| panic!("Invalid set '{}': {}", name, e)))
+            .map(|name| {
+                SetData::parse(name).unwrap_or_else(|e| panic!("Invalid set '{}': {}", name, e))
+            })
             .collect();
         let required_class_names: Vec<ClassName> = options.baseline.classes.clone();
-        let required_weapon_skill_lines: Vec<crate::domain::SkillLineName> = [
-            options.baseline.bar1_weapon, options.baseline.bar2_weapon
-        ].iter().filter_map(|w| w.map(|w| w.skill_line())).collect();
+        let required_weapon_skill_lines: Vec<crate::domain::SkillLineName> =
+            [options.baseline.bar1_weapon, options.baseline.bar2_weapon]
+                .iter()
+                .filter_map(|w| w.map(|w| w.skill_line()))
+                .collect();
 
         // Resolve pinned set bonuses for Phase 0
-        let (set_bonuses, set_names, _set_proc_effects) =
-            resolve_set_bonuses(&pinned_sets);
+        let (set_bonuses, set_names, _set_proc_effects) = resolve_set_bonuses(&pinned_sets);
 
         // Resolve trial dummy buffs
         let extra_bonuses = if options.trial {
@@ -201,8 +214,7 @@ impl OptimizePipeline {
         } else {
             logger::info("Phase 1: Optimizing gear (race, mundus, food, traits)...");
             let gear_start = Instant::now();
-            let result =
-                GearOptimizer::optimize(&builds, &gear_options, &options.baseline);
+            let result = GearOptimizer::optimize(&builds, &gear_options, &options.baseline);
             let gear_elapsed = gear_start.elapsed();
 
             let g = &result.build_config;
@@ -225,12 +237,9 @@ impl OptimizePipeline {
             let new_stats = gear_result.character_stats.clone();
 
             if stats_differ_significantly(&baseline_stats, &new_stats, 0.05) {
-                logger::info(
-                    "Phase 2: Gear stats changed >5%, re-running build optimizer...",
-                );
+                logger::info("Phase 2: Gear stats changed >5%, re-running build optimizer...");
 
-                let (set_bonuses, set_names, _set_proc_effects) =
-                    resolve_set_bonuses(&pinned_sets);
+                let (set_bonuses, set_names, _set_proc_effects) = resolve_set_bonuses(&pinned_sets);
                 let rerun_optimizer = BuildOptimizer::new(BuildOptimizerOptions {
                     character_stats: new_stats,
                     verbose: options.verbose,
@@ -253,15 +262,10 @@ impl OptimizePipeline {
 
                 if !new_builds.is_empty() {
                     logger::info(&new_builds[0].to_string());
-                    logger::info(&std::format!(
-                        "Phase 2 completed in {:.2?}",
-                        rerun_elapsed
-                    ));
+                    logger::info(&std::format!("Phase 2 completed in {:.2?}", rerun_elapsed));
                     builds = new_builds;
                 } else {
-                    logger::warn(
-                        "Phase 2 re-run found no valid builds, keeping Phase 0 results.",
-                    );
+                    logger::warn("Phase 2 re-run found no valid builds, keeping Phase 0 results.");
                 }
             } else if options.verbose {
                 logger::dim("Phase 2: Stats within 5% of baseline, skipping re-run.");
@@ -385,14 +389,15 @@ impl OptimizePipeline {
         };
 
         // Build simulation summary for display
-        let simulation = sim_result.map(
-            |(best_build_idx, best_dist, result, _, _, _)| SimulationSummary {
-                bar_distribution: best_dist,
-                result,
-                distributions_tested: 0, // set below if needed
-                set_names: builds[best_build_idx].set_names().to_vec(),
-            },
-        );
+        let simulation =
+            sim_result.map(
+                |(best_build_idx, best_dist, result, _, _, _)| SimulationSummary {
+                    bar_distribution: best_dist,
+                    result,
+                    distributions_tested: 0, // set below if needed
+                    set_names: builds[best_build_idx].set_names().to_vec(),
+                },
+            );
 
         OptimizePipelineResult {
             build_config,
@@ -434,7 +439,8 @@ fn run_simulation(
         match infer_weapons(top_skills) {
             Ok(weapons) => Some(weapons),
             Err(e) => {
-                if options.baseline.bar1_weapon.is_none() && options.baseline.bar2_weapon.is_none() {
+                if options.baseline.bar1_weapon.is_none() && options.baseline.bar2_weapon.is_none()
+                {
                     logger::warn(&std::format!(
                         "Could not infer weapons for simulation: {}. Skipping fight simulation.",
                         e
@@ -445,12 +451,13 @@ fn run_simulation(
             }
         }
     };
-    let (bar1_weapon, bar2_weapon) = match (options.baseline.bar1_weapon, options.baseline.bar2_weapon) {
-        (Some(w1), Some(w2)) => (w1, w2),
-        (Some(w1), None) => (w1, inferred.map(|(_, w2)| w2).unwrap_or(w1)),
-        (None, Some(w2)) => (inferred.map(|(w1, _)| w1).unwrap_or(w2), w2),
-        (None, None) => inferred.unwrap(),
-    };
+    let (bar1_weapon, bar2_weapon) =
+        match (options.baseline.bar1_weapon, options.baseline.bar2_weapon) {
+            (Some(w1), Some(w2)) => (w1, w2),
+            (Some(w1), None) => (w1, inferred.map(|(_, w2)| w2).unwrap_or(w1)),
+            (None, Some(w2)) => (inferred.map(|(w1, _)| w1).unwrap_or(w2), w2),
+            (None, None) => inferred.unwrap(),
+        };
 
     logger::info(&std::format!(
         "Phase 4: Running fight simulation on top {} candidates (Bar1: {}, Bar2: {})...",
@@ -466,8 +473,7 @@ fn run_simulation(
         .iter()
         .enumerate()
         .filter_map(|(build_idx, build)| {
-            let distributions =
-                generate_distributions(build.skills(), bar1_weapon, bar2_weapon);
+            let distributions = generate_distributions(build.skills(), bar1_weapon, bar2_weapon);
             if distributions.is_empty() {
                 return None;
             }
@@ -555,7 +561,9 @@ fn run_simulation(
                     };
                     logger::progress(&std::format!(
                         "Simulating: {}/{} | Best DPS: {}",
-                        done, total_sims, best_str
+                        done,
+                        total_sims,
+                        best_str
                     ));
                 }
             }
@@ -583,8 +591,14 @@ fn run_simulation(
         // ── Enchant optimization sweep ──
         let bar1_pinned = options.baseline.bar1_enchant.is_some();
         let bar2_pinned = options.baseline.bar2_enchant.is_some();
-        let mut winning_bar1 = options.baseline.bar1_enchant.unwrap_or(WeaponEnchant::Flame);
-        let mut winning_bar2 = options.baseline.bar2_enchant.unwrap_or(WeaponEnchant::Flame);
+        let mut winning_bar1 = options
+            .baseline
+            .bar1_enchant
+            .unwrap_or(WeaponEnchant::Flame);
+        let mut winning_bar2 = options
+            .baseline
+            .bar2_enchant
+            .unwrap_or(WeaponEnchant::Flame);
 
         if !bar1_pinned || !bar2_pinned {
             let all_enchants = [
@@ -658,7 +672,9 @@ fn run_simulation(
 
             logger::success(&std::format!(
                 "Best enchants: Bar1={}, Bar2={} (optimized from {} combos)",
-                winning_bar1, winning_bar2, combo_count
+                winning_bar1,
+                winning_bar2,
+                combo_count
             ));
         }
 
@@ -676,10 +692,7 @@ fn run_simulation(
             };
             logger::info(&display_result.to_string());
         }
-        logger::info(&std::format!(
-            "Simulation completed in {:.2?}",
-            sim_elapsed
-        ));
+        logger::info(&std::format!("Simulation completed in {:.2?}", sim_elapsed));
 
         // Compute buffed stats for export metadata
         let build = &builds[best_build_idx];

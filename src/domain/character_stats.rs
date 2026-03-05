@@ -127,10 +127,7 @@ impl fmt::Display for CharacterStats {
             vec!["Weapon Damage".into(), fmt_stat(self.weapon_damage)],
             vec!["Spell Damage".into(), fmt_stat(self.spell_damage)],
             vec!["Critical Chance".into(), fmt_pct(self.critical_chance())],
-            vec![
-                "Critical Damage".into(),
-                fmt_crit_dmg(self.critical_damage),
-            ],
+            vec!["Critical Damage".into(), fmt_crit_dmg(self.critical_damage)],
             vec!["Penetration".into(), fmt_stat(self.penetration)],
             vec!["Target Armor".into(), fmt_stat(self.target_armor)],
         ];
