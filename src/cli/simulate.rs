@@ -8,13 +8,13 @@ use std::path::PathBuf;
 /// Run a discrete-event fight simulation for a specific build configuration
 #[derive(Args, Debug)]
 pub struct SimulateArgs {
-    /// Path to build configuration file (exported from optimize)
-    #[arg(short = 'f', long)]
-    pub file: PathBuf,
-
     /// Show extra details (buffed character stats)
     #[arg(short = 'v', long)]
     pub verbose: bool,
+
+    /// Path to build configuration file (exported from optimize)
+    #[arg(short = 'f', long)]
+    pub file: PathBuf,
 
     /// Disable trial dummy buffs/debuffs (enabled by default)
     #[arg(long = "no-trial")]
@@ -73,8 +73,7 @@ impl SimulateArgs {
 
         logger::info(&format!(
             "Running fight simulation (Bar1: {}, Bar2: {})...",
-            result.best_distribution.bar1.weapon_type,
-            result.best_distribution.bar2.weapon_type
+            result.best_distribution.bar1.weapon_type, result.best_distribution.bar2.weapon_type
         ));
 
         if let Some(ref stats) = result.buffed_stats {
