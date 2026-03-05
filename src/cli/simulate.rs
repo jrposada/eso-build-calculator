@@ -1,4 +1,3 @@
-use super::simulation_display::{display_simulation_result, format_buffed_stats};
 use crate::domain::BuildConfig;
 use crate::infrastructure::logger;
 use crate::services::{SimulatePipeline, SimulatePipelineOptions, DEFAULT_AVG_RESOURCE_PCT};
@@ -79,14 +78,9 @@ impl SimulateArgs {
         ));
 
         if let Some(ref stats) = result.buffed_stats {
-            logger::trace(&format_buffed_stats(stats));
+            logger::trace(&stats.to_string());
         }
 
-        display_simulation_result(
-            &result.simulation,
-            &result.best_distribution,
-            result.distributions_tested,
-            &result.set_names,
-        );
+        logger::info(&result.to_string());
     }
 }

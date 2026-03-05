@@ -662,12 +662,20 @@ fn run_simulation(
             ));
         }
 
-        crate::cli::simulation_display::display_simulation_result(
-            &result,
-            &best_dist,
-            distributions.len(),
-            builds[best_build_idx].set_names(),
-        );
+        // Display simulation results inline
+        {
+            use crate::services::simulate_pipeline::SimulatePipelineResult;
+            let display_result = SimulatePipelineResult {
+                build_summary: String::new(),
+                simulation: result.clone(),
+                best_distribution: best_dist.clone(),
+                distributions_tested: distributions.len(),
+                set_names: builds[best_build_idx].set_names().to_vec(),
+                buffed_stats: None,
+                warnings: Vec::new(),
+            };
+            logger::info(&display_result.to_string());
+        }
         logger::info(&std::format!(
             "Simulation completed in {:.2?}",
             sim_elapsed

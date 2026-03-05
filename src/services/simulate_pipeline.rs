@@ -5,11 +5,13 @@ use crate::domain::{
     BonusData, Build, BuildConfig, CharacterStats, Potion, SetData, SimulationResult,
     SkillData, SkillLineName, WeaponEnchant, BUILD_CONSTRAINTS,
 };
+use crate::infrastructure::format;
 use crate::services::{
     generate_distributions, infer_weapons, BarDistribution, FightSimulator, PassivesService,
     PassivesServiceOptions,
 };
 use std::collections::HashSet;
+use std::fmt;
 
 use super::optimize_pipeline::resolve_set_bonuses;
 
@@ -28,6 +30,77 @@ pub struct SimulatePipelineResult {
     pub set_names: Vec<(String, u8)>,
     pub buffed_stats: Option<CharacterStats>,
     pub warnings: Vec<String>,
+}
+
+impl fmt::Display for SimulatePipelineResult {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let divider = "-".repeat(73);
+
+        let bar1_names: Vec<_> = self
+            .best_distribution
+            .bar1
+            .skills
+            .iter()
+            .map(|s| s.name.as_str())
+            .collect();
+        let bar2_names: Vec<_> = self
+            .best_distribution
+            .bar2
+            .skills
+            .iter()
+            .map(|s| s.name.as_str())
+            .collect();
+
+        writeln!(f)?;
+        writeln!(f, "Fight Simulation Results")?;
+        writeln!(f, "{}", divider)?;
+        writeln!(f, "Target:           21M HP Trial Dummy")?;
+        writeln!(
+            f,
+            "Fight Duration:   {}:{:05.2}",
+            (self.simulation.fight_duration as u64) / 60,
+            self.simulation.fight_duration % 60.0
+        )?;
+        writeln!(
+            f,
+            "Total Damage:     {}",
+            format::format_number(self.simulation.total_damage as u64)
+        )?;
+        writeln!(
+            f,
+            "DPS:              {}",
+            format::format_number(self.simulation.dps as u64)
+        )?;
+        writeln!(f)?;
+        writeln!(
+            f,
+            "Bar 1 ({}): {}",
+            self.best_distribution.bar1.weapon_type,
+            bar1_names.join(", ")
+        )?;
+        writeln!(
+            f,
+            "Bar 2 ({}): {}",
+            self.best_distribution.bar2.weapon_type,
+            bar2_names.join(", ")
+        )?;
+
+        if !self.set_names.is_empty() {
+            let formatted: Vec<String> = self
+                .set_names
+                .iter()
+                .map(|(name, pieces)| std::format!("{} ({}pc)", name, pieces))
+                .collect();
+            writeln!(f, "Sets:          {}", formatted.join(", "))?;
+        }
+
+        write!(f, "{}", self.simulation)?;
+        writeln!(
+            f,
+            "\nTested {} bar distribution(s). Best shown above.",
+            self.distributions_tested
+        )
+    }
 }
 
 pub struct SimulatePipeline;

@@ -1,6 +1,9 @@
+use std::fmt;
+
 use super::BonusTarget;
 use super::DamageCoefficients;
 use super::DamageFlags;
+use crate::infrastructure::{format, table};
 
 /// Global cooldown in seconds (1 GCD per action)
 pub const GCD: f64 = 1.0;
@@ -92,4 +95,124 @@ pub struct SkillBreakdown {
     pub skill_name: String,
     pub damage: f64,
     pub cast_count: u32,
+}
+
+impl fmt::Display for SimulationResult {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // Damage breakdown table
+        let mut breakdown_data: Vec<Vec<String>> = Vec::new();
+
+        for entry in &self.skill_breakdown {
+            let pct = if self.total_damage > 0.0 {
+                entry.damage / self.total_damage * 100.0
+            } else {
+                0.0
+            };
+            let dps = if self.fight_duration > 0.0 {
+                entry.damage / self.fight_duration
+            } else {
+                0.0
+            };
+            breakdown_data.push(vec![
+                String::new(), // rank placeholder
+                entry.skill_name.clone(),
+                format::format_number(entry.damage as u64),
+                entry.cast_count.to_string(),
+                format::format_number(dps as u64),
+                std::format!("{:.1}%", pct),
+            ]);
+        }
+
+        // Add light attack row
+        if self.la_count > 0 {
+            let la_pct = if self.total_damage > 0.0 {
+                self.la_damage / self.total_damage * 100.0
+            } else {
+                0.0
+            };
+            let la_dps = if self.fight_duration > 0.0 {
+                self.la_damage / self.fight_duration
+            } else {
+                0.0
+            };
+            breakdown_data.push(vec![
+                String::new(),
+                "Light Attack".to_string(),
+                format::format_number(self.la_damage as u64),
+                self.la_count.to_string(),
+                format::format_number(la_dps as u64),
+                std::format!("{:.1}%", la_pct),
+            ]);
+        }
+
+        // Sort by damage descending
+        breakdown_data.sort_by(|a, b| {
+            let a_dmg: f64 = a[2].replace(',', "").parse().unwrap_or(0.0);
+            let b_dmg: f64 = b[2].replace(',', "").parse().unwrap_or(0.0);
+            b_dmg.partial_cmp(&a_dmg).unwrap()
+        });
+
+        // Assign ranks
+        for (i, row) in breakdown_data.iter_mut().enumerate() {
+            row[0] = (i + 1).to_string();
+        }
+
+        let breakdown_table = table::table(
+            &breakdown_data,
+            table::TableOptions {
+                title: Some("Damage Breakdown".to_string()),
+                columns: vec![
+                    table::ColumnDefinition::new("#", 4).align_right(),
+                    table::ColumnDefinition::new("Source", 28),
+                    table::ColumnDefinition::new("Damage", 12).align_right(),
+                    table::ColumnDefinition::new("Casts", 6).align_right(),
+                    table::ColumnDefinition::new("DPS", 10).align_right(),
+                    table::ColumnDefinition::new("%", 7).align_right(),
+                ],
+                footer: None,
+            },
+        );
+
+        write!(f, "{}", breakdown_table)?;
+
+        // Buff uptimes table
+        let has_external = self
+            .buff_uptimes
+            .iter()
+            .any(|b| b.external && b.uptime > 0.0);
+        let uptime_data: Vec<Vec<String>> = self
+            .buff_uptimes
+            .iter()
+            .filter(|b| b.uptime > 0.0)
+            .map(|b| {
+                let name = if b.external {
+                    std::format!("{}*", b.name)
+                } else {
+                    b.name.clone()
+                };
+                vec![name, std::format!("{:.1}%", b.uptime * 100.0)]
+            })
+            .collect();
+
+        if !uptime_data.is_empty() {
+            let uptime_table = table::table(
+                &uptime_data,
+                table::TableOptions {
+                    title: Some("Buff Uptimes".to_string()),
+                    columns: vec![
+                        table::ColumnDefinition::new("Name", 36),
+                        table::ColumnDefinition::new("Uptime", 8).align_right(),
+                    ],
+                    footer: if has_external {
+                        Some("* Provided by trial dummy".to_string())
+                    } else {
+                        None
+                    },
+                },
+            );
+            write!(f, "\n{}", uptime_table)?;
+        }
+
+        Ok(())
+    }
 }

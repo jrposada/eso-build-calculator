@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 use super::formulas;
+use crate::infrastructure::{format, table};
 
 pub const ATTRIBUTE_POINTS_BONUS: f64 = 111.0 * 64.0;
 pub const MAX_CRITICAL_CHANCE: f64 = 1.0;
@@ -110,6 +112,44 @@ impl CharacterStats {
 
     pub fn clamp_caps(&mut self) {
         self.critical_damage = self.critical_damage.min(MAX_CRITICAL_DAMAGE);
+    }
+}
+
+impl fmt::Display for CharacterStats {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let fmt_stat = |val: f64| format::format_number(val as u64);
+        let fmt_pct = |val: f64| format!("{:.2}%", val * 100.0);
+        let fmt_crit_dmg = |val: f64| format!("{:.2}%", (val - 1.0) * 100.0);
+
+        let data: Vec<Vec<String>> = vec![
+            vec!["Max Magicka".into(), fmt_stat(self.max_magicka)],
+            vec!["Max Stamina".into(), fmt_stat(self.max_stamina)],
+            vec!["Weapon Damage".into(), fmt_stat(self.weapon_damage)],
+            vec!["Spell Damage".into(), fmt_stat(self.spell_damage)],
+            vec!["Critical Chance".into(), fmt_pct(self.critical_chance())],
+            vec![
+                "Critical Damage".into(),
+                fmt_crit_dmg(self.critical_damage),
+            ],
+            vec!["Penetration".into(), fmt_stat(self.penetration)],
+            vec!["Target Armor".into(), fmt_stat(self.target_armor)],
+        ];
+
+        write!(
+            f,
+            "{}",
+            table::table(
+                &data,
+                table::TableOptions {
+                    title: Some("Buffed Character Stats".into()),
+                    columns: vec![
+                        table::ColumnDefinition::new("Stat", 20),
+                        table::ColumnDefinition::new("Value", 12).align_right(),
+                    ],
+                    footer: None,
+                },
+            )
+        )
     }
 }
 
