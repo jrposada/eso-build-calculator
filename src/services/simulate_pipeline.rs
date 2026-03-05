@@ -210,45 +210,30 @@ impl SimulatePipeline {
 
         let build_summary = build.to_string();
 
-        // Resolve weapons: Specific → infer from skills → skill-line default
-        let pinned_bar1 = config.bar1_weapon.and_then(|wc| wc.weapon_type());
-        let pinned_bar2 = config.bar2_weapon.and_then(|wc| wc.weapon_type());
+        // Resolve weapons: pinned from config → infer from skills
+        let pinned_bar1 = config.bar1_weapon;
+        let pinned_bar2 = config.bar2_weapon;
         let inferred = infer_weapons(&skills).ok();
-
-        let resolve = |pinned: Option<crate::domain::WeaponType>,
-                       wc: Option<crate::domain::WeaponChoice>,
-                       inferred_wt: Option<crate::domain::WeaponType>|
-         -> Option<crate::domain::WeaponType> {
-            pinned
-                .or(inferred_wt)
-                .or_else(|| wc.and_then(|wc| wc.skill_line().default_weapon_type()))
-        };
 
         let (bar1_weapon, bar2_weapon) = match (pinned_bar1, pinned_bar2) {
             (Some(w1), Some(w2)) => (w1, w2),
             (Some(w1), None) => {
-                let w2 =
-                    resolve(None, config.bar2_weapon, inferred.map(|(_, w2)| w2)).unwrap_or(w1);
+                let w2 = inferred.map(|(_, w2)| w2).unwrap_or(w1);
                 (w1, w2)
             }
             (None, Some(w2)) => {
-                let w1 =
-                    resolve(None, config.bar1_weapon, inferred.map(|(w1, _)| w1)).unwrap_or(w2);
+                let w1 = inferred.map(|(w1, _)| w1).unwrap_or(w2);
                 (w1, w2)
             }
-            (None, None) => {
-                let w1 = resolve(None, config.bar1_weapon, inferred.map(|(w1, _)| w1));
-                let w2 = resolve(None, config.bar2_weapon, inferred.map(|(_, w2)| w2));
-                match (w1, w2) {
-                    (Some(w1), Some(w2)) => (w1, w2),
-                    _ => {
-                        return Err(
-                            "Could not resolve weapons. Specify --weapon or use a build with weapon skill lines."
-                                .to_string(),
-                        )
-                    }
+            (None, None) => match inferred {
+                Some((w1, w2)) => (w1, w2),
+                None => {
+                    return Err(
+                        "Could not resolve weapons. Specify --weapon or use a build with weapon skill lines."
+                            .to_string(),
+                    )
                 }
-            }
+            },
         };
 
         // Generate distributions and simulate

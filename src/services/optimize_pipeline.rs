@@ -24,6 +24,7 @@ pub struct OptimizePipelineOptions {
     pub baseline: BuildConfig,
     pub trial: bool,
     pub avg_resource_pct: f64,
+    pub required_weapon_skill_lines: Vec<crate::domain::SkillLineName>,
 }
 
 /// Result of the optimization pipeline. Serializes to the same JSON shape as BuildConfig.
@@ -73,11 +74,18 @@ impl OptimizePipeline {
             })
             .collect();
         let required_class_names: Vec<ClassName> = options.baseline.classes.clone();
-        let required_weapon_skill_lines: Vec<crate::domain::SkillLineName> =
-            [options.baseline.bar1_weapon, options.baseline.bar2_weapon]
-                .iter()
-                .filter_map(|w| w.map(|wc| wc.skill_line()))
-                .collect();
+        let required_weapon_skill_lines: Vec<crate::domain::SkillLineName> = {
+            let mut lines: Vec<crate::domain::SkillLineName> = [
+                options.baseline.bar1_weapon,
+                options.baseline.bar2_weapon,
+            ]
+            .iter()
+            .filter_map(|w| w.map(|wt| wt.skill_line()))
+            .chain(options.required_weapon_skill_lines.iter().copied())
+            .collect();
+            lines.dedup();
+            lines
+        };
 
         // Resolve pinned set bonuses for Phase 0
         let (set_bonuses, set_names, _set_proc_effects) = resolve_set_bonuses(&pinned_sets);
@@ -434,8 +442,8 @@ fn run_simulation(
     CharacterStats,
 )> {
     // Derive bar weapons from options, or infer from skills
-    let pinned_bar1 = options.baseline.bar1_weapon.and_then(|wc| wc.weapon_type());
-    let pinned_bar2 = options.baseline.bar2_weapon.and_then(|wc| wc.weapon_type());
+    let pinned_bar1 = options.baseline.bar1_weapon;
+    let pinned_bar2 = options.baseline.bar2_weapon;
 
     let inferred = {
         let top_skills = builds[0].skills();
@@ -443,73 +451,31 @@ fn run_simulation(
             Ok(weapons) => Some(weapons),
             Err(e) => {
                 if pinned_bar1.is_none() && pinned_bar2.is_none() {
-                    // Try skill-line defaults as last resort
-                    let fallback1 = options
-                        .baseline
-                        .bar1_weapon
-                        .and_then(|wc| wc.skill_line().default_weapon_type());
-                    let fallback2 = options
-                        .baseline
-                        .bar2_weapon
-                        .and_then(|wc| wc.skill_line().default_weapon_type());
-                    if fallback1.is_none() && fallback2.is_none() {
-                        logger::warn(&std::format!(
-                            "Could not infer weapons for simulation: {}. Skipping fight simulation.",
-                            e
-                        ));
-                        return None;
-                    }
+                    logger::warn(&std::format!(
+                        "Could not infer weapons for simulation: {}. Skipping fight simulation.",
+                        e
+                    ));
+                    return None;
                 }
                 None
             }
         }
     };
 
-    let resolve_weapon = |pinned: Option<crate::domain::WeaponType>,
-                          wc: Option<crate::domain::WeaponChoice>,
-                          inferred_wt: Option<crate::domain::WeaponType>|
-     -> Option<crate::domain::WeaponType> {
-        pinned
-            .or(inferred_wt)
-            .or_else(|| wc.and_then(|wc| wc.skill_line().default_weapon_type()))
-    };
-
     let (bar1_weapon, bar2_weapon) = match (pinned_bar1, pinned_bar2) {
         (Some(w1), Some(w2)) => (w1, w2),
         (Some(w1), None) => {
-            let w2 = resolve_weapon(
-                None,
-                options.baseline.bar2_weapon,
-                inferred.map(|(_, w2)| w2),
-            )
-            .unwrap_or(w1);
+            let w2 = inferred.map(|(_, w2)| w2).unwrap_or(w1);
             (w1, w2)
         }
         (None, Some(w2)) => {
-            let w1 = resolve_weapon(
-                None,
-                options.baseline.bar1_weapon,
-                inferred.map(|(w1, _)| w1),
-            )
-            .unwrap_or(w2);
+            let w1 = inferred.map(|(w1, _)| w1).unwrap_or(w2);
             (w1, w2)
         }
-        (None, None) => {
-            let w1 = resolve_weapon(
-                None,
-                options.baseline.bar1_weapon,
-                inferred.map(|(w1, _)| w1),
-            );
-            let w2 = resolve_weapon(
-                None,
-                options.baseline.bar2_weapon,
-                inferred.map(|(_, w2)| w2),
-            );
-            match (w1, w2) {
-                (Some(w1), Some(w2)) => (w1, w2),
-                _ => return None,
-            }
-        }
+        (None, None) => match inferred {
+            Some((w1, w2)) => (w1, w2),
+            None => return None,
+        },
     };
 
     logger::info(&std::format!(

@@ -210,11 +210,15 @@ impl OptimizeArgs {
             None
         };
 
-        // Derive bar weapons from positional --weapon values
-        let (bar1_weapon, bar2_weapon) = match self.weapon.as_deref() {
-            Some([w1, w2, ..]) => (Some(*w1), Some(*w2)),
-            Some([w1]) => (Some(*w1), None),
-            _ => (None, None),
+        // Derive bar weapons and required skill lines from --weapon values
+        let (bar1_weapon, bar2_weapon, required_weapon_skill_lines) = match self.weapon.as_deref() {
+            Some([w1, w2, ..]) => (
+                w1.weapon_type(),
+                w2.weapon_type(),
+                vec![w1.skill_line(), w2.skill_line()],
+            ),
+            Some([w1]) => (w1.weapon_type(), None, vec![w1.skill_line()]),
+            _ => (None, None, Vec::new()),
         };
 
         // Derive bar enchants from positional --enchant values
@@ -265,6 +269,7 @@ impl OptimizeArgs {
             baseline,
             trial: !self.no_trial,
             avg_resource_pct: self.avg_resource_pct,
+            required_weapon_skill_lines,
         }
     }
 
