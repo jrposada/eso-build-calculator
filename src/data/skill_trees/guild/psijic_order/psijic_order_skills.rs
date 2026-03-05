@@ -2,7 +2,7 @@
 // Manual overrides (bonuses, execute, etc.) stored in generator script.
 use crate::data::bonuses::unique::{MAJOR_BREACH, MINOR_FORCE};
 use crate::domain::{
-    ClassName, DamageFlags, HitDamage, Resource, SkillDamage, SkillData, SkillLineName,
+    SkillTree, DamageFlags, HitDamage, Resource, SkillDamage, SkillData, SkillLineName,
 };
 use once_cell::sync::Lazy;
 
@@ -11,7 +11,7 @@ pub static PSIJIC_ORDER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Accelerate",
             "Accelerate",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::PsijicOrder,
             Resource::Magicka,
         )
@@ -20,7 +20,7 @@ pub static PSIJIC_ORDER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Borrowed Time",
             "Borrowed Time",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::PsijicOrder,
             Resource::Magicka,
         )
@@ -28,7 +28,7 @@ pub static PSIJIC_ORDER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Channeled Acceleration",
             "Accelerate",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::PsijicOrder,
             Resource::Magicka,
         )
@@ -37,7 +37,7 @@ pub static PSIJIC_ORDER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Crushing Weapon",
             "Imbue Weapon",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::PsijicOrder,
             Resource::Stamina,
         )
@@ -52,7 +52,7 @@ pub static PSIJIC_ORDER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Deep Thoughts",
             "Deep Thoughts",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::PsijicOrder,
             Resource::Magicka,
         )
@@ -60,7 +60,7 @@ pub static PSIJIC_ORDER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Elemental Weapon",
             "Imbue Weapon",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::PsijicOrder,
             Resource::Magicka,
         )
@@ -74,7 +74,7 @@ pub static PSIJIC_ORDER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Imbue Weapon",
             "Imbue Weapon",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::PsijicOrder,
             Resource::Stamina,
         )
@@ -88,7 +88,7 @@ pub static PSIJIC_ORDER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Introspection",
             "Introspection",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::PsijicOrder,
             Resource::Magicka,
         )
@@ -96,7 +96,7 @@ pub static PSIJIC_ORDER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Meditate",
             "Meditate",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::PsijicOrder,
             Resource::Magicka,
         )
@@ -104,7 +104,7 @@ pub static PSIJIC_ORDER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Mend Spirit",
             "Mend Spirit",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::PsijicOrder,
             Resource::Magicka,
         )
@@ -112,7 +112,7 @@ pub static PSIJIC_ORDER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Mend Wounds",
             "Mend Wounds",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::PsijicOrder,
             Resource::Magicka,
         )
@@ -120,7 +120,7 @@ pub static PSIJIC_ORDER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Race Against Time",
             "Accelerate",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::PsijicOrder,
             Resource::Magicka,
         )
@@ -129,7 +129,7 @@ pub static PSIJIC_ORDER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Symbiosis",
             "Symbiosis",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::PsijicOrder,
             Resource::Magicka,
         )
@@ -137,7 +137,7 @@ pub static PSIJIC_ORDER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Temporal Guard",
             "Temporal Guard",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::PsijicOrder,
             Resource::Ultimate,
         )
@@ -145,7 +145,7 @@ pub static PSIJIC_ORDER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Time Freeze",
             "Time Freeze",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::PsijicOrder,
             Resource::Magicka,
         )
@@ -153,7 +153,7 @@ pub static PSIJIC_ORDER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Time Stop",
             "Time Stop",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::PsijicOrder,
             Resource::Magicka,
         )

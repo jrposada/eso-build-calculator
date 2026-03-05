@@ -2,7 +2,7 @@
 // Manual overrides (bonuses, execute, etc.) stored in generator script.
 use crate::data::bonuses::unique::MAJOR_BREACH;
 use crate::domain::{
-    ClassName, DamageFlags, DotDamage, HitDamage, Resource, SkillDamage, SkillData, SkillLineName,
+    SkillTree, DamageFlags, DotDamage, HitDamage, Resource, SkillDamage, SkillData, SkillLineName,
 };
 use once_cell::sync::Lazy;
 
@@ -11,7 +11,7 @@ pub static DESTRUCTION_STAFF_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Crushing Shock",
             "Force Shock",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DestructionStaff,
             Resource::Magicka,
         )
@@ -37,7 +37,7 @@ pub static DESTRUCTION_STAFF_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Destructive Clench",
             "Destructive Touch",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DestructionStaff,
             Resource::Magicka,
         )
@@ -50,7 +50,7 @@ pub static DESTRUCTION_STAFF_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Destructive Reach",
             "Destructive Touch",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DestructionStaff,
             Resource::Magicka,
         )
@@ -73,7 +73,7 @@ pub static DESTRUCTION_STAFF_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Destructive Touch",
             "Destructive Touch",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DestructionStaff,
             Resource::Magicka,
         )
@@ -96,7 +96,7 @@ pub static DESTRUCTION_STAFF_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Elemental Blockade",
             "Wall of Elements",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DestructionStaff,
             Resource::Magicka,
         )
@@ -110,7 +110,7 @@ pub static DESTRUCTION_STAFF_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Elemental Drain",
             "Weakness to Elements",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DestructionStaff,
             Resource::Magicka,
         )
@@ -119,7 +119,7 @@ pub static DESTRUCTION_STAFF_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Elemental Rage",
             "Elemental Storm",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DestructionStaff,
             Resource::Ultimate,
         )
@@ -133,7 +133,7 @@ pub static DESTRUCTION_STAFF_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Elemental Ring",
             "Impulse",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DestructionStaff,
             Resource::Magicka,
         )
@@ -147,7 +147,7 @@ pub static DESTRUCTION_STAFF_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Elemental Storm",
             "Elemental Storm",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DestructionStaff,
             Resource::Ultimate,
         )
@@ -161,7 +161,7 @@ pub static DESTRUCTION_STAFF_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Elemental Susceptibility",
             "Weakness to Elements",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DestructionStaff,
             Resource::Magicka,
         )
@@ -170,7 +170,7 @@ pub static DESTRUCTION_STAFF_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Eye of the Storm",
             "Elemental Storm",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DestructionStaff,
             Resource::Ultimate,
         )
@@ -184,7 +184,7 @@ pub static DESTRUCTION_STAFF_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Force Pulse",
             "Force Shock",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DestructionStaff,
             Resource::Magicka,
         )
@@ -215,7 +215,7 @@ pub static DESTRUCTION_STAFF_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Force Shock",
             "Force Shock",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DestructionStaff,
             Resource::Magicka,
         )
@@ -229,7 +229,7 @@ pub static DESTRUCTION_STAFF_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Impulse",
             "Impulse",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DestructionStaff,
             Resource::Magicka,
         )
@@ -243,7 +243,7 @@ pub static DESTRUCTION_STAFF_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Pulsar",
             "Impulse",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DestructionStaff,
             Resource::Magicka,
         )
@@ -257,7 +257,7 @@ pub static DESTRUCTION_STAFF_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Unstable Wall of Elements",
             "Wall of Elements",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DestructionStaff,
             Resource::Magicka,
         )
@@ -281,7 +281,7 @@ pub static DESTRUCTION_STAFF_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Wall of Elements",
             "Wall of Elements",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DestructionStaff,
             Resource::Magicka,
         )
@@ -295,7 +295,7 @@ pub static DESTRUCTION_STAFF_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Weakness to Elements",
             "Weakness to Elements",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DestructionStaff,
             Resource::Magicka,
         )

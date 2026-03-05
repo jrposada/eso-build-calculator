@@ -1,6 +1,6 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 use eso_build_calculator::data::bonuses::CHAMPION_POINTS;
-use eso_build_calculator::domain::{CharacterStats, ClassName, SkillLineName};
+use eso_build_calculator::domain::{CharacterStats, SkillTree, SkillLineName};
 use eso_build_calculator::infrastructure::logger;
 use eso_build_calculator::services::{BuildOptimizer, BuildOptimizerOptions};
 use std::hint::black_box;
@@ -26,7 +26,7 @@ fn benchmark_nightblade_bow_2h_with_cp(c: &mut Criterion) {
                 character_stats: CharacterStats::default(),
                 verbose: false,
                 pure: true,
-                required_class_names: vec![ClassName::Nightblade],
+                required_class_names: vec![SkillTree::Nightblade],
                 required_weapon_skill_lines: vec![SkillLineName::Bow, SkillLineName::TwoHanded],
                 required_champion_points: vec![
                     get_champion_point("Deadly Aim"),
@@ -62,7 +62,7 @@ fn benchmark_nightblade_bow_2h_multi_cp(c: &mut Criterion) {
                 character_stats: CharacterStats::default(),
                 verbose: false,
                 pure: true,
-                required_class_names: vec![ClassName::Nightblade],
+                required_class_names: vec![SkillTree::Nightblade],
                 required_weapon_skill_lines: vec![SkillLineName::Bow, SkillLineName::TwoHanded],
                 required_champion_points: vec![get_champion_point("Deadly Aim")],
                 required_skills: vec![],

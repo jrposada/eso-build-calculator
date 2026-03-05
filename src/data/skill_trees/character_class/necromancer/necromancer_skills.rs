@@ -4,7 +4,7 @@ use crate::data::bonuses::{
     EMPOWER, MAJOR_BREACH, MAJOR_PROPHECY, MAJOR_SAVAGERY, MAJOR_VULNERABILITY,
 };
 use crate::domain::{
-    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, ClassName, DamageFlags,
+    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, SkillTree, DamageFlags,
     DotDamage, HitDamage, Resource, SkillDamage, SkillData, SkillLineName,
 };
 use once_cell::sync::Lazy;
@@ -14,7 +14,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Agony Totem",
             "Bone Totem",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::BoneTyrant,
             Resource::Magicka,
         )
@@ -28,7 +28,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Beckoning Armor",
             "Bone Armor",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::BoneTyrant,
             Resource::Magicka,
         )
@@ -36,7 +36,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Bitter Harvest",
             "Bitter Harvest",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::BoneTyrant,
             Resource::Magicka,
         )
@@ -44,7 +44,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Bone Armor",
             "Bone Armor",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::BoneTyrant,
             Resource::Magicka,
         )
@@ -52,7 +52,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Bone Goliath Transformation",
             "Bone Goliath Transformation",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::BoneTyrant,
             Resource::Ultimate,
         )
@@ -60,7 +60,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Bone Totem",
             "Bone Totem",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::BoneTyrant,
             Resource::Magicka,
         )
@@ -68,7 +68,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Deaden Pain",
             "Bitter Harvest",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::BoneTyrant,
             Resource::Magicka,
         )
@@ -76,7 +76,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Death Scythe",
             "Death Scythe",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::BoneTyrant,
             Resource::Magicka,
         )
@@ -89,7 +89,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Empowering Grasp",
             "Grave Grasp",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::BoneTyrant,
             Resource::Magicka,
         )
@@ -98,7 +98,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Ghostly Embrace",
             "Grave Grasp",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::BoneTyrant,
             Resource::Magicka,
         )
@@ -121,7 +121,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Grave Grasp",
             "Grave Grasp",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::BoneTyrant,
             Resource::Magicka,
         )
@@ -129,7 +129,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Hungry Scythe",
             "Death Scythe",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::BoneTyrant,
             Resource::Magicka,
         )
@@ -142,7 +142,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Necrotic Potency",
             "Bitter Harvest",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::BoneTyrant,
             Resource::Magicka,
         )
@@ -150,7 +150,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Pummeling Goliath",
             "Bone Goliath Transformation",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::BoneTyrant,
             Resource::Ultimate,
         )
@@ -163,7 +163,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Ravenous Goliath",
             "Bone Goliath Transformation",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::BoneTyrant,
             Resource::Ultimate,
         )
@@ -177,7 +177,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Remote Totem",
             "Bone Totem",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::BoneTyrant,
             Resource::Magicka,
         )
@@ -185,7 +185,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Ruinous Scythe",
             "Ruinous Scythe",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::BoneTyrant,
             Resource::Stamina,
         )
@@ -198,7 +198,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Summoner's Armor",
             "Bone Armor",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::BoneTyrant,
             Resource::Magicka,
         )
@@ -206,7 +206,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Avid Boneyard",
             "Boneyard",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::GraveLord,
             Resource::Magicka,
         )
@@ -240,7 +240,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Blighted Blastbones",
             "Sacrificial Bones",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::GraveLord,
             Resource::Stamina,
         )
@@ -251,7 +251,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Boneyard",
             "Boneyard",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::GraveLord,
             Resource::Magicka,
         )
@@ -285,7 +285,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Detonating Siphon",
             "Shocking Siphon",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::GraveLord,
             Resource::Stamina,
         )
@@ -323,7 +323,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Flame Skull",
             "Flame Skull",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::GraveLord,
             Resource::Magicka,
         )
@@ -337,7 +337,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Frozen Colossus",
             "Frozen Colossus",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::GraveLord,
             Resource::Ultimate,
         )
@@ -351,7 +351,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Glacial Colossus",
             "Frozen Colossus",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::GraveLord,
             Resource::Ultimate,
         )
@@ -365,7 +365,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Grave Lord's Sacrifice",
             "Sacrificial Bones",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::GraveLord,
             Resource::Magicka,
         )
@@ -379,7 +379,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Mystic Siphon",
             "Shocking Siphon",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::GraveLord,
             Resource::Magicka,
         )
@@ -407,7 +407,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Pestilent Colossus",
             "Frozen Colossus",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::GraveLord,
             Resource::Ultimate,
         )
@@ -421,7 +421,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Ricochet Skull",
             "Flame Skull",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::GraveLord,
             Resource::Magicka,
         )
@@ -435,7 +435,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Sacrificial Bones",
             "Sacrificial Bones",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::GraveLord,
             Resource::Magicka,
         )
@@ -449,7 +449,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Shocking Siphon",
             "Shocking Siphon",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::GraveLord,
             Resource::Magicka,
         )
@@ -477,7 +477,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Skeletal Arcanist",
             "Skeletal Mage",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::GraveLord,
             Resource::Magicka,
         )
@@ -501,7 +501,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Skeletal Archer",
             "Skeletal Mage",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::GraveLord,
             Resource::Stamina,
         )
@@ -528,7 +528,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Skeletal Mage",
             "Skeletal Mage",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::GraveLord,
             Resource::Magicka,
         )
@@ -548,7 +548,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Unnerving Boneyard",
             "Boneyard",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::GraveLord,
             Resource::Magicka,
         )
@@ -585,7 +585,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Venom Skull",
             "Flame Skull",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::GraveLord,
             Resource::Stamina,
         )
@@ -599,7 +599,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Blood Sacrifice",
             "Render Flesh",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::LivingDeath,
             Resource::Magicka,
         )
@@ -607,7 +607,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Braided Tether",
             "Restoring Tether",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::LivingDeath,
             Resource::Magicka,
         )
@@ -615,7 +615,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Enduring Undeath",
             "Life amid Death",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::LivingDeath,
             Resource::Magicka,
         )
@@ -623,7 +623,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Expunge",
             "Expunge",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::LivingDeath,
             Resource::Stamina,
         )
@@ -631,7 +631,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Expunge and Modify",
             "Expunge",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::LivingDeath,
             Resource::Stamina,
         )
@@ -639,7 +639,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Hexproof",
             "Expunge",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::LivingDeath,
             Resource::Stamina,
         )
@@ -647,7 +647,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Intensive Mender",
             "Spirit Mender",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::LivingDeath,
             Resource::Magicka,
         )
@@ -655,7 +655,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Life amid Death",
             "Life amid Death",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::LivingDeath,
             Resource::Magicka,
         )
@@ -663,7 +663,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Mortal Coil",
             "Restoring Tether",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::LivingDeath,
             Resource::Magicka,
         )
@@ -671,7 +671,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Render Flesh",
             "Render Flesh",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::LivingDeath,
             Resource::Magicka,
         )
@@ -679,7 +679,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Renewing Animation",
             "Reanimate",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::LivingDeath,
             Resource::Ultimate,
         )
@@ -687,7 +687,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Renewing Undeath",
             "Life amid Death",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::LivingDeath,
             Resource::Magicka,
         )
@@ -695,7 +695,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Resistant Flesh",
             "Render Flesh",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::LivingDeath,
             Resource::Magicka,
         )
@@ -703,7 +703,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Restoring Tether",
             "Restoring Tether",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::LivingDeath,
             Resource::Magicka,
         )
@@ -711,7 +711,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Spirit Guardian",
             "Spirit Mender",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::LivingDeath,
             Resource::Magicka,
         )
@@ -719,7 +719,7 @@ pub static NECROMANCER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Spirit Mender",
             "Spirit Mender",
-            ClassName::Necromancer,
+            SkillTree::Necromancer,
             SkillLineName::LivingDeath,
             Resource::Magicka,
         )

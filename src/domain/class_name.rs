@@ -3,7 +3,7 @@ use std::fmt;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub enum ClassName {
+pub enum SkillTree {
     Dragonknight,
     Necromancer,
     Sorcerer,
@@ -15,54 +15,54 @@ pub enum ClassName {
     Guild,
 }
 
-impl fmt::Display for ClassName {
+impl fmt::Display for SkillTree {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ClassName::Dragonknight => write!(f, "Dragonknight"),
-            ClassName::Necromancer => write!(f, "Necromancer"),
-            ClassName::Sorcerer => write!(f, "Sorcerer"),
-            ClassName::Nightblade => write!(f, "Nightblade"),
-            ClassName::Warden => write!(f, "Warden"),
-            ClassName::Templar => write!(f, "Templar"),
-            ClassName::Arcanist => write!(f, "Arcanist"),
-            ClassName::Weapon => write!(f, "Weapon"),
-            ClassName::Guild => write!(f, "Guild"),
+            SkillTree::Dragonknight => write!(f, "Dragonknight"),
+            SkillTree::Necromancer => write!(f, "Necromancer"),
+            SkillTree::Sorcerer => write!(f, "Sorcerer"),
+            SkillTree::Nightblade => write!(f, "Nightblade"),
+            SkillTree::Warden => write!(f, "Warden"),
+            SkillTree::Templar => write!(f, "Templar"),
+            SkillTree::Arcanist => write!(f, "Arcanist"),
+            SkillTree::Weapon => write!(f, "Weapon"),
+            SkillTree::Guild => write!(f, "Guild"),
         }
     }
 }
 
-impl ClassName {
-    pub const ALL: [ClassName; 9] = [
-        ClassName::Dragonknight,
-        ClassName::Necromancer,
-        ClassName::Sorcerer,
-        ClassName::Nightblade,
-        ClassName::Warden,
-        ClassName::Templar,
-        ClassName::Arcanist,
-        ClassName::Weapon,
-        ClassName::Guild,
+impl SkillTree {
+    pub const ALL: [SkillTree; 9] = [
+        SkillTree::Dragonknight,
+        SkillTree::Necromancer,
+        SkillTree::Sorcerer,
+        SkillTree::Nightblade,
+        SkillTree::Warden,
+        SkillTree::Templar,
+        SkillTree::Arcanist,
+        SkillTree::Weapon,
+        SkillTree::Guild,
     ];
 
-    pub const CLASS_ONLY: [ClassName; 7] = [
-        ClassName::Dragonknight,
-        ClassName::Necromancer,
-        ClassName::Sorcerer,
-        ClassName::Nightblade,
-        ClassName::Warden,
-        ClassName::Templar,
-        ClassName::Arcanist,
+    pub const CLASS_ONLY: [SkillTree; 7] = [
+        SkillTree::Dragonknight,
+        SkillTree::Necromancer,
+        SkillTree::Sorcerer,
+        SkillTree::Nightblade,
+        SkillTree::Warden,
+        SkillTree::Templar,
+        SkillTree::Arcanist,
     ];
 
-    pub fn parse(s: &str) -> Result<ClassName, String> {
+    pub fn parse(s: &str) -> Result<SkillTree, String> {
         match s.trim().to_lowercase().as_str() {
-            "arcanist" => Ok(ClassName::Arcanist),
-            "dragonknight" => Ok(ClassName::Dragonknight),
-            "necromancer" => Ok(ClassName::Necromancer),
-            "nightblade" => Ok(ClassName::Nightblade),
-            "sorcerer" => Ok(ClassName::Sorcerer),
-            "templar" => Ok(ClassName::Templar),
-            "warden" => Ok(ClassName::Warden),
+            "arcanist" => Ok(SkillTree::Arcanist),
+            "dragonknight" => Ok(SkillTree::Dragonknight),
+            "necromancer" => Ok(SkillTree::Necromancer),
+            "nightblade" => Ok(SkillTree::Nightblade),
+            "sorcerer" => Ok(SkillTree::Sorcerer),
+            "templar" => Ok(SkillTree::Templar),
+            "warden" => Ok(SkillTree::Warden),
             _ => Err(format!(
                 "Invalid class '{}'. Valid options: arcanist, dragonknight, necromancer, nightblade, sorcerer, templar, warden",
                 s

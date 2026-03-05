@@ -2,7 +2,7 @@
 // Manual overrides (bonuses, execute, etc.) stored in generator script.
 use crate::data::bonuses::{EMPOWER, MAJOR_BREACH, MAJOR_BRUTALITY, MAJOR_SORCERY};
 use crate::domain::{
-    ClassName, DamageFlags, DotDamage, HitDamage, Resource, SkillDamage, SkillData, SkillLineName,
+    SkillTree, DamageFlags, DotDamage, HitDamage, Resource, SkillDamage, SkillData, SkillLineName,
 };
 use once_cell::sync::Lazy;
 
@@ -11,7 +11,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Burning Embers",
             "Searing Strike",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
@@ -34,7 +34,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Cauterize",
             "Inferno",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
@@ -46,7 +46,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Chains of Devastation",
             "Fiery Grip",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
@@ -59,7 +59,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Dragonknight Standard",
             "Dragonknight Standard",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             Resource::Ultimate,
         )
@@ -82,7 +82,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Engulfing Flames",
             "Fiery Breath",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
@@ -105,7 +105,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Fiery Breath",
             "Fiery Breath",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
@@ -128,7 +128,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Fiery Grip",
             "Fiery Grip",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
@@ -141,7 +141,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Flame Lash",
             "Lava Whip",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
@@ -162,7 +162,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Flames of Oblivion",
             "Inferno",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
@@ -179,7 +179,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Inferno",
             "Inferno",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
@@ -196,7 +196,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Lava Whip",
             "Lava Whip",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
@@ -210,7 +210,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Molten Whip",
             "Lava Whip",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
@@ -224,7 +224,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Noxious Breath",
             "Fiery Breath",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             Resource::Stamina,
         )
@@ -248,7 +248,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Searing Strike",
             "Searing Strike",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
@@ -271,7 +271,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Shifting Standard",
             "Dragonknight Standard",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             Resource::Ultimate,
         )
@@ -294,7 +294,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Standard of Might",
             "Dragonknight Standard",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             Resource::Ultimate,
         )
@@ -317,7 +317,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Unrelenting Grip",
             "Fiery Grip",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             Resource::Magicka,
         )
@@ -330,7 +330,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Venomous Claw",
             "Searing Strike",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             Resource::Stamina,
         )
@@ -354,7 +354,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Burning Talons",
             "Dark Talons",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
@@ -384,7 +384,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Choking Talons",
             "Dark Talons",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
@@ -404,7 +404,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Coagulating Blood",
             "Dragon Blood",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
@@ -412,7 +412,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Dark Talons",
             "Dark Talons",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
@@ -432,7 +432,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Deep Breath",
             "Inhale",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
@@ -444,7 +444,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Dragon Blood",
             "Dragon Blood",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
@@ -452,7 +452,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Dragon Fire Scale",
             "Protective Scale",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
@@ -465,7 +465,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Dragon Leap",
             "Dragon Leap",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Ultimate,
         )
@@ -478,7 +478,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Draw Essence",
             "Inhale",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
@@ -490,7 +490,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Ferocious Leap",
             "Dragon Leap",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Ultimate,
         )
@@ -503,7 +503,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Green Dragon Blood",
             "Dragon Blood",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
@@ -511,7 +511,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Hardened Armor",
             "Spiked Armor",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
@@ -519,7 +519,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Inhale",
             "Inhale",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
@@ -531,7 +531,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Protective Plate",
             "Protective Scale",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
@@ -539,7 +539,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Protective Scale",
             "Protective Scale",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
@@ -547,7 +547,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Spiked Armor",
             "Spiked Armor",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
@@ -555,7 +555,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Take Flight",
             "Dragon Leap",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Ultimate,
         )
@@ -568,7 +568,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Volatile Armor",
             "Spiked Armor",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             Resource::Magicka,
         )
@@ -576,7 +576,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Ash Cloud",
             "Ash Cloud",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Magicka,
         )
@@ -584,7 +584,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Cinder Storm",
             "Ash Cloud",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Magicka,
         )
@@ -592,7 +592,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Corrosive Armor",
             "Magma Armor",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Ultimate,
         )
@@ -606,7 +606,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Eruption",
             "Ash Cloud",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Magicka,
         )
@@ -629,7 +629,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Fossilize",
             "Petrify",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Magicka,
         )
@@ -640,7 +640,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Fragmented Shield",
             "Obsidian Shield",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Magicka,
         )
@@ -648,7 +648,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Igneous Shield",
             "Obsidian Shield",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Magicka,
         )
@@ -656,7 +656,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Igneous Weapons",
             "Molten Weapons",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Magicka,
         )
@@ -665,7 +665,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Magma Armor",
             "Magma Armor",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Ultimate,
         )
@@ -679,7 +679,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Magma Shell",
             "Magma Armor",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Ultimate,
         )
@@ -693,7 +693,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Molten Armaments",
             "Molten Weapons",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Magicka,
         )
@@ -706,7 +706,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Molten Weapons",
             "Molten Weapons",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Magicka,
         )
@@ -715,7 +715,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Obsidian Shard",
             "Stonefist",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Magicka,
         )
@@ -729,7 +729,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Obsidian Shield",
             "Obsidian Shield",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Magicka,
         )
@@ -737,7 +737,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Petrify",
             "Petrify",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Magicka,
         )
@@ -748,7 +748,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Shattering Rocks",
             "Petrify",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Magicka,
         )
@@ -759,7 +759,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Stone Giant",
             "Stonefist",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Stamina,
         )
@@ -780,7 +780,7 @@ pub static DRAGONKNIGHT_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Stonefist",
             "Stonefist",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             Resource::Stamina,
         )

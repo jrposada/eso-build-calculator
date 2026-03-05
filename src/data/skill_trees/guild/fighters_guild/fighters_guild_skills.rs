@@ -2,7 +2,7 @@
 // Manual overrides (bonuses, execute, etc.) stored in generator script.
 use crate::data::bonuses::unique::{MAJOR_PROPHECY, MAJOR_SAVAGERY, MINOR_BERSERK, MINOR_FORCE};
 use crate::domain::{
-    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, ClassName, DamageFlags,
+    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, SkillTree, DamageFlags,
     DotDamage, HitDamage, Resource, SkillDamage, SkillData, SkillLineName,
 };
 use once_cell::sync::Lazy;
@@ -12,7 +12,7 @@ pub static FIGHTERS_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Barbed Trap",
             "Trap Beast",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::FightersGuild,
             Resource::Stamina,
         )
@@ -36,7 +36,7 @@ pub static FIGHTERS_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Camouflaged Hunter",
             "Expert Hunter",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::FightersGuild,
             Resource::Stamina,
         )
@@ -53,7 +53,7 @@ pub static FIGHTERS_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Circle of Protection",
             "Circle of Protection",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::FightersGuild,
             Resource::Stamina,
         )
@@ -61,7 +61,7 @@ pub static FIGHTERS_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Dawnbreaker",
             "Dawnbreaker",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::FightersGuild,
             Resource::Ultimate,
         )
@@ -84,7 +84,7 @@ pub static FIGHTERS_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Dawnbreaker of Smiting",
             "Dawnbreaker",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::FightersGuild,
             Resource::Ultimate,
         )
@@ -107,7 +107,7 @@ pub static FIGHTERS_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Evil Hunter",
             "Expert Hunter",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::FightersGuild,
             Resource::Stamina,
         )
@@ -123,7 +123,7 @@ pub static FIGHTERS_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Expert Hunter",
             "Expert Hunter",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::FightersGuild,
             Resource::Stamina,
         )
@@ -139,7 +139,7 @@ pub static FIGHTERS_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Flawless Dawnbreaker",
             "Dawnbreaker",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::FightersGuild,
             Resource::Ultimate,
         )
@@ -173,7 +173,7 @@ pub static FIGHTERS_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Lightweight Beast Trap",
             "Trap Beast",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::FightersGuild,
             Resource::Stamina,
         )
@@ -197,7 +197,7 @@ pub static FIGHTERS_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Ring of Preservation",
             "Ring of Preservation",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::FightersGuild,
             Resource::Stamina,
         )
@@ -205,7 +205,7 @@ pub static FIGHTERS_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Silver Bolts",
             "Silver Bolts",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::FightersGuild,
             Resource::Stamina,
         )
@@ -218,7 +218,7 @@ pub static FIGHTERS_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Silver Leash",
             "Silver Bolts",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::FightersGuild,
             Resource::Stamina,
         )
@@ -231,7 +231,7 @@ pub static FIGHTERS_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Silver Shards",
             "Silver Bolts",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::FightersGuild,
             Resource::Stamina,
         )
@@ -244,7 +244,7 @@ pub static FIGHTERS_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Trap Beast",
             "Trap Beast",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::FightersGuild,
             Resource::Stamina,
         )
@@ -268,7 +268,7 @@ pub static FIGHTERS_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Turn Evil",
             "Turn Evil",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::FightersGuild,
             Resource::Stamina,
         )

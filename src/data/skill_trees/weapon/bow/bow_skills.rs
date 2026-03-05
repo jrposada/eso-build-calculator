@@ -2,7 +2,7 @@
 // Manual overrides (bonuses, execute, etc.) stored in generator script.
 use crate::data::bonuses::unique::{MAJOR_BREACH, MAJOR_BRUTALITY, MAJOR_SORCERY};
 use crate::domain::{
-    ClassName, DamageFlags, DotDamage, ExecuteScaling, HitDamage, Resource, SkillDamage, SkillData,
+    SkillTree, DamageFlags, DotDamage, ExecuteScaling, HitDamage, Resource, SkillDamage, SkillData,
     SkillLineName,
 };
 use once_cell::sync::Lazy;
@@ -12,7 +12,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Acid Spray",
             "Arrow Spray",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Stamina,
         )
@@ -35,7 +35,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Arrow Barrage",
             "Volley",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Stamina,
         )
@@ -51,7 +51,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Arrow Spray",
             "Arrow Spray",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Stamina,
         )
@@ -64,7 +64,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Ballista",
             "Rapid Fire",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Ultimate,
         )
@@ -77,7 +77,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Binding Vault",
             "Binding Vault",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Magicka,
         )
@@ -85,7 +85,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Bombard",
             "Arrow Spray",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Stamina,
         )
@@ -98,7 +98,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Draining Shot",
             "Scatter Shot",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Stamina,
         )
@@ -111,7 +111,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Endless Hail",
             "Volley",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Stamina,
         )
@@ -127,7 +127,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Fiery Vault",
             "Fiery Vault",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Magicka,
         )
@@ -135,7 +135,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Focused Aim",
             "Snipe",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Stamina,
         )
@@ -149,7 +149,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Goading Vault",
             "Goading Vault",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Magicka,
         )
@@ -157,7 +157,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Healing Vault",
             "Healing Vault",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Magicka,
         )
@@ -165,7 +165,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Lethal Arrow",
             "Snipe",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Stamina,
         )
@@ -178,7 +178,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Magnum Shot",
             "Scatter Shot",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Stamina,
         )
@@ -191,7 +191,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Poison Arrow",
             "Poison Arrow",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Stamina,
         )
@@ -214,7 +214,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Poison Injection",
             "Poison Arrow",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Stamina,
         )
@@ -238,7 +238,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Rapid Fire",
             "Rapid Fire",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Ultimate,
         )
@@ -252,7 +252,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Scatter Shot",
             "Scatter Shot",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Stamina,
         )
@@ -265,7 +265,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Snipe",
             "Snipe",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Stamina,
         )
@@ -278,7 +278,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Sundering Vault",
             "Sundering Vault",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Magicka,
         )
@@ -286,7 +286,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Toxic Barrage",
             "Rapid Fire",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Ultimate,
         )
@@ -299,7 +299,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Venom Arrow",
             "Poison Arrow",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Stamina,
         )
@@ -323,7 +323,7 @@ pub static BOW_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Volley",
             "Volley",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::Bow,
             Resource::Stamina,
         )

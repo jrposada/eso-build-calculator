@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-use super::class_name::ClassName;
+use super::class_name::SkillTree;
 use super::weapon_type::WeaponType;
 
 /// Skill line names for all classes and weapons
@@ -131,45 +131,45 @@ impl SkillLineName {
     ];
 
     /// Get the class that this skill line belongs to
-    pub fn get_class(&self) -> ClassName {
+    pub fn get_class(&self) -> SkillTree {
         match self {
             SkillLineName::CurativeRuneforms
             | SkillLineName::SoldierOfApocrypha
-            | SkillLineName::HeraldOfTheTome => ClassName::Arcanist,
+            | SkillLineName::HeraldOfTheTome => SkillTree::Arcanist,
 
             SkillLineName::ArdentFlame
             | SkillLineName::DraconicPower
-            | SkillLineName::EarthenHeart => ClassName::Dragonknight,
+            | SkillLineName::EarthenHeart => SkillTree::Dragonknight,
 
             SkillLineName::GraveLord | SkillLineName::BoneTyrant | SkillLineName::LivingDeath => {
-                ClassName::Necromancer
+                SkillTree::Necromancer
             }
 
             SkillLineName::Assassination | SkillLineName::Shadow | SkillLineName::Siphoning => {
-                ClassName::Nightblade
+                SkillTree::Nightblade
             }
 
             SkillLineName::DarkMagic
             | SkillLineName::DaedricSummoning
-            | SkillLineName::StormCalling => ClassName::Sorcerer,
+            | SkillLineName::StormCalling => SkillTree::Sorcerer,
 
             SkillLineName::AedricSpear
             | SkillLineName::DawnsWrath
-            | SkillLineName::RestoringLight => ClassName::Templar,
+            | SkillLineName::RestoringLight => SkillTree::Templar,
 
             SkillLineName::AnimalCompanions
             | SkillLineName::GreenBalance
-            | SkillLineName::WintersEmbrace => ClassName::Warden,
+            | SkillLineName::WintersEmbrace => SkillTree::Warden,
 
             SkillLineName::Bow
             | SkillLineName::TwoHanded
             | SkillLineName::DestructionStaff
-            | SkillLineName::DualWield => ClassName::Weapon,
+            | SkillLineName::DualWield => SkillTree::Weapon,
 
             SkillLineName::FightersGuild
             | SkillLineName::MagesGuild
             | SkillLineName::Undaunted
-            | SkillLineName::PsijicOrder => ClassName::Guild,
+            | SkillLineName::PsijicOrder => SkillTree::Guild,
         }
     }
 
@@ -208,50 +208,50 @@ impl SkillLineName {
     }
 
     /// Get all skill lines for a given class
-    pub fn for_class(class: ClassName) -> Vec<SkillLineName> {
+    pub fn for_class(class: SkillTree) -> Vec<SkillLineName> {
         match class {
-            ClassName::Arcanist => vec![
+            SkillTree::Arcanist => vec![
                 SkillLineName::CurativeRuneforms,
                 SkillLineName::SoldierOfApocrypha,
                 SkillLineName::HeraldOfTheTome,
             ],
-            ClassName::Dragonknight => vec![
+            SkillTree::Dragonknight => vec![
                 SkillLineName::ArdentFlame,
                 SkillLineName::DraconicPower,
                 SkillLineName::EarthenHeart,
             ],
-            ClassName::Necromancer => vec![
+            SkillTree::Necromancer => vec![
                 SkillLineName::GraveLord,
                 SkillLineName::BoneTyrant,
                 SkillLineName::LivingDeath,
             ],
-            ClassName::Nightblade => vec![
+            SkillTree::Nightblade => vec![
                 SkillLineName::Assassination,
                 SkillLineName::Shadow,
                 SkillLineName::Siphoning,
             ],
-            ClassName::Sorcerer => vec![
+            SkillTree::Sorcerer => vec![
                 SkillLineName::DarkMagic,
                 SkillLineName::DaedricSummoning,
                 SkillLineName::StormCalling,
             ],
-            ClassName::Templar => vec![
+            SkillTree::Templar => vec![
                 SkillLineName::AedricSpear,
                 SkillLineName::DawnsWrath,
                 SkillLineName::RestoringLight,
             ],
-            ClassName::Warden => vec![
+            SkillTree::Warden => vec![
                 SkillLineName::AnimalCompanions,
                 SkillLineName::GreenBalance,
                 SkillLineName::WintersEmbrace,
             ],
-            ClassName::Weapon => vec![
+            SkillTree::Weapon => vec![
                 SkillLineName::Bow,
                 SkillLineName::TwoHanded,
                 SkillLineName::DestructionStaff,
                 SkillLineName::DualWield,
             ],
-            ClassName::Guild => vec![
+            SkillTree::Guild => vec![
                 SkillLineName::FightersGuild,
                 SkillLineName::MagesGuild,
                 SkillLineName::Undaunted,

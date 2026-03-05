@@ -2,7 +2,7 @@
 // Manual overrides (bonuses, execute, etc.) stored in generator script.
 use crate::data::bonuses::unique::MINOR_VULNERABILITY;
 use crate::domain::{
-    ClassName, DamageFlags, DotDamage, HitDamage, Resource, SkillDamage, SkillData, SkillLineName,
+    SkillTree, DamageFlags, DotDamage, HitDamage, Resource, SkillDamage, SkillData, SkillLineName,
 };
 use once_cell::sync::Lazy;
 
@@ -11,7 +11,7 @@ pub static UNDAUNTED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Blood Altar",
             "Blood Altar",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::Undaunted,
             Resource::Stamina,
         )
@@ -19,7 +19,7 @@ pub static UNDAUNTED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Bone Shield",
             "Bone Shield",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::Undaunted,
             Resource::Stamina,
         )
@@ -27,7 +27,7 @@ pub static UNDAUNTED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Bone Surge",
             "Bone Surge",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::Undaunted,
             Resource::Stamina,
         )
@@ -35,7 +35,7 @@ pub static UNDAUNTED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Energy Orb",
             "Energy Orb",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::Undaunted,
             Resource::Magicka,
         )
@@ -43,7 +43,7 @@ pub static UNDAUNTED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Inner Beast",
             "Inner Fire",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::Undaunted,
             Resource::Stamina,
         )
@@ -74,7 +74,7 @@ pub static UNDAUNTED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Inner Fire",
             "Inner Fire",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::Undaunted,
             Resource::Magicka,
         )
@@ -104,7 +104,7 @@ pub static UNDAUNTED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Inner Rage",
             "Inner Fire",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::Undaunted,
             Resource::Magicka,
         )
@@ -134,7 +134,7 @@ pub static UNDAUNTED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Mystic Orb",
             "Necrotic Orb",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::Undaunted,
             Resource::Magicka,
         )
@@ -157,7 +157,7 @@ pub static UNDAUNTED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Necrotic Orb",
             "Necrotic Orb",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::Undaunted,
             Resource::Magicka,
         )
@@ -180,7 +180,7 @@ pub static UNDAUNTED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Overflowing Altar",
             "Overflowing Altar",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::Undaunted,
             Resource::Stamina,
         )
@@ -188,7 +188,7 @@ pub static UNDAUNTED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Sanguine Altar",
             "Sanguine Altar",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::Undaunted,
             Resource::Stamina,
         )
@@ -196,7 +196,7 @@ pub static UNDAUNTED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Shadow Silk",
             "Trapping Webs",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::Undaunted,
             Resource::Stamina,
         )
@@ -208,7 +208,7 @@ pub static UNDAUNTED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Spiked Bone Shield",
             "Spiked Bone Shield",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::Undaunted,
             Resource::Stamina,
         )
@@ -216,7 +216,7 @@ pub static UNDAUNTED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Tangling Webs",
             "Trapping Webs",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::Undaunted,
             Resource::Stamina,
         )
@@ -228,7 +228,7 @@ pub static UNDAUNTED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Trapping Webs",
             "Trapping Webs",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::Undaunted,
             Resource::Stamina,
         )

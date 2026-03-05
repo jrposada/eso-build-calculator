@@ -1,5 +1,5 @@
 use super::{
-    BonusData, BonusSource, BonusTarget, BonusTrigger, CharacterStats, ClassName, DamageFlags,
+    BonusData, BonusSource, BonusTarget, BonusTrigger, CharacterStats, SkillTree, DamageFlags,
     ResolveContext, ResolvedBonus, SkillData, SkillLineName,
 };
 use crate::infrastructure::{format, table};
@@ -1135,7 +1135,7 @@ impl Build {
         let class_names: HashSet<_> = skill_line_counts
             .keys()
             .map(|sl| sl.get_class())
-            .filter(|c| *c != ClassName::Weapon)
+            .filter(|c| *c != SkillTree::Weapon)
             .collect();
 
         let mut class_names: Vec<_> = class_names.iter().map(|c| c.to_string()).collect();

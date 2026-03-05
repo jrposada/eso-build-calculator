@@ -2,7 +2,7 @@
 // Manual overrides (bonuses) stored in generator script.
 use crate::data::bonuses::MINOR_SAVAGERY;
 use crate::domain::{
-    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, ClassName, PassiveData,
+    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, SkillTree, PassiveData,
     SkillLineName,
 };
 use once_cell::sync::Lazy;
@@ -11,14 +11,14 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
     vec![
         PassiveData::new(
             "Executioner",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             vec![], // TODO: Restore 1000 Magicka and Stamina when enemy dies within 2s of being damaged,
         )
         .with_skill_id(45048),
         PassiveData::new(
             "Hemorrhage",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             vec![
                 BonusData::new(
@@ -35,7 +35,7 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
         .with_skill_id(45060),
         PassiveData::new(
             "Master Assassin",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             vec![BonusData::new(
                 "Master Assassin",
@@ -47,7 +47,7 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
         .with_skill_id(45038),
         PassiveData::new(
             "Pressure Points",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             vec![BonusData::new(
                 "Pressure Points",
@@ -60,7 +60,7 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
         .with_skill_id(45053),
         PassiveData::new(
             "Dark Veil",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             vec![BonusData::new(
                 "Dark Veil",
@@ -72,35 +72,35 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
         .with_skill_id(45115),
         PassiveData::new(
             "Dark Vigor",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             vec![],
         )
         .with_skill_id(45084),
         PassiveData::new(
             "Refreshing Shadows",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             vec![],
         )
         .with_skill_id(45103),
         PassiveData::new(
             "Shadow Barrier",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             vec![],
         )
         .with_skill_id(45071),
         PassiveData::new(
             "Catalyst",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             vec![], // TODO: Ultimate gain on potion,
         )
         .with_skill_id(45135),
         PassiveData::new(
             "Magicka Flood",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             vec![
                 BonusData::new(
@@ -120,14 +120,14 @@ pub static NIGHTBLADE_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
         .with_skill_id(45150),
         PassiveData::new(
             "Soul Siphoner",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             vec![],
         )
         .with_skill_id(45155),
         PassiveData::new(
             "Transfer",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             vec![], // TODO: Generate 2 ultimate,
         )

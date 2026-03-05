@@ -2,7 +2,7 @@
 // Manual overrides (bonuses, execute, etc.) stored in generator script.
 use crate::data::bonuses::{EMPOWER, MAJOR_BREACH, MAJOR_BRUTALITY, MAJOR_SORCERY};
 use crate::domain::{
-    ClassName, DamageFlags, DotDamage, HitDamage, Resource, SkillDamage, SkillData, SkillLineName,
+    SkillTree, DamageFlags, DotDamage, HitDamage, Resource, SkillDamage, SkillData, SkillLineName,
 };
 use once_cell::sync::Lazy;
 
@@ -11,7 +11,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Aurora Javelin",
             "Piercing Javelin",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             Resource::Magicka,
         )
@@ -24,7 +24,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Binding Javelin",
             "Piercing Javelin",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             Resource::Stamina,
         )
@@ -37,7 +37,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Biting Jabs",
             "Puncturing Strikes",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             Resource::Stamina,
         )
@@ -55,7 +55,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Blazing Shield",
             "Sun Shield",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             Resource::Magicka,
         )
@@ -63,7 +63,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Blazing Spear",
             "Spear Shards",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             Resource::Magicka,
         )
@@ -86,7 +86,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Crescent Sweep",
             "Radial Sweep",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             Resource::Ultimate,
         )
@@ -109,7 +109,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Everlasting Sweep",
             "Radial Sweep",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             Resource::Ultimate,
         )
@@ -132,7 +132,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Explosive Charge",
             "Focused Charge",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             Resource::Magicka,
         )
@@ -145,7 +145,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Focused Charge",
             "Focused Charge",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             Resource::Magicka,
         )
@@ -158,7 +158,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Luminous Shards",
             "Spear Shards",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             Resource::Magicka,
         )
@@ -181,7 +181,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Piercing Javelin",
             "Piercing Javelin",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             Resource::Magicka,
         )
@@ -194,7 +194,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Puncturing Strikes",
             "Puncturing Strikes",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             Resource::Magicka,
         )
@@ -208,7 +208,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Puncturing Sweep",
             "Puncturing Strikes",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             Resource::Magicka,
         )
@@ -222,7 +222,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Radial Sweep",
             "Radial Sweep",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             Resource::Ultimate,
         )
@@ -245,7 +245,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Radiant Ward",
             "Sun Shield",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             Resource::Magicka,
         )
@@ -258,7 +258,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Spear Shards",
             "Spear Shards",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             Resource::Magicka,
         )
@@ -281,7 +281,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Sun Shield",
             "Sun Shield",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             Resource::Magicka,
         )
@@ -294,7 +294,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Toppling Charge",
             "Focused Charge",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             Resource::Magicka,
         )
@@ -307,7 +307,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Backlash",
             "Backlash",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             Resource::Magicka,
         )
@@ -319,7 +319,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Dark Flare",
             "Solar Flare",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             Resource::Magicka,
         )
@@ -334,7 +334,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Eclipse",
             "Eclipse",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             Resource::Magicka,
         )
@@ -342,7 +342,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Living Dark",
             "Eclipse",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             Resource::Magicka,
         )
@@ -350,7 +350,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Nova",
             "Nova",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             Resource::Ultimate,
         )
@@ -373,7 +373,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Power of the Light",
             "Backlash",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             Resource::Stamina,
         )
@@ -386,7 +386,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Purifying Light",
             "Backlash",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             Resource::Magicka,
         )
@@ -398,7 +398,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Radiant Destruction",
             "Radiant Destruction",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             Resource::Magicka,
         )
@@ -412,7 +412,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Radiant Glory",
             "Radiant Destruction",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             Resource::Magicka,
         )
@@ -426,7 +426,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Radiant Oppression",
             "Radiant Destruction",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             Resource::Magicka,
         )
@@ -440,7 +440,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Reflective Light",
             "Sun Fire",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             Resource::Magicka,
         )
@@ -463,7 +463,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Solar Barrage",
             "Solar Flare",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             Resource::Magicka,
         )
@@ -478,7 +478,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Solar Disturbance",
             "Nova",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             Resource::Ultimate,
         )
@@ -501,7 +501,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Solar Flare",
             "Solar Flare",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             Resource::Magicka,
         )
@@ -516,7 +516,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Solar Prison",
             "Nova",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             Resource::Ultimate,
         )
@@ -539,7 +539,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Sun Fire",
             "Sun Fire",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             Resource::Magicka,
         )
@@ -562,7 +562,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Unstable Core",
             "Eclipse",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             Resource::Magicka,
         )
@@ -587,7 +587,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Vampire's Bane",
             "Sun Fire",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             Resource::Magicka,
         )
@@ -610,7 +610,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Breath of Life",
             "Rushed Ceremony",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             Resource::Magicka,
         )
@@ -618,7 +618,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Channeled Focus",
             "Rune Focus",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             Resource::Magicka,
         )
@@ -626,7 +626,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Cleansing Ritual",
             "Cleansing Ritual",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             Resource::Magicka,
         )
@@ -634,7 +634,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Extended Ritual",
             "Cleansing Ritual",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             Resource::Magicka,
         )
@@ -642,7 +642,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Hasty Prayer",
             "Healing Ritual",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             Resource::Magicka,
         )
@@ -650,7 +650,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Healing Ritual",
             "Healing Ritual",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             Resource::Magicka,
         )
@@ -658,7 +658,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Honor the Dead",
             "Rushed Ceremony",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             Resource::Magicka,
         )
@@ -666,7 +666,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Practiced Incantation",
             "Rite of Passage",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             Resource::Ultimate,
         )
@@ -675,7 +675,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Radiant Aura",
             "Restoring Aura",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             Resource::Magicka,
         )
@@ -683,7 +683,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Remembrance",
             "Rite of Passage",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             Resource::Ultimate,
         )
@@ -692,7 +692,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Repentance",
             "Restoring Aura",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             Resource::Magicka,
         )
@@ -700,7 +700,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Restoring Aura",
             "Restoring Aura",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             Resource::Magicka,
         )
@@ -708,7 +708,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Restoring Focus",
             "Rune Focus",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             Resource::Stamina,
         )
@@ -716,7 +716,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Rite of Passage",
             "Rite of Passage",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             Resource::Ultimate,
         )
@@ -725,7 +725,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Ritual of Rebirth",
             "Healing Ritual",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             Resource::Magicka,
         )
@@ -733,7 +733,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Ritual of Retribution",
             "Cleansing Ritual",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             Resource::Magicka,
         )
@@ -749,7 +749,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Rune Focus",
             "Rune Focus",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             Resource::Magicka,
         )
@@ -757,7 +757,7 @@ pub static TEMPLAR_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Rushed Ceremony",
             "Rushed Ceremony",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             Resource::Magicka,
         )

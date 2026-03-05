@@ -5,7 +5,7 @@ use crate::data::bonuses::{
     MINOR_BREACH, MINOR_VULNERABILITY,
 };
 use crate::domain::{
-    BonusTrigger, ClassName, DamageFlags, DotDamage, HitDamage, Resource, SkillDamage, SkillData,
+    BonusTrigger, SkillTree, DamageFlags, DotDamage, HitDamage, Resource, SkillDamage, SkillData,
     SkillLineName,
 };
 use once_cell::sync::Lazy;
@@ -15,7 +15,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Betty Netch",
             "Betty Netch",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::AnimalCompanions,
             Resource::Magicka,
         )
@@ -24,7 +24,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Bird of Prey",
             "Falcon's Swiftness",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::AnimalCompanions,
             Resource::Magicka,
         )
@@ -35,7 +35,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Blue Betty",
             "Betty Netch",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::AnimalCompanions,
             Resource::Magicka,
         )
@@ -44,7 +44,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Bull Netch",
             "Betty Netch",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::AnimalCompanions,
             Resource::Stamina,
         )
@@ -53,7 +53,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Cutting Dive",
             "Dive",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::AnimalCompanions,
             Resource::Stamina,
         )
@@ -77,7 +77,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Deceptive Predator",
             "Falcon's Swiftness",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::AnimalCompanions,
             Resource::Magicka,
         )
@@ -85,7 +85,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Deep Fissure",
             "Scorch",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::AnimalCompanions,
             Resource::Magicka,
         )
@@ -97,7 +97,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Dive",
             "Dive",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::AnimalCompanions,
             Resource::Magicka,
         )
@@ -111,7 +111,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Eternal Guardian",
             "Feral Guardian",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::AnimalCompanions,
             Resource::Ultimate,
         )
@@ -136,7 +136,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Falcon's Swiftness",
             "Falcon's Swiftness",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::AnimalCompanions,
             Resource::Magicka,
         )
@@ -144,7 +144,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Feral Guardian",
             "Feral Guardian",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::AnimalCompanions,
             Resource::Ultimate,
         )
@@ -169,7 +169,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Fetcher Infection",
             "Swarm",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::AnimalCompanions,
             Resource::Magicka,
         )
@@ -184,7 +184,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Growing Swarm",
             "Swarm",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::AnimalCompanions,
             Resource::Stamina,
         )
@@ -207,7 +207,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Scorch",
             "Scorch",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::AnimalCompanions,
             Resource::Magicka,
         )
@@ -218,7 +218,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Screaming Cliff Racer",
             "Dive",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::AnimalCompanions,
             Resource::Magicka,
         )
@@ -232,7 +232,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Subterranean Assault",
             "Scorch",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::AnimalCompanions,
             Resource::Stamina,
         )
@@ -243,7 +243,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Swarm",
             "Swarm",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::AnimalCompanions,
             Resource::Magicka,
         )
@@ -258,7 +258,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Wild Guardian",
             "Feral Guardian",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::AnimalCompanions,
             Resource::Ultimate,
         )
@@ -283,7 +283,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Budding Seeds",
             "Healing Seed",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::GreenBalance,
             Resource::Magicka,
         )
@@ -291,7 +291,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Bursting Vines",
             "Nature's Grasp",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::GreenBalance,
             Resource::Magicka,
         )
@@ -299,7 +299,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Corrupting Pollen",
             "Healing Seed",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::GreenBalance,
             Resource::Magicka,
         )
@@ -307,7 +307,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Enchanted Forest",
             "Secluded Grove",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::GreenBalance,
             Resource::Ultimate,
         )
@@ -315,7 +315,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Enchanted Growth",
             "Fungal Growth",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::GreenBalance,
             Resource::Magicka,
         )
@@ -323,7 +323,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Fungal Growth",
             "Fungal Growth",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::GreenBalance,
             Resource::Magicka,
         )
@@ -331,7 +331,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Green Lotus",
             "Lotus Flower",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::GreenBalance,
             Resource::Magicka,
         )
@@ -340,7 +340,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Healing Seed",
             "Healing Seed",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::GreenBalance,
             Resource::Magicka,
         )
@@ -348,7 +348,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Healing Thicket",
             "Secluded Grove",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::GreenBalance,
             Resource::Ultimate,
         )
@@ -356,7 +356,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Leeching Vines",
             "Living Vines",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::GreenBalance,
             Resource::Magicka,
         )
@@ -364,7 +364,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Living Trellis",
             "Living Vines",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::GreenBalance,
             Resource::Magicka,
         )
@@ -372,7 +372,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Living Vines",
             "Living Vines",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::GreenBalance,
             Resource::Magicka,
         )
@@ -380,7 +380,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Lotus Blossom",
             "Lotus Flower",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::GreenBalance,
             Resource::Magicka,
         )
@@ -392,7 +392,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Lotus Flower",
             "Lotus Flower",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::GreenBalance,
             Resource::Magicka,
         )
@@ -401,7 +401,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Nature's Embrace",
             "Nature's Grasp",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::GreenBalance,
             Resource::Magicka,
         )
@@ -409,7 +409,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Nature's Grasp",
             "Nature's Grasp",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::GreenBalance,
             Resource::Magicka,
         )
@@ -417,7 +417,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Secluded Grove",
             "Secluded Grove",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::GreenBalance,
             Resource::Ultimate,
         )
@@ -425,7 +425,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Soothing Spores",
             "Fungal Growth",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::GreenBalance,
             Resource::Stamina,
         )
@@ -433,7 +433,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Arctic Blast",
             "Arctic Wind",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::WintersEmbrace,
             Resource::Magicka,
         )
@@ -456,7 +456,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Arctic Wind",
             "Arctic Wind",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::WintersEmbrace,
             Resource::Magicka,
         )
@@ -464,7 +464,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Crystallized Shield",
             "Crystallized Shield",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::WintersEmbrace,
             Resource::Magicka,
         )
@@ -472,7 +472,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Crystallized Slab",
             "Crystallized Shield",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::WintersEmbrace,
             Resource::Magicka,
         )
@@ -485,7 +485,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Expansive Frost Cloak",
             "Frost Cloak",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::WintersEmbrace,
             Resource::Magicka,
         )
@@ -493,7 +493,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Frost Cloak",
             "Frost Cloak",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::WintersEmbrace,
             Resource::Magicka,
         )
@@ -501,7 +501,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Frozen Device",
             "Frozen Gate",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::WintersEmbrace,
             Resource::Magicka,
         )
@@ -512,7 +512,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Frozen Gate",
             "Frozen Gate",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::WintersEmbrace,
             Resource::Magicka,
         )
@@ -523,7 +523,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Frozen Retreat",
             "Frozen Gate",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::WintersEmbrace,
             Resource::Magicka,
         )
@@ -534,7 +534,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Gripping Shards",
             "Impaling Shards",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::WintersEmbrace,
             Resource::Magicka,
         )
@@ -548,7 +548,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Ice Fortress",
             "Frost Cloak",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::WintersEmbrace,
             Resource::Magicka,
         )
@@ -556,7 +556,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Impaling Shards",
             "Impaling Shards",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::WintersEmbrace,
             Resource::Magicka,
         )
@@ -570,7 +570,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Northern Storm",
             "Sleet Storm",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::WintersEmbrace,
             Resource::Ultimate,
         )
@@ -584,7 +584,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Permafrost",
             "Sleet Storm",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::WintersEmbrace,
             Resource::Ultimate,
         )
@@ -598,7 +598,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Polar Wind",
             "Arctic Wind",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::WintersEmbrace,
             Resource::Magicka,
         )
@@ -606,7 +606,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Shimmering Shield",
             "Crystallized Shield",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::WintersEmbrace,
             Resource::Magicka,
         )
@@ -614,7 +614,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Sleet Storm",
             "Sleet Storm",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::WintersEmbrace,
             Resource::Ultimate,
         )
@@ -628,7 +628,7 @@ pub static WARDEN_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Winter's Revenge",
             "Impaling Shards",
-            ClassName::Warden,
+            SkillTree::Warden,
             SkillLineName::WintersEmbrace,
             Resource::Magicka,
         )

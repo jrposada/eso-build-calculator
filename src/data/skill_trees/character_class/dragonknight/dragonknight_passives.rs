@@ -2,7 +2,7 @@
 // Manual overrides (bonuses) stored in generator script.
 use crate::data::bonuses::MINOR_BRUTALITY;
 use crate::domain::{
-    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, ClassName, PassiveData,
+    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, SkillTree, PassiveData,
     SkillLineName,
 };
 use once_cell::sync::Lazy;
@@ -11,7 +11,7 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
     vec![
         PassiveData::new(
             "Combustion",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             vec![
                 BonusData::new(
@@ -40,14 +40,14 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
         .with_skill_id(45011),
         PassiveData::new(
             "Searing Heat",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             vec![], // TODO: Passive effect to specific skills.,
         )
         .with_skill_id(45023),
         PassiveData::new(
             "Warmth",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             vec![BonusData::new(
                 "Warmth",
@@ -60,7 +60,7 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
         .with_skill_id(45012),
         PassiveData::new(
             "World in Ruin",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::ArdentFlame,
             vec![BonusData::new(
                 "World in Ruin",
@@ -72,42 +72,42 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
         .with_skill_id(45029),
         PassiveData::new(
             "Burning Heart",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             vec![],
         )
         .with_skill_id(44933),
         PassiveData::new(
             "Elder Dragon",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             vec![],
         )
         .with_skill_id(44951),
         PassiveData::new(
             "Iron Skin",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             vec![],
         )
         .with_skill_id(44922),
         PassiveData::new(
             "Scaled Armor",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::DraconicPower,
             vec![],
         )
         .with_skill_id(44953),
         PassiveData::new(
             "Battle Roar",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             vec![], // TODO: To complex, restore resources on ult cast,
         )
         .with_skill_id(44984),
         PassiveData::new(
             "Eternal Mountain",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             vec![BonusData::new(
                 "Eternal Mountain",
@@ -123,14 +123,14 @@ pub static DRAGONKNIGHT_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
         .with_skill_id(44996),
         PassiveData::new(
             "Helping Hands",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             vec![], // TODO: To complex, restore stamina on skill use with multiple conditions,
         )
         .with_skill_id(45009),
         PassiveData::new(
             "Mountain's Blessing",
-            ClassName::Dragonknight,
+            SkillTree::Dragonknight,
             SkillLineName::EarthenHeart,
             vec![
                 MINOR_BRUTALITY

@@ -394,7 +394,7 @@ impl SetOptimizer {
 mod tests {
     use super::*;
     use crate::data::bonuses::CHAMPION_POINTS;
-    use crate::domain::{CharacterStats, ClassName, SkillLineName};
+    use crate::domain::{CharacterStats, SkillTree, SkillLineName};
     use crate::infrastructure::logger;
     use crate::services::{BuildOptimizer, BuildOptimizerOptions};
 
@@ -421,7 +421,7 @@ mod tests {
             character_stats: CharacterStats::default(),
             verbose: false,
             pure: true,
-            required_class_names: vec![ClassName::Nightblade],
+            required_class_names: vec![SkillTree::Nightblade],
             required_weapon_skill_lines: vec![SkillLineName::Bow, SkillLineName::TwoHanded],
             required_champion_points: vec![
                 get_champion_point("Deadly Aim"),

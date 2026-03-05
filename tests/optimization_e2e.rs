@@ -1,6 +1,6 @@
 use eso_build_calculator::data::bonuses::CHAMPION_POINTS;
 use eso_build_calculator::data::sets::ALL_SETS;
-use eso_build_calculator::domain::{BonusData, CharacterStats, ClassName, SetData, SkillLineName};
+use eso_build_calculator::domain::{BonusData, CharacterStats, SetData, SkillLineName, SkillTree};
 use eso_build_calculator::infrastructure::logger;
 use eso_build_calculator::services::{BuildOptimizer, BuildOptimizerOptions};
 
@@ -40,7 +40,7 @@ fn nightblade_bow_2h_all_cp_forced() {
         character_stats: CharacterStats::default(),
         verbose: false,
         pure: true,
-        required_class_names: vec![ClassName::Nightblade],
+        required_class_names: vec![SkillTree::Nightblade],
         required_weapon_skill_lines: vec![SkillLineName::Bow, SkillLineName::TwoHanded],
         required_champion_points: vec![
             get_champion_point("Deadly Aim"),
@@ -112,7 +112,7 @@ fn nightblade_bow_2h_one_cp_forced() {
         character_stats: CharacterStats::default(),
         verbose: false,
         pure: true,
-        required_class_names: vec![ClassName::Nightblade],
+        required_class_names: vec![SkillTree::Nightblade],
         required_weapon_skill_lines: vec![SkillLineName::Bow, SkillLineName::TwoHanded],
         required_champion_points: vec![get_champion_point("Deadly Aim")],
         required_skills: vec![],
@@ -184,7 +184,7 @@ fn optimizer_with_fixed_sets_increases_damage() {
             character_stats: CharacterStats::default(),
             verbose: false,
             pure: true,
-            required_class_names: vec![ClassName::Nightblade],
+            required_class_names: vec![SkillTree::Nightblade],
             required_weapon_skill_lines: vec![SkillLineName::Bow, SkillLineName::TwoHanded],
             required_champion_points: vec![
                 get_champion_point("Deadly Aim"),
@@ -251,7 +251,7 @@ fn optimizer_with_fixed_sets_same_skills() {
             character_stats: CharacterStats::default(),
             verbose: false,
             pure: true,
-            required_class_names: vec![ClassName::Nightblade],
+            required_class_names: vec![SkillTree::Nightblade],
             required_weapon_skill_lines: vec![SkillLineName::Bow, SkillLineName::TwoHanded],
             required_champion_points: vec![
                 get_champion_point("Deadly Aim"),

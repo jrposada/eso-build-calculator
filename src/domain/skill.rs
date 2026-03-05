@@ -1,5 +1,5 @@
 use super::{
-    formulas, BonusData, BonusTarget, CharacterStats, ClassName, DamageFlags, ExecuteData,
+    formulas, BonusData, BonusTarget, CharacterStats, SkillTree, DamageFlags, ExecuteData,
     ExecuteScaling, ResolveContext, ResolvedBonus, Resource, SkillDamage, SkillLineName,
     SkillMechanic,
 };
@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 pub struct SkillData {
     pub name: String,
     pub base_skill_name: String,
-    pub class_name: ClassName,
+    pub class_name: SkillTree,
     pub skill_line: SkillLineName,
     pub resource: Resource,
 
@@ -36,7 +36,7 @@ impl SkillData {
     pub fn new(
         name: impl Into<String>,
         base_skill_name: impl Into<String>,
-        class_name: ClassName,
+        class_name: SkillTree,
         skill_line: SkillLineName,
         resource: Resource,
     ) -> Self {

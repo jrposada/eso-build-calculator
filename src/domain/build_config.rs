@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::character_stats::ATTRIBUTE_POINTS_BONUS;
-use super::class_name::ClassName;
+use super::class_name::SkillTree;
 use super::equipment::{ArmorDistribution, ArmorTrait, AttributeChoice, JewelryTrait, WeaponTrait};
 use super::food::Food;
 use super::mundus::MundusStone;
@@ -38,7 +38,7 @@ pub struct BuildConfig {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub sets: Vec<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub classes: Vec<ClassName>,
+    pub classes: Vec<SkillTree>,
 
     // Character
     #[serde(skip_serializing_if = "Option::is_none")]

@@ -2,7 +2,7 @@
 // Manual overrides (bonuses) stored in generator script.
 use crate::data::bonuses::{MINOR_BERSERK, MINOR_SORCERY};
 use crate::domain::{
-    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, ClassName, PassiveData,
+    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, SkillTree, PassiveData,
     SkillLineName,
 };
 use once_cell::sync::Lazy;
@@ -11,7 +11,7 @@ pub static TEMPLAR_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
     vec![
         PassiveData::new(
             "Balanced Warrior",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             vec![BonusData::new(
                 "Balanced Warrior",
@@ -27,14 +27,14 @@ pub static TEMPLAR_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
         .with_skill_id(44732),
         PassiveData::new(
             "Burning Light",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             vec![], // TODO: To complex, stacks + consume for trigger damage,
         )
         .with_skill_id(44730),
         PassiveData::new(
             "Piercing Spear",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             vec![BonusData::new(
                 "Piercing Spear",
@@ -46,7 +46,7 @@ pub static TEMPLAR_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
         .with_skill_id(44046),
         PassiveData::new(
             "Spear Wall",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::AedricSpear,
             vec![MINOR_BERSERK
                 .clone()
@@ -56,14 +56,14 @@ pub static TEMPLAR_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
         .with_skill_id(44721),
         PassiveData::new(
             "Enduring Rays",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             vec![], // TODO: duration increase to specific skills,
         )
         .with_skill_id(45214),
         PassiveData::new(
             "Illuminate",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             vec![MINOR_SORCERY
                 .clone()
@@ -72,42 +72,42 @@ pub static TEMPLAR_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
         .with_skill_id(45215),
         PassiveData::new(
             "Prism",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             vec![], // TODO: generates 3 ultimate,
         )
         .with_skill_id(45216),
         PassiveData::new(
             "Restoring Spirit",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::DawnsWrath,
             vec![],
         )
         .with_skill_id(45212),
         PassiveData::new(
             "Light Weaver",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             vec![],
         )
         .with_skill_id(45208),
         PassiveData::new(
             "Master Ritualist",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             vec![],
         )
         .with_skill_id(45202),
         PassiveData::new(
             "Mending",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             vec![],
         )
         .with_skill_id(45206),
         PassiveData::new(
             "Sacred Ground",
-            ClassName::Templar,
+            SkillTree::Templar,
             SkillLineName::RestoringLight,
             vec![],
         )

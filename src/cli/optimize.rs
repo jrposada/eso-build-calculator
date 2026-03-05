@@ -1,6 +1,6 @@
 use crate::domain::{
-    ArmorDistribution, ArmorTrait, AttributeChoice, BonusData, BuildConfig, ClassName, Food,
-    JewelryTrait, MundusStone, Potion, Race, SetData, SkillData, WeaponChoice, WeaponEnchant,
+    ArmorDistribution, ArmorTrait, AttributeChoice, BonusData, BuildConfig, Food, JewelryTrait,
+    MundusStone, Potion, Race, SetData, SkillData, SkillTree, WeaponChoice, WeaponEnchant,
     WeaponTrait, BUILD_CONSTRAINTS,
 };
 use crate::infrastructure::logger;
@@ -22,8 +22,8 @@ pub struct OptimizeArgs {
     pub race: Option<Race>,
 
     /// Pin at least 1 skill line from these class (comma-separated)
-    #[arg(long, value_delimiter = ',', value_parser = ClassName::parse)]
-    pub class: Option<Vec<ClassName>>,
+    #[arg(long, value_delimiter = ',', value_parser = SkillTree::parse)]
+    pub class: Option<Vec<SkillTree>>,
 
     /// Restrict build to only the classes specified by --class
     #[arg(long, requires = "class")]

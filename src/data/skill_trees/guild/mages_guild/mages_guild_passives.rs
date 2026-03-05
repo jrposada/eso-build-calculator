@@ -2,7 +2,7 @@
 // Manual overrides (bonuses) stored in generator script.
 use crate::data::bonuses::unique::EMPOWER;
 use crate::domain::{
-    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, ClassName, PassiveData,
+    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, SkillTree, PassiveData,
     SkillLineName,
 };
 use once_cell::sync::Lazy;
@@ -11,7 +11,7 @@ pub static MAGES_GUILD_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
     vec![
         PassiveData::new(
             "Everlasting Magic",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             vec![BonusData::new(
                 "Everlasting Magic",
@@ -23,14 +23,14 @@ pub static MAGES_GUILD_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
         ),
         PassiveData::new(
             "Mage Adept",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             vec![],
         )
         .with_skill_id(45601),
         PassiveData::new(
             "Magicka Controller",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             vec![BonusData::new(
                 "Magicka Controller",
@@ -43,7 +43,7 @@ pub static MAGES_GUILD_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
         .with_skill_id(45603),
         PassiveData::new(
             "Might of the Guild",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             vec![EMPOWER
                 .clone()

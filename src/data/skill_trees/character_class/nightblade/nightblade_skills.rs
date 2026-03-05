@@ -5,7 +5,7 @@ use crate::data::bonuses::{
     MAJOR_SORCERY, MINOR_BERSERK, MINOR_VULNERABILITY,
 };
 use crate::domain::{
-    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, ClassName, DamageFlags,
+    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, SkillTree, DamageFlags,
     DotDamage, ExecuteScaling, HitDamage, Resource, SkillDamage, SkillData, SkillLineName,
 };
 use once_cell::sync::Lazy;
@@ -15,7 +15,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Ambush",
             "Teleport Strike",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             Resource::Stamina,
         )
@@ -33,7 +33,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Assassin's Blade",
             "Assassin's Blade",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             Resource::Magicka,
         )
@@ -48,7 +48,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Concealed Weapon",
             "Veiled Strike",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             Resource::Magicka,
         )
@@ -62,7 +62,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Death Stroke",
             "Death Stroke",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             Resource::Ultimate,
         )
@@ -82,7 +82,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Grim Focus",
             "Grim Focus",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             Resource::Magicka,
         )
@@ -104,7 +104,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Impale",
             "Assassin's Blade",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             Resource::Magicka,
         )
@@ -119,7 +119,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Incapacitating Strike",
             "Death Stroke",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             Resource::Ultimate,
         )
@@ -150,7 +150,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Killer's Blade",
             "Assassin's Blade",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             Resource::Stamina,
         )
@@ -165,7 +165,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Lotus Fan",
             "Teleport Strike",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             Resource::Magicka,
         )
@@ -189,7 +189,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Mark Target",
             "Mark Target",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             Resource::Magicka,
         )
@@ -198,7 +198,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Merciless Resolve",
             "Grim Focus",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             Resource::Magicka,
         )
@@ -220,7 +220,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Piercing Mark",
             "Mark Target",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             Resource::Magicka,
         )
@@ -229,7 +229,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Reaper's Mark",
             "Mark Target",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             Resource::Magicka,
         )
@@ -241,7 +241,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Relentless Focus",
             "Grim Focus",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             Resource::Stamina,
         )
@@ -263,7 +263,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Soul Harvest",
             "Death Stroke",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             Resource::Ultimate,
         )
@@ -283,7 +283,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Surprise Attack",
             "Veiled Strike",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             Resource::Stamina,
         )
@@ -298,7 +298,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Teleport Strike",
             "Teleport Strike",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             Resource::Magicka,
         )
@@ -312,7 +312,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Veiled Strike",
             "Veiled Strike",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Assassination,
             Resource::Magicka,
         )
@@ -326,7 +326,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Aspect of Terror",
             "Aspect of Terror",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             Resource::Magicka,
         )
@@ -334,7 +334,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Blur",
             "Blur",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             Resource::Magicka,
         )
@@ -342,7 +342,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Bolstering Darkness",
             "Consuming Darkness",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             Resource::Ultimate,
         )
@@ -350,7 +350,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Consuming Darkness",
             "Consuming Darkness",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             Resource::Ultimate,
         )
@@ -358,7 +358,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Dark Cloak",
             "Shadow Cloak",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             Resource::Magicka,
         )
@@ -366,7 +366,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Dark Shade",
             "Summon Shade",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             Resource::Magicka,
         )
@@ -379,7 +379,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Manifestation of Terror",
             "Aspect of Terror",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             Resource::Magicka,
         )
@@ -387,7 +387,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Mass Hysteria",
             "Aspect of Terror",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             Resource::Magicka,
         )
@@ -395,7 +395,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Mirage",
             "Blur",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             Resource::Magicka,
         )
@@ -403,7 +403,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Path of Darkness",
             "Path of Darkness",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             Resource::Magicka,
         )
@@ -411,7 +411,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Phantasmal Escape",
             "Blur",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             Resource::Magicka,
         )
@@ -419,7 +419,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Refreshing Path",
             "Path of Darkness",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             Resource::Magicka,
         )
@@ -427,7 +427,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Shadow Cloak",
             "Shadow Cloak",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             Resource::Magicka,
         )
@@ -435,7 +435,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Shadow Image",
             "Summon Shade",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             Resource::Magicka,
         )
@@ -448,7 +448,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Shadowy Disguise",
             "Shadow Cloak",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             Resource::Magicka,
         )
@@ -456,7 +456,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Summon Shade",
             "Summon Shade",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             Resource::Magicka,
         )
@@ -469,7 +469,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Twisting Path",
             "Path of Darkness",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             Resource::Magicka,
         )
@@ -483,7 +483,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Veil of Blades",
             "Consuming Darkness",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Shadow,
             Resource::Ultimate,
         )
@@ -497,7 +497,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Cripple",
             "Cripple",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             Resource::Magicka,
         )
@@ -511,7 +511,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Crippling Grasp",
             "Cripple",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             Resource::Magicka,
         )
@@ -534,7 +534,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Debilitate",
             "Cripple",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             Resource::Magicka,
         )
@@ -548,7 +548,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Drain Power",
             "Drain Power",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             Resource::Magicka,
         )
@@ -565,7 +565,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Funnel Health",
             "Strife",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             Resource::Magicka,
         )
@@ -579,7 +579,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Healthy Offering",
             "Malevolent Offering",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             Resource::Magicka,
         )
@@ -587,7 +587,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Leeching Strikes",
             "Siphoning Strikes",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             Resource::Stamina,
         )
@@ -595,7 +595,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Malevolent Offering",
             "Malevolent Offering",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             Resource::Magicka,
         )
@@ -603,7 +603,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Power Extraction",
             "Drain Power",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             Resource::Stamina,
         )
@@ -620,7 +620,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Sap Essence",
             "Drain Power",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             Resource::Magicka,
         )
@@ -637,7 +637,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Shrewd Offering",
             "Malevolent Offering",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             Resource::Magicka,
         )
@@ -645,7 +645,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Siphoning Attacks",
             "Siphoning Strikes",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             Resource::Stamina,
         )
@@ -653,7 +653,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Siphoning Strikes",
             "Siphoning Strikes",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             Resource::Stamina,
         )
@@ -661,7 +661,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Soul Shred",
             "Soul Shred",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             Resource::Ultimate,
         )
@@ -681,7 +681,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Soul Siphon",
             "Soul Shred",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             Resource::Ultimate,
         )
@@ -694,7 +694,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Soul Tether",
             "Soul Shred",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             Resource::Ultimate,
         )
@@ -724,7 +724,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Strife",
             "Strife",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             Resource::Magicka,
         )
@@ -738,7 +738,7 @@ pub static NIGHTBLADE_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Swallow Soul",
             "Strife",
-            ClassName::Nightblade,
+            SkillTree::Nightblade,
             SkillLineName::Siphoning,
             Resource::Magicka,
         )

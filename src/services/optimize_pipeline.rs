@@ -4,7 +4,7 @@ use crate::data::skill_trees::armor::armor_passives;
 use crate::data::skill_trees::guild::undaunted::undaunted_passives::undaunted_mettle_bonuses;
 use crate::domain::{
     ArmorDistribution, ArmorWeight, BonusData, Build, BuildConfig, BuildMetadata, CharacterStats,
-    ClassName, Potion, SetData, SetProcEffect, SimulationResult, SkillData, WeaponEnchant,
+    SkillTree, Potion, SetData, SetProcEffect, SimulationResult, SkillData, WeaponEnchant,
 };
 use crate::infrastructure::{format, logger};
 use crate::services::{
@@ -73,7 +73,7 @@ impl OptimizePipeline {
                 SetData::parse(name).unwrap_or_else(|e| panic!("Invalid set '{}': {}", name, e))
             })
             .collect();
-        let required_class_names: Vec<ClassName> = options.baseline.classes.clone();
+        let required_class_names: Vec<SkillTree> = options.baseline.classes.clone();
         let required_weapon_skill_lines: Vec<crate::domain::SkillLineName> = {
             let mut lines: Vec<crate::domain::SkillLineName> = [
                 options.baseline.bar1_weapon,

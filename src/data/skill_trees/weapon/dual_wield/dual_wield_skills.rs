@@ -2,7 +2,7 @@
 // Manual overrides (bonuses, execute, etc.) stored in generator script.
 use crate::data::bonuses::unique::{MAJOR_BRUTALITY, MAJOR_SORCERY};
 use crate::domain::{
-    ClassName, DamageFlags, DotDamage, ExecuteScaling, HitDamage, Resource, SkillDamage, SkillData,
+    SkillTree, DamageFlags, DotDamage, ExecuteScaling, HitDamage, Resource, SkillDamage, SkillData,
     SkillLineName,
 };
 use once_cell::sync::Lazy;
@@ -12,7 +12,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Blade Cloak",
             "Blade Cloak",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Stamina,
         )
@@ -26,7 +26,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Blood Craze",
             "Twin Slashes",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Stamina,
         )
@@ -49,7 +49,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Bloodthirst",
             "Flurry",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Stamina,
         )
@@ -63,7 +63,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Deadly Cloak",
             "Blade Cloak",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Stamina,
         )
@@ -77,7 +77,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Flurry",
             "Flurry",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Stamina,
         )
@@ -91,7 +91,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Flying Blade",
             "Hidden Blade",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Stamina,
         )
@@ -115,7 +115,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Hidden Blade",
             "Hidden Blade",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Stamina,
         )
@@ -129,7 +129,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Lacerate",
             "Lacerate",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Ultimate,
         )
@@ -143,7 +143,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Leashing Knife",
             "Leashing Knife",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Magicka,
         )
@@ -151,7 +151,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Magic Knife",
             "Magic Knife",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Magicka,
         )
@@ -159,7 +159,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Quick Cloak",
             "Blade Cloak",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Stamina,
         )
@@ -173,7 +173,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Rapid Strikes",
             "Flurry",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Stamina,
         )
@@ -187,7 +187,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Rend",
             "Lacerate",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Ultimate,
         )
@@ -201,7 +201,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Rending Slashes",
             "Twin Slashes",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Stamina,
         )
@@ -224,7 +224,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Shattering Knife",
             "Shattering Knife",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Magicka,
         )
@@ -232,7 +232,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Shrouded Daggers",
             "Hidden Blade",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Stamina,
         )
@@ -246,7 +246,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Steel Tornado",
             "Whirlwind",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Stamina,
         )
@@ -261,7 +261,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Sundering Knife",
             "Sundering Knife",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Magicka,
         )
@@ -269,7 +269,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Thrive in Chaos",
             "Lacerate",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Ultimate,
         )
@@ -283,7 +283,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Twin Slashes",
             "Twin Slashes",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Stamina,
         )
@@ -306,7 +306,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Whirling Blades",
             "Whirlwind",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Stamina,
         )
@@ -321,7 +321,7 @@ pub static DUAL_WIELD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Whirlwind",
             "Whirlwind",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::DualWield,
             Resource::Stamina,
         )

@@ -4,7 +4,7 @@ use crate::domain::{
     BonusData, BonusTrigger, Build, CharacterStats, DamageFlags, ResolvedBonus, SkillData,
     BUILD_CONSTRAINTS,
 };
-use crate::domain::{ClassName, ResolveContext, SkillLineName};
+use crate::domain::{ResolveContext, SkillLineName, SkillTree};
 use crate::infrastructure::{combinatorics, format, logger, table};
 use crate::services::passives_service::{PassivesFilter, PassivesServiceOptions};
 use crate::services::skills_service::{MorphSelectionOptions, SkillsFilter, SkillsServiceOptions};
@@ -21,7 +21,7 @@ pub struct BuildOptimizerOptions {
     pub character_stats: CharacterStats,
     pub verbose: bool,
     pub pure: bool,
-    pub required_class_names: Vec<ClassName>,
+    pub required_class_names: Vec<SkillTree>,
     pub required_weapon_skill_lines: Vec<SkillLineName>,
     pub required_champion_points: Vec<BonusData>,
     pub required_skills: Vec<&'static SkillData>,
@@ -41,8 +41,8 @@ type PreSplitBonuses = (Vec<ResolvedBonus>, Vec<BonusData>, Vec<BonusData>);
 
 pub struct BuildOptimizer {
     character_stats: CharacterStats,
-    required_class_names: Vec<ClassName>,
-    class_names: HashSet<ClassName>,
+    required_class_names: Vec<SkillTree>,
+    class_names: HashSet<SkillTree>,
     required_weapon_skill_lines: Vec<SkillLineName>,
     weapon_skill_line_names: HashSet<SkillLineName>,
     required_champion_points: Vec<BonusData>,
@@ -447,12 +447,12 @@ impl BuildOptimizer {
 
     fn generate_class_skill_line_combinations(
         pure: bool,
-        required_class_names: &[ClassName],
+        required_class_names: &[SkillTree],
         verbose: bool,
-    ) -> (HashSet<ClassName>, Vec<Vec<SkillLineName>>) {
-        let mut class_names: HashSet<ClassName> = HashSet::new();
+    ) -> (HashSet<SkillTree>, Vec<Vec<SkillLineName>>) {
+        let mut class_names: HashSet<SkillTree> = HashSet::new();
 
-        let class_name_combinations: Vec<Vec<ClassName>> = if pure {
+        let class_name_combinations: Vec<Vec<SkillTree>> = if pure {
             // Pure mode: only use the classes specified by --class
             for &c in required_class_names {
                 class_names.insert(c);
@@ -468,7 +468,7 @@ impl BuildOptimizer {
                 vec![required_class_names.to_vec()]
             }
         } else {
-            let free_pool: Vec<_> = ClassName::CLASS_ONLY
+            let free_pool: Vec<_> = SkillTree::CLASS_ONLY
                 .iter()
                 .filter(|c| !required_class_names.contains(c))
                 .copied()

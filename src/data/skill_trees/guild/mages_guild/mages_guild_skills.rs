@@ -4,7 +4,7 @@ use crate::data::bonuses::unique::{
     MAJOR_BRUTALITY, MAJOR_PROPHECY, MAJOR_SAVAGERY, MAJOR_SORCERY,
 };
 use crate::domain::{
-    BonusTrigger, ClassName, DamageFlags, DotDamage, HitDamage, Resource, SkillDamage, SkillData,
+    BonusTrigger, SkillTree, DamageFlags, DotDamage, HitDamage, Resource, SkillDamage, SkillData,
     SkillLineName,
 };
 use once_cell::sync::Lazy;
@@ -14,7 +14,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Balance",
             "Balance",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             Resource::Stamina,
         )
@@ -22,7 +22,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Degeneration",
             "Entropy",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             Resource::Magicka,
         )
@@ -37,7 +37,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Entropy",
             "Entropy",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             Resource::Magicka,
         )
@@ -51,7 +51,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Equilibrium",
             "Equilibrium",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             Resource::Stamina,
         )
@@ -59,7 +59,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Fire Rune",
             "Fire Rune",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             Resource::Magicka,
         )
@@ -72,7 +72,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Healing Contingency",
             "Healing Contingency",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             Resource::Magicka,
         )
@@ -80,7 +80,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Ice Comet",
             "Meteor",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             Resource::Ultimate,
         )
@@ -103,7 +103,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Inner Light",
             "Magelight",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             Resource::Magicka,
         )
@@ -119,7 +119,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Magelight",
             "Magelight",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             Resource::Magicka,
         )
@@ -135,7 +135,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Meteor",
             "Meteor",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             Resource::Ultimate,
         )
@@ -158,7 +158,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Radiant Magelight",
             "Magelight",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             Resource::Magicka,
         )
@@ -174,7 +174,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Scalding Rune",
             "Fire Rune",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             Resource::Magicka,
         )
@@ -197,7 +197,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Shooting Star",
             "Meteor",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             Resource::Ultimate,
         )
@@ -220,7 +220,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Spell Symmetry",
             "Spell Symmetry",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             Resource::Stamina,
         )
@@ -228,7 +228,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Structured Entropy",
             "Entropy",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             Resource::Magicka,
         )
@@ -242,7 +242,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Ulfsild's Contingency",
             "Ulfsild's Contingency",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             Resource::Magicka,
         )
@@ -250,7 +250,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Ulfsild's Contingency",
             "Ulfsild's Contingency",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             Resource::Magicka,
         )
@@ -258,7 +258,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Ulfsild's Contingency",
             "Ulfsild's Contingency",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             Resource::Magicka,
         )
@@ -266,7 +266,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Ulfsild's Contingency",
             "Ulfsild's Contingency",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             Resource::Magicka,
         )
@@ -274,7 +274,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Ulfsild's Contingency",
             "Ulfsild's Contingency",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             Resource::Magicka,
         )
@@ -282,7 +282,7 @@ pub static MAGES_GUILD_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Volcanic Rune",
             "Fire Rune",
-            ClassName::Guild,
+            SkillTree::Guild,
             SkillLineName::MagesGuild,
             Resource::Magicka,
         )

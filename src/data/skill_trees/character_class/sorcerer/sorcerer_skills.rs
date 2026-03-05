@@ -2,7 +2,7 @@
 // Manual overrides (bonuses, execute, etc.) stored in generator script.
 use crate::data::bonuses::{MAJOR_BRUTALITY, MAJOR_PROPHECY, MAJOR_SAVAGERY, MAJOR_SORCERY};
 use crate::domain::{
-    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, ClassName, DamageFlags,
+    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, SkillTree, DamageFlags,
     DotDamage, HitDamage, Resource, SkillDamage, SkillData, SkillLineName,
 };
 use once_cell::sync::Lazy;
@@ -12,7 +12,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Bound Aegis",
             "Bound Armor",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
         )
@@ -20,7 +20,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Bound Armaments",
             "Bound Armor",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Stamina,
         )
@@ -46,7 +46,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Bound Armor",
             "Bound Armor",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
         )
@@ -54,7 +54,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Conjured Ward",
             "Conjured Ward",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
         )
@@ -62,7 +62,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Daedric Curse",
             "Daedric Curse",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
         )
@@ -73,7 +73,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Daedric Prey",
             "Daedric Curse",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
         )
@@ -84,7 +84,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Greater Storm Atronach",
             "Summon Storm Atronach",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Ultimate,
         )
@@ -107,7 +107,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Hardened Ward",
             "Conjured Ward",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
         )
@@ -115,7 +115,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Haunting Curse",
             "Daedric Curse",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
         )
@@ -127,7 +127,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Regenerative Ward",
             "Conjured Ward",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
         )
@@ -135,7 +135,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Summon Charged Atronach",
             "Summon Storm Atronach",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Ultimate,
         )
@@ -155,7 +155,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Summon Storm Atronach",
             "Summon Storm Atronach",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Ultimate,
         )
@@ -178,7 +178,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Summon Twilight Matriarch",
             "Summon Winged Twilight",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
         )
@@ -198,7 +198,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Summon Twilight Tormentor",
             "Summon Winged Twilight",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
         )
@@ -218,7 +218,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Summon Unstable Clannfear",
             "Summon Unstable Familiar",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
         )
@@ -238,7 +238,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Summon Unstable Familiar",
             "Summon Unstable Familiar",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
         )
@@ -261,7 +261,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Summon Volatile Familiar",
             "Summon Unstable Familiar",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
         )
@@ -284,7 +284,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Summon Winged Twilight",
             "Summon Winged Twilight",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             Resource::Magicka,
         )
@@ -304,7 +304,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Absorption Field",
             "Negate Magic",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Ultimate,
         )
@@ -312,7 +312,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Crystal Fragments",
             "Crystal Shard",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Magicka,
         )
@@ -333,7 +333,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Crystal Shard",
             "Crystal Shard",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Magicka,
         )
@@ -347,7 +347,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Crystal Weapon",
             "Crystal Shard",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Stamina,
         )
@@ -379,7 +379,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Daedric Mines",
             "Daedric Mines",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Magicka,
         )
@@ -390,7 +390,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Daedric Refuge",
             "Daedric Mines",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Magicka,
         )
@@ -398,7 +398,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Daedric Tomb",
             "Daedric Mines",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Magicka,
         )
@@ -409,7 +409,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Dark Conversion",
             "Dark Exchange",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Stamina,
         )
@@ -417,7 +417,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Dark Deal",
             "Dark Exchange",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Magicka,
         )
@@ -425,7 +425,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Dark Exchange",
             "Dark Exchange",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Stamina,
         )
@@ -433,7 +433,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Defensive Rune",
             "Rune Prison",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Magicka,
         )
@@ -441,7 +441,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Encase",
             "Encase",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Magicka,
         )
@@ -449,7 +449,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Negate Magic",
             "Negate Magic",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Ultimate,
         )
@@ -457,7 +457,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Rune Cage",
             "Rune Prison",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Magicka,
         )
@@ -468,7 +468,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Rune Prison",
             "Rune Prison",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Magicka,
         )
@@ -476,7 +476,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Shattering Spines",
             "Encase",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Magicka,
         )
@@ -487,7 +487,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Suppression Field",
             "Negate Magic",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Ultimate,
         )
@@ -501,7 +501,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Vibrant Shroud",
             "Encase",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             Resource::Magicka,
         )
@@ -509,7 +509,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Ball of Lightning",
             "Bolt Escape",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
@@ -517,7 +517,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Bolt Escape",
             "Bolt Escape",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
@@ -525,7 +525,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Boundless Storm",
             "Lightning Form",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
@@ -539,7 +539,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Critical Surge",
             "Surge",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
@@ -548,7 +548,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Endless Fury",
             "Mages' Fury",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
@@ -562,7 +562,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Energy Overload",
             "Overload",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             Resource::Ultimate,
         )
@@ -578,7 +578,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Hurricane",
             "Lightning Form",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             Resource::Stamina,
         )
@@ -594,7 +594,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Lightning Flood",
             "Lightning Splash",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
@@ -617,7 +617,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Lightning Form",
             "Lightning Form",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
@@ -631,7 +631,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Lightning Splash",
             "Lightning Splash",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
@@ -654,7 +654,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Liquid Lightning",
             "Lightning Splash",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
@@ -677,7 +677,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Mages' Fury",
             "Mages' Fury",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
@@ -690,7 +690,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Mages' Wrath",
             "Mages' Fury",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
@@ -704,7 +704,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Overload",
             "Overload",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             Resource::Ultimate,
         )
@@ -716,7 +716,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Power Overload",
             "Overload",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             Resource::Ultimate,
         )
@@ -732,7 +732,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Power Surge",
             "Surge",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
@@ -741,7 +741,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Streak",
             "Bolt Escape",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             Resource::Magicka,
         )
@@ -754,7 +754,7 @@ pub static SORCERER_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Surge",
             "Surge",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             Resource::Magicka,
         )

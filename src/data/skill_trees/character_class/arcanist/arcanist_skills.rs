@@ -2,7 +2,7 @@
 // Manual overrides (bonuses, execute, etc.) stored in generator script.
 use crate::data::bonuses::{MAJOR_BRUTALITY, MAJOR_PROPHECY, MAJOR_SAVAGERY, MAJOR_SORCERY};
 use crate::domain::{
-    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, ClassName, DamageFlags,
+    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, SkillTree, DamageFlags,
     DotDamage, HitDamage, Resource, SkillDamage, SkillData, SkillLineName,
 };
 use once_cell::sync::Lazy;
@@ -12,7 +12,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Arcanist's Domain",
             "Arcanist's Domain",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
         )
@@ -20,7 +20,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Audacious Runemend",
             "Runemend",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
         )
@@ -28,7 +28,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Cascading Fortune",
             "Remedy Cascade",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
         )
@@ -37,7 +37,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Chakram Shields",
             "Chakram Shields",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
         )
@@ -45,7 +45,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Chakram of Destiny",
             "Chakram Shields",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
         )
@@ -53,7 +53,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Curative Surge",
             "Remedy Cascade",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
         )
@@ -62,7 +62,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Evolving Runemend",
             "Runemend",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
         )
@@ -70,7 +70,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Fleet-Footed Gate",
             "Apocryphal Gate",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
         )
@@ -78,7 +78,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Glyphic of the Tides",
             "Vitalizing Glyphic",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Ultimate,
         )
@@ -86,7 +86,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Reconstructive Domain",
             "Arcanist's Domain",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
         )
@@ -94,7 +94,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Remedy Cascade",
             "Remedy Cascade",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
         )
@@ -103,7 +103,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Resonating Glyphic",
             "Vitalizing Glyphic",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Ultimate,
         )
@@ -116,7 +116,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Runemend",
             "Runemend",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
         )
@@ -124,7 +124,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Tidal Chakram",
             "Chakram Shields",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
         )
@@ -132,7 +132,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Vitalizing Glyphic",
             "Vitalizing Glyphic",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Ultimate,
         )
@@ -140,7 +140,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Zenas' Empowering Disc",
             "Arcanist's Domain",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::CurativeRuneforms,
             Resource::Magicka,
         )
@@ -148,7 +148,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Abyssal Impact",
             "Abyssal Impact",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::HeraldOfTheTome,
             Resource::Stamina,
         )
@@ -169,7 +169,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Cephaliarch's Flail",
             "Abyssal Impact",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::HeraldOfTheTome,
             Resource::Stamina,
         )
@@ -190,7 +190,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Escalating Runeblades",
             "Runeblades",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
@@ -216,7 +216,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Exhausting Fatecarver",
             "Fatecarver",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
@@ -230,7 +230,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Fatecarver",
             "Fatecarver",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
@@ -244,7 +244,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Fulminating Rune",
             "The Imperfect Ring",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::HeraldOfTheTome,
             Resource::Stamina,
         )
@@ -255,7 +255,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Inspired Scholarship",
             "Tome-Bearer's Inspiration",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
@@ -269,7 +269,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Pragmatic Fatecarver",
             "Fatecarver",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
@@ -283,7 +283,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Recuperative Treatise",
             "Tome-Bearer's Inspiration",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
@@ -297,7 +297,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Rune of Displacement",
             "The Imperfect Ring",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::HeraldOfTheTome,
             Resource::Stamina,
         )
@@ -320,7 +320,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Runeblades",
             "Runeblades",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
@@ -334,7 +334,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Tentacular Dread",
             "Abyssal Impact",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
@@ -355,7 +355,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "The Imperfect Ring",
             "The Imperfect Ring",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::HeraldOfTheTome,
             Resource::Stamina,
         )
@@ -378,7 +378,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "The Languid Eye",
             "The Unblinking Eye",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::HeraldOfTheTome,
             Resource::Ultimate,
         )
@@ -394,7 +394,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "The Tide King's Gaze",
             "The Unblinking Eye",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::HeraldOfTheTome,
             Resource::Ultimate,
         )
@@ -408,7 +408,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "The Unblinking Eye",
             "The Unblinking Eye",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::HeraldOfTheTome,
             Resource::Ultimate,
         )
@@ -422,7 +422,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Tome-Bearer's Inspiration",
             "Tome-Bearer's Inspiration",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
@@ -436,7 +436,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Writhing Runeblades",
             "Runeblades",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::HeraldOfTheTome,
             Resource::Magicka,
         )
@@ -450,7 +450,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Cruxweaver Armor",
             "Fatewoven Armor",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
         )
@@ -466,7 +466,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Fatewoven Armor",
             "Fatewoven Armor",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
         )
@@ -482,7 +482,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Gibbering Shelter",
             "Gibbering Shield",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Ultimate,
         )
@@ -490,7 +490,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Gibbering Shield",
             "Gibbering Shield",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Ultimate,
         )
@@ -498,7 +498,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Impervious Runeward",
             "Runespite Ward",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
         )
@@ -506,7 +506,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Rune of Eldritch Horror",
             "Rune of Eldritch Horror",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
         )
@@ -514,7 +514,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Rune of Uncanny Adoration",
             "Rune of Eldritch Horror",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
         )
@@ -522,7 +522,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Rune of the Colorless Pool",
             "Rune of Eldritch Horror",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
         )
@@ -530,7 +530,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Runeguard of Freedom",
             "Runic Defense",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
         )
@@ -538,7 +538,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Runeguard of Still Waters",
             "Runic Defense",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
         )
@@ -546,7 +546,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Runespite Ward",
             "Runespite Ward",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
         )
@@ -554,7 +554,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Runic Defense",
             "Runic Defense",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
         )
@@ -562,7 +562,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Runic Embrace",
             "Runic Jolt",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
         )
@@ -576,7 +576,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Runic Jolt",
             "Runic Jolt",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
         )
@@ -590,7 +590,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Runic Sunder",
             "Runic Jolt",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Stamina,
         )
@@ -615,7 +615,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Sanctum of the Abyssal Sea",
             "Gibbering Shield",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Ultimate,
         )
@@ -623,7 +623,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Spiteward of the Lucid Mind",
             "Runespite Ward",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
         )
@@ -631,7 +631,7 @@ pub static ARCANIST_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Unbreakable Fate",
             "Fatewoven Armor",
-            ClassName::Arcanist,
+            SkillTree::Arcanist,
             SkillLineName::SoldierOfApocrypha,
             Resource::Magicka,
         )

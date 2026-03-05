@@ -2,7 +2,7 @@
 // Manual overrides (bonuses, execute, etc.) stored in generator script.
 use crate::data::bonuses::unique::{EMPOWER, MAJOR_BERSERK, MAJOR_BRUTALITY, MAJOR_SORCERY};
 use crate::domain::{
-    ClassName, DamageFlags, DotDamage, ExecuteScaling, HitDamage, Resource, SkillDamage, SkillData,
+    SkillTree, DamageFlags, DotDamage, ExecuteScaling, HitDamage, Resource, SkillDamage, SkillData,
     SkillLineName,
 };
 use once_cell::sync::Lazy;
@@ -12,7 +12,7 @@ pub static TWO_HANDED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Berserker Rage",
             "Berserker Strike",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::TwoHanded,
             Resource::Ultimate,
         )
@@ -25,7 +25,7 @@ pub static TWO_HANDED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Berserker Strike",
             "Berserker Strike",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::TwoHanded,
             Resource::Ultimate,
         )
@@ -38,7 +38,7 @@ pub static TWO_HANDED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Brawler",
             "Cleave",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::TwoHanded,
             Resource::Stamina,
         )
@@ -51,7 +51,7 @@ pub static TWO_HANDED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Carve",
             "Cleave",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::TwoHanded,
             Resource::Stamina,
         )
@@ -74,7 +74,7 @@ pub static TWO_HANDED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Cleave",
             "Cleave",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::TwoHanded,
             Resource::Stamina,
         )
@@ -87,7 +87,7 @@ pub static TWO_HANDED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Critical Charge",
             "Critical Charge",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::TwoHanded,
             Resource::Stamina,
         )
@@ -100,7 +100,7 @@ pub static TWO_HANDED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Critical Rush",
             "Critical Charge",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::TwoHanded,
             Resource::Stamina,
         )
@@ -113,7 +113,7 @@ pub static TWO_HANDED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Dizzying Swing",
             "Uppercut",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::TwoHanded,
             Resource::Stamina,
         )
@@ -127,7 +127,7 @@ pub static TWO_HANDED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Executioner",
             "Reverse Slash",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::TwoHanded,
             Resource::Stamina,
         )
@@ -142,7 +142,7 @@ pub static TWO_HANDED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Forward Momentum",
             "Momentum",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::TwoHanded,
             Resource::Stamina,
         )
@@ -154,7 +154,7 @@ pub static TWO_HANDED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Immobilizing Smash",
             "Immobilizing Smash",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::TwoHanded,
             Resource::Magicka,
         )
@@ -162,7 +162,7 @@ pub static TWO_HANDED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Momentum",
             "Momentum",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::TwoHanded,
             Resource::Stamina,
         )
@@ -171,7 +171,7 @@ pub static TWO_HANDED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Onslaught",
             "Berserker Strike",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::TwoHanded,
             Resource::Ultimate,
         )
@@ -184,7 +184,7 @@ pub static TWO_HANDED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Rally",
             "Momentum",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::TwoHanded,
             Resource::Stamina,
         )
@@ -193,7 +193,7 @@ pub static TWO_HANDED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Reverse Slash",
             "Reverse Slash",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::TwoHanded,
             Resource::Stamina,
         )
@@ -208,7 +208,7 @@ pub static TWO_HANDED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Reverse Slice",
             "Reverse Slash",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::TwoHanded,
             Resource::Stamina,
         )
@@ -223,7 +223,7 @@ pub static TWO_HANDED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Stampede",
             "Critical Charge",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::TwoHanded,
             Resource::Stamina,
         )
@@ -246,7 +246,7 @@ pub static TWO_HANDED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Uppercut",
             "Uppercut",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::TwoHanded,
             Resource::Stamina,
         )
@@ -260,7 +260,7 @@ pub static TWO_HANDED_SKILLS: Lazy<Vec<SkillData>> = Lazy::new(|| {
         SkillData::new(
             "Wrecking Blow",
             "Uppercut",
-            ClassName::Weapon,
+            SkillTree::Weapon,
             SkillLineName::TwoHanded,
             Resource::Stamina,
         )

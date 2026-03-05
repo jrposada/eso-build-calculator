@@ -2,7 +2,7 @@
 // Manual overrides (bonuses) stored in generator script.
 use crate::data::bonuses::MINOR_PROPHECY;
 use crate::domain::{
-    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, ClassName, PassiveData,
+    BonusData, BonusSource, BonusTarget, BonusTrigger, BonusValue, SkillTree, PassiveData,
     SkillLineName,
 };
 use once_cell::sync::Lazy;
@@ -11,14 +11,14 @@ pub static SORCERER_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
     vec![
         PassiveData::new(
             "Blood Magic",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             vec![], // TODO: To complex, increase max resources with conditions,
         )
         .with_skill_id(45172),
         PassiveData::new(
             "Exploitation",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             vec![MINOR_PROPHECY
                 .clone()
@@ -27,28 +27,28 @@ pub static SORCERER_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
         .with_skill_id(45181),
         PassiveData::new(
             "Persistence",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             vec![],
         )
         .with_skill_id(45165),
         PassiveData::new(
             "Unholy Knowledge",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DarkMagic,
             vec![],
         )
         .with_skill_id(45176),
         PassiveData::new(
             "Daedric Protection",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             vec![],
         )
         .with_skill_id(45200),
         PassiveData::new(
             "Expert Summoner",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             vec![
                 BonusData::new(
@@ -68,34 +68,34 @@ pub static SORCERER_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
         .with_skill_id(45199),
         PassiveData::new(
             "Power Stone",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             vec![],
         )
         .with_skill_id(45196),
         PassiveData::new(
             "Rebate",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::DaedricSummoning,
             vec![], // TODO: to complex, restore resources on non ultimate end,
         )
         .with_skill_id(45198),
         PassiveData::new(
             "Amplitude",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             vec![], // TODO: To complex, increase damage base on current health,
         ),
         PassiveData::new(
             "Capacitor",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             vec![],
         )
         .with_skill_id(45188),
         PassiveData::new(
             "Energized",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             vec![
                 BonusData::new(
@@ -115,7 +115,7 @@ pub static SORCERER_PASSIVES: Lazy<Vec<PassiveData>> = Lazy::new(|| {
         .with_skill_id(45190),
         PassiveData::new(
             "Expert Mage",
-            ClassName::Sorcerer,
+            SkillTree::Sorcerer,
             SkillLineName::StormCalling,
             vec![BonusData::new(
                 "Expert Mage",
