@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use eso_build_calculator::cli::{OptimizeArgs, SimulateArgs};
+use eso_build_calculator::cli::{BreakpointsArgs, OptimizeArgs, SimulateArgs};
 
 #[derive(Parser)]
 #[command(name = "eso-build-calculator")]
@@ -17,6 +17,8 @@ enum Commands {
     Simulate(SimulateArgs),
     /// Find the optimal build to maximize total damage per cast
     Optimize(OptimizeArgs),
+    /// Show stat breakpoints: how much of one stat before another becomes the better investment
+    Breakpoints(BreakpointsArgs),
 }
 
 fn main() {
@@ -25,5 +27,6 @@ fn main() {
     match cli.command {
         Commands::Simulate(args) => args.run(),
         Commands::Optimize(args) => args.run(),
+        Commands::Breakpoints(args) => args.run(),
     }
 }
