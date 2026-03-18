@@ -67,7 +67,7 @@ impl BreakpointStat {
     }
 
     /// Apply a delta of this stat to a copy of CharacterStats.
-    fn apply_delta(&self, stats: &CharacterStats, delta: f64) -> CharacterStats {
+    pub(crate) fn apply_delta(&self, stats: &CharacterStats, delta: f64) -> CharacterStats {
         let mut s = stats.clone();
         match self {
             BreakpointStat::WeaponSpellDamage => {
@@ -187,9 +187,69 @@ fn find_crossover(
     Some(hi)
 }
 
+pub struct InvestmentStep {
+    pub stat: BreakpointStat,
+    pub amount: f64,
+}
+
 pub struct BreakpointsPipeline;
 
 impl BreakpointsPipeline {
+    /// Rank all stats by their current effective damage contribution, descending.
+    pub fn current_edc_ranking(stats: &CharacterStats) -> Vec<(BreakpointStat, f64)> {
+        let mut ranked: Vec<(BreakpointStat, f64)> = BreakpointStat::ALL
+            .iter()
+            .map(|&stat| {
+                let edc = effective_damage_contribution(stat.bonus_target(stats), stat.unit(), stats);
+                (stat, edc)
+            })
+            .collect();
+        ranked.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+        ranked
+    }
+
+    /// Return the sequence of investment steps that maximises DPS in order.
+    pub fn investment_sequence(stats: &CharacterStats) -> Vec<InvestmentStep> {
+        let mut current = stats.clone();
+        let mut sequence = Vec::new();
+        const MAX_ITERATIONS: usize = 15;
+
+        for _ in 0..MAX_ITERATIONS {
+            let ranked = Self::current_edc_ranking(&current);
+            let best = ranked[0].0;
+
+            let max_delta = best.max_delta(&current);
+            if max_delta <= 0.0 {
+                break;
+            }
+
+            // Find the minimum crossover among all other stats
+            let step_epsilon = match best {
+                BreakpointStat::CritDamage => 0.001,
+                _ => 1.0,
+            };
+            let min_step = ranked[1..]
+                .iter()
+                .filter_map(|(other, _)| find_crossover(&current, best, *other, max_delta))
+                .filter(|&v| v > step_epsilon)
+                .reduce(f64::min);
+
+            match min_step {
+                None => {
+                    // best always dominates up to cap
+                    sequence.push(InvestmentStep { stat: best, amount: max_delta });
+                    break;
+                }
+                Some(step) => {
+                    sequence.push(InvestmentStep { stat: best, amount: step });
+                    current = best.apply_delta(&current, step);
+                }
+            }
+        }
+
+        sequence
+    }
+
     pub fn run(stats: &CharacterStats) -> BreakpointGrid {
         let stats_list = BreakpointStat::ALL;
         let n = stats_list.len();

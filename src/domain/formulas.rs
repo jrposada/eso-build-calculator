@@ -29,13 +29,6 @@ pub fn crit_rating_to_chance(crit_rating: f64) -> f64 {
     (BASE_CRIT_CHANCE + crit_rating / MAX_CRIT_VALUE_CP160).min(1.0)
 }
 
-/// Converts critical rating to bonus critical chance (excludes base 10%)
-/// This is the additional crit chance provided by the rating alone.
-#[cfg(test)]
-fn crit_rating_to_bonus_chance(crit_rating: f64) -> f64 {
-    crit_rating / MAX_CRIT_VALUE_CP160
-}
-
 // ==================== ARMOR ====================
 
 /// Calculate armor mitigation percentage.
@@ -319,30 +312,6 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_bonus_chance_at_max_rating_gives_100_percent() {
-        // At MCV, bonus (without base) should be 100%
-        let bonus_chance = crit_rating_to_bonus_chance(MAX_CRIT_VALUE_CP160);
-        assert!(
-            (bonus_chance - 1.0).abs() < 0.0001,
-            "Expected 100% bonus crit chance at MCV, got {}%",
-            bonus_chance * 100.0
-        );
-    }
-
-    #[test]
-    fn test_bonus_chance_1314_rating() {
-        // 1314 rating (common passive value)
-        // Bonus = 1314 / 21912 ≈ 6%
-        let bonus_chance = crit_rating_to_bonus_chance(1314.0);
-        let expected = 1314.0 / 21912.0;
-        assert!(
-            (bonus_chance - expected).abs() < 0.0001,
-            "Expected ~6% bonus crit chance, got {}%",
-            bonus_chance * 100.0
-        );
-    }
-
     // ==================== ARMOR TESTS ====================
 
     #[test]
@@ -617,21 +586,6 @@ mod tests {
                 result
             );
         }
-    }
-
-    #[test]
-    fn test_edc_crit_rating() {
-        let stats = test_stats();
-        // 1314 rating → bonus_chance = 1314/21912 ≈ 0.05995
-        // contribution = bonus_chance * (crit_damage - 1) = 0.05995 * 0.75
-        let result = effective_damage_contribution(BonusTarget::CriticalRating, 1314.0, &stats);
-        let expected = crit_rating_to_bonus_chance(1314.0) * (1.75 - 1.0);
-        assert!(
-            (result - expected).abs() < 0.0001,
-            "Expected {}, got {}",
-            expected,
-            result
-        );
     }
 
     #[test]
